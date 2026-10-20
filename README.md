@@ -2,8 +2,9 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: build bootstrap.** The pinned Lake package, native smoke executable
-and proof-aware checks are available. Compiler passes are not implemented.
+**Status: build and oracle bootstrap.** The pinned Lake package, native smoke
+executable, proof-aware checks and [comparison tools](docs/oracles.md) are available.
+Compiler passes are not implemented.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 
@@ -26,11 +27,13 @@ records the exact boundaries; full Haskell compatibility is not promised.
 
 ## Build and check
 
-Install Lean through Elan, Python 3.11+, Git, Bash and a C toolchain. The repository
+Install Lean through Elan, Python 3.11+, Git, Bash, Java 17, GMP headers and a C toolchain. The repository
 selects Lean 4.35.0. Prepare pinned dependencies once, then run all gates:
 
 ```sh
 bash scripts/prepare_dependencies.sh
+python3 scripts/oracles/oracle.py prepare /tmp/clafer-oracle-tools-UNIQUE
+export CLAFER_ORACLE_TOOLS=/tmp/clafer-oracle-tools-UNIQUE/tools.json
 bash scripts/check.sh
 .lake/build/bin/clafer-compiler --version
 ```

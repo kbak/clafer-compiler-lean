@@ -3,7 +3,7 @@
 This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
 under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
 Structural-only development and the upstream typed-core M2 scope are selected.
-Issue #2 was closed by merged PR #22; build task #5 is selected. Later tasks
+Issue #2 was closed by merged PR #22 and #5 by merged PR #23; oracle task #6 is selected. Later tasks
 require their own manual intake. These are delivery specifications, not
 implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
@@ -419,6 +419,6 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. Keep #5 In Progress until its acceptance and review gates
+approve future changes. Keep #6 In Progress until its acceptance and review gates
 are met. No unresolved research tag, publication step or blanket Haskell-parity
 promise blocks this plan.

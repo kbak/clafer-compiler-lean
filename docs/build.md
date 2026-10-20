@@ -12,7 +12,7 @@ The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 `1454e3bd2ce9697923cdcef3863c816651ffc147` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
-building its comparison profile belongs to #6, and it is not a native dependency.
+its [comparison profile](oracles.md) belongs to #6, and it is not a native dependency.
 
 | Root | Role and owner | Allowed project dependencies |
 | --- | --- | --- |

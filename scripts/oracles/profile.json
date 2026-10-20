@@ -1,0 +1,31 @@
+{
+  "schema": "clafer-oracle-profile/1",
+  "semantics_commit": "1454e3bd2ce9697923cdcef3863c816651ffc147",
+  "haskell_commit": "15adb2216909421bcb5022174d2d84ef2b42307c",
+  "haskell_version": "0.5.3",
+  "stack": "3.11.1",
+  "ghc": "9.6.7",
+  "resolver": "lts-22.44",
+  "alloy_version": "6.2.0",
+  "alloy_commit": "794226dd07b536fe35c5ca44b529417183cd629b",
+  "alloy_jar_sha256": "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d",
+  "java_major": 17,
+  "solver": "sat4j",
+  "bitwidth_range": [1, 16],
+  "comparison": {"bitwidth": 8, "overall": 5, "timeout": 30, "heap_mb": 512},
+  "options": {
+    "symmetry": 0,
+    "skolemDepth": 0,
+    "inferPartialInstance": false,
+    "noOverflow": true,
+    "unrolls": -1,
+    "coreMinimization": 2,
+    "coreGranularity": 0,
+    "recordKodkod": false,
+    "decompose_mode": 0,
+    "decompose_threads": 1,
+    "originalFilename": "comparison.als",
+    "tempDirectory": ".",
+    "solverDirectory": ""
+  }
+}

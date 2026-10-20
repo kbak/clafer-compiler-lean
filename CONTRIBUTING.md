@@ -5,7 +5,7 @@ Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
 The repository is private. Structural Clafer-to-Alloy development is the selected
 direction; contract review and explicit manual intake of each task precede
 implementation. A Todo ticket or this documentation does not start compiler work.
-The current checkout has a pinned Lean/Lake build and native bootstrap; it has
+The current checkout has a pinned Lean/Lake build, native bootstrap and external oracle tools; it has
 no compiler passes. See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
@@ -30,10 +30,13 @@ Python 3.11+, Git, Bash, Java 17+, Elan and a C toolchain are required.
 
 ```sh
 bash scripts/prepare_dependencies.sh
+python3 scripts/oracles/oracle.py prepare /tmp/clafer-oracle-tools-UNIQUE
+export CLAFER_ORACLE_TOOLS=/tmp/clafer-oracle-tools-UNIQUE/tools.json
 ```
 
-This fetches source and an optional Mathlib cache, then builds the upstream
-dependency. Cache download failure falls back to source compilation. Missing
+This fetches source and an optional Mathlib cache, builds the upstream dependency,
+then provisions the [comparison tools](docs/oracles.md), requiring GMP headers
+(`libgmp-dev` on Ubuntu). Cache download failure falls back to source compilation. Missing
 tools or failed builds are failures, never skipped gates.
 Install the pinned checker in an environment outside the source tree:
 
@@ -60,8 +63,10 @@ an explicitly supplied scope. Exit 4 means automated checks passed with semantic
 review pending. It does not approve a change. Preserve the original baseline for
 `ib verify` after committing; retain evidence and unresolved review items.
 
+Set `CLAFER_ORACLE_EVIDENCE` to an external directory to retain oracle runs
+(otherwise each run creates a fresh directory under the system temporary directory).
 The shared check validates syntax/links, inventories all Lean modules, builds
-libraries/tests/native code, audits project declarations and their transitive
+libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. It rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 

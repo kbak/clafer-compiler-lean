@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   build:
-    name: Lean, native smoke and IntentBond
+    name: Lean, native, comparison oracles and IntentBond
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -40,6 +40,13 @@ jobs:
         run: |
           bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
           echo "CLAFER_COMPILER_PACKAGES=$GITHUB_WORKSPACE/.lake/packages" >> "$GITHUB_ENV"
+      - name: Prepare pinned comparison tools and retain license inventory
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgmp-dev
+          python3 scripts/oracles/oracle.py prepare "$RUNNER_TEMP/oracle-tools" 2>&1 | tee "$RUNNER_TEMP/oracle-setup.log"
+          echo "CLAFER_ORACLE_TOOLS=$RUNNER_TEMP/oracle-tools/tools.json" >> "$GITHUB_ENV"
+          echo "CLAFER_ORACLE_EVIDENCE=$RUNNER_TEMP/oracle-evidence" >> "$GITHUB_ENV"
       - name: Check build, proofs, native behavior and traceability
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}
@@ -80,4 +87,7 @@ jobs:
             ${{ runner.temp }}/intentbond-evidence/
             ${{ runner.temp }}/trusted-scope.json
             ${{ runner.temp }}/dependency-setup.log
+            ${{ runner.temp }}/oracle-setup.log
+            ${{ runner.temp }}/oracle-tools/
+            ${{ runner.temp }}/oracle-evidence/
           retention-days: 30
