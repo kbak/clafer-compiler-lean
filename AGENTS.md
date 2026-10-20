@@ -1,9 +1,15 @@
 # Working on Clafer Compiler Lean
 
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
+[architecture](docs/architecture.md), [sources](docs/sources.md),
 [contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
-This is a private scaffold. Do not implement compiler features, select architecture,
-add a Lean toolchain, or make the repository public without the maintainer's decision.
+This is a private scaffold with a selected structural Clafer-to-Alloy direction.
+Follow the contract's review status and manual intake gates. Do not implement
+compiler features or add a Lean toolchain until the owning task is selected and
+its dependencies are accepted. Behavior and publication remain outside this work.
+Keep imports one-way from compiler to semantics; use both pinned semantics and
+Haskell sources as described in the source register. Do not silently resolve a
+discrepancy by changing upstream meanings or broadening language support.
 
 Use IntentBond for planning, implementation and review. Read the development skill
 and applicable references from the revision pinned in

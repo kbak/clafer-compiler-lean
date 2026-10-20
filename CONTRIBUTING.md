@@ -1,8 +1,11 @@
 # Contributing
 
-Start with [intent and open decisions](docs/intent.md) and the
-[scaffold requirements](docs/spec.md). The repository is private and currently
-accepts scaffolding and planning work. Agree compiler scope before implementation.
+Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
+[architecture contract](docs/architecture.md) and [source register](docs/sources.md).
+The repository is private. Structural Clafer-to-Alloy development is the selected
+direction; contract review and explicit manual intake of each task precede
+implementation. A Todo ticket or this documentation does not start compiler work.
+The current checkout still has no Lean toolchain or compiler implementation.
 
 ## Issues and pull requests
 

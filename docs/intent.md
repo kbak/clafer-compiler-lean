@@ -1,38 +1,70 @@
-# Intent and open decisions
+# Intent and delivery boundaries
 
 ## Prepare the compiler project
 
 `intent~compiler-foundation~1`
 
-Create a well-maintained home for implementing a Clafer compiler in Lean 4,
-using the repository practices of Clafer Semantics. Keep this repository and its
-planning board private for now. Establish documentation, contribution guidance,
-IntentBond traceability, and manual IntentMade intake before compiler work begins.
+Build a structural Clafer-to-Alloy compiler in Lean 4 in this separate repository,
+using Clafer Semantics as its independent mathematical foundation and the Haskell
+Clafer compiler as a compatibility reference. Keep the repository and planning
+board private, with IntentBond traceability and manual task intake.
 
 Needs: req
 
 ## Current boundary
 
-Only project scaffolding is authorized. Compiler implementation and architecture
-need a separate decision. Existing MIT licensing is retained; a license does not
-change repository visibility. No release or public deployment is planned yet.
+The repository contains scaffolding and a structural compiler contract candidate;
+it has no compiler, Lean toolchain, or compiler proofs. The selected direction is
+structural only. Behavioral/temporal modeling is outside this roadmap.
+The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
+owns review of the detailed contract before dependent tasks enter manual intake.
+Approval of a roadmap does not start its implementation tickets.
 
-## Decisions to make before implementation
+Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
+Upstream owns mathematical meanings, accepted source corrections and reusable
+results. This repository owns executable representations, the frontend, Alloy
+backend and compiler-specific proofs. A commit-pinned Lake dependency will be
+introduced by the separately selected build task; no semantic definitions are
+vendored here. Existing MIT licensing is retained. Publication remains a separate
+[decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
-- Supported Clafer language/version and initial feature subset.
-- Compiler inputs, outputs, command-line/API contract, and backend targets.
-- Reuse of Clafer Semantics and the boundary between executable code and proofs.
-- Lean toolchain, Lake package structure, dependencies, and upgrade policy.
-- Compatibility fixtures and reference implementation revisions/licenses.
-- Correctness goals and the distinction between tested and proved properties.
+## Delivery and selected language scope
 
-These are questions, not accepted requirements or an implementation roadmap.
-Track decisions in issues and update this document and the requirements when
-approved. Do not infer implementation permission from a Todo item.
+The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:
+
+- **M0:** reviewed contracts, then a reproducible build and comparison tools.
+- **M1:** the exact upstream guarded effective structural core, compiled through
+  a resolved-IR API and native IR-to-Alloy CLI with explicit bounds.
+- **M2:** the upstream typed static core, selected inherited realization and text
+  frontend: Boolean logic, sets/relations, navigation, finite quantifiers,
+  cardinality, singleton integer extraction and integer addition/subtraction.
+  Enums, strings/reals, multiplication/division/aggregations and other wider
+  Haskell features are explicitly deferred.
+- **M3:** integrated source-text CLI, complete supported Appendix 6 telematics
+  model, composed assurance and private qualification.
+
+The [architecture contract](architecture.md) specifies the detailed feature matrix,
+interfaces, arithmetic policy, ownership and proposed theorem shapes. Source and
+target meanings must be independent. Tested bounded agreement is distinct from
+proved soundness/completeness within stated representation and scope bounds;
+neither establishes unrestricted Haskell compatibility or unbounded UNSAT.
+
+The [source register](sources.md) pins both guides and records their different
+roles. A SoSyM research tag or maintenance branch is not a compiler prerequisite.
+
+## Review and remaining choices
+
+The upstream-core M2 scope is selected. Detailed surface forms, diagnostic/API
+conventions, conservative arithmetic admission and the finite observation bridge
+are concrete proposals for issue #2 review. Implementation tasks will supply their
+exact Lean declarations, algorithms, fixtures and proof/test artifacts; none exists
+by virtue of this plan. See the [review handoff](architecture.md#review-handoff).
 
 ## Documentation map
 
-- [Requirements](spec.md): current repository obligations.
+- [Requirements](spec.md): current repository and planning obligations.
+- [Architecture](architecture.md): feature, interface, assurance and ownership contract.
+- [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.
 - [Security policy](../SECURITY.md): sensitive reports during the private phase.
