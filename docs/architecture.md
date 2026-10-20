@@ -1,10 +1,11 @@
 # Structural compiler contract
 
-This is the review candidate for [contract adoption](https://github.com/kbak/clafer-compiler-lean/issues/2)
+This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
 under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
 Structural-only development and the upstream typed-core M2 scope are selected.
-The detailed contracts below await repository review before dependent manual
-intake. These are delivery specifications, not implemented APIs or proved results.
+Issue #2 was closed by merged PR #22; build task #5 is selected. Later tasks
+require their own manual intake. These are delivery specifications, not
+implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
 
@@ -25,7 +26,8 @@ from source meaning to Alloy is allowed; constructing DP graphs at runtime is
 not required. Generic DPGraph/FormalCD universes must not be restricted to finite
 ones to accommodate the backend.
 
-Proposed module ownership becomes binding on adoption; paths do not yet exist.
+Module ownership is binding. The [build bootstrap](build.md) creates the module
+roots; its empty feature modules do not implement their later tasks.
 Each owner delivers implementation, proofs where promised, positive/negative
 fixtures, exact declaration names, source-matched evidence and unresolved limits.
 
@@ -193,7 +195,7 @@ finite checker becomes an M2 oracle without a new proved bridge.
 
 ## Resolved-IR API and CLI sequence
 
-Proposed API shapes (names to be finalized in #7; no Lean code exists yet):
+API shapes (names to be finalized in #7; no compiler API exists yet):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -398,24 +400,25 @@ reference occurrences, negative candidates, tool options/hashes, seeds and minim
 replays. Unsupported/timeouts are recorded separately. M2 comparisons require the
 new expression/inherited bridge; Haskell remains useful supplementary evidence.
 
-The documentation candidate runs the existing scaffold check and pinned
-IntentBond check with the original baseline. These check syntax/links/traceability;
-they do not build a compiler or prove the proposed statements. Scope/coverage and
-CI remain unchanged. Actual declarations and proof/test artifacts arrive in the
-owning implementation tasks, with explicit review of any check-scope amendment.
+The [build check](build.md) now builds every compiler/test module, audits axioms,
+replays the kernel and exercises the native bootstrap. IntentBond retains source
+and traceability evidence. These checks do not prove the future compiler statements.
+Actual feature declarations and proof/test artifacts arrive in their owning tasks;
+any scope amendment requires explicit review.
 
 <a id="review-handoff"></a>
 
-Before accepting #2 and admitting #5, review the concrete remaining proposals:
+Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
-1. Confirm the exact surface whitelist (including omitted sugar) and upstream
-   defaulting discrepancies; the broader upstream-core M2 choice is settled.
-2. Confirm the diagnostic/IR/CLI conventions and conservative scope/bitwidth/value
+1. The exact surface whitelist (including omitted sugar) and upstream defaulting
+   policy, including the documented Haskell discrepancies.
+2. The diagnostic/IR/CLI conventions and conservative scope/bitwidth/value
    interval policy. Exact schema fields and declaration names belong to #7/#19.
-3. Review the model-relation/theorem assumptions and finite-observation obligation;
-   its implementation/proof belongs to #14/#15/#20, not this planning change.
+3. The model-relation/theorem assumptions and finite-observation obligation;
+   its implementation/proof belongs to #14/#15/#20.
 
-Record the disposition in issue #2 and its PR. A passing automated check or exit 4
-cannot approve these decisions. Keep the issue In Progress and dependent intake
-closed until acceptance criteria and repository review are met. No unresolved
-research tag, publication step or blanket Haskell-parity promise blocks this plan.
+The closure and merge record the disposition; historical candidate wording in
+that issue is not current task status. A passing automated check or exit 4 cannot
+approve future changes. Keep #5 In Progress until its acceptance and review gates
+are met. No unresolved research tag, publication step or blanket Haskell-parity
+promise blocks this plan.

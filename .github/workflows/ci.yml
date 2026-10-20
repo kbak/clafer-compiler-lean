@@ -7,10 +7,10 @@ on:
 permissions:
   contents: read
 jobs:
-  scaffold:
-    name: Scaffold and IntentBond
+  build:
+    name: Lean, native smoke and IntentBond
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,7 +28,19 @@ jobs:
           python -m pip install -r requirements/intentbond.txt
           ib install-oft --destination "$RUNNER_TEMP/oft"
           echo "INTENTBOND_OFT_JAR=$RUNNER_TEMP/oft/openfasttrace-4.9.0.jar" >> "$GITHUB_ENV"
-      - name: Check scaffold and traceability
+      - uses: leanprover/lean-action@24581d74d674803a25a81b10b059c5c0cdd344c6 # v1
+        with:
+          auto-config: 'false'
+          build: 'false'
+          test: 'false'
+          lint: 'false'
+          use-mathlib-cache: 'false'
+          use-github-cache: 'false'
+      - name: Prepare pinned dependency sources and build artifacts
+        run: |
+          bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
+          echo "CLAFER_COMPILER_PACKAGES=$GITHUB_WORKSPACE/.lake/packages" >> "$GITHUB_ENV"
+      - name: Check build, proofs, native behavior and traceability
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}
           PUSH_BASE: ${{ github.event.before }}
@@ -40,6 +52,8 @@ jobs:
           fi
           if git cat-file -e "$baseline:scope.json" 2>/dev/null; then
             git show "$baseline:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
+            # Candidate policy cannot silently authorize itself.
+            cmp "$RUNNER_TEMP/trusted-scope.json" scope.json
           else
             git show "$candidate:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
             # The initial repository has no requirements to trace as a baseline.
@@ -65,4 +79,5 @@ jobs:
           path: |
             ${{ runner.temp }}/intentbond-evidence/
             ${{ runner.temp }}/trusted-scope.json
+            ${{ runner.temp }}/dependency-setup.log
           retention-days: 30

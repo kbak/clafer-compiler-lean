@@ -5,7 +5,8 @@ Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
 The repository is private. Structural Clafer-to-Alloy development is the selected
 direction; contract review and explicit manual intake of each task precede
 implementation. A Todo ticket or this documentation does not start compiler work.
-The current checkout still has no Lean toolchain or compiler implementation.
+The current checkout has a pinned Lean/Lake build and native bootstrap; it has
+no compiler passes. See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
 
@@ -24,7 +25,16 @@ may run ticket operations; workers return proposed updates without credentials.
 
 ## Setup and validation
 
-Python 3.11+, Git, Bash and Java 17+ are required for the complete check.
+Python 3.11+, Git, Bash, Java 17+, Elan and a C toolchain are required.
+`lean-toolchain` selects Lean 4.35.0. Prepare the manifest-pinned dependencies:
+
+```sh
+bash scripts/prepare_dependencies.sh
+```
+
+This fetches source and an optional Mathlib cache, then builds the upstream
+dependency. Cache download failure falls back to source compilation. Missing
+tools or failed builds are failures, never skipped gates.
 Install the pinned checker in an environment outside the source tree:
 
 ```sh
@@ -40,6 +50,7 @@ together, then run:
 
 ```sh
 bash scripts/check.sh
+export CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"
 ../clafer-compiler-tools/bin/ib check --repo "$PWD" --base "$BASE_COMMIT"   --candidate worktree --out /tmp/clafer-compiler-evidence-UNIQUE
 ```
 
@@ -49,9 +60,21 @@ an explicitly supplied scope. Exit 4 means automated checks passed with semantic
 review pending. It does not approve a change. Preserve the original baseline for
 `ib verify` after committing; retain evidence and unresolved review items.
 
-Current checks validate JSON, Python/shell syntax, local Markdown file links and
-conflict markers. They do not run Lean. Add real build and proof checks alongside
-the future toolchain decision, with a reviewed scope update.
+The shared check validates syntax/links, inventories all Lean modules, builds
+libraries/tests/native code, audits project declarations and their transitive
+axioms, runs all Python/native regressions, and replays the kernel. It rejects
+missing prerequisites, empty/skipped tests and unowned modules.
+
+IntentBond runs the command in a fresh source snapshot. To reuse only the prepared
+dependency packages, export `CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"` before
+`ib check`. The snapshot copies them and verifies their clean, pinned Git identities;
+project outputs are rebuilt. No private paths or credentials belong in source.
+
+The existing scope already selects all files and review paths. Its coverage floors,
+check command and 120-second execution deadline are unchanged. Dependency preparation
+is outside that deadline; CI allows 30 minutes for provisioning and the check.
+The workflow refuses differing baseline/candidate scope bytes; any future amendment
+needs explicit review before selecting it as trusted policy.
 
 ## Documentation and conduct
 

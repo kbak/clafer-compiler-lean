@@ -13,19 +13,21 @@ Needs: req
 
 ## Current boundary
 
-The repository contains scaffolding and a structural compiler contract candidate;
-it has no compiler, Lean toolchain, or compiler proofs. The selected direction is
-structural only. Behavioral/temporal modeling is outside this roadmap.
+The repository contains the adopted structural compiler contract and a Lean/Lake
+build bootstrap. It has no compiler passes or compiler correctness proofs. The
+selected direction is structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
-owns review of the detailed contract before dependent tasks enter manual intake.
+was accepted through merged PR #22. Build task #5 is selected for manual intake;
+later tasks still require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
 results. This repository owns executable representations, the frontend, Alloy
-backend and compiler-specific proofs. A commit-pinned Lake dependency will be
-introduced by the separately selected build task; no semantic definitions are
-vendored here. Existing MIT licensing is retained. Publication remains a separate
+backend and compiler-specific proofs. The Lake dependency pins the upstream
+commit; no semantic definitions are vendored here. The [build contract](build.md)
+records executable/proof boundaries. Existing MIT licensing is retained.
+Publication remains a separate
 [decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
 ## Delivery and selected language scope
@@ -56,7 +58,7 @@ roles. A SoSyM research tag or maintenance branch is not a compiler prerequisite
 
 The upstream-core M2 scope is selected. Detailed surface forms, diagnostic/API
 conventions, conservative arithmetic admission and the finite observation bridge
-are concrete proposals for issue #2 review. Implementation tasks will supply their
+were adopted with issue #2. Implementation tasks will supply their
 exact Lean declarations, algorithms, fixtures and proof/test artifacts; none exists
 by virtue of this plan. See the [review handoff](architecture.md#review-handoff).
 
