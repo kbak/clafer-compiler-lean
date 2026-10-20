@@ -1,8 +1,9 @@
 # Repository and planning requirements
 
 These requirements cover the current documentation and workflow. The structural
-contract was adopted by issue #2 and merged PR #22. The selected build task #5
-adds the toolchain and assurance bootstrap. Future compiler behavior is reserved
+contract was adopted by issue #2 and merged PR #22. Accepted build task #5
+provides the toolchain and assurance bootstrap. Selected issue #7 adds executable
+structural IR and admission proofs. Future compiler behavior is reserved
 below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -11,7 +12,7 @@ below, not declared implemented or proved.
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap and absence of compiler passes. Distinguish reviewed decisions,
+build bootstrap, admitted structural IR and absence of compiler passes. Distinguish reviewed decisions,
 contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
@@ -115,6 +116,37 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Executable structural IR and admission
+
+`req~compiler-ir~1`
+
+Provide finite executable M1 declaration tables with stable input IDs distinct from
+names, resolved parent/super/reference edges, effective bounds, optional authored
+metadata and original byte spans. Preserve declaration/reference-head identity;
+never merge repeated names or targets. Resolve raw IDs deterministically, rejecting
+duplicates, dangling edges, malformed metadata/certificate shape, invalid intervals
+and cyclic parent/super graphs. Permit reference cycles. Use checked ranks and
+unused-abstract certificates for exactly the upstream guarded effective domain.
+
+Interpret all semantic fields into the pinned independent effective core. Prove
+both directions of guard agreement, successful admission's actual upstream
+well-formedness/support, preservation of the original typed table, and completeness
+with suitable certificates. Prove finite lookup soundness/completeness under unique
+IDs. Do not confuse admission with candidate satisfaction or bounded UNSAT.
+
+Specify the closed versioned `clafer-ir/1` JSON interchange and deterministic
+malformed/unsupported diagnostics, including strict types, duplicate-key rejection
+and explicit effective-only provenance. Implement version/profile selection on
+already decoded data; file/JSON parsing and diagnostic serialization remain #19.
+Reject unknown profiles and primitives; no static expression or inherited semantics
+are admitted by extension placeholders. Retain tested raw resolution/native behavior
+separately from the proved typed-core boundary and from future serialization.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -181,7 +213,6 @@ coverage.
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
 | `compiler-oracles` | [#6](https://github.com/kbak/clafer-compiler-lean/issues/6) | Reproducible three-oracle profile and corpus |
-| `compiler-ir` | [#7](https://github.com/kbak/clafer-compiler-lean/issues/7) | Executable admitted IR and upstream interpretation |
 | `compiler-alloy-core`, `compiler-bounds` | [#8](https://github.com/kbak/clafer-compiler-lean/issues/8) | Independent bounded target semantics |
 | `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |
 | `compiler-structural-encoding` | [#10](https://github.com/kbak/clafer-compiler-lean/issues/10) | Complete guarded structural translation |
@@ -199,6 +230,7 @@ coverage.
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |
 | `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |
 
+The active [IR contract and artifacts](ir.md) cover #7 above.
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) owns scheduling.
 Upstream requirement IDs retain their upstream repository namespace; citing a
 theorem or ticket does not import its coverage into this repository.

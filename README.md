@@ -2,8 +2,9 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: build bootstrap.** The pinned Lake package, native smoke executable
-and proof-aware checks are available. Compiler passes are not implemented.
+**Status: structural IR and build bootstrap.** Executable declaration tables,
+[proved M1 admission](docs/ir.md), the pinned Lake build and native checks are
+available. Compiler passes are not implemented.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

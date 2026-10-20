@@ -14,11 +14,12 @@ Needs: req
 ## Current boundary
 
 The repository contains the adopted structural compiler contract and a Lean/Lake
-build bootstrap. It has no compiler passes or compiler correctness proofs. The
+build bootstrap and executable [structural IR](ir.md) with admission proofs.
+It has no compiler passes or compiler correctness proofs. The
 selected direction is structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
-was accepted through merged PR #22. Build task #5 is selected for manual intake;
-later tasks still require their own selection.
+was accepted through merged PR #22. Build task #5 was accepted through merged PR #23;
+IR task #7 is selected for implementation. Later tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
