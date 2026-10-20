@@ -1,2 +1,7 @@
-# cache and other artifacts produced by Lean's Lake build tool
 .lake/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example

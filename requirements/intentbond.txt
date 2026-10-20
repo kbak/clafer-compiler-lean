@@ -1,0 +1,4 @@
+# IntentBond and its runtime dependency are pinned; update the skill link in
+# AGENTS.md with the source revision when updating this file.
+junitparser==5.0.3
+intentbond @ git+https://github.com/kbak/intentbond.git@a430efa8d82e2a88ed2607bfe838066bb9d73f3c

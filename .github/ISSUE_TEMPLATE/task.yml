@@ -1,0 +1,27 @@
+name: Task or design decision
+description: Plan design decisions, documentation, or tooling work.
+body:
+  - type: textarea
+    id: scope
+    attributes:
+      label: Outcome and scope
+      description: State the desired result and boundaries. A planning ticket does not authorize implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Sources and requirements
+      description: Paper sections/definitions, relevant IntentBond IDs, and upstream commit links if applicable.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria and validation
+      description: List the definitions, theorems, checks, or documentation needed to finish.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and open decisions
+      description: Link related issues and identify unresolved semantic choices.

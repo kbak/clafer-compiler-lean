@@ -1,0 +1,17 @@
+name: Bug report
+description: Report a reproducible repository or tooling problem.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and expected result
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and source references
+      description: Include the commit, environment, minimal example, and affected requirements.
+    validations:
+      required: true
