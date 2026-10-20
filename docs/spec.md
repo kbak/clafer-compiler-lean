@@ -1,9 +1,9 @@
 # Repository and planning requirements
 
 These requirements cover the current documentation and workflow. The structural
-direction and upstream-core M2 scope are selected; issue #2's detailed contract
-candidate still requires repository review. Future executable behavior is reserved
-below, not declared implemented or proved. There is no compiler or Lean toolchain.
+contract was adopted by issue #2 and merged PR #22. The selected build task #5
+adds the toolchain and assurance bootstrap. Future compiler behavior is reserved
+below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -11,8 +11,8 @@ below, not declared implemented or proved. There is no compiler or Lean toolchai
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-absence of an implementation. Distinguish reviewed decisions, contract candidates
-and future implementation/proof promises. Contract adoption precedes dependent
+build bootstrap and absence of compiler passes. Distinguish reviewed decisions,
+contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
 
@@ -82,15 +82,40 @@ not assume the preservation conclusion. Pin candidate semantic and Haskell
 baselines, retain source locators/licenses and define reviewed upgrades. No
 research tag is required. Reserve future behavioral requirement IDs without
 inventing implementation/proof coverage; acceptance review precedes dependent
-manual intake. This requirement currently promises a documented contract, not
-an implemented dependency graph or proved compiler.
+manual intake. The build enforces module ownership/import boundaries and exercises
+independent upstream imports. The remaining semantic/compiler contracts are
+future obligations, not proved compiler properties.
 
 Covers:
 - `intent~compiler-foundation~1`
 
-Needs: impl
+Needs: impl, utest
 
-## Documentation and scaffold artifacts
+## Reproducible build and assurance bootstrap
+
+`req~compiler-build~1`
+
+Pin the Lean toolchain and Clafer Lake dependency to the source register and retain
+the upstream-compatible transitive manifest. Build every owned compiler and Lean
+test module, including modules unreachable from the root import. Build and run
+the native `clafer-compiler --version` bootstrap; reject all other invocations
+with exit 2, empty stdout and a diagnostic. Kernel-prove only the pure version
+and empty-argument response equations at this stage, not IO or compiler correctness.
+
+Every full check must replay the project/test kernel declarations and audit their
+module origins, including private/generated declarations. Reject project axioms,
+`sorry`/`admit`, unsafe/partial declarations, and transitive axioms other than
+`propext`, `Classical.choice` and `Quot.sound`. Check the executable import closure
+excludes upstream semantics and proof-only modules. Document native IO/tooling
+trust. Fail on absent tools, failed gates, empty/skipped regressions and unknown
+module ownership. Retain source-bound IntentBond evidence before handoff.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
 
@@ -106,7 +131,8 @@ Covers:
 [Contribution guidance](../CONTRIBUTING.md), [agent instructions](../AGENTS.md),
 [pin](../requirements/intentbond.txt), [scope](../scope.json),
 [check entrypoint](../scripts/check.sh), and [CI](../.github/workflows/ci.yml)
-provide the scaffold validation workflow. These checks do not verify a compiler.
+provide the validation workflow, including real Lean/kernel/native gates. These
+checks do not establish compiler correctness.
 
 Covers:
 - `req~intentbond-workflow~1`
@@ -148,13 +174,12 @@ Covers:
 The names below reserve future IDs of the form `req~NAME~1`; they are not active
 OFT requirements or coverage declarations. Each task introduces its behavioral
 promise with real source/proof/test artifacts and the required review. The two
-planning requirements above are active documentation obligations; #5 must extend
-or refine the boundary requirement with actual build/import evidence before
-claiming implementation coverage. Do not use this table as fake proof coverage.
+planning requirements above remain active; the boundary requirement also has
+actual build/import enforcement under #5. Do not use this table as fake proof
+coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-build` | [#5](https://github.com/kbak/clafer-compiler-lean/issues/5) | Pinned Lake/native build and proof-aware CI |
 | `compiler-oracles` | [#6](https://github.com/kbak/clafer-compiler-lean/issues/6) | Reproducible three-oracle profile and corpus |
 | `compiler-ir` | [#7](https://github.com/kbak/clafer-compiler-lean/issues/7) | Executable admitted IR and upstream interpretation |
 | `compiler-alloy-core`, `compiler-bounds` | [#8](https://github.com/kbak/clafer-compiler-lean/issues/8) | Independent bounded target semantics |

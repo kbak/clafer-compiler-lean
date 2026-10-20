@@ -5,17 +5,19 @@ They have different roles: independent source meanings and reusable proofs upstr
 syntax, examples and compatibility evidence in Haskell. Haskell behavior does not
 automatically overrule the published language or an accepted semantic correction.
 The [architecture contract](architecture.md) specifies the selected common fragment
-and deliberate differences. No compiler source or fixtures are copied by this
-planning change.
+and deliberate differences. The build bootstrap adapts upstream validation helpers
+under their MIT license;
+see the attribution and exact paths in [the build contract](build.md). Semantic
+definitions and Haskell source/fixtures are not copied.
 
 ## Immutable baselines
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
 | Compiler scaffold | `36ef6100a17c7d8d312a9df2916dc3fababe19e0` | Starting documentation/check baseline; repository MIT license |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/1454e3bd2ce9697923cdcef3863c816651ffc147) | `1454e3bd2ce9697923cdcef3863c816651ffc147` | Candidate Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/LICENSE). No dependency is installed in this scaffold. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/1454e3bd2ce9697923cdcef3863c816651ffc147) | `1454e3bd2ce9697923cdcef3863c816651ffc147` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c) | `15adb2216909421bcb5022174d2d84ef2b42307c` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/LICENSE). External tool, not production runtime dependency. |
-| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Compatibility inputs for build task #5; not a toolchain installation by #2 |
+| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for build task #5 |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/scripts/verification/AlloyBridge.java) |
 | IntentBond | `a430efa8d82e2a88ed2607bfe838066bb9d73f3c` | Existing [requirements pin](../requirements/intentbond.txt), unchanged by contract adoption |
 
@@ -91,8 +93,10 @@ axiom/native tests, paired Haskell/Alloy comparisons and source-matched IntentBo
 checks. Review changed theorem assumptions and fixture expectations explicitly;
 never bless an output merely because the reference changed. Keep previous receipts
 and replayability. Update the source register, dependency manifest, requirements
-and affected tests/links together in a reviewed PR. Until #5 creates those files,
-this is a dependency policy, not a claimed installed build.
+and affected tests/links together in a reviewed PR. The build bootstrap supplies
+those dependency files. Admission fixtures and
+compiler/Haskell comparisons become required when their owning tasks deliver them;
+the current bootstrap runs the build/import/native/kernel/axiom checks.
 
 No branch name, floating latest release, SoSyM research tag or upstream maintenance
 branch is a substitute for the commit pin or a prerequisite for compiler intake.

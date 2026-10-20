@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate scaffold syntax and documentation without claiming a compiler build."""
+"""Validate repository syntax and documentation; Lean gates run in check.sh."""
 import ast
 import json
 from pathlib import Path
@@ -21,7 +21,7 @@ for name in sorted(set(filter(None, paths))):
     path = root / name
     if not path.is_file():
         continue
-    if path.suffix not in {".md", ".json", ".py", ".sh", ".yml", ".yaml", ".cff", ".txt"}:
+    if path.suffix not in {".md", ".json", ".py", ".sh", ".yml", ".yaml", ".cff", ".txt", ".lean", ".toml"}:
         continue
     text = path.read_text()
     if re.search(r"^(?:<{7}|={7}|>{7})(?: |$)", text, re.M):
@@ -42,5 +42,4 @@ for name in sorted(set(filter(None, paths))):
                 errors.append(f"{name}: missing local link {target}")
 if errors:
     raise SystemExit("\n".join(errors))
-print("Scaffold syntax, local file links, and conflict-marker checks passed.")
-print("No Lean build or compiler validation is configured yet.")
+print("Repository syntax, local file links, and conflict-marker checks passed.")

@@ -1,0 +1,23 @@
+name = "claferCompiler"
+version = "0.1.0"
+defaultTargets = ["ClaferCompiler", "CompilerTests", "clafer-compiler"]
+
+[leanOptions]
+warningAsError = true
+
+[[require]]
+name = "clafer"
+git = "https://github.com/kbak/clafer-semantics.git"
+rev = "1454e3bd2ce9697923cdcef3863c816651ffc147"
+
+[[lean_lib]]
+name = "ClaferCompiler"
+globs = ["ClaferCompiler", "ClaferCompiler.**"]
+
+[[lean_lib]]
+name = "CompilerTests"
+globs = ["tests.**"]
+
+[[lean_exe]]
+name = "clafer-compiler"
+root = "Main"
