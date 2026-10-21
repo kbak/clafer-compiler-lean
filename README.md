@@ -2,7 +2,7 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: source pipeline implemented; semantic review pending.** Executable declaration
+**Status: source pipeline accepted; private qualification in progress.** Executable declaration
 tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md),
@@ -23,10 +23,12 @@ adds checked declaration elaboration. Accepted [source constraints](docs/constra
 (#18/PR #40) adds automatic typed elaboration and source derivations.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
 and independent semantic interpretation. Accepted [expression encoding](docs/expression-encoding.md)
-(PR #41) supplies constructor and attachment preservation. Selected
-[source pipeline #20](docs/pipeline.md) composes the actual source command, full
+(PR #41) supplies constructor and attachment preservation. Accepted
+[source pipeline #20](docs/pipeline.md) (PR #44) composes the actual source command, full
 integer source soundness and bounded completeness, and all twelve telematics
-bodies. Semantic acceptance, including the primitive-carrier corrections, is pending.
+bodies. [Private qualification #21](docs/qualification.md) supplies the feature
+inventory, reproducible measurements and local candidate preparation; acceptance
+requires independent review. No public release is authorized.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

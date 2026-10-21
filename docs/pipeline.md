@@ -1,7 +1,7 @@
 # Source pipeline integration
 
-Task [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) is selected after
-acceptance of #13, #15 (PR #41), #18 and #19. Implementation starts at
+Task [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) was accepted through
+merged PR #44 after #13, #15 (PR #41), #18 and #19. Implementation starts at
 `6acfc02474a2a09b2a0e4f856bb467102ee33de4`. This document records the integration
 design, composed proof boundary and validation. The existing M1 API and comparison domain remain available.
 
@@ -86,15 +86,15 @@ The source command compiles this input, and its generated bounded target has a
 model. Therefore a unified source whole-model theorem for the unchanged elaboration
 would be false. Separate structural and expression theorems do not repair it.
 
-The downstream correction under review introduces the implicit unrestricted
+The accepted downstream correction introduces the implicit unrestricted
 integer declaration for every constraint-bearing source document, including
 those without integer references. Existing authored IDs stay unchanged; the
 implicit declaration is appended. Its finite observation scope may be zero when
 unused, while the source domain remains all integers. Source bounds must name
 this ID and its interval explicitly. Constraint-free source resolution and the
-M1 IR API remain as before. This proposal changes the accepted elaboration rule
-that currently requires an integer reference as the reason for insertion, and
-is submitted for semantic acceptance with #20. It implements the existing full
+M1 IR API remain as before. This correction changes the former elaboration rule
+requiring an integer reference as the reason for insertion, and was accepted
+with #20 through PR #44. It implements the existing full
 mathematical integer contract without changing upstream meanings. The kernel
 counterexample remains as a regression against restoring the incomplete rule.
 
@@ -140,7 +140,8 @@ inappropriate premise for a source-based completeness claim.
 Parser recognition, strict JSON correspondence, native execution, emitted-text
 interpretation by Alloy, and the solver are tested boundaries. The in-memory
 Lean proofs do not certify those external components. No public M1 checker guard
-is widened. Semantic acceptance of this implementation remains pending.
+is widened. PR #44 records acceptance of this implementation and the #42/#43
+corrections; [qualification](qualification.md) retains these limits.
 
 ## Complete example and exact replay
 
@@ -238,7 +239,7 @@ bounds or final source satisfaction. Lean's existing module scheduler can check
 these independent lemmas concurrently. This preserves every proof and test while
 reducing the clean-build critical path under the unchanged deadline.
 
-The full replay now uses two workers through the pinned LeanChecker's existing
+The full replay now uses four workers through the pinned LeanChecker's existing
 `IO.asTask` scheduler, still checking all owned modules and private/generated
 declarations. This bounds concurrent import environments without adding a
 custom verifier or changing the deadline. Concurrent external suites exposed

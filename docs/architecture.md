@@ -12,13 +12,15 @@ accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
 accepted #11's [M1 representation and preservation proofs](structural-correctness.md)
 through PR #33. Accepted #13 (PR #36) implements
 [inherited structural realization](inherited-realization.md). The [typed expression API](expressions.md) is accepted through #14/PR #32
-after #7. Selected #15 adds [source constraint encoding and preservation](expression-encoding.md),
+after #7. Accepted #15 (PR #41) adds [source constraint encoding and preservation](expression-encoding.md),
 including explicit definedness, numeric-domain enforcement and attachment occurrence
-preservation under checked observations and concrete leaf representations. This
-continuation awaits semantic review; source CLI composition remains #20. Later tasks require their own manual intake. The remaining contracts
-below are delivery specifications, not implemented APIs or proved results.
+preservation under checked observations and concrete leaf representations. Accepted
+#20 (PR #44) supplies [source CLI composition and full-model proofs](pipeline.md).
+Selected #21 provides the [qualification inventory](qualification.md#feature-and-evidence-inventory).
+The theorem shapes below remain specifications; exact proved boundaries are linked
+to their implementations.
 [Requirements](spec.md) covers the present documentation obligations;
-[reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
+[qualification requirements](spec.md#private-candidate-qualification) remain subject to acceptance review.
 
 ## Ownership and dependencies
 
@@ -327,8 +329,8 @@ integer realization without changing any admitted expression's denotation.
 Representability bounds finite observations, not the size of mathematical `Int`.
 The bridge must handle the primitive's root/domain obligations explicitly. Until
 proved, M2 end-to-end assurance remains incomplete; the M1 checker cannot fill it.
-Selected #20 now supplies the [completion, query agreement and composed theorems](pipeline.md#composed-assurance),
-including the primitive-carrier corrections, pending semantic acceptance.
+Accepted #20 (PR #44) supplies the [completion, query agreement and composed theorems](pipeline.md#composed-assurance),
+including the accepted primitive-carrier corrections.
 
 ## Independent meanings and theorem obligations
 

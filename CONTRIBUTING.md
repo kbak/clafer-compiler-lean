@@ -13,7 +13,7 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [M1 soundness and bounded completeness](docs/structural-correctness.md) under
 explicit finite scope and integer-range hypotheses. Accepted #13 (PR #36) adds
 [inherited structural realization](docs/inherited-realization.md). Accepted #19
-(PR #39) adds the [native resolved-IR CLI](docs/cli.md). Selected #20 adds source-text integration. Task #12 supplies
+(PR #39) adds the [native resolved-IR CLI](docs/cli.md). Accepted #20 (PR #44) adds source-text integration. Task #12 supplies
 [exact three-way comparison](docs/comparison.md) and strict instance export.
 Accepted [static parser #16](docs/parser.md) preserves authored syntax. Accepted #17 (PR #35)
 adds [checked structural resolution/defaulting](docs/resolution.md). Accepted #18 (PR #40)
@@ -21,8 +21,9 @@ adds [source expression elaboration](docs/constraints.md).
 Accepted #14 (PR #32) adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
 Accepted #15 (PR #41) adds [source constraint encoding and preservation](docs/expression-encoding.md),
-including separate definedness and every attachment occurrence. Selected #20 adds the [source pipeline](docs/pipeline.md); its
-composed assurance and primitive-carrier corrections await semantic acceptance.
+including separate definedness and every attachment occurrence. Accepted #20 adds the
+[source pipeline](docs/pipeline.md), composed assurance and primitive-carrier corrections.
+Selected #21 prepares [private qualification and benchmarks](docs/qualification.md).
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
@@ -53,7 +54,7 @@ machinery from scratch. Keep unresolved choices explicit; see the
 
 ## Setup and validation
 
-Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd` and Bubblewrap
+Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time and Bubblewrap
 with working user namespaces are required for validation. The native runtime
 check currently targets Linux/glibc; ordinary compilation needs only the
 [documented native runtime](docs/cli.md#native-runtime).

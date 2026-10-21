@@ -288,3 +288,26 @@ S5/S6 remain syntax and compatibility guides. The full source comparison extends
 the inherited/source observation boundary with its own proved checker; it does
 not run the guarded Haskell/M1 comparison outside its accepted domain. See the
 [pipeline inventory](pipeline.md) for exact theorem and external replay limits.
+
+## Private qualification (#21)
+
+The [qualification adapters](qualification.md) reuse the full accepted corpus,
+S5/S6's public `Language.Clafer` pipeline and `Generator.Alloy.genModule`, the
+existing verified external build recipe, and S7's actual parser for independent
+scope/bitwidth auditing. They never widen the M1 semantic comparison guard.
+Lean 4.35.0 `Init/System/IO.lean` supplies monotonic stage timestamps; Lake's actual
+linker response supplies the native object closure. Python's standard libraries
+and GNU time supply process measurement, source export and receipts. These tools
+run externally; their source is not copied. The adapters and generated inputs are
+original MIT code. No source meaning, dependency pin or theorem premise changes.
+
+The local candidate includes the project MIT notice, Lean Apache-2.0 license and
+its bundled third-party `LICENSES`, plus semantics MIT and Mathlib Apache-2.0
+notices for source/dependency attribution. The inspected Linux link command uses
+static GMP (the Lean distribution identifies LGPL-3.0), libc++/libc++abi/unwind
+(LLVM notices), and the Lean runtime; shared glibc libraries are recorded and
+remain host prerequisites. Retain the full link response, static archive hashes
+and `ldd` output with each candidate. Haskell/Stack/GHC, Java and the multi-license
+Alloy JAR are comparison/build tools and are not packaged. This prepares a local
+review artifact; redistribution obligations for linked components must be resolved
+before external distribution, independently of repository publication.

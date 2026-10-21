@@ -8,13 +8,13 @@ representation, soundness and bounded completeness proofs through PR #33.
 Accepted #13 (PR #36) adds inherited structural realization.
 The authored static parser #16 is accepted through PR #30. Accepted #17 (PR #35) adds
 checked declaration resolution/defaults. Accepted #18 (PR #40) adds source constraint
-elaboration. Selected #20 integrates the source CLI.
+elaboration. Accepted #20 (PR #44) integrates the source CLI.
 Accepted #14 (PR #32) adds typed static expressions and their
 independent semantic interpretation. Accepted #15 (PR #41) extends bounded target
 arithmetic with source constraint translation and conditional constructor/attachment
 preservation. The [source pipeline](pipeline.md), composed proofs and complete
-telematics evidence are implemented under #20, pending semantic acceptance.
-Future compiler behavior is reserved below, not declared implemented or proved.
+telematics evidence are accepted through #20/PR #44. Selected #21 supplies private
+qualification and performance evidence, subject to independent acceptance.
 
 ## Honest project boundary
 
@@ -26,8 +26,8 @@ build bootstrap, admitted structural IR, independent target core, structural
 backend, checked serialization, authored static parser, typed expression API,
 checked source declaration resolution/defaults and accepted M1 preservation
 proofs under explicit finite scope and numeric-range assumptions. The inherited structural extension and its preservation proofs are accepted. Source constraint preservation has explicit finite-observation and representation
-conditions accepted through PR #41; composed source-pipeline assurance awaits
-semantic review. Grammar-to-parser correspondence remains unproved.
+conditions accepted through PR #41; composed source-pipeline assurance is accepted
+through PR #44. Grammar-to-parser correspondence remains unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -740,8 +740,8 @@ The implicit primitive uses unrestricted multiplicity and is also inserted for
 constraint-bearing source without integer references. This supplies the full
 carrier required by the pinned semantics; authored IDs remain stable. Corrections
 [#42](https://github.com/kbak/clafer-compiler-lean/issues/42) and
-[#43](https://github.com/kbak/clafer-compiler-lean/issues/43) are submitted with this
-requirement for semantic review. No upstream meanings or public M1 guards change.
+[#43](https://github.com/kbak/clafer-compiler-lean/issues/43) were accepted with this
+requirement through PR #44. No upstream meanings or public M1 guards change.
 See the [pipeline proof and reuse inventory](pipeline.md).
 
 Covers:
@@ -762,6 +762,56 @@ constraint and missing inherited-group mutations; retain bounded minimized repla
 witnesses and state their reduction order. Preserve complete source/candidate,
 original maps, scalar rows, commands, tool/source identities and external outcomes.
 These finite tests complement the composed proofs, not certify the external tools.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Private candidate qualification
+
+`req~compiler-qualification~1`
+
+Prepare a local private candidate with a closed accounting of the adopted feature
+matrix: implementation, promised proofs, positive/negative tests and explicit
+rejection of excluded forms. Preserve all existing scope and assurance boundaries;
+material defects prevent acceptance. Retain the exact clean candidate commit,
+source-matched passing IntentBond evidence, complete test/kernel logs, independent
+review disposition, immutable tool identities, license attribution and replayable
+discrepancies. Bind clean-built standalone artifacts and their isolated runtime
+smoke results to that candidate. Reject stale or modified evidence and mismatched
+measurements. A pending review remains pending in the package manifest.
+
+Document reproducible usage, supported platforms, trust boundaries and the existing
+dependency-upgrade policy. Preserve the upstream SoSyM snapshot independently;
+neither a semantics branch nor a research tag gates compiler qualification.
+Repository visibility, release/tag publication and distribution remain separate
+decisions under #3. See [qualification](qualification.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Reproducible compiler measurements
+
+`req~compiler-performance~1`
+
+Measure parsing, declaration/default resolution, constraint elaboration, backend
+encoding, checked rendering, process memory and output size independently of Alloy
+solving. Retain raw samples, warmup policy, commands, inputs, explicit bounds,
+machine/tool identities and failure outcomes. Use tiny, representative and larger
+generated inputs plus the complete supported telematics source. Compare the pinned
+Haskell compiler on identical common-domain input bytes and equivalent explicit
+scopes/bitwidth/options, accounting for its virtual root and different pipelines.
+Force lazy output before stopping whole-process measurement. Do not compare
+instrumented stage times as equivalent work or claim blanket Haskell compatibility.
+
+Measure clean-project and warm Lean build/proof elaboration separately from native
+compiler runtime and kernel replay; state reused dependency/cache boundaries.
+Check the measurement probe against production output. Preserve timeouts/errors as
+failures, never silently omit required cases. No speedup threshold or optimization
+is promised; any subsequent optimization needs profiling and semantic preservation.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -824,16 +874,11 @@ Covers:
 
 ## Reserved implementation requirements
 
-The names below reserve future IDs of the form `req~NAME~1`; they are not active
-OFT requirements or coverage declarations. Each task introduces its behavioral
-promise with real source/proof/test artifacts and the required review. The two
-planning requirements above remain active; the boundary requirement also has
-actual build/import enforcement under #5. Do not use this table as fake proof
-coverage.
-
-| Reserved name(s) | Owning roadmap issue | Future promise |
-| --- | --- | --- |
-| `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |
+The final reserved names `compiler-qualification` and `compiler-performance` are
+now active requirements above, submitted for acceptance with #21. There are no
+remaining reserved implementation IDs in the selected roadmap. New scope needs
+its own reviewed requirements and manual intake; this does not imply acceptance
+of the qualification candidate.
 
 The active [oracle contract and artifacts](oracles.md) cover #6; the
 [IR contract and artifacts](ir.md) cover #7 above.

@@ -79,7 +79,7 @@ The native tests exercise stdout, stderr and exit status independently.
 coverage policy, command and 120-second check deadline. Provision dependencies
 before checking. After the build, the axiom audit, kernel replay and the isolated
 regression suite run concurrently. Every process is awaited and every exit status
-must succeed. Replay uses two workers to bound the number of
+must succeed. Replay uses four workers to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
 Within the regression runner, the two CLI modules and the isolated audit-fixture

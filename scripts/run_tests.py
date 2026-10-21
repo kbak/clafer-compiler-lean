@@ -13,6 +13,10 @@ import unittest
 ISOLATED_GROUPS = {
     '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
+    '--frontend-worker': {'test_constraints', 'test_parser', 'test_resolution', 'test_qualification'},
+    '--target-worker': {'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
+        'test_expressions', 'test_inherited', 'test_integer_arithmetic',
+        'test_structural_alloy', 'test_structural_ir', 'test_structural_representation'},
 }
 ISOLATED_MODULES = set.union(*ISOLATED_GROUPS.values())
 

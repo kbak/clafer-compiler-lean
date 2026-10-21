@@ -24,7 +24,7 @@ build bootstrap, reproducible external [comparison tooling](oracles.md), executa
 checked target ASTs with explicit manual bounds. The M1 correctness proof layer
 is accepted. Accepted [inherited realization](inherited-realization.md) (PR #36) adds the
 Appendix 6 structural skeleton and preservation proofs.
-Selected #20 integrates source-text compilation while retaining the accepted M1 IR command.
+Accepted #20 (PR #44) integrates source-text compilation while retaining the accepted M1 IR command.
 The accepted [static parser](parser.md) preserves authored syntax and source diagnostics;
 [checked declaration resolution/defaulting](resolution.md) is accepted through #17/PR #35.
 Accepted [source constraint elaboration](constraints.md) #18 (PR #40) adds typed
@@ -48,12 +48,14 @@ and finite-observation proofs. Task #15 is accepted through PR #41; its
 [bounded target arithmetic](expression-encoding.md) was merged through PR #34.
 Source range-analysis proofs were accepted through PR #38. The continuation adds
 source-to-target constructor and attachment preservation, generated numeric-domain
-enforcement and actual Analyzer checks. Selected [#20](pipeline.md) composes the
-source pipeline, full integer model proofs and complete telematics validation;
-semantic review and the two primitive-carrier corrections remain pending. Accepted #19 (PR #39) supplies the
+enforcement and actual Analyzer checks. Accepted [#20](pipeline.md) (PR #44) composes
+the source pipeline, full integer model proofs and complete telematics validation,
+including the two primitive-carrier corrections. Selected [#21](qualification.md)
+prepares private candidate artifacts, the feature/evidence inventory and reproducible
+performance measurements. Candidate acceptance remains a separate review gate. Accepted #19 (PR #39) supplies the
 [native resolved-IR CLI](cli.md) after accepted #12,
 with strict developer JSON, explicit bounds and deterministic diagnostics/output;
-source-text integration is implemented by selected #20. Other tasks require their own selection.
+source-text integration is accepted through #20. Other tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
