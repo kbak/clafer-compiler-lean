@@ -1,8 +1,8 @@
 # Repository and planning requirements
 
 These requirements cover the current documentation and workflow. The structural
-contract was adopted by issue #2 and merged PR #22. The selected build task #5
-adds the toolchain and assurance bootstrap. Future compiler behavior is reserved
+contract was adopted by issue #2 and merged PR #22. Build task #5 was accepted
+through PR #23; selected task #6 adds reproducible comparison tools. Future compiler behavior is reserved
 below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -28,8 +28,9 @@ Needs: impl
 Pin IntentBond to an immutable source revision. Keep intent, requirements and
 artifact links together, and run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
-semantic review pending, never approval. CI must preserve evidence and expose
-that distinction. Scope changes require explicit review.
+semantic review pending, never approval. During development, local checks remain
+mandatory and hosted CI runs only on manual dispatch. When run, CI must preserve
+evidence and expose that distinction. Scope changes require explicit review.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -115,6 +116,38 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Reproducible comparison oracles
+
+`req~compiler-oracles~1`
+
+Reuse the immutable upstream capture/import/comparison adapters with the pinned
+Haskell library, Stack/GHC/dependency profile, Lean semantics and Alloy 6.2.0 JAR.
+Retain source and tool hashes, same-generation IR/Alloy receipts, actual Java
+vendor/build, effective static SAT4J options, explicit per-UID scopes and signed
+bitwidth. Run the actual tools on positive and negative candidates; preserve
+reference occurrences. The initial profile uses Java 17 and upstream bitwidths
+1–16 with independent range admission. Reject temporal source/backend dispatch.
+
+Run the finite checker only after its guarded constraint-free admission. Keep
+inherited fields, primitive integer references and expressions unsupported;
+leaf abstract inheritance remains admitted when its guards hold. Inventory
+structural, set/bag, group, inheritance, reference-cycle, shadowing and numeric
+fixtures with immutable provenance and licenses. Preserve bundled distribution
+notices externally; this task authorizes no packaging or publication.
+
+Missing tools, modified inputs/tools, unsupported domains, timeouts, resource
+limits, malformed input and errors must remain distinct from agreement or bounded
+UNSAT. Required checks fail rather than skip. Retain exact candidates, both
+outputs, options and replay instructions outside source. Discrepancies require
+minimized evidence, independent expected semantics and an issue before semantic
+changes. Haskell is supplementary evidence; no downstream compiler or new proof
+is claimed. #12 owns adding downstream compiler Alloy to the comparison.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -180,7 +213,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-oracles` | [#6](https://github.com/kbak/clafer-compiler-lean/issues/6) | Reproducible three-oracle profile and corpus |
 | `compiler-ir` | [#7](https://github.com/kbak/clafer-compiler-lean/issues/7) | Executable admitted IR and upstream interpretation |
 | `compiler-alloy-core`, `compiler-bounds` | [#8](https://github.com/kbak/clafer-compiler-lean/issues/8) | Independent bounded target semantics |
 | `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |

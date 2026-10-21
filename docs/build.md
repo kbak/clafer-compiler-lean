@@ -12,7 +12,7 @@ The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 `1454e3bd2ce9697923cdcef3863c816651ffc147` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
-building its comparison profile belongs to #6, and it is not a native dependency.
+its [comparison profile](oracles.md) belongs to #6, and it is not a native dependency.
 
 | Root | Role and owner | Allowed project dependencies |
 | --- | --- | --- |
@@ -68,7 +68,11 @@ The native tests exercise stdout, stderr and exit status independently.
 
 `scope.json` already includes all source and review paths and retains its original
 coverage policy, command and 120-second check deadline. Provision dependencies
-before checking. CI's overall 30-minute job budget includes dependency downloads
+before checking. After the build and axiom audit, kernel replay and the isolated
+regression suite run concurrently. Replay uses one worker to bound the number of
+large imported environments resident at once; the check waits for both results
+and fails if either fails. No module, test or kernel gate is skipped.
+CI's overall 30-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and refuses
 an unreviewed amendment. IntentBond exit 4 always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
@@ -89,7 +93,9 @@ No Haskell source or fixture is redistributed.
 a native executable. [Module discovery](../scripts/project_modules.py) implements
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
-[CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond.
+[CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond on
+manual dispatch. Push and pull-request triggers are deferred during development;
+the full local check remains mandatory before handoff.
 
 Covers:
 - `req~compiler-build~1`

@@ -1,0 +1,273 @@
+{
+  "fixtures": [
+    {
+      "bounds": {
+        "root": 1
+      },
+      "categories": [
+        "structural"
+      ],
+      "expected": "admitted",
+      "id": "empty",
+      "identity": {
+        "bytes": 70,
+        "sha256": "df78d084180d720b9bca07ba3a967cc9ef7b520e690c3935b89678b4a827163b"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/importer/empty.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Target": 3,
+        "c0_refs": 3,
+        "root": 1
+      },
+      "categories": [
+        "set/bag"
+      ],
+      "expected": "admitted",
+      "id": "bag",
+      "identity": {
+        "bytes": 33,
+        "sha256": "8af488d88477d7d40b657c69e6edf40d42e8811353d347a00c9a2dc68bc9b5dc"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/bag.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Target": 3,
+        "c0_refs": 3,
+        "root": 1
+      },
+      "categories": [
+        "set/bag"
+      ],
+      "expected": "admitted",
+      "id": "set",
+      "identity": {
+        "bytes": 32,
+        "sha256": "dfbe2d4b7ecdfe1103a2eaa3377a52c185bbe153e437962316b3cd7ab5c69a8e"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/set.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Target": 3,
+        "c0_box": 3,
+        "c0_refs": 3,
+        "root": 1
+      },
+      "categories": [
+        "group",
+        "numeric-bounds"
+      ],
+      "expected": "admitted",
+      "id": "groups",
+      "identity": {
+        "bytes": 49,
+        "sha256": "798b4e6200ed853a50b558ad03c9f622bf36548c8a187aec8f1a72d694f34bfb"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/groups.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Base": 3,
+        "c0_Middle": 3,
+        "c0_Unused": 3,
+        "c0_left": 3,
+        "c0_right": 3,
+        "root": 1
+      },
+      "categories": [
+        "leaf-inheritance"
+      ],
+      "expected": "admitted",
+      "id": "inheritance",
+      "identity": {
+        "bytes": 90,
+        "sha256": "d3045efc61a44e20dd492991ad06a24bca253f98858c82d4a15e11a668bb82f6"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/inheritance.cfr"
+    },
+    {
+      "bounds": {
+        "c0_a": 3,
+        "c0_b": 3,
+        "c0_child": 3,
+        "root": 1
+      },
+      "categories": [
+        "reference-cycle"
+      ],
+      "expected": "admitted",
+      "id": "cycles",
+      "identity": {
+        "bytes": 38,
+        "sha256": "d5077c70089b111676314dd8f32b51b3b36aa91a5b22ab0a030760503ebaff54"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/cycles.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Base": 3,
+        "c0_Unused": 3,
+        "c0_left": 3,
+        "c0_links": 3,
+        "c0_right": 3,
+        "c0_same": 3,
+        "c1_same": 3,
+        "root": 1
+      },
+      "categories": [
+        "shadowing"
+      ],
+      "expected": "admitted",
+      "id": "shadowing",
+      "identity": {
+        "bytes": 94,
+        "sha256": "bdf6055b4c9be77d8c8da7070a7558c8d91b55a800907c21d23623f5b67b6084"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/importer/identities.cfr"
+    },
+    {
+      "bounds": {
+        "c0_A": 3,
+        "c0_a": 3,
+        "c0_multisetRefToA": 3,
+        "c0_setRefToA": 3,
+        "root": 1
+      },
+      "categories": [
+        "set/bag"
+      ],
+      "expected": "admitted",
+      "id": "upstream-set-bag",
+      "identity": {
+        "bytes": 242,
+        "sha256": "51a87792686b0bdc63e773f1e2624a18b18ce604974a12026642372ed6201a77"
+      },
+      "license": "MIT",
+      "notice": "tests/fixtures/importer/LICENSE-upstream",
+      "origin": "semantics",
+      "path": "tests/fixtures/importer/set_and_bag_references.cfr"
+    },
+    {
+      "bounds": {
+        "c0_x": 3,
+        "c0_y": 3,
+        "root": 1
+      },
+      "categories": [
+        "structural"
+      ],
+      "expected": "admitted",
+      "id": "overlap",
+      "identity": {
+        "bytes": 14,
+        "sha256": "12d61d2d7fe3943aced2cb83249b7aebeeea8eed1ca073914da79a2169eacd5f"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/overlap.cfr"
+    },
+    {
+      "bounds": {
+        "c0_Base": 3,
+        "c0_child": 3,
+        "c0_instance": 3,
+        "root": 1
+      },
+      "categories": [
+        "inherited-field"
+      ],
+      "expected": "unsupported",
+      "id": "inherited-field",
+      "identity": {
+        "bytes": 43,
+        "sha256": "e74dc73e917e345446c7d9229d55a745e3d31274cad274057f41db2ad75cde25"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "compiler",
+      "path": "tests/fixtures/oracles/inherited-field.cfr"
+    },
+    {
+      "bounds": {
+        "c0_value": 3,
+        "root": 1
+      },
+      "categories": [
+        "numeric"
+      ],
+      "expected": "unsupported",
+      "id": "numeric",
+      "identity": {
+        "bytes": 22,
+        "sha256": "89a5b4045c5544befa8119812eb43431f4f08b88f8bacd3e809749ed823225be"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "compiler",
+      "path": "tests/fixtures/oracles/numeric.cfr"
+    },
+    {
+      "bounds": {
+        "root": 1
+      },
+      "categories": [
+        "expression"
+      ],
+      "expected": "unsupported",
+      "id": "expression",
+      "identity": {
+        "bytes": 22,
+        "sha256": "4d1fb34d298e3c4d101de557620a18f079987224e0dbd88b2ff79968dff0c7f6"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "compiler",
+      "path": "tests/fixtures/oracles/expression.cfr"
+    },
+    {
+      "bounds": {
+        "root": 1
+      },
+      "categories": [
+        "temporal"
+      ],
+      "expected": "unsupported",
+      "id": "temporal",
+      "identity": {
+        "bytes": 18,
+        "sha256": "b3597b34857fa25323aaf799765dd42d84396fdf9a481614339109084c2831e1"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "compiler",
+      "path": "tests/fixtures/oracles/temporal.cfr"
+    }
+  ],
+  "schema": "clafer-oracle-corpus/1",
+  "semantics_commit": "1454e3bd2ce9697923cdcef3863c816651ffc147"
+}
