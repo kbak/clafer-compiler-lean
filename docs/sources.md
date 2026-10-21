@@ -146,11 +146,15 @@ than silently adopting Haskell's empty-child skip. All new runtime, proof and te
 code is original project code under MIT; no upstream meanings or Haskell code are
 copied. Local source/target finite tests do not replace #12's generated-text oracle.
 
-The [representation proof layer](structural-correctness.md) uses the same S1
-`Configuration` directly and inspects the pinned `Semantics/Renaming.lean`,
-`Semantics/Bridge.lean` and `Verification/Representation.lean` for the outstanding
-composition boundary. The current stage does not claim to compose their
-preservation theorems. The runtime layout is the accepted #10 encoding guided by
-S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New representation,
-stack proofs and fixtures are original project code; no upstream meanings or
-Haskell implementation are copied or changed.
+The [M1 preservation layer](structural-correctness.md) uses the same S1
+`Configuration` directly, together with pinned `Semantics/Renaming.lean`,
+`Semantics/Bridge.lean` and `Semantics/Normalization.lean`. It composes
+`Configuration.structural_model_iff`, `erasure_correspondence` (including its
+compiled-bank bridge) and `SpanModel.normalize_satisfies`, retaining their actual
+global hypotheses. DPGraph's `Predicates.inRange_card` connects finite fiber counts
+to its independent multiplicity meaning. Existing Mathlib finite-carrier and
+right-unique reachability lemmas support the concrete representation; no package
+or pin changes. The runtime layout remains the accepted #10 encoding guided by
+S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New proofs and
+fixtures are original project code; no upstream meanings or Haskell implementation
+are copied or changed.

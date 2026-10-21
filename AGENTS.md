@@ -7,9 +7,10 @@ This is a private structural IR/build project with an adopted Clafer-to-Alloy co
 Follow the contract's review status and manual intake gates. The build, comparison
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
 Independent Alloy target #8, text #9 and structural backend #10 are accepted
-through PRs #26–#28. Correctness task #11 is selected; its representation layer is
-partial and global preservation remains unfinished. Do not implement compiler
-features until their owning task is selected and its dependencies are accepted.
+through PRs #26–#28. Correctness task #11 now has M1 soundness and bounded-completeness
+proofs pending semantic acceptance. Inherited realization #13 is selected by the
+maintainer but awaits that acceptance. Do not implement compiler features until
+their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a

@@ -9,7 +9,8 @@ external validation; the [IR API and proof inventory](ir.md) record the delivere
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
 [text task #9](alloy-text.md) are accepted through PRs #28 and #27. Selected #11
-has a partial [representation proof layer](structural-correctness.md). Later tasks
+has [M1 representation and preservation proofs](structural-correctness.md) pending
+semantic acceptance. Selected #13 awaits that acceptance. Other later tasks
 require their own manual intake. The remaining contracts below are delivery
 specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
@@ -434,6 +435,8 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
 approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is selected;
-its representation work is partial and global preservation remains unproved.
+its M1 soundness and bounded-completeness proofs are implemented with explicit
+finite scope and integer-range assumptions, pending semantic acceptance. The
+maintainer selected #13 next; its dependency gate remains in force.
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.

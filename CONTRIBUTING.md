@@ -9,9 +9,10 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
 [independent Alloy core](docs/alloy-core.md), an accepted
 [structural backend](docs/structural-encoding.md), and accepted
-[checked serialization](docs/alloy-text.md). Selected #11 adds a partial
-[representation proof layer](docs/structural-correctness.md). Global preservation
-remains unfinished; CLI integration has separate owners.
+[checked serialization](docs/alloy-text.md). Selected #11 adds
+[M1 soundness and bounded completeness](docs/structural-correctness.md) under
+explicit finite scope and integer-range hypotheses. Semantic acceptance is pending;
+CLI integration and inherited realization have separate owners.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests

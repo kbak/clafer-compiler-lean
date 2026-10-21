@@ -3,8 +3,8 @@
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
-backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
-layer; global preservation remains unfinished. Future compiler behavior is
+backend #10 through PRs #26–#28. Selected #11 adds finite representation,
+soundness and bounded completeness proofs; semantic acceptance is pending. Future compiler behavior is
 reserved below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -14,7 +14,8 @@ reserved below, not declared implemented or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
-backend and checked serialization. Global compiler preservation remains unproved.
+backend, checked serialization and M1 preservation proofs under explicit finite
+scope and numeric-range assumptions. Semantic acceptance remains pending.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -304,9 +305,40 @@ Kernel-prove the encode/decode data round trip under explicit table/root hygiene
 and derive decoder success and a concrete representation from satisfaction of an
 actual successful compiler output, including live-atom coverage from target
 constraints. Exercise nontrivial bag witnesses, semantic violations, renamed atoms
-and malformed tables. Keep these results distinct from the unfinished global
+and malformed tables. Keep these representation results distinct from the global
 source-soundness, bounded-completeness and compiled-bank composition obligations
-of #11, specified in the [correctness work](structural-correctness.md).
+of #11, specified in the [correctness contract](structural-correctness.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Structural soundness and bounded completeness
+
+`req~compiler-structural-correctness~1`
+
+For the exact admitted M1 effective domain and a successful compilation, prove
+that every independently satisfying target instance decodes to a concretely
+represented source configuration satisfying every upstream structural clause.
+Derive root, carrier coverage, typed endpoints, inheritance, abstract cover,
+declaration disjointness, ownership, references, keys, local bounds and group
+unions from the emitted target declarations and facts. Do not assume source truth,
+successful decoding or a supplied preservation equivalence.
+
+Conversely, construct a target representation of every finite source configuration
+satisfying that independent meaning and fitting the manual scopes and signed
+integer observation ranges. State scope counts and numeric definedness separately
+from source and target satisfaction. Preserve every source object and reference
+occurrence, including repeated bag targets. Compose with the pinned local-bank,
+constraint-free erasure and arbitrary-link normalization results while retaining
+their actual global hypotheses. Keep native and serialized execution outside the
+kernel theorem boundary; bounded absence does not establish unrestricted UNSAT.
+
+Kernel-check nontrivial actual compilation witnesses and mutations distinguishing
+omitted upper bounds, collapsed bag heads and missing global abstract cover.
+Keep semantic acceptance and dependent task intake separate from automated checks.
+The [correctness contract](structural-correctness.md) records exact APIs and assumptions.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -378,7 +410,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
 | `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
