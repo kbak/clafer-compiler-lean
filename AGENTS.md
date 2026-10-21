@@ -12,7 +12,8 @@ partial and global preservation remains unfinished. PR #29 merged that partial
 representation API; task #12 is selected for exact three-way comparison and decoding.
 Parser task #16 is independently
 selected after accepted #6; its [authored API and assurance boundary](docs/parser.md)
-await semantic review. Do not implement compiler
+await semantic review. Typed static expression task #14 is selected; its semantic
+review also remains pending. Do not implement compiler
 features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and

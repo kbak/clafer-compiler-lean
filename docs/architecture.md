@@ -9,8 +9,9 @@ external validation; the [IR API and proof inventory](ir.md) record the delivere
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
 [text task #9](alloy-text.md) are accepted through PRs #28 and #27. Selected #11
-has a partial [representation proof layer](structural-correctness.md). Later tasks
-require their own manual intake. The remaining contracts below are delivery
+has a partial [representation proof layer](structural-correctness.md). The
+[typed expression API](expressions.md) is selected as #14 after #7 acceptance.
+Later tasks require their own manual intake. The remaining contracts below are delivery
 specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
@@ -105,7 +106,8 @@ extra semantic restrictions on the compiler's own IR API.
 S4 is the authority for meanings; #14 owns executable syntax and interpretation,
 #15 translation/constructor proofs, and #18 source elaboration. Every row needs
 positive and rejecting/violating examples, including undefined cases where relevant.
-`Expr` below is `Clafer.Constraints.Expr`, not a delivered compiler type.
+`Expr` below is `Clafer.Constraints.Expr`; the corresponding delivered #14 representation is
+`ClaferCompiler.IR.Expr.Term` with `Checked` typing evidence.
 
 | Accepted constructor(s) | Meaning and boundary | Surface route |
 | --- | --- | --- |

@@ -1,6 +1,7 @@
 module
 
 public import ClaferCompiler.IR.Structural
+public import ClaferCompiler.IR.ExprObservation
 
 public section
-/-! Executable resolved structural IR (#7). Static expressions belong to #14. -/
+/-! Executable structural IR (#7) and typed static expressions (#14). -/

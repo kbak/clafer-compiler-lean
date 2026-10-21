@@ -8,6 +8,7 @@ Build, oracle and IR tasks #5–#7 are accepted through PRs #23–#25. The
 partial [representation proofs](structural-correctness.md) have separate boundaries.
 The accepted [serializer and canonical parser](alloy-text.md) have a separate
 successful-render assurance boundary; no global preservation theorem is delivered.
+The [typed expression API](expressions.md) has its own #14 proof/test boundary.
 
 ## Package and module ownership
 
@@ -21,10 +22,10 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 | Root | Role and owner | Allowed project dependencies |
 | --- | --- | --- |
 | `ClaferCompiler.Frontend` | Empty ownership root; #16–#18 | Runtime modules |
-| `ClaferCompiler.IR` | Executable structural tables/admission; #7, expressions later #14 | Runtime modules |
+| `ClaferCompiler.IR` | Executable structural tables/admission; #7, typed expressions #14 | Runtime modules |
 | `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics; #8, then #9/#10/#15 | Runtime modules |
 | `ClaferCompiler.Driver` | Pure bootstrap response; #5, then #19/#20 | Runtime modules |
-| `ClaferCompiler.SemanticsBridge` | Structural interpretation/admission proofs; #7, expressions later #14 | Runtime/proof modules and upstream |
+| `ClaferCompiler.SemanticsBridge` | Structural interpretation/admission proofs; #7, typed expressions #14 | Runtime/proof modules and upstream |
 | `ClaferCompiler.Correctness` | Bootstrap, local generation and finite representation proofs; #5/#10/#11, then #15/#20 | Runtime/proof modules and upstream |
 | `ClaferCompiler` | Public aggregate for proof consumers | Owned library modules |
 | `Main` | Native IO entrypoint; #5, then #19/#20 | Runtime modules only |

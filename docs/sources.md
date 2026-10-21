@@ -172,3 +172,12 @@ MIT project code. Native properties and the existing hash-checked Haskell captur
 adapter test syntax only. M1 capture rejection after parsing is not an M2 semantic
 oracle; reference EOF crashes remain tool failures, and adopted profile exclusions
 remain visible. No upstream meaning, dependency revision or language scope changes.
+
+The selected [expression API](expressions.md) maps S4's complete typed constructor
+inventory directly into the pinned upstream denotation. `DenotationSupport` and
+`DenotationInvariance` supply observation invariance and original-link equivalence;
+`Integer` and `CollectionMeaning` supply partial extraction and typed collection
+meaning. S5's static `clafer.cf` productions and S6's `genPExp'`, `genIFunExp` and
+`genOp` were inspected for constructor shape and operand order. The downstream
+checker, observation extension and tests are original MIT code. No upstream
+semantics, primitive domains, positive-map support or dependency pins changed.
