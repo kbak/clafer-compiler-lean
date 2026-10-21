@@ -223,7 +223,7 @@ elaborate(AuthoredSyntax) -> Result ValidatedIR Diagnostics         [M2]
 ```
 
 The developer interchange is [versioned JSON](ir.md#developer-interchange-contract)
-(`clafer-ir/1` initially; parsing belongs to #19), with an
+(`clafer-ir/1`; strict decoding is supplied by selected #19), with an
 explicit profile, ordered declarations, stable-within-input IDs, separate display
 names, origins, parent/super/reference IDs, local/group bounds and optional source
 origins. M1 permits effective-only provenance explicitly marked as such. M2 extends
@@ -234,7 +234,7 @@ Source locations never substitute for identity; array order never silently chang
 reference binding. IDs need not persist across edits. A Haskell capture is a
 separate format requiring an explicit adapter.
 
-The planned executable is `clafer-compiler`. M1 exposes `compile-ir INPUT --bounds
+The selected [native driver](cli.md) is `clafer-compiler`. M1 exposes `compile-ir INPUT --bounds
 BOUNDS --output OUTPUT`; #20 adds `compile-source INPUT` with the same bound/output
 contract. `-` selects stdin/stdout. No implicit input-format detection or default
 scope. A versioned bounds file identifies declaration IDs and specifies each
@@ -274,8 +274,9 @@ reports SAT (with checked decode), bounded UNSAT, timeout, unknown or tool error
 These are not compile exit codes and are never collapsed into success/UNSAT.
 A valid exact bound that excludes all source models yields bounded UNSAT, not an
 invalid program. Only malformed/incomplete bound specifications or unsafe encoding
-profiles are rejected before solving. Native packaging/runtime-library checks
-belong to #19; no public release is authorized.
+profiles are rejected before solving. The #19
+[runtime-only check](cli.md#native-runtime) exercises the binary without
+development tools; no public release is authorized.
 
 ## Arithmetic, definedness and finite observation
 

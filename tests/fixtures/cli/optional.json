@@ -1,0 +1,69 @@
+{
+  "version": "clafer-ir/1",
+  "profile": "m1-effective",
+  "root": 100,
+  "declarations": [
+    {
+      "id": 100,
+      "name": "root",
+      "origin": "root",
+      "parent": null,
+      "super": null,
+      "reference": {
+        "kind": "basic"
+      },
+      "isAbstract": false,
+      "localBounds": {
+        "lower": 0,
+        "upper": "*"
+      },
+      "groupBounds": {
+        "lower": 0,
+        "upper": "*"
+      },
+      "source": null,
+      "authored": null
+    },
+    {
+      "id": 7,
+      "name": "résumé",
+      "origin": "user",
+      "parent": 100,
+      "super": null,
+      "reference": {
+        "kind": "basic"
+      },
+      "isAbstract": false,
+      "localBounds": {
+        "lower": 0,
+        "upper": 1
+      },
+      "groupBounds": {
+        "lower": 0,
+        "upper": "*"
+      },
+      "source": {
+        "file": "example.cfr",
+        "startByte": 2,
+        "endByte": 10
+      },
+      "authored": {
+        "isAbstract": false,
+        "localBounds": null,
+        "groupBounds": null
+      }
+    }
+  ],
+  "parentRanks": [
+    0,
+    1
+  ],
+  "superRanks": [
+    0,
+    0
+  ],
+  "unused": [
+    false,
+    false
+  ]
+}

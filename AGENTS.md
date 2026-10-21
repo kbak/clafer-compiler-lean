@@ -10,7 +10,8 @@ Independent Alloy target #8, text #9 and structural backend #10 are accepted
 through PRs #26–#28. Correctness task #11 was accepted by the maintainer through
 PR #33 at 67b9137cde9e2b486733aecd6eb4f5559b780ea3. Selected inherited
 realization #13 has an implementation and preservation proofs pending semantic
-acceptance. Task #12 supplies exact three-way comparison and decoding.
+acceptance. Task #12 supplies accepted exact three-way comparison and decoding. Selected
+#19 integrates the [native resolved-IR CLI](docs/cli.md), pending semantic review.
 Parser task #16 is accepted through PR #30; its
 [authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 is
 selected after accepted #16/#7; its [checked resolution/defaults](docs/resolution.md)

@@ -61,6 +61,15 @@ class InventoryTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'prohibited'):
                     project.validate(self.root)
 
+    def test_json_reuse_does_not_admit_arbitrary_lean_imports(self):
+        for dependency in sorted(project.RUNTIME_JSON):
+            self.write('ClaferCompiler/Driver/Hidden.lean', f'import {dependency}\n')
+            project.validate(self.root)
+        for dependency in ['Lean', 'Lean.Elab', 'Lean.Data.Json', 'Lean.Data.JsonExtra', 'Cli']:
+            self.write('ClaferCompiler/Driver/Hidden.lean', f'import {dependency}\n')
+            with self.assertRaisesRegex(ValueError, 'unapproved dependency'):
+                project.validate(self.root)
+
     def test_comments_and_strings_are_not_proof_escapes(self):
         self.write('ClaferCompiler/IR/Hidden.lean',
                    '/- sorry /- admit -/ -/\n-- unsafe\ndef text := "partial -- /- axiom"')

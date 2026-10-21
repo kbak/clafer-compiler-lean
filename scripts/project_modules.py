@@ -19,6 +19,9 @@ AUDIT_MARKER = "-- PROJECT_IMPORTS"
 OWNERS = {"Frontend", "IR", "SemanticsBridge", "Backend", "Correctness", "Driver"}
 PROOF = {"SemanticsBridge", "Correctness"}
 UPSTREAM = {"Clafer", "FormalCD", "DPGraph", "Mathlib"}
+# Pinned toolchain JSON representation/escaping and parser primitives used by #19.
+# Keep this exact: importing the elaborator or arbitrary Lean modules is not admitted.
+RUNTIME_JSON = {'Lean.Data.Json.Parser', 'Lean.Data.Json.FromToJson.Basic'}
 PIN = "1454e3bd2ce9697923cdcef3863c816651ffc147"
 TOOLCHAIN = "leanprover/lean4:v4.35.0"
 
@@ -157,7 +160,7 @@ def validate(repo):
                     raise ValueError(f'{module}: runtime imports proof-only module {dependency}')
                 if parts[0] == 'ClaferCompiler' and dep[0] == 'Main':
                     raise ValueError('library cannot import the IO entrypoint')
-            elif dep[0] not in UPSTREAM | {'Init', 'Std'}:
+            elif dep[0] not in UPSTREAM | {'Init', 'Std'} and dependency not in RUNTIME_JSON:
                 raise ValueError(f'{module}: unapproved dependency {dependency}')
             elif runtime and dep[0] in UPSTREAM:
                 raise ValueError(f'{module}: runtime imports upstream semantics {dependency}')

@@ -15,7 +15,8 @@ hypotheses. The maintainer accepted #11 through PR #33. Selected
 [inherited realization](docs/inherited-realization.md) adds the full Appendix 6
 structural skeleton and preservation proofs; its semantic review is pending.
 The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
-and strict instance decoding. CLI integration is a separate task.
+and strict instance decoding. Selected #19 supplies the
+[native resolved-IR CLI](docs/cli.md), pending semantic review.
 The accepted [static source parser](docs/parser.md) retains authored syntax and
 source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
 adds checked declaration elaboration; source expression typing remains separate.
@@ -59,8 +60,17 @@ bash scripts/check.sh
 Contributions also require the pinned [IntentBond](https://github.com/kbak/intentbond)
 check; see [setup and validation](CONTRIBUTING.md#setup-and-validation).
 The [build contract](docs/build.md) describes module ownership, kernel/axiom
-auditing and the native execution trust boundary. The executable only supports
-`--version`; compilation commands arrive in later tasks.
+auditing and the native execution trust boundary. The executable compiles the
+guarded M1 developer IR with explicit bounds:
+
+```sh
+.lake/build/bin/clafer-compiler compile-ir tests/fixtures/cli/optional.json \
+  --bounds tests/fixtures/cli/bounds.json --output /tmp/example.als
+```
+
+See the [CLI contract](docs/cli.md) for stdin/stdout, diagnostics, exit codes and
+runtime-only use. Source text remains unsupported. The validation suite also
+requires Bubblewrap and `ldd` on Linux/glibc.
 
 Plan work in issues before implementation. Factory intake is manual, and a
 planning issue does not authorize compiler work. Contract review precedes dependent

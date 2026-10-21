@@ -1,0 +1,17 @@
+{
+  "version": "clafer-bounds/1",
+  "objects": 2,
+  "bitwidth": 5,
+  "declarations": [
+    {
+      "id": 100,
+      "size": 1,
+      "exact": false
+    },
+    {
+      "id": 7,
+      "size": 1,
+      "exact": false
+    }
+  ]
+}
