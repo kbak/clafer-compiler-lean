@@ -209,7 +209,8 @@ API shapes (`validate`, `validateRaw` and `validateDocument` implement the
 [admission API](ir.md); `Backend.Alloy.Structural.compile` implements the
 [in-memory structural compilation API](structural-encoding.md), and `Text.render`
 implements [checked serialization](alloy-text.md). The [authored parser](parser.md)
-implements `parse` under selected task #16. Frontend elaboration remains separate work):
+implements `parse` under accepted task #16. Selected #17 implements
+[checked declaration elaboration](resolution.md); expression elaboration remains #18):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -439,8 +440,10 @@ The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
 approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is selected;
 its representation work is partial and global preservation remains unproved.
-Parser #16 is independently selected after accepted #6; its authored API and
+Parser #16 is accepted through PR #30; its authored API and
 unproved grammar boundary are described in the [parser contract](parser.md).
+Selected #17 supplies the [resolution/defaulting contract](resolution.md) after
+#16/#7 acceptance; its semantic acceptance remains pending.
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
 

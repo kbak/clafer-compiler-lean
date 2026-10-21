@@ -13,8 +13,9 @@ The selected [representation work](docs/structural-correctness.md) proves concre
 decoding and data round trips. Global preservation proofs remain unfinished.
 The selected [three-way comparison](docs/comparison.md) exercises native-generated
 Alloy and strict instance decoding. CLI integration is a separate task.
-The selected [static source parser](docs/parser.md) retains authored syntax and
-source diagnostics; resolution and source expression typing remain separate tasks.
+The accepted [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
+adds checked declaration elaboration; source expression typing remains separate.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
 and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
 adds bounded target arithmetic; source constraint translation and attachment

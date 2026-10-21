@@ -24,7 +24,8 @@ build bootstrap, reproducible external [comparison tooling](oracles.md), executa
 checked target ASTs with explicit manual bounds. Global compiler correctness
 proofs and CLI integration remain separate tasks. The selected
 [static parser](parser.md) preserves authored syntax and source diagnostics;
-resolution/defaulting and expression typing remain separate tasks. The selected
+[checked declaration resolution/defaulting](resolution.md) is selected as #17,
+while expression typing remains #18. The selected
 direction is
 structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
@@ -32,9 +33,10 @@ was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were acce
 through merged PRs #23–#25; target #8, text #9 and structural backend #10 through
 PRs #26–#28. Correctness task #11 is selected. Its
 [finite representation layer](structural-correctness.md) is partial; global
-soundness and bounded completeness remain unfinished. Parser task #16 is selected
-after accepted prerequisite #6; its semantic review remains pending. Typed
-expression task #14 is accepted through PR #32. The
+soundness and bounded completeness remain unfinished. Parser task #16 is accepted
+through PR #30. Task #17 is selected after #16/#7 acceptance; its
+resolution/defaulting semantic review remains pending. Typed expression task #14
+is accepted through PR #32. The
 [expression API](expressions.md) supplies checked syntax, independent denotation
 and finite-observation proofs. Task #15 is selected; its
 [bounded target arithmetic](expression-encoding.md) is implemented with review
@@ -101,6 +103,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Correctness work](structural-correctness.md): finite representation and remaining preservation obligations.
+- [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.

@@ -50,8 +50,9 @@ Effective local/group bounds and abstractness are authoritative at this boundary
 The optional `Authored` record preserves supplied abstract/local/group observations
 as opaque metadata; `none` explicitly means effective-only provenance. No authored
 value is inferred, checked for default agreement, or interpreted into the source
-AST. Keyword provenance and authored elaboration belong to #17 and need a deliberate
-profile extension. The effective-core interpretation is sufficient for M1; building
+AST. Keyword provenance and authored elaboration are retained by #17’s separate
+[in-memory frontend candidate](resolution.md); the v1 interchange profile is unchanged. The
+effective-core interpretation is sufficient for M1; building
 an AST here would invent missing authored/default information.
 
 ## Developer interchange contract

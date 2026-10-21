@@ -10,8 +10,9 @@ Independent Alloy target #8, text #9 and structural backend #10 are accepted
 through PRs #26–#28. Correctness task #11 is selected; its representation layer is
 partial and global preservation remains unfinished. PR #29 merged that partial
 representation API; task #12 is selected for exact three-way comparison and decoding.
-Parser task #16 is independently
-selected after accepted #6; its [authored API and assurance boundary](docs/parser.md)
+Parser task #16 is accepted through PR #30; its
+[authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 is
+selected after accepted #16/#7; its [checked resolution/defaults](docs/resolution.md)
 await semantic review. Typed static expression task #14 is accepted through PR #32.
 Task #15 is selected; its [target arithmetic work](docs/expression-encoding.md)
 does not yet supply source constraint or attachment preservation. Do not implement compiler
