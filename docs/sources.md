@@ -154,3 +154,12 @@ preservation theorems. The runtime layout is the accepted #10 encoding guided by
 S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New representation,
 stack proofs and fixtures are original project code; no upstream meanings or
 Haskell implementation are copied or changed.
+
+The [three-way comparison](comparison.md) reuses S8's pinned exact-candidate
+protocol, generators, isomorphism, mutation and shrinking algorithms and S6's
+paired Haskell capture. The downstream adapter invokes the existing M1 compiler,
+S7-pinned Analyzer and native decoder; all new adapter/test code is original MIT.
+S6's `genParentConst`, `genGroupConst`, `mkCard` and signature `extends` emission
+were inspected to retain the virtual-root, multiplicity and hierarchy differences.
+No source meaning, upstream tool, fixture identity or dependency pin is changed.
+The four-byte `A ?` source in tests/fixtures/comparison is original project code.

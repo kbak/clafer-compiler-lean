@@ -313,6 +313,49 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Strict external instance decoding
+
+`req~compiler-instance-decode~1`
+
+Decode actual native-generated Alloy instances into the shared source candidate
+protocol, preserving declaration identity, all objects, containment endpoints
+and distinct reference heads even when owner/target pairs coincide. Reject
+unknown/missing tables, duplicate identities/tuples, invalid arities/endpoints
+and malformed roots. Keep well-formed semantic violations distinct from malformed
+input. Prove exact row correspondence for the executable export from the existing
+structural observation; identify JSON/Analyzer parsing and native execution as
+unproved external boundaries. See the [comparison contract](comparison.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Exact three-way candidate comparison
+
+`req~compiler-differential~1`
+
+Within the common admitted capture domain, compare the identical candidate with
+the upstream verified checker, same-generation Haskell Alloy and actual native
+Lean compilation/serialization/Alloy. Retain equivalent explicit source scopes,
+bitwidth and solver options, documenting the virtual versus explicit root layout.
+Require exact decoded-candidate isomorphism for SAT, preserve negative candidates
+and both discrepancy directions, and never treat raw text equality as the oracle.
+
+Exercise complete tiny enumerations and reproducible seeded generation without
+satisfaction filtering. Retain sources, IR, raw candidate/output, maps, tool/source
+identities, commands, options, seeds and replay evidence outside source. Verify
+replay identities; minimize completed discrepancies with retained attempts and
+honest deletion-minimality bounds. Detect injected occurrence collapse, omitted
+cardinality/group/disjointness enforcement and swapped endpoints. Keep malformed,
+unsupported, timeout/resource and tool failure outcomes separate from completed
+agreement. Finite comparisons do not replace the outstanding global backend proofs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -379,7 +422,6 @@ coverage.
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
-| `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
 | `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
 | `compiler-arithmetic` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14), [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Definedness, finite observation and no-overflow correspondence |

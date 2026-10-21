@@ -3,8 +3,8 @@
 [Issue #6](https://github.com/kbak/clafer-compiler-lean/issues/6) supplies external
 Haskell, Lean and Alloy tools for the adopted structural contract. It reuses
 `scripts/verification/` from the immutable Clafer Semantics Lake dependency.
-The compiler still has no translation pass. These runs compare Haskell-generated
-Alloy with the upstream Lean checker; #12 adds downstream compiler-generated Alloy.
+These original runs compare Haskell-generated Alloy with the upstream Lean checker.
+Selected #12 adds the [three-way comparison](comparison.md) with native-generated Alloy.
 There is no new theorem in this task.
 
 ## Tools and profile

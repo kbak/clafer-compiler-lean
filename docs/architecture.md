@@ -437,3 +437,8 @@ approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is sele
 its representation work is partial and global preservation remains unproved.
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
+
+Selected #12's [comparison contract](comparison.md) records the concrete native
+decode/export API and exact three-way execution boundary. #11's merged partial
+representation layer is its data API dependency; full source soundness and bounded
+completeness remain outstanding and are not inferred from finite comparisons.

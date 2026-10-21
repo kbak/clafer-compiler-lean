@@ -42,6 +42,10 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 Publication remains a separate
 [decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
+The selected [three-way comparison](comparison.md) connects actual native-generated
+Alloy and strict instance decoding to the pinned checker and Haskell comparison.
+Its evidence remains finite; it does not complete the outstanding global proofs.
+
 ## Delivery and selected language scope
 
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:
@@ -79,6 +83,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Requirements](spec.md): current repository and planning obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
+- [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.

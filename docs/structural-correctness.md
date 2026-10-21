@@ -4,8 +4,8 @@
 acceptance of the [structural backend](structural-encoding.md) in PR #28. This is
 an incomplete implementation of that issue. The current artifacts establish the
 finite representation and successful decoding of satisfying target instances.
-They do **not** prove source satisfaction or bounded completeness. Issue #11 and
-its global correctness requirement remain open; none of these lemmas substitutes
+They do **not** prove source satisfaction or bounded completeness. Issue #11 was closed with merged PR #29, but
+its global correctness requirement remains outstanding; none of these lemmas substitutes
 for the two preservation directions in the [architecture](architecture.md).
 
 ## Reuse assessment
@@ -147,4 +147,6 @@ requirement by this stage. Remaining work includes:
 
 No scope, admission domain, coverage floor, source pin or proof audit is weakened.
 IntentBond exit 4 leaves semantic review pending, and this partial delivery does
-not unblock #12 or #13 through acceptance of #11.
+not establish the remaining acceptance criteria of #11. The maintainer selected
+#12 after merging PR #29; it uses this representation API while preserving the
+missing-proof obligations. No selection of #13 is implied.
