@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -27,7 +28,8 @@ class CLIExternalTests(unittest.TestCase):
         sources = [ROOT/'Main.lean', ROOT/'ClaferCompiler/Driver.lean', Path(__file__),
                    ROOT/'tests/CLIOracle.java', ROOT/'scripts/oracles/AlloyTextBridge.java',
                    *sorted((ROOT/'ClaferCompiler/Driver').glob('*.lean')),
-                   *sorted((ROOT/'tests/fixtures/cli').glob('*.json'))]
+                   *sorted((ROOT/'tests/fixtures/cli').glob('*.json')),
+                   *sorted((ROOT/'tests/fixtures/pipeline').glob('*'))]
         for source in sources:
             dest = cls.output/'source'/source.relative_to(ROOT)
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -46,12 +48,12 @@ class CLIExternalTests(unittest.TestCase):
         return result
 
     def test_api_maps_and_source_diagnostic_serialization(self):
-        modules = ['ClaferCompiler.IR.Structural', 'ClaferCompiler.Driver', 'tests.Driver']
-        modules += ['ClaferCompiler.Backend.Alloy.'+n for n in
-                    ('Syntax','Bounds','Names','Parse','Print','Structural')]
-        modules += ['ClaferCompiler.Frontend.'+n for n in ('Surface','Lexer','Parser')]
-        modules += ['ClaferCompiler.Driver.'+n for n in ('Json','Diagnostic','Decode')]
-        self.run_recorded('api-build',['lake','build',*['+'+m+':c.o' for m in modules]],cwd=ROOT)
+        self.run_recorded('api-build',['lake','build','+tests.Driver:c.o'],cwd=ROOT)
+        # Reuse Lake's exact production object closure instead of a second list
+        # that becomes incomplete when the command imports source compilation.
+        objects = [Path(p) for p in shlex.split((ROOT/'.lake/build/bin/clafer-compiler.rsp').read_text())
+                   if p.endswith('.c.o.export') and Path(p).name != 'Main.c.o.export']
+        self.assertTrue(objects)
         harness = self.output/'Harness.lean'
         harness.write_text('import tests.Driver\ndef main : IO Unit := ClaferCompiler.Tests.Driver.run\n')
         cfile = self.output/'Harness.c'
@@ -59,7 +61,7 @@ class CLIExternalTests(unittest.TestCase):
         self.run_recorded('api-compile',['lake','env','lean',f'--root={self.output}',
                           '-c',cfile,harness],cwd=ROOT)
         self.run_recorded('api-link',['lake','env','leanc',cfile,
-            *[ROOT/'.lake/build/ir'/(m.replace('.','/')+'.c.o.export') for m in modules],
+            *objects, ROOT/'.lake/build/ir/tests/Driver.c.o.export',
             '-o',exe],cwd=ROOT)
         r = self.run_recorded('api-run',[exe],cwd=ROOT)
         result = json.loads(r.stdout)
@@ -149,3 +151,11 @@ class CLIExternalTests(unittest.TestCase):
                            'bounds.json','--output','host.als'],cwd=work)
         self.assertEqual((work/'isolated.als').read_bytes(),(work/'host.als').read_bytes())
         self.assertFalse((work/'isolated.als').read_bytes()==b'')
+
+        for name in ['two-values.cfr', 'two-values.bounds.json']:
+            shutil.copyfile(ROOT/'tests/fixtures/pipeline'/name,work/name)
+        self.run_recorded('isolated-source',[*command,'/compiler','compile-source','two-values.cfr',
+                           '--bounds','two-values.bounds.json','--output','source-isolated.als'])
+        self.run_recorded('host-source',[self.exe,'compile-source','two-values.cfr','--bounds',
+                           'two-values.bounds.json','--output','source-host.als'],cwd=work)
+        self.assertEqual((work/'source-isolated.als').read_bytes(),(work/'source-host.als').read_bytes())

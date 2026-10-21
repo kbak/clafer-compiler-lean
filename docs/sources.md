@@ -271,3 +271,20 @@ The [reuse assessment](cli.md#reuse-assessment) records CLI-library alternatives
 runtime/proof limits and licenses. New code/fixtures remain original MIT; imported
 Lean library code remains Apache-2.0. No semantic definition, Haskell code,
 dependency pin or trusted scope policy changes.
+
+## Source pipeline composition (#20)
+
+The pinned S3 `Realization.Satisfies` and S4 `IntegerBinding` jointly require an
+infinite rooted primitive domain. The complete S8 telematics `Input`,
+`Configuration`, `Satisfaction` and `Compiled` modules supply the independent
+full-domain inventory. Local `PipelineLimits` counterexamples expose the old
+synthetic `1..1`/absent-carrier mismatch; #42/#43 correct downstream elaboration
+without changing the upstream pin. `PipelineCompletion`, `PipelineRestriction`
+and query agreement discharge the compiler-specific finite observation bridge.
+Mathlib countable equivalences and finite permutation extension supply allocation
+existence; no new runtime library or semantic definition is vendored.
+
+S5/S6 remain syntax and compatibility guides. The full source comparison extends
+the inherited/source observation boundary with its own proved checker; it does
+not run the guarded Haskell/M1 comparison outside its accepted domain. See the
+[pipeline inventory](pipeline.md) for exact theorem and external replay limits.

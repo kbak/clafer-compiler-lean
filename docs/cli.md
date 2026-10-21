@@ -1,8 +1,8 @@
-# Native resolved-IR compiler
+# Native source and resolved-IR compiler
 
 [Issue #19](https://github.com/kbak/clafer-compiler-lean/issues/19) selects the
-native M1 driver after accepted #12. Its implementation is subject to semantic
-review. Source-text compilation remains #20; publication is not authorized.
+native M1 driver, accepted through PR #39. Selected [#20](pipeline.md) adds source
+compilation and version-2 bounds, pending semantic review.
 
 ## Reuse assessment
 
@@ -42,12 +42,12 @@ driver/test code remains MIT. No dependency pins or scope policy change.
 
 The full check's fixed 120-second deadline also requires overlapping the new CLI
 suite with existing regressions. The existing unittest discovery/runner and
-standard `subprocess` are reused: one separate process runs the two CLI modules
-and the existing audit-fixture module, while the parent runs all remaining discovered cases. Both must execute nonempty
-suites without skips and pass. Separate processes avoid sharing Python mocks or
-module state. The CLI process builds only its own test harness and runtime objects
-already built by the production executable, plus frontend parser objects unused
-by the concurrently starting target tests. Pytest/xdist was considered but would
+standard `subprocess` are reused: one process runs the M1 CLI, comparison and audit
+regressions, another runs the source CLI and pipeline comparisons, and the parent
+runs all remaining discovered cases. Every group must execute a nonempty suite
+without skips and pass. Separate processes avoid sharing Python mocks or module
+state. Test harnesses link the production objects already built by Lake; concurrent
+Alloy invocations use separate Java bridge build directories. Pytest/xdist was considered but would
 add dependencies and change collection semantics for an established unittest suite.
 The audit regressions were checked individually: their Lean fixtures and outputs
 live in fresh temporary directories, and they only read the shared audit template.
@@ -56,7 +56,7 @@ No case, assertion, kernel gate or timeout is removed; failure propagation is te
 ## Command contract
 
 `clafer-compiler --version` reports the package version, exact M1 profile, IR and
-bounds versions, semantic/Haskell source pins and absence of source-text support.
+bounds versions, semantic/Haskell source pins and the `m2-source` profile.
 `--help` prints usage. Compilation is:
 
 ```sh
@@ -68,7 +68,15 @@ All three input/bounds/output arguments are required. `-` selects stdin/stdout;
 at most one input may use stdin. `--objects N` and `--bitwidth N` override the
 explicit corresponding bounds-file values. Duplicate/unknown options fail.
 Numbers use nonnegative decimal tokens without signs or leading zeroes.
-`compile-source` is unsupported. No solver or reference compiler runs implicitly.
+The source command uses the same stream, override and output options:
+
+```sh
+clafer-compiler compile-source model.cfr --bounds bounds-v2.json --output model.als
+```
+
+It runs the accepted parser, checked resolution, source constraint elaboration,
+inherited and expression encoders, and checked serializer. No solver or reference
+compiler runs implicitly.
 
 The [closed `clafer-bounds/1` schema](../schemas/clafer-bounds-1.schema.json)
 contains `version`, `objects`, `bitwidth`, and
@@ -80,6 +88,19 @@ unsafe count/literal bounds are unsupported. Contradictory valid bounds compile.
 The schema describes values; the same strict lexical rules as developer IR reject
 duplicate keys, exponent/fraction/signed number tokens and invalid UTF-8/escapes.
 
+The [closed `clafer-bounds/2` schema](../schemas/clafer-bounds-2.schema.json)
+adds `integers: [{id, lower, upper}]`, exactly once per implicit primitive ID.
+Only interval endpoints admit signed integer tokens (no `-0`, fractions,
+exponents, leading zeroes or strings). Declaration IDs are original preorder IDs:
+root 0, authored declarations, then the implicit integer declaration when needed.
+The `objects` budget counts distinct nonprimitive objects, including the root.
+Primitive scopes count only observed integer atoms; they never bound mathematical
+`Int`. The emitted union scope adds their explicit capacities. Every original ID
+still requires a scope, including abstract declarations and a zero-sized unused
+integer observation. The synthetic primitive has unrestricted multiplicity and
+is present for any constraint-bearing source, even `[0 = 0]`; see the review of
+[#42/#43](pipeline.md#carrier-decision-exposed-by-composition).
+
 Run the committed [optional model](../tests/fixtures/cli/optional.json) with its
 [bounds](../tests/fixtures/cli/bounds.json):
 
@@ -90,7 +111,7 @@ Run the committed [optional model](../tests/fixtures/cli/optional.json) with its
 
 Success writes only complete deterministic Alloy, with exit 0 and empty stderr.
 Compilation makes no SAT claim. Malformed input/options exit 2, unsupported
-profiles/ranges/source input exit 3, and IO/internal failures exit 1. Diagnostics
+profiles/ranges/unsupported source forms exit 3, and IO/internal failures exit 1. Diagnostics
 go only to stderr, in text by default or one version-1 JSON object with
 `--diagnostics json`. JSON carries stable code, phase, category, message, primary
 IR filename/pointer/declaration ID and related locations. IR metadata has no
@@ -102,12 +123,13 @@ serialization and output. Schema fields use fixed decoder order. Argument and
 IO diagnostics without an IR position use an empty pointer and null declaration.
 `Driver.sourceDiagnosticJson` serializes the existing source diagnostic shape,
 including original CRLF/Unicode byte positions, one-based scalar coordinates and
-related source spans; it does not add source compilation to the command.
+related source spans. Source compilation uses these locations for parser,
+resolver, elaborator and failing-body encoding errors; bounds errors refer to
+the bounds document.
 
 | Code(s) | Phase | Category |
 | --- | --- | --- |
 | `cli.arguments` | arguments | malformed |
-| `cli.source-unsupported` | arguments | unsupported |
 | `input.utf8`, `input.json`, `input.schema` | decode | malformed |
 | `ir.version`, `ir.profile`, `bounds.version` | decode | unsupported |
 | Existing [IR codes](ir.md#diagnostics) | admission | unchanged |
@@ -128,7 +150,7 @@ Build with the pinned Lean/Lake toolchain as described in [build](build.md), the
 copy `.lake/build/bin/clafer-compiler` into a private Linux/glibc runtime. The
 tested platform is x86-64 Linux. The binary links Lean and its compiler support
 statically; no `.olean`, Lake, Elan, source checkout, Haskell, Java or Alloy is
-needed to compile developer IR. The ELF loader and glibc libraries remain system
+needed to compile developer IR or supported source text. The ELF loader and glibc libraries remain system
 dependencies: `ld-linux-x86-64.so.2`, `libc.so.6`, `libm.so.6`, `libpthread.so.0`,
 `libdl.so.2` and `librt.so.1` in the tested build. Inspect `ldd` on the actual binary
 on each deployment platform; this is not a portability claim to older glibc,
@@ -137,7 +159,7 @@ other architectures or operating systems.
 [The runtime test](../tests/test_cli_external.py) builds an empty Bubblewrap root
 containing only that binary, the exact `ldd` library closure, kernel device/proc
 mounts and an input/output directory. It clears the environment, runs `--version`
-and compiles the example, comparing bytes with ordinary execution. No development
+and compiles both IR and source examples, comparing bytes with ordinary execution. No development
 toolchain or oracle is mounted. It retains command logs and binary/library hashes
 under `CLAFER_ORACLE_EVIDENCE`. Missing isolation tools or failed namespace setup
 fail the required test rather than skip it. Bubblewrap and `ldd` are verification
@@ -151,7 +173,8 @@ license qualification remains #21. This issue authorizes no public binary releas
 
 ## Assurance and handoff
 
-The driver adds no semantic theorem or assumption. Existing admission,
+The M1 driver retains its existing proof boundary. The [source pipeline](pipeline.md)
+adds composed in-memory soundness and bounded completeness. Existing admission,
 structural preservation and successful-render theorems retain their precise
 in-memory boundaries. JSON/schema correspondence, argument parsing, diagnostic
 serialization, native execution and file operations are exercised externally.
@@ -166,7 +189,7 @@ declaration maps and generated byte maps. `Driver.options`, `run`, `readInput`
 and `writeOutput` implement the command/IO boundary. The driver does not change
 upstream meanings or add theorem hypotheses. `Correctness.version_response` and
 `empty_response` remain pure informational-response equations; they do not prove
-the command dispatcher. #20 can reuse the decoder/diagnostic/output components
+the command dispatcher. #20 reuses the decoder/diagnostic/output components
 after this task's acceptance.
 
 ## Implementation and test trace

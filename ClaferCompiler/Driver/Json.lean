@@ -59,7 +59,7 @@ def entries (p : Parser α) (close : Char) : Parser (Array α) := do
   return #[first] ++ rest
 
 /-- Nesting consumes fuel derived from input bytes; no arbitrary depth profile. -/
-def valueStep (previous : Parser Json) : Parser Json := do
+def valueStep (previous : Parser Json) (signed : Bool := false) : Parser Json := do
   let c ← peek!
   let result ← if c == '{' then do
     skip; ws
@@ -80,12 +80,18 @@ def valueStep (previous : Parser Json) : Parser Json := do
   else if c == 't' then skipString "true" *> pure (Json.bool true)
   else if c == 'f' then skipString "false" *> pure (Json.bool false)
   else if c == 'n' then skipString "null" *> pure Json.null
+  else if signed && c == '-' then do
+    skip
+    let j ← natural
+    let .ok n := j.getNat? | fail "expected integer token"
+    if n == 0 then fail "negative zero"
+    return toJson (-(Int.ofNat n))
   else natural
   ws
   return result
 
-def parse (input : String) : Except String Json :=
-  let grammar := Nat.repeat valueStep (input.utf8ByteSize + 1)
+def parse (input : String) (signed : Bool := false) : Except String Json :=
+  let grammar := Nat.repeat (fun p => valueStep p signed) (input.utf8ByteSize + 1)
     (fail "JSON nesting exceeds input length")
   Parser.run (ws *> grammar <* eof) input
 

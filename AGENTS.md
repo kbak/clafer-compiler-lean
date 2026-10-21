@@ -15,8 +15,10 @@ its [checked resolution/defaults](docs/resolution.md) are accepted
 through merged PR #35. Task #18 and its
 [source constraint elaboration](docs/constraints.md) are accepted through PR #40.
 Typed static expression task #14 is accepted through PR #32.
-Task #15 is selected; its [constraint encoding and preservation](docs/expression-encoding.md)
-await semantic review. Source CLI integration #20 requires accepted #15. Do not implement
+Task #15 is accepted through PR #41. Selected #20 adds the
+[source pipeline](docs/pipeline.md), full integer model composition and complete
+telematics validation; its implementation and primitive-carrier corrections
+#42/#43 await semantic acceptance. Do not implement
 compiler features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and

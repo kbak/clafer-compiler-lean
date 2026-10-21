@@ -186,3 +186,7 @@ projection. [Native tests](../tests/ConstraintsNative.lean) and
 
 Covers:
 - `req~compiler-constraint-elaboration~1`
+
+The selected [source pipeline #20](pipeline.md) now retains these derivations
+through encoding and composes their meaning with full source-model preservation.
+Its primitive-carrier corrections and composed assurance await semantic review.

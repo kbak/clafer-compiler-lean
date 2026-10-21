@@ -327,6 +327,8 @@ integer realization without changing any admitted expression's denotation.
 Representability bounds finite observations, not the size of mathematical `Int`.
 The bridge must handle the primitive's root/domain obligations explicitly. Until
 proved, M2 end-to-end assurance remains incomplete; the M1 checker cannot fill it.
+Selected #20 now supplies the [completion, query agreement and composed theorems](pipeline.md#composed-assurance),
+including the primitive-carrier corrections, pending semantic acceptance.
 
 ## Independent meanings and theorem obligations
 

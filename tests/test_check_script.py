@@ -60,7 +60,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
         self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
-        self.assertIn('kernel threads=1', calls)
+        self.assertIn('kernel threads=2', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
@@ -114,6 +114,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             (root/'tests/test_cli_external.py').write_text(good)
             (root/'tests/test_axiom_audit.py').write_text(good)
             (root/'tests/test_comparison.py').write_text(good)
+            (root/'tests/test_source_cli.py').write_text(good)
+            (root/'tests/test_source_pipeline.py').write_text(good)
             for source,expected in [(good,0),('',1),
                 ('import unittest\nclass T(unittest.TestCase):\n'
                  ' @unittest.skip("fixture")\n def test_skipped(self): pass\n',1),
@@ -135,3 +137,16 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                     cwd=root,capture_output=True,text=True,
                     env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
                 self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+
+            # The source group is independently mandatory and propagates failure/skips.
+            (root/'tests/test_comparison.py').write_text(good)
+            for module in ('test_source_cli', 'test_source_pipeline'):
+                for source in ['', good.replace('pass', 'self.fail("source")'),
+                               'import unittest\nclass T(unittest.TestCase):\n'
+                               ' @unittest.skip("source")\n def test_skip(self): pass\n']:
+                    (root/'tests'/f'{module}.py').write_text(source)
+                    result = subprocess.run([sys.executable,str(ROOT/'scripts/run_tests.py')],
+                        cwd=root,capture_output=True,text=True,
+                        env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
+                    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                (root/'tests'/f'{module}.py').write_text(good)

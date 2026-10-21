@@ -81,7 +81,8 @@ def prepare (doc : Document) : Except Diagnostic
         throw (errorAt h.name "resolve.duplicate-name" "duplicate declaration in the same scope"
           .malformed #[(header doc paths[j]!).name.span])
   let hasInteger := paths.any (fun p =>
-    ((header doc p).reference.map (fun r => integerName r.2.text)).getD false)
+    ((header doc p).reference.map (fun r => integerName r.2.text)).getD false) ||
+    constraintHere doc.elements || paths.any (fun p => constraintHere ((childrenAt doc p).getD []))
   let integerId := paths.size + 1
   let mut rows : Array (Declaration Nat) := #[{
     id := 0, name := "Sing", origin := .syntheticRoot
@@ -109,7 +110,7 @@ def prepare (doc : Document) : Except Diagnostic
   if hasInteger then
     rows := rows.push {
       id := integerId, name := "int", origin := .integer
-      parent := some 0, localBounds := ⟨1, .finite 1⟩ }
+      parent := some 0, localBounds := {} }
   let parentRanks := ranks rows false
   let superRanks := ranks rows true
   for d in rows do
@@ -133,7 +134,7 @@ def prepare (doc : Document) : Except Diagnostic
   rows := rows.map (fun d => { d with
     isAbstract := effective[d.id]?.getD false
     groupBounds := (groups[d.id]?.getD (.bounds {})).range
-    localBounds := (d.authored.bind (·.localBounds)).getD
+    localBounds := if d.origin == .integer then {} else (d.authored.bind (·.localBounds)).getD
       ((d.parent.bind (fun p => groups[p]?)).map Group.childDefault |>.getD ⟨1, .finite 1⟩) })
   let realized := realizationRanks rows
   for d in rows do

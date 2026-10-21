@@ -2,7 +2,7 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: structural preservation accepted; constraint encoding awaiting semantic review.** Executable declaration
+**Status: source pipeline implemented; semantic review pending.** Executable declaration
 tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md),
@@ -22,10 +22,11 @@ source diagnostics. Accepted [resolution/defaults](docs/resolution.md) (#17/PR #
 adds checked declaration elaboration. Accepted [source constraints](docs/constraints.md)
 (#18/PR #40) adds automatic typed elaboration and source derivations.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
-and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
-adds source constraint translation, definedness and attachment preservation under
-explicit representation and observation conditions. Semantic review is pending;
-source CLI integration belongs to #20.
+and independent semantic interpretation. Accepted [expression encoding](docs/expression-encoding.md)
+(PR #41) supplies constructor and attachment preservation. Selected
+[source pipeline #20](docs/pipeline.md) composes the actual source command, full
+integer source soundness and bounded completeness, and all twelve telematics
+bodies. Semantic acceptance, including the primitive-carrier corrections, is pending.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 
@@ -71,7 +72,14 @@ guarded M1 developer IR with explicit bounds:
 ```
 
 See the [CLI contract](docs/cli.md) for stdin/stdout, diagnostics, exit codes and
-runtime-only use. Source text remains unsupported. The validation suite also
+runtime-only use. Compile source with explicit version-2 bounds:
+
+```sh
+.lake/build/bin/clafer-compiler compile-source tests/fixtures/constraints/telematics.cfr \
+  --bounds tests/fixtures/pipeline/telematics.bounds.json --output /tmp/telematics.als
+```
+
+The validation suite also
 requires Bubblewrap and `ldd` on Linux/glibc.
 
 Plan work in issues before implementation. Factory intake is manual, and a

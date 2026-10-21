@@ -14,7 +14,7 @@ class NativeTest(unittest.TestCase):
         package = tomllib.loads(Path('lakefile.toml').read_text())
         profile = json.loads(Path('scripts/oracles/profile.json').read_text())
         for args, code in [(['--version'], 0), (['--help'], 0), ([], 2), (['compile-ir'], 2),
-                           (['--version', 'extra'], 2), (['compile-source', 'x'], 3)]:
+                           (['--version', 'extra'], 2), (['compile-source', 'x'], 2)]:
             with self.subTest(args=args):
                 result = subprocess.run([str(executable), *args], capture_output=True,
                                         text=True, timeout=10)
@@ -26,7 +26,7 @@ class NativeTest(unittest.TestCase):
                         self.assertIn(package['require'][0]['rev'], result.stdout)
                         self.assertIn(profile['haskell_commit'], result.stdout)
                         self.assertIn('m1-effective', result.stdout)
-                        self.assertIn('source-text: unsupported', result.stdout)
+                        self.assertIn('source-text: selected static', result.stdout)
                     else:
                         self.assertIn('compile-ir INPUT --bounds BOUNDS --output OUTPUT', result.stdout)
                 else:

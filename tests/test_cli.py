@@ -86,7 +86,7 @@ class CLITests(unittest.TestCase):
         self.assertEqual((self.directory / 'model.json').read_bytes(), expected)
         self.assertEqual(list(self.directory.glob('.clafer-compiler-*.tmp')), [])
 
-    def test_arguments_and_explicit_source_rejection(self):
+    def test_arguments_and_explicit_command_selection(self):
         base = ['compile-ir','model.json','--diagnostics','json']
         for suffix in [[], ['--bounds','b'], ['--output','o'],
                        ['--bounds','b','--output','o','--unknown','x'],
@@ -98,8 +98,8 @@ class CLITests(unittest.TestCase):
             self.failure(self.compile(extra=['--bitwidth',value]), diagnostic='cli.arguments')
         self.failure(self.call(['compile-ir','-','--bounds','-','--output','-',
                                 '--diagnostics','json']), diagnostic='cli.arguments')
-        self.failure(self.call(['compile-source','x','--diagnostics','json']), 3,
-                     'cli.source-unsupported')
+        self.failure(self.call(['compile-source','x','--diagnostics','json']), 2,
+                     'cli.arguments')
 
     def test_strict_json_and_utf8_preserve_existing_output(self):
         original = encoded(self.model)

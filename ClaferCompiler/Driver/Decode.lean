@@ -107,8 +107,8 @@ def declaration (n : Node) : Except Diagnostic (Declaration Nat) := do
     source := ← optional source (← field n "source")
     authored := ← optional authored (← field n "authored") }
 
-def parse (file text : String) : Except Diagnostic Node := do
-  let value ← StrictJson.parse text |>.mapError fun message =>
+def parse (file text : String) (signed : Bool := false) : Except Diagnostic Node := do
+  let value ← StrictJson.parse text signed |>.mapError fun message =>
     { code := "input.json", phase := "decode", message, file : Diagnostic }
   return ⟨value, file, ""⟩
 

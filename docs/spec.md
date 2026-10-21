@@ -8,11 +8,12 @@ representation, soundness and bounded completeness proofs through PR #33.
 Accepted #13 (PR #36) adds inherited structural realization.
 The authored static parser #16 is accepted through PR #30. Accepted #17 (PR #35) adds
 checked declaration resolution/defaults. Accepted #18 (PR #40) adds source constraint
-elaboration; source CLI integration remains separate.
+elaboration. Selected #20 integrates the source CLI.
 Accepted #14 (PR #32) adds typed static expressions and their
-independent semantic interpretation. Selected #15 extends bounded target
+independent semantic interpretation. Accepted #15 (PR #41) extends bounded target
 arithmetic with source constraint translation and conditional constructor/attachment
-preservation. Its semantic review is pending; source CLI integration belongs to #20.
+preservation. The [source pipeline](pipeline.md), composed proofs and complete
+telematics evidence are implemented under #20, pending semantic acceptance.
 Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -25,7 +26,8 @@ build bootstrap, admitted structural IR, independent target core, structural
 backend, checked serialization, authored static parser, typed expression API,
 checked source declaration resolution/defaults and accepted M1 preservation
 proofs under explicit finite scope and numeric-range assumptions. The inherited structural extension and its preservation proofs are accepted. Source constraint preservation has explicit finite-observation and representation
-conditions and awaits semantic review; grammar-to-parser correspondence remains unproved.
+conditions accepted through PR #41; composed source-pipeline assurance awaits
+semantic review. Grammar-to-parser correspondence remains unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -712,6 +714,60 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Integrated source pipeline and composed correctness
+
+`req~compiler-pipeline-correctness~1`
+
+Compose the accepted parser, resolution/defaults, constraint elaboration, inherited
+backend, expression translation and checked serializer in a native source command.
+Retain original IDs, owner/body occurrences, spans and diagnostics; keep M1 IR
+compilation available. Require explicit closed version-2 bounds, nonprimitive
+object budgets, original declaration scopes, signed width and primitive intervals.
+The standalone runtime must not require Lean tooling, Haskell or a solver.
+
+Derive target-to-source representation and satisfaction from the actual successful
+compilation and target instance. Construct one rooted selected source model with
+all mathematical integers and every original constraint on its full owner domain.
+Preserve primitive parent queries, reference occurrences, inherited groups,
+undefinedness and all admitted source expression denotations. For full source
+models with the concrete finite observation relation and data-only Fits, construct
+the target and prove bounded completeness. Fits must not assume target truth,
+finite source satisfaction or preservation. State the canonical carrier and
+parser/native/text/solver boundaries explicitly; do not present candidate-level
+conditional equivalence as composed soundness or completeness.
+
+The implicit primitive uses unrestricted multiplicity and is also inserted for
+constraint-bearing source without integer references. This supplies the full
+carrier required by the pinned semantics; authored IDs remain stable. Corrections
+[#42](https://github.com/kbak/clafer-compiler-lean/issues/42) and
+[#43](https://github.com/kbak/clafer-compiler-lean/issues/43) are submitted with this
+requirement for semantic review. No upstream meanings or public M1 guards change.
+See the [pipeline proof and reuse inventory](pipeline.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Complete telematics integration
+
+`req~compiler-telematics~1`
+
+Compile the complete supported Appendix 6 source, including all twelve constraints
+and final selections, with explicit bounds. Exercise distinct observed integer
+values and exact candidate comparison against the pinned Analyzer. Justify the
+extended inherited/source observation evaluator separately from the guarded M1
+checker. Detect wrong version order, display count, parent navigation, omitted
+constraint and missing inherited-group mutations; retain bounded minimized replay
+witnesses and state their reduction order. Preserve complete source/candidate,
+original maps, scalar rows, commands, tool/source identities and external outcomes.
+These finite tests complement the composed proofs, not certify the external tools.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -777,7 +833,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |
 | `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |
 
 The active [oracle contract and artifacts](oracles.md) cover #6; the
