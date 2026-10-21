@@ -14,7 +14,7 @@ open Backend.Alloy
 [proof->req~compiler-bounds~1] -/
 
 def schema : Schema := ⟨[{}, {}], [⟨0, 1, .set⟩]⟩
-def fixture : Instance := ⟨[[0, 1], [2, 3]], [[[0, 2], [0, 3], [1, 2]]]⟩
+def fixture : Instance := ⟨[[0, 1], [2, 3]], [[[0, 2], [0, 3], [1, 2]]], []⟩
 def a : Rel := .sig 0
 def b : Rel := .sig 1
 def r : Rel := .field 0
@@ -31,12 +31,12 @@ def observe (m : Module) (i : Instance) : Option Bool :=
 
 def countEq (e : Rel) (n : Int) : Formula := .compare .eq (.count e) (.literal n)
 
-def bag : Instance := ⟨[[0, 1], [2]], [[[0, 2], [1, 2]]]⟩
+def bag : Instance := ⟨[[0, 1], [2]], [[[0, 2], [1, 2]]], []⟩
 def bagModel (p : Formula) : Module :=
   { model p with command := ⟨.run, p, [⟨2, true⟩, ⟨1, true⟩], 4⟩ }
 
-def hierarchy : Schema := ⟨[⟨none, true, .set⟩, ⟨some 0, false, .set⟩,
-  ⟨some 0, false, .set⟩], []⟩
+def hierarchy : Schema := ⟨[⟨none, true, .set, false⟩, ⟨some 0, false, .set, false⟩,
+  ⟨some 0, false, .set, false⟩], []⟩
 def hierarchyModel (p : Formula := .truth) : Module :=
   ⟨hierarchy, [], ⟨.run, p, [⟨2, false⟩, ⟨1, false⟩, ⟨1, false⟩], 4⟩⟩
 
@@ -66,20 +66,20 @@ def observations : List (String × Option Bool) := [
       command := { (model .truth).command with kind := .check, body := .subset r (.product a b) } } fixture),
   ("bag_heads", observe (bagModel (.conj (countEq r 2) (countEq (.join a r) 1))) bag),
   ("bag_distinct_targets_false", observe (bagModel (countEq (.join a r) 2)) bag),
-  ("abstract_cover", observe (hierarchyModel .truth) ⟨[[0, 1], [0], [1]], []⟩),
-  ("abstract_uncovered", observe (hierarchyModel .truth) ⟨[[0, 1], [0], []], []⟩),
-  ("siblings_overlap", observe (hierarchyModel .truth) ⟨[[0], [0], [0]], []⟩),
-  ("parent_inclusion", observe (hierarchyModel .truth) ⟨[[0], [1], []], []⟩),
-  ("abstract_leaf", observe ⟨⟨[⟨none, true, .set⟩], []⟩, [],
-      ⟨.run, .truth, [⟨1, true⟩], 2⟩⟩ ⟨[[99]], []⟩),
-  ("top_disjoint", observe (model .truth) ⟨[[0, 1], [1, 2]], [[[0, 2]]]⟩),
-  ("field_orientation", observe (model .truth) ⟨[[0, 1], [2, 3]], [[[2, 0]]]⟩),
+  ("abstract_cover", observe (hierarchyModel .truth) ⟨[[0, 1], [0], [1]], [], []⟩),
+  ("abstract_uncovered", observe (hierarchyModel .truth) ⟨[[0, 1], [0], []], [], []⟩),
+  ("siblings_overlap", observe (hierarchyModel .truth) ⟨[[0], [0], [0]], [], []⟩),
+  ("parent_inclusion", observe (hierarchyModel .truth) ⟨[[0], [1], []], [], []⟩),
+  ("abstract_leaf", observe ⟨⟨[⟨none, true, .set, false⟩], []⟩, [],
+      ⟨.run, .truth, [⟨1, true⟩], 2⟩⟩ ⟨[[99]], [], []⟩),
+  ("top_disjoint", observe (model .truth) ⟨[[0, 1], [1, 2]], [[[0, 2]]], []⟩),
+  ("field_orientation", observe (model .truth) ⟨[[0, 1], [2, 3]], [[[2, 0]]], []⟩),
   ("field_one_false", observe { model .truth with
       schema := ⟨[{}, {}], [⟨0, 1, .one⟩]⟩ } fixture),
   ("field_one", observe { bagModel .truth with
       schema := ⟨[{}, {}], [⟨0, 1, .one⟩]⟩ } bag),
-  ("upper_unused", observe ⟨⟨[{}], []⟩, [], ⟨.run, .truth, [⟨3, false⟩], 2⟩⟩ ⟨[[7]], []⟩),
-  ("exact_too_small", observe ⟨⟨[{}], []⟩, [], ⟨.run, .truth, [⟨2, true⟩], 2⟩⟩ ⟨[[7]], []⟩),
+  ("upper_unused", observe ⟨⟨[{}], []⟩, [], ⟨.run, .truth, [⟨3, false⟩], 2⟩⟩ ⟨[[7]], [], []⟩),
+  ("exact_too_small", observe ⟨⟨[{}], []⟩, [], ⟨.run, .truth, [⟨2, true⟩], 2⟩⟩ ⟨[[7]], [], []⟩),
   ("fact_false", observe { model .truth with facts := [.subset (.product a b) r] } fixture)
 ]
 
@@ -98,8 +98,8 @@ theorem arity_and_binding_rejections :
     List.replicate 8 none := by decide
 
 theorem invalid_declarations_rejected :
-    Schema.wellFormed ⟨[⟨some 0, false, .set⟩], []⟩ = false ∧
-    Schema.wellFormed ⟨[{}, ⟨some 2, false, .set⟩], []⟩ = false ∧
+    Schema.wellFormed ⟨[⟨some 0, false, .set, false⟩], []⟩ = false ∧
+    Schema.wellFormed ⟨[{}, ⟨some 2, false, .set, false⟩], []⟩ = false ∧
     Schema.wellFormed ⟨[{}], [⟨0, 1, .set⟩]⟩ = false := by decide
 
 theorem malformed_instruction_stacks_rejected :
@@ -109,10 +109,10 @@ theorem malformed_instruction_stacks_rejected :
     Formula.wellTyped schema 0 ⟨[.truth, .falsity]⟩ = false := by decide
 
 theorem malformed_tables_rejected :
-    Instance.wellFormed schema ⟨[[0, 0], [1]], [[]]⟩ = false ∧
-    Instance.wellFormed schema ⟨[[0], [1]], [[[0, 1], [0, 1]]]⟩ = false ∧
-    Instance.wellFormed schema ⟨[[0], [1]], [[[0, 1, 2]]]⟩ = false ∧
-    Instance.wellFormed schema ⟨[[0]], []⟩ = false := by decide
+    Instance.wellFormed schema ⟨[[0, 0], [1]], [[]], []⟩ = false ∧
+    Instance.wellFormed schema ⟨[[0], [1]], [[[0, 1], [0, 1]]], []⟩ = false ∧
+    Instance.wellFormed schema ⟨[[0], [1]], [[[0, 1, 2]]], []⟩ = false ∧
+    Instance.wellFormed schema ⟨[[0]], [], []⟩ = false := by decide
 
 def countModel (size width : Nat) (p : Formula) : Module :=
   ⟨⟨[{}], []⟩, [], ⟨.run, p, [⟨size, false⟩], width⟩⟩
@@ -133,15 +133,15 @@ theorem conservative_cardinality_admission :
     (countModel 8 4 (.all (.empty .unary) (countEq a 0))).safeBounds = false := by decide
 
 theorem overflow_is_not_false :
-    Formula.eval 4 ⟨[List.range 8], []⟩ [] (countEq a 0) = none ∧
-    Formula.eval 4 ⟨[List.range 8], []⟩ [] (.neg (countEq a 0)) = none ∧
-    Formula.eval 4 ⟨[List.range 8], []⟩ [] (.disj .truth (countEq a 0)) = none := by decide
+    Formula.eval 4 ⟨[List.range 8], [], []⟩ [] (countEq a 0) = none ∧
+    Formula.eval 4 ⟨[List.range 8], [], []⟩ [] (.neg (countEq a 0)) = none ∧
+    Formula.eval 4 ⟨[List.range 8], [], []⟩ [] (.disj .truth (countEq a 0)) = none := by decide
 
 theorem scope_count_rejected :
     ({ model .truth with command := ⟨.run, .truth, [⟨2, true⟩], 4⟩ } : Module).safeBounds = false := by decide
 
 def multiplicityModel (mult : Multiplicity) (n : Nat) : Module :=
-  ⟨⟨[⟨none, false, mult⟩], []⟩, [], ⟨.run, .truth, [⟨n, true⟩], 4⟩⟩
+  ⟨⟨[⟨none, false, mult, false⟩], []⟩, [], ⟨.run, .truth, [⟨n, true⟩], 4⟩⟩
 
 theorem signature_multiplicity_scopes :
     (multiplicityModel .one 0).safeBounds = false ∧
@@ -154,13 +154,13 @@ theorem signature_multiplicity_scopes :
     (multiplicityModel .some 2).safeBounds = true := by decide
 
 theorem conflicting_source_scope_remains_negative :
-    observe { multiplicityModel .set 0 with facts := [.mult .one a] } ⟨[[]], []⟩ = some false := by decide
+    observe { multiplicityModel .set 0 with facts := [.mult .one a] } ⟨[[]], [], []⟩ = some false := by decide
 
 theorem fiber_multiplicities :
     fixture.declarations ⟨[{}, {}], [⟨0, 1, .some⟩]⟩ = true ∧
     fixture.declarations ⟨[{}, {}], [⟨0, 1, .lone⟩]⟩ = false ∧
     bag.declarations ⟨[{}, {}], [⟨0, 1, .lone⟩]⟩ = true ∧
-    Instance.declarations ⟨[{}, {}], [⟨0, 1, .one⟩]⟩ ⟨[[0, 1], [2]], [[[0, 2]]]⟩ = false := by decide
+    Instance.declarations ⟨[{}, {}], [⟨0, 1, .one⟩]⟩ ⟨[[0, 1], [2]], [[[0, 2]]], []⟩ = false := by decide
 
 theorem safety_checks_facts_literals_and_negation :
     ({ model .truth with facts := [.compare .eq (.literal 8) (.literal 8)] } : Module).safeBounds = false ∧

@@ -8,18 +8,15 @@ Follow the contract's review status and manual intake gates. The build, comparis
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
 Independent Alloy target #8, text #9 and structural backend #10 are accepted
 through PRs #26–#28. Correctness task #11 was accepted by the maintainer through
-PR #33 at 67b9137cde9e2b486733aecd6eb4f5559b780ea3. Selected inherited
-realization #13 has an implementation and preservation proofs pending semantic
-acceptance. Task #12 supplies accepted exact three-way comparison and decoding. Selected
-#19 integrates the [native resolved-IR CLI](docs/cli.md), pending semantic review.
+PR #33 at 67b9137cde9e2b486733aecd6eb4f5559b780ea3. Inherited realization #13 and its preservation proofs are accepted through PR #36. Task #12 supplies accepted exact three-way comparison and decoding. Accepted #19 (PR #39) integrates the [native resolved-IR CLI](docs/cli.md).
 Parser task #16 is accepted through PR #30; its
 [authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 and
 its [checked resolution/defaults](docs/resolution.md) are accepted
-through merged PR #35. Task #18 is selected after accepted #17/#14; its
-[source constraint elaboration](docs/constraints.md) awaits semantic review.
+through merged PR #35. Task #18 and its
+[source constraint elaboration](docs/constraints.md) are accepted through PR #40.
 Typed static expression task #14 is accepted through PR #32.
-Task #15 is selected; its [target arithmetic and source range work](docs/expression-encoding.md)
-does not yet supply source constraint or attachment preservation. Do not implement
+Task #15 is selected; its [constraint encoding and preservation](docs/expression-encoding.md)
+await semantic review. Source CLI integration #20 requires accepted #15. Do not implement
 compiler features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and

@@ -113,6 +113,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             (root/'tests/test_existing.py').write_text(good)
             (root/'tests/test_cli_external.py').write_text(good)
             (root/'tests/test_axiom_audit.py').write_text(good)
+            (root/'tests/test_comparison.py').write_text(good)
             for source,expected in [(good,0),('',1),
                 ('import unittest\nclass T(unittest.TestCase):\n'
                  ' @unittest.skip("fixture")\n def test_skipped(self): pass\n',1),
@@ -124,3 +125,13 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                         cwd=root,capture_output=True,text=True,
                         env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
                     self.assertEqual(result.returncode,expected,result.stdout+result.stderr)
+            # The newly scheduled exact-comparison suite remains mandatory too.
+            (root/'tests/test_cli.py').write_text(good)
+            for source in ['', good.replace('pass', 'self.fail("comparison")'),
+                           'import unittest\nclass T(unittest.TestCase):\n'
+                           ' @unittest.skip("comparison")\n def test_skip(self): pass\n']:
+                (root/'tests/test_comparison.py').write_text(source)
+                result = subprocess.run([sys.executable,str(ROOT/'scripts/run_tests.py')],
+                    cwd=root,capture_output=True,text=True,
+                    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
+                self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)

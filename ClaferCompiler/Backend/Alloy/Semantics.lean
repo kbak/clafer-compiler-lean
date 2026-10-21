@@ -17,6 +17,8 @@ abbrev Relation := List Tuple
 structure Instance where
   signatures : List (List Nat)
   fields : List Relation := []
+  /-- Per-signature owner/value rows for declared scalar fields. -/
+  values : List (List (Nat × Int)) := []
 
 def relationSubset (a b : Relation) : Bool := a.all b.contains
 
@@ -35,13 +37,39 @@ def Rel.eval (i : Instance) (env : List Nat) (rel : Rel) : Relation :=
     join := fun a b => (a.flatMap fun x =>
       (b.filter fun y => x.getLast? == y.head?).map fun y => x.dropLast ++ y.drop 1).eraseDups
     transpose := fun a => (a.map List.reverse).eraseDups
+    diagonal := fun a => (a.filterMap fun t => match t with
+      | [x] => some [x, x] | _ => none).eraseDups
   } []
+
+/-- A bounded conditional value observation. The lower endpoint is an internal
+fallback, guarded separately by source definedness; it is not source extraction.
+The matching target text uses a conditional and a singleton scalar field image. -/
+def Instance.scalarValue (i : Instance) (env : List Nat) (owner : Nat)
+    (lo hi : Int) (r : Rel) : Int :=
+  match (r.eval i env).eraseDups with
+  | [[atom]] =>
+    match ((i.values[owner]?.getD []).filter (fun row => row.1 == atom)).map Prod.snd |>.eraseDups with
+    | [value] => if lo ≤ value && value ≤ hi then value else lo
+    | _ => lo
+  | _ => lo
+
+/-- Declared `one Int` fields have exactly one representable value per owner.
+No scalar field is introduced for ordinary M1 signatures. -/
+def Instance.scalarFields (width : Nat) (s : Schema) (i : Instance) : Bool :=
+  s.signatures.zipIdx.all fun (decl, owner) =>
+    !decl.scalar ||
+      let rows := i.values[owner]?.getD []
+      let objects := i.signatures[owner]?.getD []
+      rows.all (fun row => objects.contains row.1 && fitsInt width row.2) &&
+      (rows.map Prod.fst).Pairwise (· ≠ ·) &&
+      objects.all (fun atom => rows.any (fun row => row.1 == atom))
 
 /-! [impl->req~compiler-target-arithmetic~1] -/
 def Integer.eval (width : Nat) (i : Instance) (env : List Nat) (n : Integer) : Option Int :=
   n.fold {
     literal := boundedInt width
     count := fun r => boundedInt width (Int.ofNat (r.eval i env).eraseDups.length)
+    scalar := fun owner lo hi r => boundedInt width (i.scalarValue env owner lo hi r)
     add := fun a b => do boundedInt width ((← a) + (← b))
     subtract := fun a b => do boundedInt width ((← a) - (← b))
   } none
@@ -128,7 +156,8 @@ definedness. No source predicate, compilation result or encoder occurs here. -/
 def Module.eval (m : Module) (i : Instance) : Option Bool := do
   let facts ← m.facts.mapM (fun f => f.eval m.command.bitwidth i [])
   let body ← m.command.body.eval m.command.bitwidth i []
-  pure (facts.all id && body == (m.command.kind == .run))
+  pure (facts.all id && body == (m.command.kind == .run) &&
+    i.scalarFields m.command.bitwidth m.schema)
 
 /-- Independent target satisfaction, including command polarity and declarations.
 For `check`, true means a counterexample, not validity of the assertion. -/

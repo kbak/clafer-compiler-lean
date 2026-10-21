@@ -16,8 +16,10 @@ public final class AlloyArithmeticBridge {
             if (!id.matches("case_[0-9]+")) throw new IllegalArgumentException("case ID");
             var model = AlloyTextBridge.parse(root.resolve(id + ".als"));
             var ast = AlloyTextBridge.normalized(model);
-            var reference = AlloyTextBridge.normalized(AlloyTextBridge.parse(root.resolve(id + "-reference.als")));
-            if (!ast.equals(reference)) throw new IllegalStateException("AST mismatch " + id + " " + json.toJson(ast));
+            if (!item.has("reference") || item.get("reference").getAsBoolean()) {
+                var reference = AlloyTextBridge.normalized(AlloyTextBridge.parse(root.resolve(id + "-reference.als")));
+                if (!ast.equals(reference)) throw new IllegalStateException("AST mismatch " + id + " " + json.toJson(ast));
+            }
             Map<String,Object> observation;
             try {
                 observation = AlloyTextBridge.solve(model, id);

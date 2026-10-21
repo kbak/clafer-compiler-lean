@@ -15,10 +15,12 @@ public final class AlloyTextBridge {
             if (u.op == ExprUnary.Op.NOOP) return expr(u.sub, bound);
             return List.of(u.op.name(), expr(u.sub, bound));
         }
+        if (e instanceof ExprITE c)
+            return List.of("ite", expr(c.cond, bound), expr(c.left, bound), expr(c.right, bound));
         if (e instanceof ExprBinary b)
             return List.of(b.op.name(), expr(b.left, bound), expr(b.right, bound));
         if (e instanceof ExprCall c) {
-            if (!Set.of("integer/plus", "integer/minus").contains(c.fun.label))
+            if (!Set.of("integer/plus", "integer/minus", "integer/sum").contains(c.fun.label))
                 throw new IllegalArgumentException("unhandled function " + c.fun.label);
             List<Object> args = new ArrayList<>();
             for (Expr a : c.args) args.add(expr(a, bound));

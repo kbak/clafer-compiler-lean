@@ -16,7 +16,7 @@ theorem unrestricted_interval (width : Nat) (i : Instance) (env : List Nat) (r :
     (interval {} r).eval width i env = some true := rfl
 
 theorem empty_group_lower_bound :
-    (interval ⟨1, .finite 1⟩ (.empty .unary)).eval 4 ⟨[], []⟩ [] = some false := by decide
+    (interval ⟨1, .finite 1⟩ (.empty .unary)).eval 4 ⟨[], [], []⟩ [] = some false := by decide
 
 def bagCore : IR.Structural.Core 3 := ⟨#v[
   { id := 100, name := "root", origin := .syntheticRoot },
@@ -46,7 +46,7 @@ theorem set_key_enforced : (setKey bagValidated.toLayout 2 0).eval 5 bagInstance
 set_option maxRecDepth 10000 in
 theorem generated_bag_facts :
     (target bagValidated.toLayout (List.replicate 4 ⟨4, false⟩) 5).eval bagInstance = some true := by
-  simp only [target, Module.eval, facts, List.finRange_succ, List.finRange_zero,
+  simp only [target, Module.eval, Instance.scalarFields, schema, facts, List.finRange_succ, List.finRange_zero,
     List.map_cons, List.map_nil, List.map_append, List.flatMap_cons, List.flatMap_nil, List.append_nil,
     declarationFacts, ownership, setKey, head, signatureId, bag_order]
   decide

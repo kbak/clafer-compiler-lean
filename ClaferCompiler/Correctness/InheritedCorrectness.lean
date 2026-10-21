@@ -58,7 +58,7 @@ theorem compiled_complete {U : Type} [Fintype U] (v : Validated n)
   rw [he] at scopes typed bounded ⊢
   refine ⟨typed, bounded, r.wellFormed, Structural.source_declarations v.layout s i r hs,
     (Structural.observation_inScope v.layout qs _).mpr scopes, ?_⟩
-  apply (run_eval _ _ _ _ _).mpr
+  apply (run_eval _ _ _ _ _ (Structural.no_scalar_fields v.layout b.bitwidth i)).mpr
   rw [List.forall_mem_append]
   constructor
   · intro f hf

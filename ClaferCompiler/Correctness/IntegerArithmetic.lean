@@ -13,6 +13,7 @@ namespace ClaferCompiler.Backend.Alloy
 inductive Integer.Term : Integer → Prop where
   | literal (n) : Term (.literal n)
   | count (r) : Term (.count r)
+  | scalar (o lo hi r) : Term (.scalar o lo hi r)
   | add : Term a → Term b → Term (.add a b)
   | subtract : Term a → Term b → Term (.subtract a b)
 
@@ -21,6 +22,7 @@ private theorem Integer.Term.run_exists (h : Integer.Term n) (alg : IntegerAlgeb
   induction h with
   | literal n => exact ⟨alg.literal n, fun _ => rfl⟩
   | count r => exact ⟨alg.count r, fun _ => rfl⟩
+  | scalar o lo hi r => exact ⟨alg.scalar o lo hi r, fun _ => rfl⟩
   | add ha hb ia ib =>
     obtain ⟨a, ha⟩ := ia
     obtain ⟨b, hb⟩ := ib
@@ -116,6 +118,7 @@ def Integer.mathematical (i : Instance) (env : List Nat) (n : Integer) : Option 
   n.fold {
     literal := some
     count := fun r => some (Int.ofNat (r.eval i env).eraseDups.length)
+    scalar := fun o lo hi r => some (i.scalarValue env o lo hi r)
     add := fun a b => do pure ((← a) + (← b))
     subtract := fun a b => do pure ((← a) - (← b))
   } none
@@ -127,6 +130,16 @@ def Integer.CountsFit (n : Integer) (m : Module) (depth : Nat)
   ∀ r, IntegerOp.count r ∈ n.code →
     (r.eval i env).eraseDups.length ≤
       (r.columns m.command.scopes m.schema (List.replicate depth 1)).foldl (· * ·) 1
+
+theorem Instance.scalarValue_range (i : Instance) (env : List Nat) (o : Nat)
+    (lo hi : Int) (r : Rel) (h : lo ≤ hi) :
+    (IntRange.mk lo hi).Contains (i.scalarValue env o lo hi r) := by
+  unfold Instance.scalarValue
+  split
+  · split
+    · split <;> simp_all [IntRange.Contains]
+    · exact ⟨Int.le_refl _, h⟩
+  · exact ⟨Int.le_refl _, h⟩
 
 /-- Checked intervals guarantee that every integer intermediate is defined and
 equal to mathematical arithmetic, assuming the explicit count inventories.
@@ -147,6 +160,11 @@ theorem Integer.range_sound {n : Integer} {m : Module} {depth : Nat}
     obtain ⟨rfl, _⟩ := (IntRange.checked_iff _ _ _).mp hr
     have hv : (IntRange.mk 0 _).Contains (Int.ofNat (r.eval i env).eraseDups.length) :=
       ⟨Int.natCast_nonneg _, Int.ofNat_le.mpr (hc r (by simp [Integer.count]))⟩
+    exact ⟨_, rfl, IntRange.representable hr hv, hv⟩
+  | scalar o lo hi r =>
+    change (IntRange.mk lo hi).checked m.command.bitwidth = some interval at hr
+    obtain ⟨rfl, hlo, _⟩ := (IntRange.checked_iff _ _ _).mp hr
+    have hv := i.scalarValue_range env o lo hi r hlo
     exact ⟨_, rfl, IntRange.representable hr hv, hv⟩
   | @add a b ha hb ia ib =>
     have hca : a.CountsFit m depth i env := fun r h => hc r (by simp [Integer.add, h])

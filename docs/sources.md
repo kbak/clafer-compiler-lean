@@ -204,8 +204,8 @@ operand-order guide. It reuses the existing target folds, Parsec grammar and
 actual Analyzer adapter; its original implementation and tests retain MIT
 licensing. The retained reference identity and pinned tools are unchanged. The
 width-16 Analyzer translation-capacity failure is retained as an operational
-result, not agreement or bounded UNSAT. Source encoding and attachment
-preservation remain unfinished under #15.
+result, not agreement or bounded UNSAT. The source encoding continuation below
+composes the accepted arithmetic and source range results.
 
 The [source range proofs](expression-encoding.md#source-range-analysis-proofs)
 connect the existing runtime analyzer to S4's unchanged partial `Expr.denote`.
@@ -217,6 +217,20 @@ bindings. S6's arithmetic operand-order guide remains supplementary; no Haskell
 meaning is substituted. The proof and test code is original MIT code, with no
 dependency, license, scope or upstream semantic changes. Scalar representability
 in S7's bounded target is distinct from source-to-target expression preservation.
+
+The [constraint translation](expression-encoding.md#source-constraint-translation)
+uses S4's unchanged partial denotation and extension invariance for every
+constructor and attachment. S7's field declarations, integer `sum`, conditional
+expressions and restricted `iden` supply the independent target meaning. S6's
+`genPExp'`/`genOp` and resolved navigation were inspected for role/operand order;
+no Haskell execution or definitions enter the production compiler. Scalar fields
+represent only observed integer objects, with generated range/injectivity facts;
+the full mathematical primitive domain remains in the independent source model.
+Existing target algebras, Std `mapM`/`flatMapM`, Parsec and the Analyzer adapter are
+reused. Small traversal-success lemmas retain occurrence evidence; Mathlib
+finite-set images/cardinality and list uniqueness supply the proof machinery.
+New code is original MIT with no new dependency or license cost. Native tests,
+Analyzer results and conditional kernel theorems retain distinct assurance boundaries.
 
 The [source resolution/defaulting contract](resolution.md) maps S2's `Defaults`,
 `GroupCard`, `AST.WellFormed` and Compile naming obligations, plus S3's

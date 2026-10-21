@@ -23,6 +23,7 @@ structure Signature where
   parent : Option Nat := none
   isAbstract : Bool := false
   multiplicity : Multiplicity := .set
+  scalar : Bool := false
   deriving DecidableEq, BEq
 
 structure Field where
@@ -41,7 +42,7 @@ inductive RelOp where
   | sig (id : Nat)
   | field (id : Nat)
   | var (index : Nat)
-  | union | inter | diff | product | join | transpose
+  | union | inter | diff | product | join | transpose | diagonal
   deriving DecidableEq, BEq
 
 /-- Postfix syntax; public builders preserve operand order. Raw code is checked. -/
@@ -58,11 +59,13 @@ def Rel.inter (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.inter]⟩
 def Rel.diff (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.diff]⟩
 def Rel.product (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.product]⟩
 def Rel.join (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.join]⟩
+def Rel.diagonal (a : Rel) : Rel := ⟨a.code ++ [.diagonal]⟩
 def Rel.transpose (a : Rel) : Rel := ⟨a.code ++ [.transpose]⟩
 
 inductive IntegerOp where
   | literal (value : Int)
   | count (rel : Rel)
+  | scalar (owner : Nat) (lower upper : Int) (rel : Rel)
   | add | subtract
   deriving DecidableEq, BEq
 
@@ -76,12 +79,15 @@ structure Integer where
 
 def Integer.literal (value : Int) : Integer := ⟨[.literal value]⟩
 def Integer.count (rel : Rel) : Integer := ⟨[.count rel]⟩
+def Integer.scalar (owner : Nat) (lower upper : Int) (rel : Rel) : Integer :=
+  ⟨[.scalar owner lower upper rel]⟩
 def Integer.add (left right : Integer) : Integer := ⟨left.code ++ right.code ++ [.add]⟩
 def Integer.subtract (left right : Integer) : Integer := ⟨left.code ++ right.code ++ [.subtract]⟩
 
 structure IntegerAlgebra (α : Type) where
   literal : Int → α
   count : Rel → α
+  scalar : Nat → Int → Int → Rel → α
   add : α → α → α
   subtract : α → α → α
 
@@ -90,6 +96,7 @@ def IntegerAlgebra.step (a : IntegerAlgebra α) (stack : Option (List α))
   match op, stack with
   | .literal n, some xs => some (a.literal n :: xs)
   | .count r, some xs => some (a.count r :: xs)
+  | .scalar o lo hi r, some xs => some (a.scalar o lo hi r :: xs)
   | .add, some (y :: x :: xs) => some (a.add x y :: xs)
   | .subtract, some (y :: x :: xs) => some (a.subtract x y :: xs)
   | _, _ => none
@@ -144,6 +151,7 @@ structure RelAlgebra (α : Type) where
   product : α → α → α
   join : α → α → α
   transpose : α → α
+  diagonal : α → α
 
 def RelAlgebra.step (a : RelAlgebra α) (stack : Option (List α)) (op : RelOp) : Option (List α) :=
   match op, stack with
@@ -157,6 +165,7 @@ def RelAlgebra.step (a : RelAlgebra α) (stack : Option (List α)) (op : RelOp) 
   | .product, some (y :: x :: xs) => some (a.product x y :: xs)
   | .join, some (y :: x :: xs) => some (a.join x y :: xs)
   | .transpose, some (x :: xs) => some (a.transpose x :: xs)
+  | .diagonal, some (x :: xs) => some (a.diagonal x :: xs)
   | _, _ => none
 
 def Rel.fold (a : RelAlgebra α) (fallback : α) (r : Rel) : α :=
@@ -263,12 +272,16 @@ def Rel.typeOf (s : Schema) (depth : Nat) (rel : Rel) : Option Arity :=
       | some .binary, some .binary => some .binary
       | _, _ => none
     transpose := fun a => if a == some .binary then some .binary else none
+    diagonal := fun a => if a == some .unary then some .binary else none
   } none
 
 def Integer.wellTyped (s : Schema) (depth : Nat) (n : Integer) : Bool :=
   n.fold {
     literal := fun _ => true
     count := fun r => (r.typeOf s depth).isSome
+    scalar := fun owner lo hi r =>
+      (s.signatures[owner]?).any Signature.scalar && lo ≤ hi &&
+        r.typeOf s depth == some .unary
     add := (· && ·), subtract := (· && ·)
   } false
 

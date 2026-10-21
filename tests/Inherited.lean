@@ -48,7 +48,7 @@ def observation : Structural.Observation 6 := ⟨[0, 1, 2, 3], 0,
   (fun d => (#v[[0], [1], [2], [3], [], [1]])[d]),
   (fun d => (#v[[], [], [(1, 2)], [(2, 3)], [], [(0, 1)]])[d]), fun _ => []⟩
 def instance_ : Instance := ⟨[[0, 1, 2, 3], [0], [1], [2], [3], [], [1]],
-  [[[1, 2]], [[2, 3]], [], [[0, 1]]]⟩
+  [[[1, 2]], [[2, 3]], [], [[0, 1]]], []⟩
 def limits : Structural.Bounds := ⟨(List.range 6).map (fun d => (d, ⟨4, false⟩)), 4, 8⟩
 def scopes : List Scope := List.replicate 7 ⟨4, false⟩
 

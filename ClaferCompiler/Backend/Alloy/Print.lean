@@ -25,11 +25,19 @@ def relText (depth : Nat) (r : Rel) : String := r.fold {
   var := fun i => parens (Symbol.binder (depth - i - 1)).name
   union := binary "+", inter := binary "&", diff := binary "-"
   product := binary "->", join := binary ".", transpose := unary "~"
+  diagonal := fun a => binary "<:" a "iden"
 } ""
 
 def intText (depth : Nat) (n : Integer) : String := n.fold {
   literal := fun n => parens n.repr
   count := fun r => unary "#" (relText depth r)
+  scalar := fun owner lo hi r =>
+    let rel := relText depth r
+    let values := binary "." rel (parens (Symbol.auxiliary owner).name)
+    let value := parens ("sum [ " ++ values ++ " ]")
+    let guard := binary "and" (unary "one" rel) (binary "and" (unary "one" values)
+      (binary "and" (binary "=<" (parens lo.repr) value) (binary "=<" value (parens hi.repr))))
+    parens (guard ++ " implies " ++ value ++ " else " ++ parens lo.repr)
   add := fun a b => parens ("plus [ " ++ a ++ " , " ++ b ++ " ]")
   subtract := fun a b => parens ("minus [ " ++ a ++ " , " ++ b ++ " ]")
 } ""
@@ -64,6 +72,8 @@ def signatureChunks (m : Module) (sig : Signature) (i : Nat) : List Chunk :=
   let fields := (m.schema.fields.zipIdx.filter (fun (f, _) => f.owner == i)).map fun (f, j) =>
     [⟨(Symbol.field j).name, some (.field j)⟩,
      ⟨" : " ++ multText f.multiplicity ++ " " ++ (Symbol.signature f.target).name, none⟩]
+  let fields := fields ++ if sig.scalar then
+    [[⟨(Symbol.auxiliary i).name, some (.auxiliary i)⟩, ⟨" : one Int", none⟩]] else []
   [⟨leading, none⟩, ⟨(Symbol.signature i).name, some (.signature i)⟩, ⟨parent ++ " { ", none⟩] ++
     (List.intercalate [⟨" , ", none⟩] fields) ++ [⟨" }\n", none⟩]
 

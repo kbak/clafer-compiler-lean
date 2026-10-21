@@ -10,12 +10,12 @@ M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
 [text task #9](alloy-text.md) are accepted through PRs #28 and #27. The maintainer
 accepted #11's [M1 representation and preservation proofs](structural-correctness.md)
-through PR #33. Selected #13 implements
-[inherited structural realization](inherited-realization.md), pending semantic
-acceptance. The [typed expression API](expressions.md) is accepted through #14/PR #32
-after #7. Selected #15 adds [bounded target arithmetic and source range proofs](expression-encoding.md);
-translation of source expressions and attachments and its preservation remain
-unfinished. Later tasks require their own manual intake. The remaining contracts
+through PR #33. Accepted #13 (PR #36) implements
+[inherited structural realization](inherited-realization.md). The [typed expression API](expressions.md) is accepted through #14/PR #32
+after #7. Selected #15 adds [source constraint encoding and preservation](expression-encoding.md),
+including explicit definedness, numeric-domain enforcement and attachment occurrence
+preservation under checked observations and concrete leaf representations. This
+continuation awaits semantic review; source CLI composition remains #20. Later tasks require their own manual intake. The remaining contracts
 below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
@@ -212,8 +212,8 @@ API shapes (`validate`, `validateRaw` and `validateDocument` implement the
 [in-memory structural compilation API](structural-encoding.md), and `Text.render`
 implements [checked serialization](alloy-text.md). The [authored parser](parser.md)
 implements `parse` under accepted task #16. Accepted #17 implements
-[checked declaration elaboration](resolution.md). Selected #18 implements
-[source constraint elaboration](constraints.md), with semantic review pending):
+[checked declaration elaboration](resolution.md). Accepted #18 (PR #40) implements
+[source constraint elaboration](constraints.md)):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -444,13 +444,12 @@ The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
 approve future changes. #6–#10 are accepted through PRs #24–#28. The maintainer accepted #11 through
 PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, including its explicit
-finite scope and integer-range assumptions. Selected #13 supplies the
-[inherited structural API and proofs](inherited-realization.md), pending semantic
-acceptance. Other tasks retain their intake gates.
+finite scope and integer-range assumptions. Accepted #13 (PR #36) supplies the
+[inherited structural API and proofs](inherited-realization.md). Other tasks retain their intake gates.
 Parser #16 is accepted through PR #30; its authored API and
 unproved grammar boundary are described in the [parser contract](parser.md).
-Selected #17 supplies the [resolution/defaulting contract](resolution.md) after
-#16/#7 acceptance; its semantic acceptance remains pending.
+Accepted #17 (PR #35) supplies the [resolution/defaulting contract](resolution.md)
+after #16/#7 acceptance.
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
 
