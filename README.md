@@ -9,6 +9,8 @@ and [comparison tools](docs/oracles.md) are available. The independent
 [structural backend](docs/structural-encoding.md) translates admitted M1 IR into
 checked target ASTs with manual bounds. Its acceptance review and global
 preservation proofs remain pending; serialization and CLI integration are separate tasks.
+The selected [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics; resolution and typing remain separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

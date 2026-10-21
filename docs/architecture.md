@@ -200,8 +200,9 @@ finite checker becomes an M2 oracle without a new proved bridge.
 
 API shapes (`validate`, `validateRaw` and `validateDocument` implement the
 [admission API](ir.md); `Backend.Alloy.Structural.compile` implements the
-[in-memory structural compilation API](structural-encoding.md). Rendering, parsing
-and frontend elaboration remain future work):
+[in-memory structural compilation API](structural-encoding.md). The
+[authored parser](parser.md) implements `parse` under selected task #16. Rendering
+and frontend elaboration remain separate work):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -429,5 +430,7 @@ The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
 approve future changes. #6–#8 are accepted through PRs #24–#26. #10 is selected;
 its implementation and local evidence require semantic review before acceptance.
+Parser #16 is independently selected after accepted #6; its authored API and
+unproved grammar boundary are described in the [parser contract](parser.md).
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
