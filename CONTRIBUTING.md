@@ -12,7 +12,9 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [checked serialization](docs/alloy-text.md). Selected #11 adds
 [M1 soundness and bounded completeness](docs/structural-correctness.md) under
 explicit finite scope and integer-range hypotheses. Semantic acceptance is pending;
-CLI integration and inherited realization have separate owners.
+CLI integration and inherited realization have separate owners. Selected
+[static parser #16](docs/parser.md) preserves authored syntax; resolution/defaulting
+and expression typing remain separate tasks.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests

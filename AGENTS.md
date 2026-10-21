@@ -9,8 +9,10 @@ and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#
 Independent Alloy target #8, text #9 and structural backend #10 are accepted
 through PRs #26–#28. Correctness task #11 now has M1 soundness and bounded-completeness
 proofs pending semantic acceptance. Inherited realization #13 is selected by the
-maintainer but awaits that acceptance. Do not implement compiler features until
-their owning task is selected and its dependencies are accepted.
+maintainer but awaits that acceptance. Parser task #16 is independently selected
+after accepted #6; its [authored API and assurance boundary](docs/parser.md) await
+semantic review. Do not implement compiler features until their owning task is
+selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a

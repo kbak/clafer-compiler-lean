@@ -12,6 +12,8 @@ The backend translates admitted M1 IR into checked target ASTs with manual bound
 The selected [correctness work](docs/structural-correctness.md) proves decoding,
 M1 soundness and finite bounded completeness with explicit scope and integer-range
 hypotheses. Semantic acceptance of #11 is pending; CLI integration is separate.
+The selected [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics; resolution and typing remain separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

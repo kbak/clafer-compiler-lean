@@ -205,8 +205,8 @@ finite checker becomes an M2 oracle without a new proved bridge.
 API shapes (`validate`, `validateRaw` and `validateDocument` implement the
 [admission API](ir.md); `Backend.Alloy.Structural.compile` implements the
 [in-memory structural compilation API](structural-encoding.md), and `Text.render`
-implements [checked serialization](alloy-text.md). Source parsing and frontend
-elaboration remain future work):
+implements [checked serialization](alloy-text.md). The [authored parser](parser.md)
+implements `parse` under selected task #16. Frontend elaboration remains separate work):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -438,5 +438,7 @@ approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is sele
 its M1 soundness and bounded-completeness proofs are implemented with explicit
 finite scope and integer-range assumptions, pending semantic acceptance. The
 maintainer selected #13 next; its dependency gate remains in force.
+Parser #16 is independently selected after accepted #6; its authored API and
+unproved grammar boundary are described in the [parser contract](parser.md).
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
