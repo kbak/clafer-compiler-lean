@@ -34,8 +34,9 @@ Retain actual JAR/tool hashes, Java vendor/build, solver and all effective optio
 scopes, bitwidth, source/IR/output/candidate identities and exact replay commands
 outside source. The version label alone does not reproduce a comparison.
 Before copying code or fixtures, inspect the pinned file's notices and retain
-required attribution. #6/#21 inventory distribution and bundled-dependency licenses
-before packaging; a source citation is not a redistribution license.
+required attribution. The [oracle inventory](oracles.md#inspected-licenses-and-distribution-contents)
+records #6's inspected source/distribution notices; #21 must reconcile packaged
+dependencies before packaging. A source citation is not a redistribution license.
 
 ## Published source and locators
 
@@ -102,8 +103,10 @@ never bless an output merely because the reference changed. Keep previous receip
 and replayability. Update the source register, dependency manifest, requirements
 and affected tests/links together in a reviewed PR. The build bootstrap supplies
 those dependency files. Admission fixtures and
-compiler/Haskell comparisons become required when their owning tasks deliver them;
-the current bootstrap runs the build/import/native/kernel/axiom checks.
+compiler/Haskell comparisons become required when their owning tasks deliver them.
+The current oracle check executes paired Haskell captures, upstream admission and
+exact-candidate Lean/Alloy comparisons, alongside build/import/native/kernel/axiom
+checks. Downstream compiler-generated Alloy remains owned by #12.
 
 No branch name, floating latest release, SoSyM research tag or upstream maintenance
 branch is a substitute for the commit pin or a prerequisite for compiler intake.

@@ -22,10 +22,16 @@ class CheckScriptTest(unittest.TestCase):
             binary.mkdir()
             # Only the tools needed by the shell/stubs are on PATH, so a missing
             # lake cannot accidentally resolve to a developer's installation.
-            for name in ['bash', 'mkdir', 'dirname']:
+            for name in ['bash', 'mkdir', 'dirname', 'sleep']:
                 (binary / name).symlink_to(shutil.which(name))
             stub = '''#!/usr/bin/env bash
 echo "${0##*/} $*" >> "$CALLS"
+if [[ "$*" == *leanchecker* ]]; then
+  echo "kernel threads=$LEAN_NUM_THREADS" >> "$CALLS"
+  while [[ ! -f "$CALLS.regression" ]]; do sleep 0.01; done
+  echo 'kernel completed' >> "$CALLS"
+fi
+if [[ "$*" == *scripts/run_tests.py* ]]; then : > "$CALLS.regression"; fi
 if [[ "$1" == scripts/project_modules.py ]]; then
   mkdir -p .lake/validation
   printf 'ClaferCompiler\nClaferCompiler.IR.Hidden\nMain\ntests\n' > .lake/validation/modules.txt
@@ -49,7 +55,10 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake build +ClaferCompiler +ClaferCompiler.IR.Hidden +Main +tests', calls)
         self.assertIn('lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
-        self.assertEqual(calls[-1], 'lake env leanchecker --verbose ClaferCompiler Main tests')
+        self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
+        self.assertIn('kernel threads=1', calls)
+        self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
+                        calls.index('kernel completed'))
 
     def test_required_failures_stop_the_check(self):
         for failure in ['scripts/check.py', 'scripts/project_modules.py', '--dependencies',
@@ -57,8 +66,10 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             with self.subTest(failure=failure):
                 result, calls = self.run_check(fail=failure)
                 self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
-                self.assertIn(failure, calls[-1])
+                self.assertTrue(any(failure in call for call in calls), calls)
                 self.assertNotIn('All build', result.stdout)
+                if failure in ('scripts/run_tests.py', 'leanchecker'):
+                    self.assertIn('kernel completed', calls)
 
     def test_missing_tool_and_skip_option_fail(self):
         result, calls = self.run_check(missing_lake=True)
