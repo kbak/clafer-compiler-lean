@@ -4,8 +4,9 @@ These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
 backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
-layer; global preservation remains unfinished. Future compiler behavior is
-reserved below, not declared implemented or proved.
+layer; global preservation remains unfinished. Selected task #16 adds the authored
+static parser; resolution, typing and source CLI integration remain separate.
+Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -14,7 +15,8 @@ reserved below, not declared implemented or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
-backend and checked serialization. Global compiler preservation remains unproved.
+backend, checked serialization and authored static parser. Global compiler
+preservation and grammar-to-parser correspondence remain unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -356,6 +358,52 @@ Covers:
 
 Needs: impl, utest
 
+## Authored static source parsing
+
+`req~compiler-parser~1`
+
+Parse the adopted static surface whitelist into authored syntax independently of
+name resolution, defaulting, typing and generation. Implement layout and explicit
+braces, declarations/use shorthand, direct references and inheritance, keyword and
+numeric groups/cardinalities, and every selected hard-constraint expression with
+the pinned precedence/associativity. Preserve original source, spelling, UTF-8
+spans, omitted versus authored values, group keyword provenance, set/bag arrows,
+binders and constraint attachment occurrences. Match the pinned Latin-1 lexer
+character class without normalization or silently narrowing it to ASCII.
+
+Reject malformed layout/intervals and recognize excluded primitives, operators,
+initializers, escapes, directives and all temporal forms without erasing them.
+Describe the grammar independently in the [parser contract](parser.md). Exercise
+native examples, malformed mutations, finite generated properties and live pinned
+Haskell syntax comparisons, retaining differences and tool failures separately.
+Reuse the pinned Lean parser primitives and existing oracle tooling. Keep the
+unproved grammar/parser/native boundary explicit; successful parsing does not
+establish resolution, type correctness, admission or satisfaction.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Source parser diagnostics
+
+`req~compiler-diagnostics~1`
+
+Return a deterministic version-1 source diagnostic with stable code, phase,
+malformed/unsupported category, message, logical filename, primary zero-based
+half-open UTF-8 byte span, one-based line/scalar column and related locations.
+Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
+Fail without a partial successful document. Distinguish recognized excluded
+features from missing/malformed syntax; do not invent name-resolution or typing
+results. Exact English wording is not stable. The parser returns the first
+lexical error, otherwise the first grammatical error. Diagnostic serialization,
+IR-only locations and process exit integration remain #19/#20 obligations.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -426,8 +474,6 @@ coverage.
 | `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
 | `compiler-arithmetic` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14), [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Definedness, finite observation and no-overflow correspondence |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
-| `compiler-parser` | [#16](https://github.com/kbak/clafer-compiler-lean/issues/16) | Accepted grammar/parser correspondence |
-| `compiler-diagnostics` | [#16](https://github.com/kbak/clafer-compiler-lean/issues/16), [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Stable diagnostic categories, codes and locations |
 | `compiler-resolution`, `compiler-defaults` | [#17](https://github.com/kbak/clafer-compiler-lean/issues/17) | Declarative resolution/defaulting success relation |
 | `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
 | `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |

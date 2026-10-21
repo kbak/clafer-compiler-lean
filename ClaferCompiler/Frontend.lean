@@ -1,5 +1,7 @@
 module
 
+public import ClaferCompiler.Frontend.Parser
+
 public section
-/-! Frontend ownership: parser #16, declarations #17, constraints #18.
-No parser or elaborator is implemented by the build bootstrap. -/
+/-! Authored static syntax and parser (#16). Resolution/defaulting (#17) and
+constraint elaboration (#18) are separate boundaries. -/

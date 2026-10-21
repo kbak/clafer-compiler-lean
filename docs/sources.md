@@ -163,3 +163,12 @@ S6's `genParentConst`, `genGroupConst`, `mkCard` and signature `extends` emissio
 were inspected to retain the virtual-root, multiplicity and hierarchy differences.
 No source meaning, upstream tool, fixture identity or dependency pin is changed.
 The four-byte `A ?` source in tests/fixtures/comparison is original project code.
+
+The [authored parser correspondence](parser.md#sources-and-comparison) records #16's
+exact grammar, generated Alex character classes and public Haskell parse checks.
+It reuses Lean 4.35.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
+copying parser infrastructure. New Clafer-specific code and fixtures are original
+MIT project code. Native properties and the existing hash-checked Haskell capture
+adapter test syntax only. M1 capture rejection after parsing is not an M2 semantic
+oracle; reference EOF crashes remain tool failures, and adopted profile exclusions
+remain visible. No upstream meaning, dependency revision or language scope changes.
