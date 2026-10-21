@@ -7,10 +7,12 @@ direction; contract review and explicit manual intake of each task precede
 implementation. A Todo ticket or this documentation does not start compiler work.
 The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
-[independent Alloy core](docs/alloy-core.md) and the selected
-[structural backend](docs/structural-encoding.md) and
-[typed expression API](docs/expressions.md). Global preservation and text/CLI
-integration remain separate tasks.
+[independent Alloy core](docs/alloy-core.md), an accepted
+[structural backend](docs/structural-encoding.md), and accepted
+[checked serialization](docs/alloy-text.md). Selected #11 adds a partial
+[representation proof layer](docs/structural-correctness.md). Global preservation
+remains unfinished; CLI integration has separate owners. Selected #14 adds the
+[typed expression API](docs/expressions.md) and independent semantic interpretation.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
@@ -27,6 +29,17 @@ validation evidence. Review scope changes explicitly. Mark tasks Done only after
 their acceptance criteria are met. Planning issues are not implementation approval.
 IntentMade uses manual intake and draft PRs. Only its credential-bearing coordinator
 may run ticket operations; workers return proposed updates without credentials.
+
+## Reuse before implementation
+
+Check existing repository code, pinned upstream sources, standard libraries and
+relevant maintained libraries/tools before implementing. Prefer a reusable solution
+that meets the contract. Before writing custom infrastructure, record the candidates
+checked and concrete gaps or tradeoffs in the affected design or task notes. Assess
+semantic fit, proof and runtime boundaries, maintenance, dependency and license
+costs. Independence from another component does not require implementing general
+machinery from scratch. Keep unresolved choices explicit; see the
+[Alloy parser assessment](docs/alloy-text.md#parser-reuse-assessment).
 
 ## Setup and validation
 

@@ -193,3 +193,21 @@ and Haskell source are not copied. No dependency or trusted scope change is made
 Covers:
 - `req~compiler-expressions~1`
 - `req~compiler-arithmetic~1`
+
+## Reuse decisions
+
+The implementation reuses the pinned upstream typed core and denotation for all
+meaning, including support congruence, lexical variables and integer extraction.
+Those modules depend on mathematical sets and proof libraries; importing them
+into the native runtime would violate the existing import boundary. The runtime
+therefore has a finite annotated representation and an explicit proof-only bridge.
+The existing structural IR supplies spans and diagnostics. Lean Std supplies
+vectors, finite indices, list membership, folds and natural recursion; no new
+container, equality or arithmetic library is introduced.
+
+The accepted Alloy target's postfix fold was inspected as a traversal precedent.
+For the source tree, cached structural budgets with erased proofs retain direct
+constructor-to-constructor interpretation while using Std recursion and satisfying
+the declaration audit. A general evaluator would require an additional agreement
+proof and is unnecessary for this task's admission API, so upstream denotation is
+used directly. No dependency or license cost is added.

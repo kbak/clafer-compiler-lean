@@ -2,10 +2,11 @@
 
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
-IR tasks #5–#7 were accepted through PRs #23–#25; target task #8 through PR #26.
-Selected task #10 adds the guarded structural backend; selected #14 adds typed
-static expressions and their independent semantic interpretation. Future compiler behavior
-is reserved below, not declared implemented or proved.
+IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
+backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
+layer; global preservation remains unfinished. Selected #14 adds typed static
+expressions and their independent semantic interpretation. Future compiler
+behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -13,9 +14,11 @@ is reserved below, not declared implemented or proved.
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap, admitted structural IR, independent target core and selected
-structural backend and typed expression API. Global compiler preservation remains unproved. Distinguish
-reviewed decisions, contract candidates and future implementation/proof promises. Contract adoption precedes dependent
+build bootstrap, admitted structural IR, independent target core, structural
+backend, checked serialization and selected typed expression API. Global compiler
+preservation remains unproved.
+Distinguish reviewed decisions, contract candidates and future implementation/proof
+promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
 
@@ -34,6 +37,12 @@ handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. During development, local checks remain
 mandatory and hosted CI runs only on manual dispatch. When run, CI must preserve
 evidence and expose that distinction. Scope changes require explicit review.
+
+Before implementation, check repository code, pinned upstream sources, standard
+libraries and relevant maintained libraries/tools for reusable solutions. Prefer
+reuse when it meets the contract. Record candidates and concrete gaps or tradeoffs
+before writing custom infrastructure, including proof/runtime boundaries and
+dependency/license costs. Independence alone is not a reason to rebuild machinery.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -229,6 +238,31 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Hygienic deterministic Alloy text
+
+`req~compiler-alloy-text~1`
+
+Render every selected target constructor using legal identity-based names,
+explicit precedence/grouping, multiplicities, declaration ownership, command
+polarity and complete exact/upper scopes. Retain original source names and byte
+spans in deterministic declaration maps, never executable syntax. Handle repeated,
+shadowed, reserved, Unicode and internal names without capture or aliasing.
+
+Prove name injectivity and print/parse reconstruction against an independent
+parser for the emitted subset, or obtain explicit review for an alternative
+assurance boundary. The [candidate boundary](alloy-text.md#proved-boundary-and-review-obligation)
+proves reconstruction for successful rendering by translation validation;
+unconditional successful renderability is not claimed and remains a review
+consideration. Preserve whole target identity, reject malformed metadata and
+failed correspondence, and keep native execution and actual Alloy parsing/solving
+outside the kernel claim. Compare real pinned Analyzer ASTs and exact-candidate
+meaning, including grouping/name mutations. Extend all constructor checks with M2.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Guarded structural encoding
 
 `req~compiler-structural-encoding~1`
@@ -251,6 +285,30 @@ and omission mutations against independent source meaning. Keep finite tests and
 local proofs distinct from global soundness, bounded completeness, executable
 encode/decode and text/CLI assurance, which remain dependent tasks. The
 [encoding contract](structural-encoding.md) specifies the exact layout and handoff.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Finite structural representation
+
+`req~compiler-structural-representation~1`
+
+Provide an executable finite shared-object presentation and in-memory encoder and
+decoder for the accepted structural target layout. Preserve declaration extents,
+containment tuples and distinct reference heads. Distinguish malformed/root decode
+errors from retained semantic violations. State the concrete bijection, root,
+extent and active-role tuple equations, including all target atom coverage and
+unused-slot policy, independently of either satisfaction relation.
+
+Kernel-prove the encode/decode data round trip under explicit table/root hygiene,
+and derive decoder success and a concrete representation from satisfaction of an
+actual successful compiler output, including live-atom coverage from target
+constraints. Exercise nontrivial bag witnesses, semantic violations, renamed atoms
+and malformed tables. Keep these results distinct from the unfinished global
+source-soundness, bounded-completeness and compiled-bank composition obligations
+of #11, specified in the [correctness work](structural-correctness.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -373,7 +431,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
