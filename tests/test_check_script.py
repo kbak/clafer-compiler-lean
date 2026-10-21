@@ -98,13 +98,14 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                                             env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
                     self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
 
-    def test_parallel_cli_group_cannot_hide_failure_or_skips(self):
+    def test_isolated_group_cannot_hide_failure_or_skips(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root/'tests').mkdir()
             good = 'import unittest\nclass T(unittest.TestCase):\n def test_ok(self): pass\n'
             (root/'tests/test_existing.py').write_text(good)
             (root/'tests/test_cli_external.py').write_text(good)
+            (root/'tests/test_axiom_audit.py').write_text(good)
             for source,expected in [(good,0),('',1),
                 ('import unittest\nclass T(unittest.TestCase):\n'
                  ' @unittest.skip("fixture")\n def test_skipped(self): pass\n',1),

@@ -81,8 +81,8 @@ before checking. After the build and axiom audit, kernel replay and the isolated
 regression suite run concurrently. Replay uses one worker to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
-Within the regression runner, the two independent CLI modules run in one separate
-process alongside the existing suite; both groups must execute without skips and
+Within the regression runner, the two CLI modules and the isolated audit-fixture
+module run in one separate process alongside the remaining suite; both groups must execute without skips and
 pass. The runner retains all discovered cases and propagates either group's failure.
 CI's overall 30-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and refuses

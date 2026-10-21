@@ -42,13 +42,15 @@ driver/test code remains MIT. No dependency pins or scope policy change.
 
 The full check's fixed 120-second deadline also requires overlapping the new CLI
 suite with existing regressions. The existing unittest discovery/runner and
-standard `subprocess` are reused: one separate process runs the two CLI modules,
-while the parent runs all remaining discovered cases. Both must execute nonempty
+standard `subprocess` are reused: one separate process runs the two CLI modules
+and the existing audit-fixture module, while the parent runs all remaining discovered cases. Both must execute nonempty
 suites without skips and pass. Separate processes avoid sharing Python mocks or
 module state. The CLI process builds only its own test harness and runtime objects
 already built by the production executable, plus frontend parser objects unused
 by the concurrently starting target tests. Pytest/xdist was considered but would
 add dependencies and change collection semantics for an established unittest suite.
+The audit regressions were checked individually: their Lean fixtures and outputs
+live in fresh temporary directories, and they only read the shared audit template.
 No case, assertion, kernel gate or timeout is removed; failure propagation is tested.
 
 ## Command contract

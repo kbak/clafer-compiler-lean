@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run every Python regression, failing on empty, skipped or failed suites.
 
-The CLI modules run in a separate process alongside the remaining regressions.
+CLI and isolated audit fixtures run separately alongside the remaining regressions.
 All groups are mandatory; process isolation keeps module state and mocks separate.
 """
 from pathlib import Path
@@ -10,7 +10,7 @@ import sys
 import unittest
 
 
-CLI_MODULES = {'test_cli', 'test_cli_external'}
+ISOLATED_MODULES = {'test_cli', 'test_cli_external', 'test_axiom_audit'}
 
 
 def cases(suite):
@@ -28,11 +28,11 @@ def run(suite):
 
 # [impl->req~compiler-build~1]
 # [impl->req~compiler-cli~1]
-if sys.argv[1:] == ['--cli-worker']:
+if sys.argv[1:] == ['--isolated-worker']:
     groups = [unittest.defaultTestLoader.discover('tests', pattern=name+'.py')
-              for name in sorted(CLI_MODULES)]
+              for name in sorted(ISOLATED_MODULES)]
     if any(group.countTestCases() == 0 for group in groups):
-        raise SystemExit('Each CLI module must contain tests')
+        raise SystemExit('Each isolated module must contain tests')
     suite = unittest.TestSuite(groups)
     raise SystemExit(0 if run(suite) else 1)
 if sys.argv[1:]:
@@ -40,13 +40,13 @@ if sys.argv[1:]:
 
 suite = unittest.defaultTestLoader.discover('tests', pattern='test_*.py')
 all_cases = list(cases(suite))
-present = [Path('tests',name+'.py').is_file() for name in CLI_MODULES]
+present = [Path('tests',name+'.py').is_file() for name in ISOLATED_MODULES]
 if any(present) and not all(present):
-    raise SystemExit('Both CLI modules are required')
+    raise SystemExit('All isolated modules are required')
 if all(present):
-    worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), '--cli-worker'])
+    worker = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), '--isolated-worker'])
     try:
-        passed = run(unittest.TestSuite(t for t in all_cases if t.__class__.__module__ not in CLI_MODULES))
+        passed = run(unittest.TestSuite(t for t in all_cases if t.__class__.__module__ not in ISOLATED_MODULES))
     finally:
         worker_code = worker.wait()
     raise SystemExit(0 if passed and worker_code == 0 else 1)
