@@ -3,6 +3,7 @@ module
 public import ClaferCompiler.IR.Inherited
 
 public import ClaferCompiler.IR.Structural
+public import ClaferCompiler.IR.ExprObservation
 
 public section
-/-! Executable resolved M1 (#7) and inherited (#13) IR. Static expressions belong to #14. -/
+/-! Executable structural (#7), inherited (#13) and typed static expression (#14) IR. -/

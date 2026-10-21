@@ -7,12 +7,17 @@ This is a private structural IR/build project with an adopted Clafer-to-Alloy co
 Follow the contract's review status and manual intake gates. The build, comparison
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
 Independent Alloy target #8, text #9 and structural backend #10 are accepted
-through PRs #26–#28. Correctness task #11 was accepted by the maintainer through PR #33 at
-67b9137cde9e2b486733aecd6eb4f5559b780ea3. Selected inherited realization #13
-now has an implementation and preservation proofs pending semantic acceptance. Parser task #16 is independently selected
-after accepted #6; its [authored API and assurance boundary](docs/parser.md) await
-semantic review. Do not implement compiler features until their owning task is
-selected and its dependencies are accepted.
+through PRs #26–#28. Correctness task #11 was accepted by the maintainer through
+PR #33 at 67b9137cde9e2b486733aecd6eb4f5559b780ea3. Selected inherited
+realization #13 has an implementation and preservation proofs pending semantic
+acceptance. Task #12 supplies exact three-way comparison and decoding.
+Parser task #16 is accepted through PR #30; its
+[authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 is
+selected after accepted #16/#7; its [checked resolution/defaults](docs/resolution.md)
+await semantic review. Typed static expression task #14 is accepted through PR #32.
+Task #15 is selected; its [target arithmetic work](docs/expression-encoding.md)
+does not yet supply source constraint or attachment preservation. Do not implement
+compiler features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a

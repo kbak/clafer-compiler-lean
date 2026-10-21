@@ -3,11 +3,15 @@
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
-backend #10 through PRs #26–#28. Selected #11 adds finite representation,
-soundness and bounded completeness proofs; semantic acceptance is pending.
-Selected task #16 adds the authored static parser; resolution, typing and source
-CLI integration remain separate. Future compiler behavior is reserved below,
-not declared implemented or proved.
+backend #10 through PRs #26–#28. The maintainer accepted #11's finite
+representation, soundness and bounded completeness proofs through PR #33.
+Selected #13 adds inherited structural realization with semantic review pending.
+The authored static parser #16 is accepted through PR #30. Selected #17 adds
+checked declaration resolution/defaults; source typing and source CLI integration
+remain separate. Accepted #14 (PR #32) adds typed static expressions and their
+independent semantic interpretation. Selected #15 extends bounded target
+arithmetic; source constraint encoding and its preservation remain unfinished.
+Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -16,9 +20,12 @@ not declared implemented or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
-backend, checked serialization, authored static parser and accepted M1 preservation
+backend, checked serialization, authored static parser, typed expression API,
+checked source declaration resolution/defaults and accepted M1 preservation
 proofs under explicit finite scope and numeric-range assumptions. The selected
-inherited structural extension has implementation and proofs pending semantic acceptance. Grammar-to-parser correspondence remains unproved.
+inherited structural extension has implementation and proofs pending semantic
+acceptance. Source constraint preservation and grammar-to-parser correspondence
+remain unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -374,6 +381,49 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Strict external instance decoding
+
+`req~compiler-instance-decode~1`
+
+Decode actual native-generated Alloy instances into the shared source candidate
+protocol, preserving declaration identity, all objects, containment endpoints
+and distinct reference heads even when owner/target pairs coincide. Reject
+unknown/missing tables, duplicate identities/tuples, invalid arities/endpoints
+and malformed roots. Keep well-formed semantic violations distinct from malformed
+input. Prove exact row correspondence for the executable export from the existing
+structural observation; identify JSON/Analyzer parsing and native execution as
+unproved external boundaries. See the [comparison contract](comparison.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Exact three-way candidate comparison
+
+`req~compiler-differential~1`
+
+Within the common admitted capture domain, compare the identical candidate with
+the upstream verified checker, same-generation Haskell Alloy and actual native
+Lean compilation/serialization/Alloy. Retain equivalent explicit source scopes,
+bitwidth and solver options, documenting the virtual versus explicit root layout.
+Require exact decoded-candidate isomorphism for SAT, preserve negative candidates
+and both discrepancy directions, and never treat raw text equality as the oracle.
+
+Exercise complete tiny enumerations and reproducible seeded generation without
+satisfaction filtering. Retain sources, IR, raw candidate/output, maps, tool/source
+identities, commands, options, seeds and replay evidence outside source. Verify
+replay identities; minimize completed discrepancies with retained attempts and
+honest deletion-minimality bounds. Detect injected occurrence collapse, omitted
+cardinality/group/disjointness enforcement and swapped endpoints. Keep malformed,
+unsupported, timeout/resource and tool failure outcomes separate from completed
+agreement. Finite comparisons do not replace the independent backend preservation proofs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Authored static source parsing
 
 `req~compiler-parser~1`
@@ -401,7 +451,55 @@ Covers:
 
 Needs: impl, utest
 
-## Source parser diagnostics
+## Source declaration resolution
+
+`req~compiler-resolution~1`
+
+Resolve the accepted authored declaration tree deterministically into finite
+identity-based structural tables. Preserve every declaration, its source path and
+span, repeated names in distinct contexts, parent/super/reference edges, set/bag
+head identity, original constraints and their owner occurrences. Resolve forward
+and cyclic references without following target edges recursively. Require unique
+nearest lexical lookup or unique global lookup, with explicit parentless abstract
+types for supers. Reject missing/ambiguous names, duplicate siblings, reserved
+user names, inheritance cycles and excluded inheritance forms with stable source
+diagnostics. Integer aliases refer to one explicitly classified canonical primitive.
+
+Define independent source coverage, lookup and elaboration rules and kernel-prove
+that successful elaboration satisfies them and yields the upstream well-formed
+structural core and selected realization domain. Well-formed output alone is
+insufficient. Retain ordinary inherited fields and explicit abstract families;
+keep constraints available for #18. The explicit M1 conversion must reject richer
+features and constraints, and pass the existing exact M1 admission. Compare
+resolved fields with the pinned importer on its common domain, retaining expected
+identity/provenance differences. See the [resolution contract](resolution.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Authored and effective defaults
+
+`req~compiler-defaults~1`
+
+Retain omitted versus authored multiplicity, group keyword versus numeric
+provenance, explicit abstractness and effective inherited abstractness. An omitted
+group inherits the superclass's complete effective group, otherwise unrestricted.
+An omitted parented local bound is optional under a keyword group and one under
+a numeric group; authored bounds override it. Effective abstractness is the
+explicit flag or the parent's effective flag. Kernel-prove agreement with pinned
+`Clafer.Defaults`; keep the documented numeric-group and `opt` differences from
+Haskell. Do not fabricate parent fibers for parentless abstracts. An explicit
+M1 projection may normalize that unused local slot to unrestricted while retaining
+authored metadata; it must preserve every other declaration field.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Source frontend diagnostics
 
 `req~compiler-diagnostics~1`
 
@@ -410,15 +508,96 @@ malformed/unsupported category, message, logical filename, primary zero-based
 half-open UTF-8 byte span, one-based line/scalar column and related locations.
 Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
 Fail without a partial successful document. Distinguish recognized excluded
-features from missing/malformed syntax; do not invent name-resolution or typing
-results. Exact English wording is not stable. The parser returns the first
+features from missing/malformed syntax. The resolver supplies name/default
+diagnostics; typing remains #18. Exact English wording is not stable. The parser
+returns the first
 lexical error, otherwise the first grammatical error. Diagnostic serialization,
-IR-only locations and process exit integration remain #19/#20 obligations.
+IR-only locations and process exit integration remain #19/#20 obligations. The
+resolver prioritizes declaration/name checks, edge resolution, inheritance and
+realization ranks, then independent source correspondence validation.
 
 Covers:
 - `intent~compiler-foundation~1`
 
 Needs: impl, utest
+
+## Executable typed static expressions
+
+`req~compiler-expressions~1`
+
+Provide executable finite support and annotated syntax for every adopted M2 typed
+core constructor, with checked sorts, lexical positions, fresh nested binders,
+explicit identity/inclusion widening and original byte spans. Preserve `this`,
+global extents, repeated map occurrences and operand order. Reject malformed
+annotations and direct observations of the complete primitive integer extent.
+Return the original tree with checked typing and observation evidence.
+
+Interpret successful typed trees into the pinned independent typed core, using
+its existing partial denotation. Prove exact admission, footprint preservation
+and admissible environment interpretation. Undefined remains distinct from false;
+reference-head and target-set counts remain distinct. Permit map-free literals
+through direct denotation without changing upstream Compile support. This API
+neither extends M1 admission nor implements a parser, general finite evaluator,
+Alloy constraint encoding or production CLI. See the [expression contract](expressions.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Static arithmetic and finite observation
+
+`req~compiler-arithmetic~1`
+
+Retain mathematical Int meaning with explicit width, finite observation budgets,
+value intervals and separate definedness obligations. Conservatively check every
+literal, integer extraction and arithmetic intermediate, including all Boolean
+branches and binder bodies, for signed representability at widths 1–16. Reject
+unsafe profiles as unsupported, without wrapping or asserting UNSAT. Check
+candidate observations and external environments against their recorded budgets
+and intervals independently of constraint truth.
+
+Prove exact finite singleton extraction, interval transfer/representability,
+and construction of full-integer bindings retaining nonprimitive objects and
+original links under explicit independent model obligations. Prove admitted
+expression denotation invariant across such extensions and finite meaning for
+admitted collections, including integer navigation and quantifier domains.
+Keep primitive/root structural composition explicit; do not claim whole-domain
+finite equivalence. General range-analysis soundness against denotation, bounded
+Alloy arithmetic and structural pipeline composition remain #15/#20 obligations;
+tested range behavior is distinct from these future theorems.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Bounded target arithmetic
+
+`req~compiler-target-arithmetic~1`
+
+Extend the independent Alloy target with ordered integer addition and subtraction
+over literals, finite distinct-tuple cardinalities and nested integer expressions.
+Use mathematical intermediate values with explicit signed representability at
+widths 1–16; propagate undefined operands and overflow rather than wrapping or
+converting them to false. Conservatively admit every intermediate using explicit
+scope-derived count inventories, including branches under negation, implication
+and quantifiers. Reject malformed integer stack programs and invalid relation
+operands through target admission.
+
+Prove constructor definedness/value equations and checked-interval agreement with
+mathematical arithmetic under explicit leaf count-capacity premises. Those
+premises must state actual tuple bounds, never final truth or preservation.
+Retain the remaining general relation-inventory and source-denotation obligations.
+Extend checked serialization and independent parsing for all integer constructors;
+exercise the actual pinned Analyzer with independent ASTs, boundary cases and
+operand, grouping and lexical-binding mutations. This target layer does not
+claim source expression or attachment preservation. See [encoding work](expression-encoding.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
 
 ## Documentation and workflow artifacts
 
@@ -485,11 +664,7 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
-| `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
-| `compiler-arithmetic` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14), [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Definedness, finite observation and no-overflow correspondence |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
-| `compiler-resolution`, `compiler-defaults` | [#17](https://github.com/kbak/clafer-compiler-lean/issues/17) | Declarative resolution/defaulting success relation |
 | `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
 | `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |

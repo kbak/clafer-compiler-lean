@@ -42,10 +42,34 @@ def Rel.columns (scopes : List Scope) (schema : Schema) (env : List Nat) (rel : 
     transpose := List.reverse
   } []
 
-def Integer.safe (m : Module) (depth : Nat) : Integer → Bool
-  | .literal n => fitsInt m.command.bitwidth n
-  | .count r => fitsInt m.command.bitwidth
-      (Int.ofNat ((r.columns m.command.scopes m.schema (List.replicate depth 1)).foldl (· * ·) 1))
+/-! [impl->req~compiler-target-arithmetic~1] -/
+
+/-- A successful interval certifies every intermediate, not only the root.
+Counts use independent finite column budgets, never assumed fact truth. -/
+structure IntRange where
+  lower : Int
+  upper : Int
+  deriving DecidableEq, BEq
+
+def IntRange.checked (width : Nat) (r : IntRange) : Option IntRange :=
+  if r.lower ≤ r.upper && fitsInt width r.lower && fitsInt width r.upper then some r else none
+
+def Integer.range (m : Module) (depth : Nat) (n : Integer) : Option IntRange :=
+  n.fold {
+    literal := fun n => IntRange.checked m.command.bitwidth ⟨n, n⟩
+    count := fun r => IntRange.checked m.command.bitwidth
+      ⟨0, Int.ofNat ((r.columns m.command.scopes m.schema
+        (List.replicate depth 1)).foldl (· * ·) 1)⟩
+    add := fun a b => do
+      let a ← a; let b ← b
+      IntRange.checked m.command.bitwidth ⟨a.lower + b.lower, a.upper + b.upper⟩
+    subtract := fun a b => do
+      let a ← a; let b ← b
+      IntRange.checked m.command.bitwidth ⟨a.lower - b.upper, a.upper - b.lower⟩
+  } none
+
+def Integer.safe (m : Module) (depth : Nat) (n : Integer) : Bool :=
+  (n.range m depth).isSome
 
 /-- Check all branches, including negation, vacuous implications and empty domains. -/
 def Formula.safe (m : Module) (depth : Nat) (formula : Formula) : Bool :=

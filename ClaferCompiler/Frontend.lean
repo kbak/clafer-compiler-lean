@@ -1,7 +1,8 @@
 module
 
 public import ClaferCompiler.Frontend.Parser
+public import ClaferCompiler.Frontend.Resolve
 
 public section
-/-! Authored static syntax and parser (#16). Resolution/defaulting (#17) and
-constraint elaboration (#18) are separate boundaries. -/
+/-! Authored static syntax/parser (#16) and checked structural elaboration (#17).
+Constraint elaboration (#18) remains a separate boundary. -/

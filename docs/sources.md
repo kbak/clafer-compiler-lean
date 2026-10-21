@@ -159,6 +159,15 @@ S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New proofs a
 fixtures are original project code; no upstream meanings or Haskell implementation
 are copied or changed.
 
+The [three-way comparison](comparison.md) reuses S8's pinned exact-candidate
+protocol, generators, isomorphism, mutation and shrinking algorithms and S6's
+paired Haskell capture. The downstream adapter invokes the existing M1 compiler,
+S7-pinned Analyzer and native decoder; all new adapter/test code is original MIT.
+S6's `genParentConst`, `genGroupConst`, `mkCard` and signature `extends` emission
+were inspected to retain the virtual-root, multiplicity and hierarchy differences.
+No source meaning, upstream tool, fixture identity or dependency pin is changed.
+The four-byte `A ?` source in tests/fixtures/comparison is original project code.
+
 The [authored parser correspondence](parser.md#sources-and-comparison) records #16's
 exact grammar, generated Alex character classes and public Haskell parse checks.
 It reuses Lean 4.35.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
@@ -178,3 +187,36 @@ were inspected as supplementary generator evidence. Existing #11 allocation,
 representation and preservation machinery is reused through a checked layout.
 The finite fixture and extension are original MIT code. No upstream semantics,
 Haskell source, dependency pin, language whitelist or scope policy changes.
+
+The selected [expression API](expressions.md) maps S4's complete typed constructor
+inventory directly into the pinned upstream denotation. `DenotationSupport` and
+`DenotationInvariance` supply observation invariance and original-link equivalence;
+`Integer` and `CollectionMeaning` supply partial extraction and typed collection
+meaning. S5's static `clafer.cf` productions and S6's `genPExp'`, `genIFunExp` and
+`genOp` were inspected for constructor shape and operand order. The downstream
+checker, observation extension and tests are original MIT code. No upstream
+semantics, primitive domains, positive-map support or dependency pins changed.
+
+The [target arithmetic stage](expression-encoding.md) uses S7's Integer
+Expressions and Commands sections for `plus`/`minus`, signed intermediate bounds
+and tuple cardinality. S6's active `genOp` branches provide the corresponding
+operand-order guide. It reuses the existing target folds, Parsec grammar and
+actual Analyzer adapter; its original implementation and tests retain MIT
+licensing. The retained reference identity and pinned tools are unchanged. The
+width-16 Analyzer translation-capacity failure is retained as an operational
+result, not agreement or bounded UNSAT. Source encoding and attachment
+preservation remain unfinished under #15.
+
+The [source resolution/defaulting contract](resolution.md) maps S2's `Defaults`,
+`GroupCard`, `AST.WellFormed` and Compile naming obligations, plus S3's
+`Realization.Core.Selected`, to source occurrence paths and finite checked tables.
+The downstream success, coverage, upstream default agreement, well-formedness and
+selected-realization theorems have no satisfaction premise. Inspected pinned S5
+`ResolverInheritance.hs` (`resolveNSuper`, `analyzeGCard`, `analyzeCard`),
+`ResolverName.hs` (`resolveName`, `findUnique`), `Desugarer.hs` and S6 `Intclafer.hs`.
+The exact direct-type lookup policy and common-domain importer comparisons are in
+that contract; broader Haskell navigation/relocation is not silently admitted.
+Standard-library finite traversal/decisions are reused, with no new dependencies,
+semantic changes, copied upstream definitions or Haskell source. All new code and
+fixtures are original MIT project code. The in-memory source profile retains
+integer/inherited forms without extending the M1 interchange/backend contract.

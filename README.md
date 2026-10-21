@@ -9,14 +9,20 @@ and [comparison tools](docs/oracles.md) are available. The independent
 [structural backend](docs/structural-encoding.md) and
 [hygienic serialization](docs/alloy-text.md) are accepted through PRs #26–#28.
 The backend translates admitted M1 IR into checked target ASTs with manual bounds.
-The selected [correctness work](docs/structural-correctness.md) proves decoding,
+The [correctness work](docs/structural-correctness.md) proves decoding,
 M1 soundness and finite bounded completeness with explicit scope and integer-range
 hypotheses. The maintainer accepted #11 through PR #33. Selected
 [inherited realization](docs/inherited-realization.md) adds the full Appendix 6
 structural skeleton and preservation proofs; its semantic review is pending.
-CLI integration is separate.
-The selected [static source parser](docs/parser.md) retains authored syntax and
-source diagnostics; resolution and typing remain separate tasks.
+The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
+and strict instance decoding. CLI integration is a separate task.
+The accepted [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
+adds checked declaration elaboration; source expression typing remains separate.
+The accepted [typed expression API](docs/expressions.md) adds checked static syntax
+and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
+adds bounded target arithmetic; source constraint translation and attachment
+preservation remain unfinished.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

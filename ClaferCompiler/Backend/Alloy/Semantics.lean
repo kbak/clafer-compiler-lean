@@ -37,9 +37,14 @@ def Rel.eval (i : Instance) (env : List Nat) (rel : Rel) : Relation :=
     transpose := fun a => (a.map List.reverse).eraseDups
   } []
 
-def Integer.eval (width : Nat) (i : Instance) (env : List Nat) : Integer → Option Int
-  | .literal n => boundedInt width n
-  | .count r => boundedInt width (Int.ofNat (r.eval i env).eraseDups.length)
+/-! [impl->req~compiler-target-arithmetic~1] -/
+def Integer.eval (width : Nat) (i : Instance) (env : List Nat) (n : Integer) : Option Int :=
+  n.fold {
+    literal := boundedInt width
+    count := fun r => boundedInt width (Int.ofNat (r.eval i env).eraseDups.length)
+    add := fun a b => do boundedInt width ((← a) + (← b))
+    subtract := fun a b => do boundedInt width ((← a) - (← b))
+  } none
 
 def Multiplicity.holds : Multiplicity → Nat → Bool
   | .set, _ => true

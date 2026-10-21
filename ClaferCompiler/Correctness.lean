@@ -4,6 +4,7 @@ public import ClaferCompiler.Correctness.InheritedViews
 
 public import ClaferCompiler.Driver
 public import ClaferCompiler.Correctness.StructuralCorrectness
+public import ClaferCompiler.Correctness.IntegerArithmetic
 
 public section
 

@@ -42,10 +42,13 @@ theorem interval_eval_iff (w : Nat) (b : IR.Structural.Bounds) (r : Rel)
   have hc (a b : Integer) : (Formula.compare .le a b).eval w i env =
       (do let x ← a.eval w i env; let y ← b.eval w i env; pure (Comparison.le.holds x y)) := rfl
   have ht : Formula.truth.eval w i env = some true := rfl
+  have hLiteral (z : Int) : (Integer.literal z).eval w i env = boundedInt w z := rfl
+  have hCount : (Integer.count r).eval w i env =
+      boundedInt w (r.eval i env).eraseDups.length := rfl
   cases b with
   | mk lower upper =>
     cases upper <;> by_cases hz : lower = 0 <;>
-      simp [hz, hc, ht, Integer.eval, bounded_comparison, IntervalFits,
+      simp [hz, hc, ht, hLiteral, hCount, bounded_comparison, IntervalFits,
         DPGraph.Predicates.CountInRange, bounds] <;> tauto
 
 theorem represented_parents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
