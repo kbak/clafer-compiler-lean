@@ -8,9 +8,10 @@ implementation. A Todo ticket or this documentation does not start compiler work
 The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
 [independent Alloy core](docs/alloy-core.md), an accepted
-[structural backend](docs/structural-encoding.md), and
-[checked serialization](docs/alloy-text.md) awaiting review. Global preservation
-and CLI integration remain separate tasks.
+[structural backend](docs/structural-encoding.md), and accepted
+[checked serialization](docs/alloy-text.md). Selected #11 adds a partial
+[representation proof layer](docs/structural-correctness.md). Global preservation
+remains unfinished; CLI integration has separate owners.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests

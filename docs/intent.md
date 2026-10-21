@@ -26,8 +26,11 @@ proofs and CLI integration remain separate tasks. The selected direction is
 structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
 was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
-through merged PRs #23–#25; target #8 and structural backend #10 through PRs #26 and #28.
-Text task #9 is selected; its semantic review remains pending. Later tasks require their own selection.
+through merged PRs #23–#25; target #8, text #9 and structural backend #10 through
+PRs #26–#28. Correctness task #11 is selected. Its
+[finite representation layer](structural-correctness.md) is partial; global
+soundness and bounded completeness remain unfinished. Later tasks require their
+own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
@@ -81,6 +84,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
+- [Correctness work](structural-correctness.md): finite representation and remaining preservation obligations.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.
 - [Security policy](../SECURITY.md): sensitive reports during the private phase.
