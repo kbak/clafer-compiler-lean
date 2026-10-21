@@ -1,10 +1,10 @@
 # Repository and planning requirements
 
 These requirements cover the current documentation and workflow. The structural
-contract was adopted by issue #2 and merged PR #22. Build task #5 and comparison
-tooling task #6 were accepted through PRs #23 and #24. Selected issue #7 adds
-executable structural IR and admission proofs. Future compiler behavior is reserved
-below, not declared implemented or proved.
+contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
+IR tasks #5–#7 were accepted through PRs #23–#25. Selected task #8 adds an independent
+static target core. Future compiler behavior is reserved below, not declared
+implemented or proved.
 
 ## Honest project boundary
 
@@ -12,7 +12,7 @@ below, not declared implemented or proved.
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap, admitted structural IR and absence of compiler passes. Distinguish reviewed decisions,
+build bootstrap, admitted structural IR, independent target core and absence of compiler passes. Distinguish reviewed decisions,
 contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
@@ -180,6 +180,53 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Independent static Alloy target
+
+`req~compiler-alloy-core~1`
+
+Provide resolved static unary/binary target syntax and an admission API that
+rejects malformed references, bindings, arities and declaration hierarchies.
+Define finite target instances and compositional relation, formula, declaration,
+fact and run/check satisfaction independently of source semantics and compilation.
+Preserve atom identity, parent inclusion, sibling/top-level disjointness, Alloy's
+abstract-leaf behavior, owner-first field direction and fiber multiplicity.
+Distinguish malformed candidates from well-formed violating candidates.
+Document auxiliary/unused atom policy and the source invariants #10 must generate.
+
+Maintain the construct correspondence and retained source identity against the
+official reference. Kernel-check constructor laws and independent truth tables,
+and compare representative equivalent formulas through the pinned real Analyzer.
+Keep formal target properties distinct from tested Analyzer correspondence and
+future serialization/source preservation proofs. See the [target contract](alloy-core.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Explicit target bounds and checked cardinalities
+
+`req~compiler-bounds~1`
+
+Require complete explicit exact/upper scopes and the accepted signed bitwidth
+profile. Reject incompatible signature-multiplicity scopes and unsafe literal
+or count ranges before evaluating a candidate. Use conservative finite column
+budgets, including binary endpoint products and union inventories, independently
+of facts and successful satisfaction. Check every fact/command branch and binder
+body. Count distinct tuples, retain runtime representability checks and propagate
+undefined integer observations distinctly from false. Scope allocation numerals
+and multiplicity predicates do not themselves introduce Alloy integer expressions.
+
+Preserve valid scopes excluding every model as unsatisfiable constraints; future
+source compilation may express conflicting declaration multiplicity as a fact.
+Do not infer scopes, encode infinity as an integer, silently wrap arithmetic or
+add richer M2 integer operations. State the proof/test boundary of range analysis.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -245,7 +292,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-alloy-core`, `compiler-bounds` | [#8](https://github.com/kbak/clafer-compiler-lean/issues/8) | Independent bounded target semantics |
 | `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |
 | `compiler-structural-encoding` | [#10](https://github.com/kbak/clafer-compiler-lean/issues/10) | Complete guarded structural translation |
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
