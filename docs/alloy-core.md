@@ -1,8 +1,9 @@
 # Independent static Alloy core
 
 [Issue #8](https://github.com/kbak/clafer-compiler-lean/issues/8) supplies the target
-API for #9 and #10 after accepted oracle task #6. This implementation is a review
-candidate. It contains no source encoder, serializer, parser, decoder or compiler
+API for #9 and #10 after accepted oracle task #6. It was accepted through PR #26.
+The separate [structural backend](structural-encoding.md) now consumes this API.
+The target core contains no source encoder, serializer, parser, decoder or compiler
 preservation theorem. The existing native CLI still only supports `--version`.
 
 ## API and supported fragment

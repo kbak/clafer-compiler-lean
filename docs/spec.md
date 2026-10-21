@@ -2,9 +2,9 @@
 
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
-IR tasks #5–#7 were accepted through PRs #23–#25. Selected task #8 adds an independent
-static target core. Future compiler behavior is reserved below, not declared
-implemented or proved.
+IR tasks #5–#7 were accepted through PRs #23–#25; target task #8 through PR #26.
+Selected task #10 adds the guarded structural backend. Future compiler behavior
+is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -12,8 +12,9 @@ implemented or proved.
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap, admitted structural IR, independent target core and absence of compiler passes. Distinguish reviewed decisions,
-contract candidates and future implementation/proof promises. Contract adoption precedes dependent
+build bootstrap, admitted structural IR, independent target core and selected
+structural backend. Global compiler preservation remains unproved. Distinguish
+reviewed decisions, contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
 
@@ -227,6 +228,34 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Guarded structural encoding
+
+`req~compiler-structural-encoding~1`
+
+Translate the exact admitted M1 effective IR into the independent static target
+with deterministic declaration/field allocation and complete explicit ID scopes,
+total object budget and signed bitwidth. Preserve declaration and reference-head
+identity, inherited membership, owner-first containment/dereference, set/bag keys,
+local intervals and union-of-child-head group counts. Enforce root singleton and
+freshness, typed endpoints, used-object coverage, abstract cover including empty
+families, and global incomparable declaration disjointness. Reject non-M1 inputs
+through existing admission; do not narrow the source domain or silently drop facts.
+
+Return checked target syntax/bounds and a source-ID/name/span map with obligation
+labels. Distinguish malformed manual bounds, unsafe range profiles and internal
+generation errors from contradictions: well-formed scopes excluding all models
+still compile. No inferred bounds or implicit solver calls. Prove local inventory,
+identity, field-direction and generated-fact lemmas; test positive/negative cases
+and omission mutations against independent source meaning. Keep finite tests and
+local proofs distinct from global soundness, bounded completeness, executable
+encode/decode and text/CLI assurance, which remain dependent tasks. The
+[encoding contract](structural-encoding.md) specifies the exact layout and handoff.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -293,7 +322,6 @@ coverage.
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
 | `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |
-| `compiler-structural-encoding` | [#10](https://github.com/kbak/clafer-compiler-lean/issues/10) | Complete guarded structural translation |
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |

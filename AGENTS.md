@@ -6,7 +6,8 @@ Read [intent](docs/intent.md), [requirements](docs/spec.md),
 This is a private structural IR/build project with an adopted Clafer-to-Alloy contract.
 Follow the contract's review status and manual intake gates. The build, comparison
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
-Independent Alloy target task #8 is selected. Do not implement compiler features until their owning
+Independent Alloy target task #8 is accepted through PR #26; structural backend
+task #10 is selected. Do not implement compiler features until their owning
 task is selected and its dependencies are accepted. Behavior and publication remain
 outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
