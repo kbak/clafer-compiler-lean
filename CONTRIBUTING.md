@@ -5,8 +5,9 @@ Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
 The repository is private. Structural Clafer-to-Alloy development is the selected
 direction; contract review and explicit manual intake of each task precede
 implementation. A Todo ticket or this documentation does not start compiler work.
-The current checkout has a pinned Lean/Lake build, native bootstrap and external oracle tools; it has
-no compiler passes. See [build and proof checks](docs/build.md).
+The current checkout has a pinned Lean/Lake build, native bootstrap, external
+oracle tools and an [independent Alloy core](docs/alloy-core.md); it has no compiler
+passes. See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
 

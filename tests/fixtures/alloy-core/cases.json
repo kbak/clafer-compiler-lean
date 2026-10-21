@@ -1,0 +1,130 @@
+[
+  {
+    "id": "relation_count",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { #r = 3 } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "image",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { A.r = B } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "transpose",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { B.~r = A } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "binary_join",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { r.~r = A->A } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "right_join",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { r.B = A } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "union_unique",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { #(A+A) = 2 } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "intersection",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { r & (A->B) = r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "difference",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { #((A->B)-r) = 1 } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "subset_false",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { A->B in r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "all_some",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { all x:A | some x.r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "all_one_false",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { all x:A | one x.r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "exists_one",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { some x:A | one x.r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "shadow",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { all x:A | some y:B | x->y in r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "empty_all",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { all x:A-A | some none } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "empty_exists",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { some x:A-A | no none } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "logic",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { not (A->B in r) and (some none or (no none implies -8 < 7)) } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "check_counterexample",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\ncheck { A->B in r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "check_valid",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\ncheck { r in A->B } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "bag_heads",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { r = A->B }\nrun { #r = 2 and #(A.r) = 1 } for 4 Int, exactly 2 A, exactly 1 B, 0 seq\n"
+  },
+  {
+    "id": "bag_distinct_targets_false",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { r = A->B }\nrun { #(A.r) = 2 } for 4 Int, exactly 2 A, exactly 1 B, 0 seq\n"
+  },
+  {
+    "id": "abstract_cover",
+    "source": "abstract sig P {}\nsig C extends P {}\nsig D extends P {}\nrun { #P = 2 and one C and one D } for 4 Int, 2 P, 1 C, 1 D, 0 seq\n"
+  },
+  {
+    "id": "abstract_uncovered",
+    "source": "abstract sig P {}\nsig C extends P {}\nsig D extends P {}\nrun { #P = 2 and one C and no D } for 4 Int, 2 P, 1 C, 1 D, 0 seq\n"
+  },
+  {
+    "id": "siblings_overlap",
+    "source": "abstract sig P {}\nsig C extends P {}\nsig D extends P {}\nrun { one P and one C and one D and some x:P | x in C and x in D } for 4 Int, 2 P, 1 C, 1 D, 0 seq\n"
+  },
+  {
+    "id": "parent_inclusion",
+    "source": "abstract sig P {}\nsig C extends P {}\nsig D extends P {}\nrun { one P and one C and no D and some x:P+C | x in C and x not in P } for 4 Int, 2 P, 1 C, 1 D, 0 seq\n"
+  },
+  {
+    "id": "abstract_leaf",
+    "source": "abstract sig A {}\nrun { no none } for 2 Int, exactly 1 A, 0 seq\n"
+  },
+  {
+    "id": "top_disjoint",
+    "source": "sig A {}\nsig B {}\nrun { some x:A+B | x in A and x in B } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "field_orientation",
+    "source": "sig A { r: set B }\nsig B {}\nrun { some x,y:A+B | x in B and y in A and x->y in r } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "field_one_false",
+    "source": "sig A { r: one B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nrun { no none } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  },
+  {
+    "id": "field_one",
+    "source": "sig A { r: one B }\nsig B {}\nfact pin { r = A->B }\nrun { no none } for 4 Int, exactly 2 A, exactly 1 B, 0 seq\n"
+  },
+  {
+    "id": "upper_unused",
+    "source": "sig A {}\nrun { one A } for 2 Int, 3 A, 0 seq\n"
+  },
+  {
+    "id": "exact_too_small",
+    "source": "sig A {}\nrun { one A } for 2 Int, exactly 2 A, 0 seq\n"
+  },
+  {
+    "id": "fact_false",
+    "source": "sig A { r: set B }\nsig B {}\nfact pin { some disj a0,a1:A | some disj b0,b1:B | r = a0->b0 + a0->b1 + a1->b0 }\nfact bad { A->B in r }\nrun { no none } for 4 Int, exactly 2 A, exactly 2 B, 0 seq\n"
+  }
+]

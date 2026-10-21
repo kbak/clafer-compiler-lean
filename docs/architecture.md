@@ -3,9 +3,11 @@
 This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
 under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
 Structural-only development and the upstream typed-core M2 scope are selected.
-Issue #2 was closed by merged PR #22 and #5 by merged PR #23; oracle task #6 is selected. Later tasks
+Issue #2 was closed by merged PR #22, #5 by merged PR #23 and #6 by merged PR #24.
+The independent [target core](alloy-core.md) belongs to selected task #8. Later tasks
 require their own manual intake. These are delivery specifications, not
-implemented APIs or proved results.
+implemented APIs or proved results except where the target/build contracts link
+the delivered declarations and their specific proof/test boundaries.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
 
@@ -310,7 +312,8 @@ proved, M2 end-to-end assurance remains incomplete; the M1 checker cannot fill i
 
 ## Independent meanings and theorem obligations
 
-S1/S3/S4 define source satisfaction. #8 defines target instances and compositional
+S1/S3/S4 define source satisfaction. #8's [target contract](alloy-core.md) defines
+target instances and compositional
 satisfaction from the Alloy reference: finite atom sets, signature membership,
 relations, quantification and bounded integer operations. Target truth is never
 source truth or successful compilation by definition.
@@ -419,6 +422,6 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. Keep #6 In Progress until its acceptance and review gates
-are met. No unresolved research tag, publication step or blanket Haskell-parity
+approve future changes. #6 is accepted; keep #8 In Progress until its acceptance
+and review gates are met. No unresolved research tag, publication step or blanket Haskell-parity
 promise blocks this plan.

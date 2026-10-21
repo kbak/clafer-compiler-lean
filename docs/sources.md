@@ -97,6 +97,12 @@ and replayability. Update the source register, dependency manifest, requirements
 and affected tests/links together in a reviewed PR. The build bootstrap supplies
 those dependency files. Admission fixtures and
 compiler/Haskell comparisons become required when their owning tasks deliver them.
+The [target core correspondence](alloy-core.md#source-correspondence-and-external-boundary)
+records #8's reference snapshot identity, exact constructor mapping and independent
+Lean/Analyzer observations. Its fixtures and Java adapter are original MIT-licensed
+project code; no reference specification text or Haskell code is redistributed.
+The general range analysis is tested, not claimed as a proved no-overflow theorem.
+
 The current oracle check executes paired Haskell captures, upstream admission and
 exact-candidate Lean/Alloy comparisons, alongside build/import/native/kernel/axiom
 checks. Downstream compiler-generated Alloy remains owned by #12.

@@ -2,8 +2,9 @@
 
 The build belongs to [issue #5](https://github.com/kbak/clafer-compiler-lean/issues/5).
 The structural contract was adopted through [PR #22](https://github.com/kbak/clafer-compiler-lean/pull/22).
-Only the build task has entered implementation. No parser, IR, translation, Alloy
-output or compiler correctness theorem is delivered by this bootstrap.
+Build and oracle tasks #5/#6 are accepted; selected #8 adds an
+[independent target core](alloy-core.md). No parser, IR, translation, Alloy output
+or compiler correctness theorem is delivered by this bootstrap.
 
 ## Package and module ownership
 
@@ -18,7 +19,7 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 | --- | --- | --- |
 | `ClaferCompiler.Frontend` | Empty ownership root; #16–#18 | Runtime modules |
 | `ClaferCompiler.IR` | Empty ownership root; #7/#14 | Runtime modules |
-| `ClaferCompiler.Backend.Alloy` | Empty ownership root; #8–#10/#15 | Runtime modules |
+| `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics; #8, then #9/#10/#15 | Runtime modules |
 | `ClaferCompiler.Driver` | Pure bootstrap response; #5, then #19/#20 | Runtime modules |
 | `ClaferCompiler.SemanticsBridge` | Upstream import boundary; #7/#14 | Runtime/proof modules and upstream |
 | `ClaferCompiler.Correctness` | Bootstrap response lemmas; #5, then #11/#15/#20 | Runtime/proof modules and upstream |
