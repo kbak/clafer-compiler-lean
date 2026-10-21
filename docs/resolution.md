@@ -1,10 +1,10 @@
 # Structural source resolution and defaults
 
-Selected [issue #17](https://github.com/kbak/clafer-compiler-lean/issues/17) follows
+Accepted [issue #17](https://github.com/kbak/clafer-compiler-lean/issues/17) follows
 accepted parser #16 (PR #30) and IR #7 (PR #25). The frontend resolves authored
-structural declarations; source expression elaboration remains #18. The source
-and its constraint occurrences must survive unchanged. Semantic acceptance of
-this implementation remains pending.
+structural declarations and was accepted through merged PR #35. The source
+and its constraint occurrences survive unchanged for selected
+[source expression elaboration #18](constraints.md).
 
 ## Reuse assessment and implementation plan
 

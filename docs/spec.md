@@ -6,9 +6,10 @@ IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and str
 backend #10 through PRs #26–#28. The maintainer accepted #11's finite
 representation, soundness and bounded completeness proofs through PR #33.
 Selected #13 adds inherited structural realization with semantic review pending.
-The authored static parser #16 is accepted through PR #30. Selected #17 adds
-checked declaration resolution/defaults; source typing and source CLI integration
-remain separate. Accepted #14 (PR #32) adds typed static expressions and their
+The authored static parser #16 is accepted through PR #30. Accepted #17 (PR #35) adds
+checked declaration resolution/defaults. Selected #18 adds source constraint
+elaboration with semantic review pending; source CLI integration remains separate.
+Accepted #14 (PR #32) adds typed static expressions and their
 independent semantic interpretation. Selected #15 extends bounded target
 arithmetic and proves source range-analysis soundness; source constraint encoding
 and its preservation remain unfinished.
@@ -510,8 +511,9 @@ half-open UTF-8 byte span, one-based line/scalar column and related locations.
 Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
 Fail without a partial successful document. Distinguish recognized excluded
 features from missing/malformed syntax. The resolver supplies name/default
-diagnostics; typing remains #18. Exact English wording is not stable. The parser
-returns the first
+diagnostics. Selected #18 adds typed-expression diagnostics with phase `type`;
+its source constraint contract specifies the accepted inference rules. Exact
+English wording is not stable. The parser returns the first
 lexical error, otherwise the first grammatical error. Diagnostic serialization,
 IR-only locations and process exit integration remain #19/#20 obligations. The
 resolver prioritizes declaration/name checks, edge resolution, inheritance and
@@ -574,6 +576,39 @@ Compose the finite-observation bridge for arbitrary full-integer extensions and
 show scalar compatibility with target bounded-integer admission. Source-to-target
 expression/attachment preservation and structural pipeline composition remain
 obligations of #15/#20. See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Source constraint elaboration
+
+`req~compiler-constraint-elaboration~1`
+
+Elaborate the accepted static source expressions over checked declaration tables.
+Resolve lexical positions, this, parent, contextual/inherited fields, global
+extents and explicit/implicit dereferencing with deterministic missing/ambiguous
+name and type diagnostics. Preserve original declaration/map identities, attachment
+owner, body position and UTF-8 spans. Use actual inclusion paths for common-type
+widening; keep reference-head counts distinct from dereferenced target counts.
+
+Expand exactly the adopted connectives, comparisons, presence/cardinality tests,
+finite single-object quantifiers and integer operations. Quantifier domains use
+the outer environment; fresh identities permit shadowing without capture.
+Successful output carries an independently defined declarative elaboration
+relation, checked typing and finite-observation admission. Interpret its typed
+syntax through the pinned partial denotation, retaining undefined as distinct
+from false. Type checking must not assert singleton extraction, numeric bounds,
+source satisfaction, or backend preservation. Literal-only bodies need no maps.
+
+Enumerate every original body and prove source occurrence/order preservation;
+retain empty bracket groups in the source document without inventing bodies.
+Compare all Appendix 6 c01–c12 elaborations with the existing pinned manual
+inventory, including parent/server paths, repeated names and display-head counts.
+Exercise negative variants, ambiguity, invalid joins and generated nested scopes.
+Keep native/parser tests distinct from kernel proofs and semantic acceptance.
+See the [source constraint contract](constraints.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -673,7 +708,6 @@ coverage.
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
-| `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
 | `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |
 | `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |

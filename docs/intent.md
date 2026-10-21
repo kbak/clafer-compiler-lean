@@ -26,8 +26,9 @@ is accepted. Selected [inherited realization](inherited-realization.md) adds the
 Appendix 6 structural skeleton and preservation proofs, pending semantic review;
 CLI integration remains a later task.
 The accepted [static parser](parser.md) preserves authored syntax and source diagnostics;
-[checked declaration resolution/defaulting](resolution.md) is selected as #17,
-while source expression typing remains #18. The selected direction is
+[checked declaration resolution/defaulting](resolution.md) is accepted through #17/PR #35.
+Selected [source constraint elaboration](constraints.md) #18 adds typed bodies and
+source derivations, with semantic review pending. The selected direction is
 structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
 was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
@@ -38,8 +39,9 @@ soundness and bounded completeness for finite sources fitting explicit scopes
 and integer ranges. The maintainer accepted those proofs at
 `67b9137cde9e2b486733aecd6eb4f5559b780ea3` and selected #13. Its inherited
 structural implementation and proofs await semantic acceptance.
-Parser task #16 is accepted through PR #30. Task #17 is selected after #16/#7
-acceptance; its resolution/defaulting semantic review remains pending.
+Parser task #16 is accepted through PR #30. Task #17 is accepted through merged
+PR #35. Task #18 is selected after #17/#14;
+its source elaboration and proof handoff await semantic acceptance.
 Typed expression task #14 is accepted through PR #32. The
 [expression API](expressions.md) supplies checked syntax, independent denotation
 and finite-observation proofs. Task #15 is selected; its
@@ -108,6 +110,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Correctness work](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
+- [Source constraints](constraints.md): inference rules, automatic elaboration, attachment and meaning proofs.
 - [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.

@@ -17,8 +17,9 @@ structural skeleton and preservation proofs; its semantic review is pending.
 The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
 and strict instance decoding. CLI integration is a separate task.
 The accepted [static source parser](docs/parser.md) retains authored syntax and
-source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
-adds checked declaration elaboration; source expression typing remains separate.
+source diagnostics. Accepted [resolution/defaults](docs/resolution.md) (#17/PR #35)
+adds checked declaration elaboration. Selected [source constraints](docs/constraints.md)
+(#18) adds automatic typed elaboration and source derivations, pending semantic review.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
 and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
 adds bounded target arithmetic and source range proofs; source constraint translation and attachment

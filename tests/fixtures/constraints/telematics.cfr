@@ -1,0 +1,38 @@
+abstract options
+  xor size
+    small
+    large
+  cache ?
+    size -> int
+      fixed ?
+  [size.small && cache => cache.size.fixed]
+abstract comp
+  version -> int
+abstract ECU : comp
+abstract display : comp
+  server -> ECU
+  options : options
+  [version >= server.version]
+abstract plaECU : ECU
+  plaDisplay : display 1..2
+    [no options.cache]
+    [server = parent]
+ECU1 : plaECU
+ECU2 : plaECU ?
+  master -> ECU1
+telematics
+  xor channel
+    single
+    dual
+  extraDisplay ?
+  xor size
+    small
+    large
+  [channel.dual <=> ECU2]
+  [extraDisplay <=> #ECU1.plaDisplay = 2]
+  [extraDisplay <=> (ECU2 => #ECU2.plaDisplay = 2)]
+  [size.large <=> !plaECU.plaDisplay.options.size.small]
+  [size.small <=> !plaECU.plaDisplay.options.size.large]
+[telematics.channel.dual]
+[telematics.extraDisplay]
+[telematics.size.large]
