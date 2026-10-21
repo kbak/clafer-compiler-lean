@@ -4,8 +4,9 @@
 M1 in-memory IR API after acceptance of the [build](build.md). Its executable
 code imports only `Std`; its proof interpretation imports the pinned upstream
 admission module. No compiler pass, Alloy output, source parser, defaulting or
-candidate-satisfaction algorithm is provided here. The production executable
-retains its version-only bootstrap protocol; #19 owns its file/JSON input and CLI.
+candidate-satisfaction algorithm is provided here. Selected #19 supplies the
+[native file/JSON driver](cli.md), composing this API
+with the accepted structural backend and serializer.
 
 ## Data and entrypoints
 
@@ -58,8 +59,9 @@ an AST here would invent missing authored/default information.
 ## Developer interchange contract
 
 [clafer-ir-1.schema.json](../schemas/clafer-ir-1.schema.json) specifies the JSON
-shape for `version: "clafer-ir/1"`, `profile: "m1-effective"`. This is a normative
-contract for #19's decoder, **not an implemented JSON parser**. The implemented
+shape for `version: "clafer-ir/1"`, `profile: "m1-effective"`. The selected
+[driver decoder](../ClaferCompiler/Driver/Decode.lean) implements
+this contract with strict lexical admission. The in-memory
 `validateDocument version profile raw` selects this version/profile on already
 decoded data and rejects others deterministically.
 
@@ -123,7 +125,7 @@ position and its ID. No source span is invented. No outcome is SAT or UNSAT.
 | `ir.invalid-core-or-ranks` | Malformed | Failed core or supplied rank checks |
 | `ir.unsupported-or-invalid-certificate` | Unsupported | Failed support or unused certificate checks |
 
-The #19 diagnostic serializer must wrap these payloads with the architecture's
+The #19 [diagnostic serializer](cli.md) wraps these payloads with the architecture's
 version, phase (`admission`), human message and related-location fields. Codes and
 category meanings are stable within v1; English rendering is not fixed here.
 

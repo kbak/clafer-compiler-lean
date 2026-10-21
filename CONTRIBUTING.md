@@ -13,7 +13,8 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [M1 soundness and bounded completeness](docs/structural-correctness.md) under
 explicit finite scope and integer-range hypotheses. Selected #13 adds
 [inherited structural realization](docs/inherited-realization.md), pending semantic
-acceptance. CLI integration remains separate. Task #12 supplies
+acceptance. Selected #19 adds the [native resolved-IR CLI](docs/cli.md), pending semantic
+review; source-text integration remains separate. Task #12 supplies
 [exact three-way comparison](docs/comparison.md) and strict instance export.
 Accepted [static parser #16](docs/parser.md) preserves authored syntax. Accepted #17 (PR #35)
 adds [checked structural resolution/defaulting](docs/resolution.md). Selected #18
@@ -52,7 +53,10 @@ machinery from scratch. Keep unresolved choices explicit; see the
 
 ## Setup and validation
 
-Python 3.11+, Git, Bash, Java 17+, Elan and a C toolchain are required.
+Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd` and Bubblewrap
+with working user namespaces are required for validation. The native runtime
+check currently targets Linux/glibc; ordinary compilation needs only the
+[documented native runtime](docs/cli.md#native-runtime).
 `lean-toolchain` selects Lean 4.35.0. Prepare the manifest-pinned dependencies:
 
 ```sh

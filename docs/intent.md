@@ -24,7 +24,7 @@ build bootstrap, reproducible external [comparison tooling](oracles.md), executa
 checked target ASTs with explicit manual bounds. The M1 correctness proof layer
 is accepted. Selected [inherited realization](inherited-realization.md) adds the
 Appendix 6 structural skeleton and preservation proofs, pending semantic review;
-CLI integration remains a later task.
+Inherited/source-text CLI integration remains a later task; #19 exposes only M1 IR.
 The accepted [static parser](parser.md) preserves authored syntax and source diagnostics;
 [checked declaration resolution/defaulting](resolution.md) is accepted through #17/PR #35.
 Selected [source constraint elaboration](constraints.md) #18 adds typed bodies and
@@ -48,7 +48,10 @@ and finite-observation proofs. Task #15 is selected; its
 [bounded target arithmetic](expression-encoding.md) was merged through PR #34.
 Source range-analysis proofs now connect finite observation budgets to independent
 denotation, with semantic review pending. Source constraint translation and
-attachment preservation remain unfinished. Other tasks require their own selection.
+attachment preservation remain unfinished. Selected #19 supplies the
+[native resolved-IR CLI](cli.md) after accepted #12,
+with strict developer JSON, explicit bounds and deterministic diagnostics/output;
+its semantic review is pending. Other tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
@@ -101,6 +104,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Requirements](spec.md): current repository and planning obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
+- [Native CLI](cli.md): resolved-IR command, strict JSON, diagnostics and runtime boundary.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
