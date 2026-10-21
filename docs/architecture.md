@@ -3,11 +3,12 @@
 This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
 under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
 Structural-only development and the upstream typed-core M2 scope are selected.
-Issue #2 was closed by merged PR #22, #5 by merged PR #23 and #6 by merged PR #24.
-The independent [target core](alloy-core.md) belongs to selected task #8. Later tasks
-require their own manual intake. These are delivery specifications, not
-implemented APIs or proved results except where the target/build contracts link
-the delivered declarations and their specific proof/test boundaries.
+Issue #2 was closed by merged PR #22; build #5, oracle tooling #6 and structural
+IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) provide
+external validation; the [IR API and proof inventory](ir.md) record the delivered
+M1 admission boundary. The independent [target core](alloy-core.md) belongs to
+selected task #8. Later tasks require their own manual intake. The remaining
+contracts below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
 
@@ -197,7 +198,8 @@ finite checker becomes an M2 oracle without a new proved bridge.
 
 ## Resolved-IR API and CLI sequence
 
-API shapes (names to be finalized in #7; no compiler API exists yet):
+API shapes (`validate`, `validateRaw` and `validateDocument` now implement the
+[admission API](ir.md); the compilation/frontend shapes remain future work):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -207,7 +209,8 @@ parse(source) -> Result AuthoredSyntax Diagnostics                 [M2]
 elaborate(AuthoredSyntax) -> Result ValidatedIR Diagnostics         [M2]
 ```
 
-The developer interchange is versioned JSON (`clafer-ir/1` initially), with an
+The developer interchange is [versioned JSON](ir.md#developer-interchange-contract)
+(`clafer-ir/1` initially; parsing belongs to #19), with an
 explicit profile, ordered declarations, stable-within-input IDs, separate display
 names, origins, parent/super/reference IDs, local/group bounds and optional source
 origins. M1 permits effective-only provenance explicitly marked as such. M2 extends
@@ -422,6 +425,7 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. #6 is accepted; keep #8 In Progress until its acceptance
-and review gates are met. No unresolved research tag, publication step or blanket Haskell-parity
+approve future changes. #6 and #7 are accepted; keep #8 In Progress until its
+acceptance and review gates are met. No unresolved research tag, publication step
+or blanket Haskell-parity
 promise blocks this plan.

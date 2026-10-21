@@ -3,9 +3,9 @@
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
 [architecture](docs/architecture.md), [sources](docs/sources.md),
 [contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
-This is a private build bootstrap with an adopted structural Clafer-to-Alloy contract.
-Follow the contract's review status and manual intake gates. The toolchain/build
-belong to accepted issue #5; comparison tooling #6 is accepted through PR #24.
+This is a private structural IR/build project with an adopted Clafer-to-Alloy contract.
+Follow the contract's review status and manual intake gates. The build, comparison
+and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
 Independent Alloy target task #8 is selected. Do not implement compiler features until their owning
 task is selected and its dependencies are accepted. Behavior and publication remain
 outside this work.
