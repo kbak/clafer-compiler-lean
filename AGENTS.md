@@ -6,15 +6,23 @@ Read [intent](docs/intent.md), [requirements](docs/spec.md),
 This is a private structural IR/build project with an adopted Clafer-to-Alloy contract.
 Follow the contract's review status and manual intake gates. The build, comparison
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
-Independent Alloy target task #8 is accepted through PR #26; structural backend
-task #10 is selected. Parser task #16 is independently selected after accepted #6;
-its [authored API and assurance boundary](docs/parser.md) await semantic review.
-Do not implement compiler features until their owning
-task is selected and its dependencies are accepted. Behavior and publication remain
-outside this work.
+Independent Alloy target #8, text #9 and structural backend #10 are accepted
+through PRs #26–#28. Correctness task #11 is selected; its representation layer is
+partial and global preservation remains unfinished. Parser task #16 is independently
+selected after accepted #6; its [authored API and assurance boundary](docs/parser.md)
+await semantic review. Do not implement compiler
+features until their owning task is selected and its dependencies are accepted.
+Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.
+
+Before implementing, check existing repository code, pinned upstream sources,
+standard libraries and relevant maintained libraries/tools for reusable solutions.
+Prefer reuse when it meets the contract. Before writing custom infrastructure,
+record the candidates checked and concrete gaps or tradeoffs in the affected design
+or task notes, including proof/runtime boundaries and dependency/license costs.
+An independence requirement alone does not justify rebuilding library machinery.
 
 Use IntentBond for planning, implementation and review. Read the development skill
 and applicable references from the revision pinned in

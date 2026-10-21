@@ -2,7 +2,9 @@
 
 [Issue #10](https://github.com/kbak/clafer-compiler-lean/issues/10) implements the
 first in-memory backend after accepted [IR #7](ir.md) and [target #8](alloy-core.md).
-It is selected for implementation; this candidate still requires semantic review.
+It was accepted through [PR #28](https://github.com/kbak/clafer-compiler-lean/pull/28).
+The selected [correctness work](structural-correctness.md) has a partial finite
+representation layer; global preservation remains unfinished.
 It accepts the exact guarded effective M1 domain and explicit manual bounds,
 returning a checked target AST and declaration map. Text serialization belongs to
 #9, the IR CLI to #19, global preservation to #11 and actual generated-text/solver

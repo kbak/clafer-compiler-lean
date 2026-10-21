@@ -22,7 +22,10 @@ unsafe native helpers even for ordinary recursive project definitions and recurs
 project audit prohibits these project helpers and remains unchanged. The Clafer
 layout rules and precedence table are language-specific. No parser framework, Unicode table, Haskell runtime, or new
 package dependency is introduced. These internal Std APIs are pinned by the
-existing toolchain and must be rechecked on upgrades.
+existing toolchain and must be rechecked on upgrades. The existing
+[Alloy text parser](../ClaferCompiler/Backend/Alloy/Parse.lean) parses emitted target
+syntax, with different AST and whitespace assumptions; the source frontend reuses
+the same Std primitives without depending on the target grammar.
 
 [Surface](../ClaferCompiler/Frontend/Surface.lean) reuses the IR's `SourceSpan` and
 malformed/unsupported categories. `Document` retains the complete original source,
