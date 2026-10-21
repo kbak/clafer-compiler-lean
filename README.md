@@ -10,8 +10,9 @@ and [comparison tools](docs/oracles.md) are available. The independent
 [hygienic serialization](docs/alloy-text.md) are accepted through PRs #26–#28.
 The backend translates admitted M1 IR into checked target ASTs with manual bounds.
 The selected [representation work](docs/structural-correctness.md) proves concrete
-decoding and data round trips. Global preservation proofs remain unfinished;
-CLI integration is a separate task.
+decoding and data round trips. Global preservation proofs remain unfinished.
+The selected [three-way comparison](docs/comparison.md) exercises native-generated
+Alloy and strict instance decoding. CLI integration is a separate task.
 The selected [static source parser](docs/parser.md) retains authored syntax and
 source diagnostics; resolution and typing remain separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)

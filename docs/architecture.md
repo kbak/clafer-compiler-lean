@@ -439,3 +439,8 @@ Parser #16 is independently selected after accepted #6; its authored API and
 unproved grammar boundary are described in the [parser contract](parser.md).
 No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
+
+Selected #12's [comparison contract](comparison.md) records the concrete native
+decode/export API and exact three-way execution boundary. #11's merged partial
+representation layer is its data API dependency; full source soundness and bounded
+completeness remain outstanding and are not inferred from finite comparisons.
