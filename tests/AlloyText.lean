@@ -78,7 +78,19 @@ def negativeParses : List String := [
   "sig cc0 { }\nrun { ( all cc2 : ( cc2 ) | ( no none ) ) } for 4 Int , 1 cc0\n", -- domain capture
   "run { ( cc2 ) } for 4 Int\n", -- free variable / not a formula
   "run { ( no none ) } for 4 Int\n// ignored?\n", -- comments not in emitted subset
-  "run { ( no none ) } for 4 Int\nrun { ( no none ) } for 4 Int\n"
+  "run { ( no none ) } for 4 Int\nrun { ( no none ) } for 4 Int\n",
+  "run { ( no none ) } for 4 Int trailing\n", -- require full consumption
+  "run { ( no none ) } for 4 Intx\n", -- keyword prefix is not a token
+  "run{ ( no none ) } for 4 Int\n", -- punctuation requires token separation
+  "run { ( no none } for 4 Int\n", -- missing parenthesis
+  "run { ( no none ) ) } for 4 Int\n", -- unmatched parenthesis
+  "sig cc0 { cc1 : set cc0 , }\nrun { ( no none ) } for 4 Int , 1 cc0\n",
+  "sig cc0 { , cc1 : set cc0 }\nrun { ( no none ) } for 4 Int , 1 cc0\n",
+  "sig cc0 { cc1 : cc0 }\nrun { ( no none ) } for 4 Int , 1 cc0\n", -- malformed field
+  "run { ( no none ) } for 4 Int ,\n", -- committed separator must have an item
+  "sig cc0 { }\nrun { ( no none ) } for 4 Int , , 1 cc0\n",
+  "sig cc0 { }\nrun { ( some cc0 : ( cc0 ) | ( no none ) ) } for 4 Int , 1 cc0\n",
+  "sig cc0 { }\nrun { ( all cc2 : ( cc0 ) | ( all cc2 : ( cc0 ) | ( no none ) ) ) } for 4 Int , 1 cc0\n"
 ]
 
 end ClaferCompiler.Tests.AlloyText

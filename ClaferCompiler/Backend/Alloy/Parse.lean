@@ -1,15 +1,18 @@
 module
 
 public import ClaferCompiler.Backend.Alloy.Names
+public import Std.Internal.Parsec.String
 
 @[expose] public section
 
 namespace ClaferCompiler.Backend.Alloy.Text
 
-/-! An independent recognizer for the canonical emitted subset. It consumes text,
-resolves names and binders, and reconstructs target instructions. It imports no
-printer. Delimiter reduction is a finite fold, with no recursion/fuel cutoff.
+/-! An independent Parsec grammar for the canonical emitted subset. It consumes
+text and resolves names/binders without importing the printer. Recursive nesting
+is bounded by input length, not an arbitrary configured depth limit.
 [impl->req~compiler-alloy-text~1] -/
+
+open Std.Internal.Parsec Std.Internal.Parsec.String
 
 inductive Piece where
   | word (s : String)
@@ -18,23 +21,35 @@ inductive Piece where
   | integer (i : Integer)
   | formula (p : Formula)
 
+def required (value : Option α) : Parser α :=
+  match value with | some a => pure a | none => fail "invalid canonical Alloy"
+
+/-- Only spaces separate tokens within a line; punctuation must be separate. -/
+def word : Parser String := many1Chars (satisfy (· != ' ')) <* many (pchar ' ')
+
+def token (expected : String) : Parser Unit := attempt do
+  if (← word) != expected then fail s!"expected {expected}"
+
 def readMult : String → Option Multiplicity
   | "set" => some .set | "lone" => some .lone
   | "one" => some .one | "some" => some .some | _ => none
 
-def leaf (s : String) : Option Piece :=
+def signatureId : Parser Nat := do
+  let some (.signature n) := readSymbol (← word) | fail "expected signature"
+  return n
+
+def leaf (depth : Nat) (s : String) : Option Piece :=
   if s == "none" then some (.rel (.empty .unary)) else
   match readSymbol s with
   | some (.signature n) => some (.rel (.sig n))
   | some (.field n) => some (.rel (.field n))
-  | some (.binder n) => some (.rel (.var n))
+  | some (.binder n) => if n < depth then some (.rel (.var (depth - n - 1))) else none
   | _ => (s.toInt?).map fun n => .integer (.literal n)
 
-/-- Parentheses are recognized by shape, not by reprinting or comparing strings.
-Extra relation grouping distinguishes the canonical tautological `set` predicate.
-Binary `none` and truth constants have their own unambiguous canonical forms. -/
-def reduce : List Piece → Option Piece
-  | [.word s] => leaf s
+/-- Each parenthesized form independently reconstructs its target constructor.
+Extra relation grouping distinguishes the canonical tautological `set` predicate. -/
+def reduce (depth : Nat) : List Piece → Option Piece
+  | [.word s] => leaf depth s
   | [.rel r] => some (.grouped r)
   | [.word "none", .word "->", .word "none"] => some (.rel (.empty .binary))
   | [.word "no", .word "none"] => some (.formula .truth)
@@ -59,122 +74,63 @@ def reduce : List Piece → Option Piece
   | [.formula a, .word op, .formula b] => match op with
       | "and" => some (.formula (.conj a b)) | "or" => some (.formula (.disj a b))
       | "implies" => some (.formula (.implies a b)) | _ => none
-  | [.word q, .word name, .word ":", .rel domain, .word "|", .formula body] => do
-      let .binder _ ← readSymbol name | none
-      match q with
-      | "all" => some (.formula (.all domain body))
-      | "some" => some (.formula (.exists_ domain body))
-      | _ => none
   | _ => none
 
-/-- Flat space-delimited tokens are the lexical contract of emitted text.
-Newline is a paragraph boundary; no comments, strings or arbitrary escapes occur. -/
-def tokens (s : String) : List String := (s.splitOn " ").filter (· != "")
+/-- Quantifier domains use the outer depth; bodies use the extended depth.
+Every recursive call follows an opening parenthesis, so input length bounds nesting. -/
+def piece : Nat → Nat → Parser Piece := Nat.rec
+  (fun _ => fail "nesting exceeds input length")
+  (fun _ recur depth => do
+    token "("
+    let p ← (do
+      let q ← attempt do
+        let q ← word
+        if q != "all" && q != "some" then fail "expected quantifier"
+        let some (.binder n) := readSymbol (← word) | fail "expected binder"
+        if n != depth then fail "wrong binder level"
+        token ":"
+        pure q
+      let .rel domain ← recur depth | fail "expected domain"
+      token "|"
+      let .formula body ← recur (depth + 1) | fail "expected body"
+      pure (.formula (if q == "all" then .all domain body else .exists_ domain body))) <|> (do
+      let items ← many (recur depth <|> attempt (do
+        let s ← word
+        if s == "(" || s == ")" then fail "expected operand or operator"
+        pure (.word s)))
+      required (reduce depth items.toList))
+    token ")"
+    return p)
 
-def parsePiece (ts : List String) : Option Piece := do
-  let frames ← ts.foldl (fun state t => do
-    let frames ← state
-    match t, frames with
-    | "(", _ => some ([] :: frames)
-    | ")", current :: parent :: rest => do
-        let p ← reduce current.reverse
-        some ((p :: parent) :: rest)
-    | ")", _ => none
-    | _, current :: rest => some ((.word t :: current) :: rest)
-    | _, [] => none) (some [[]])
-  match frames with | [[p]] => some p | _ => none
+def formula (fuel : Nat) : Parser Formula := do
+  let .formula p ← piece fuel 0 | fail "expected formula"
+  return p
 
-/-- Resolve absolute binder levels to de Bruijn indices, in the outer domain and
-extended body contexts. Unbound levels fail even if their occurrence is vacuous. -/
-def resolveRel (depth : Nat) (r : Rel) : Option Rel := do
-  let ops ← r.code.mapM fun op => match op with
-    | .var level => if level < depth then some (.var (depth - level - 1)) else none
-    | other => some other
-  some ⟨ops⟩
+def commaSeparated (p : Parser α) : Parser (List α) :=
+  (do let first ← attempt p; return first :: (← many (token "," *> p)).toList) <|> pure []
 
-def resolveInt (depth : Nat) : Integer → Option Integer
-  | .literal n => some (.literal n)
-  | .count r => (resolveRel depth r).map Integer.count
+def field (owner : Nat) : Parser (Nat × Field) := do
+  let some (.field id) := readSymbol (← word) | fail "expected field"
+  token ":"
+  let mult ← required (readMult (← word))
+  return (id, ⟨owner, ← signatureId, mult⟩)
 
-def resolveFormula (p : Formula) (depth : Nat) : Option Formula :=
-  p.fold {
-    truth := fun _ => some .truth, falsity := fun _ => some .falsity
-    equal := fun a b d => return .equal (← resolveRel d a) (← resolveRel d b)
-    subset := fun a b d => return .subset (← resolveRel d a) (← resolveRel d b)
-    mult := fun m r d => return .mult m (← resolveRel d r)
-    compare := fun op a b d => return .compare op (← resolveInt d a) (← resolveInt d b)
-    neg := fun p d => return .neg (← p d)
-    conj := fun p q d => return .conj (← p d) (← q d)
-    disj := fun p q d => return .disj (← p d) (← q d)
-    implies := fun p q d => return .implies (← p d) (← q d)
-    all := fun r p d => return .all (← resolveRel d r) (← p (d + 1))
-    exists_ := fun r p d => return .exists_ (← resolveRel d r) (← p (d + 1))
-  } (fun _ => none) depth
-
-/-- Declaration positions have `all/some NAME :` and get checked against nesting
-of quantified parentheses. Multiplicity `some` does not introduce a binder. -/
-def checkBinders (ts : List String) : Bool :=
-  let annotated := ts.zipIdx
-  let result := annotated.foldl (fun (st : Option (List Bool × Nat)) (t, i) => do
-    let (stack, d) ← st
-    if t == "(" then
-      let q := ts[i + 1]?.getD ""
-      let isBinder := (q == "all" || q == "some") && ts[i + 3]? == some ":"
-      if isBinder then
-        if (ts[i + 2]?).bind readSymbol == some (.binder d)
-        then some (true :: stack, d + 1) else none
-      else some (false :: stack, d)
-    else if t == ")" then
-      match stack with
-      | b :: rest => some (rest, if b then d - 1 else d)
-      | [] => none
-    else some (stack, d)) (some ([], 0))
-  result == some ([], 0)
-
-def parseFormula (ts : List String) : Option Formula := do
-  if !checkBinders ts then none else
-  let .formula p ← parsePiece ts | none
-  resolveFormula p 0
-
-def readSignature (s : String) : Option Nat := do
-  let .signature n ← readSymbol s | none
-  some n
-
-def readField (s : String) : Option Nat := do
-  let .field n ← readSymbol s | none
-  some n
-
-def parseField (owner : Nat) (ts : List String) : Option (Nat × Field) := do
-  let [name, ":", mult, target] := ts | none
-  return (← readField name, ⟨owner, ← readSignature target, ← readMult mult⟩)
-
-/-- Split punctuation-separated lists without recursive parser helpers. -/
-def groups (separator : String) (ts : List String) : List (List String) :=
-  (ts.foldl (fun (parts : List (List String)) t =>
-    match parts with
-    | [] => [[t]]
-    | p :: rest => if t == separator then [] :: p :: rest else (t :: p) :: rest)
-      [[]]).reverse.map List.reverse
-
-def parseSignature (header body : List String) : Option (Nat × Signature × List (Nat × Field)) := do
-  let (abstract_, header) := if header.head? == some "abstract"
-    then (true, header.drop 1) else (false, header)
-  let (mult, header) ← match header.head?.bind readMult with
-    | some .set => none -- Alloy permits `set` on fields, not signatures.
-    | some m => some (m, header.drop 1) | none => some (.set, header)
-  let "sig" :: name :: tail := header | none
-  let id ← readSignature name
-  let parent ← match tail with
-    | [] => some none
-    | ["extends", n] => (readSignature n).map some
-    | _ => none
-  let fields ← if body.isEmpty then some [] else (groups "," body).mapM (parseField id)
+def signature : Parser (Nat × Signature × List (Nat × Field)) := do
+  let abstract_ ← (token "abstract" *> pure true) <|> pure false
+  let mult ← (token "lone" *> pure .lone) <|> (token "one" *> pure .one) <|>
+    (token "some" *> pure .some) <|> pure .set
+  token "sig"
+  let id ← signatureId
+  let parent ← (token "extends" *> (some <$> signatureId)) <|> pure none
+  token "{"
+  let fields ← commaSeparated (field id)
+  token "}"
   return (id, ⟨parent, abstract_, mult⟩, fields)
 
-def parseScope (ts : List String) : Option (Nat × Scope) := do
-  let (exact, ts) := if ts.head? == some "exactly" then (true, ts.drop 1) else (false, ts)
-  let [size, name] := ts | none
-  return (← readSignature name, ⟨← size.toNat?, exact⟩)
+def scope : Parser (Nat × Scope) := do
+  let exact ← (token "exactly" *> pure true) <|> pure false
+  let size ← required (← word).toNat?
+  return (← signatureId, ⟨size, exact⟩)
 
 /-- IDs must be a permutation of a complete positional table; duplicates and gaps
 fail. Fields may appear under owners in a different order from their identities. -/
@@ -190,34 +146,35 @@ structure ParseState where
   command : Option Command := none
 
 /-- One complete declaration, fact or final command occupies each emitted line. -/
-def parseLine (st : ParseState) (line : String) : Option ParseState := do
-  if st.command.isSome then none else
-  let ts := tokens line
-  let header := ts.takeWhile (· != "{")
-  let rest := ts.drop (header.length + 1)
-  let body := rest.takeWhile (· != "}")
-  let tail := rest.drop (body.length + 1)
-  if ts[header.length]? != some "{" || rest[body.length]? != some "}" then none else
-  match header with
-  | ["fact"] =>
-      if !tail.isEmpty then none else
-      return { st with facts := st.facts ++ [← parseFormula body] }
-  | [kind] => do
-      let kind ← match kind with | "run" => some .run | "check" => some .check | _ => none
-      let "for" :: width :: "Int" :: scopes := tail | none
-      let scopes ← match scopes with
-        | [] => some []
-        | "," :: more => (groups "," more).mapM parseScope
-        | _ => none
-      return { st with command := some ⟨kind, ← parseFormula body, ← table scopes, ← width.toNat?⟩ }
-  | _ =>
-      if !tail.isEmpty || !st.facts.isEmpty then none else
-      let (id, sig, fields) ← parseSignature header body
-      return { st with signatures := st.signatures ++ [(id, sig)], fields := st.fields ++ fields }
+def line (fuel : Nat) (st : ParseState) : Parser ParseState := do
+  if st.command.isSome then fail "command must be last"
+  let _ ← many (pchar ' ')
+  let next ← (do
+    token "fact"
+    token "{"
+    let p ← formula fuel
+    token "}"
+    pure { st with facts := st.facts ++ [p] }) <|> (do
+    let kind ← (token "run" *> pure .run) <|> (token "check" *> pure .check)
+    token "{"
+    let p ← formula fuel
+    token "}"
+    token "for"
+    let width ← required (← word).toNat?
+    token "Int"
+    let scopes ← many (token "," *> scope)
+    pure { st with command := some ⟨kind, p, ← required (table scopes.toList), width⟩ }) <|> (do
+    if !st.facts.isEmpty then fail "signatures must precede facts"
+    let (id, sig, fields) ← signature
+    pure { st with signatures := st.signatures ++ [(id, sig)], fields := st.fields ++ fields })
+  eof
+  return next
 
 def parse (text : String) : Option Module := do
   let lines := (text.splitOn "\n").filter (· != "")
-  let st ← lines.foldl (fun st line => st.bind (fun s => parseLine s line)) (some {})
+  let st ← lines.foldlM (fun st text =>
+    match (line text.length st).run text with
+    | .ok next => some next | .error _ => none) {}
   return ⟨⟨← table st.signatures, ← table st.fields⟩, st.facts, ← st.command⟩
 
 end ClaferCompiler.Backend.Alloy.Text

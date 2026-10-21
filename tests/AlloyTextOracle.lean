@@ -36,6 +36,15 @@ def run (args : List String) : IO Unit := do
     IO.FS.writeFile (root / s!"case_{i}.map") (String.join maps)
   for text in negativeParses do
     if (parse text).isSome then throw (IO.userError s!"bad text parsed: {text}")
+  -- Input-derived nesting bounds must accommodate both shallow and deep terms.
+  for depth in [0, 1, 16, 128] do
+    let body := (List.range depth).foldl (fun p _ => Formula.neg p) Formula.truth
+    if !roundTrips ⟨⟨[], []⟩, [], ⟨.run, body, [], 1⟩⟩ then
+      throw (IO.userError s!"nested round trip at depth {depth}")
+  -- Exercise repeated declarations/scopes and comma-separated fields together.
+  let wide : Module := ⟨⟨List.replicate 32 {}, List.replicate 64 ⟨0, 1, .set⟩⟩,
+    List.replicate 32 .truth, ⟨.run, .truth, List.replicate 32 ⟨1, true⟩, 2⟩⟩
+  if !roundTrips wide then throw (IO.userError "wide round trip")
   for (body, i) in bodies.zipIdx do
     let some value := ClaferCompiler.Tests.AlloyCore.observe
       (ClaferCompiler.Tests.AlloyCore.model body) ClaferCompiler.Tests.AlloyCore.fixture

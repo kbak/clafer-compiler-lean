@@ -59,7 +59,7 @@ class AlloyTextTests(unittest.TestCase):
                              for m in native_modules], "-o", str(executable)], cwd=ROOT)
         run("lean", [str(executable), str(output)])
         self.assertEqual((output / "lean-stdout.log").read_text().strip(),
-                         "192 target modules; 4000 names; 8 parser mutations")
+                         "192 target modules; 4000 names; 20 parser mutations")
         references = json.loads(reference_file.read_text())
         # Independently pin the complete four-atom candidate from AlloyCore.
         # This is test-only syntax, outside the serializer's input language.
