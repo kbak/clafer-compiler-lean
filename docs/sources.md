@@ -117,3 +117,11 @@ checks. Downstream compiler-generated Alloy remains owned by #12.
 No branch name, floating latest release, SoSyM research tag or upstream maintenance
 branch is a substitute for the commit pin or a prerequisite for compiler intake.
 Repository/Project privacy, manual intake and publication approval remain unchanged.
+
+The [Alloy text contract](alloy-text.md) maps #9's emitted grammar to S7's lexical,
+namespace, precedence, declaration and command rules. It also uses S6's field
+naming/ownership examples and S8's exact-candidate profile. Its parser, printer,
+native tests, reference text and AST adapter are original project code. The
+retained reference snapshot identity is unchanged; no upstream definitions or
+Haskell source were copied. Parser reconstruction is a successful-render theorem;
+Analyzer correspondence and total successful renderability are not kernel proofs.

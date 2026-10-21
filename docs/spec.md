@@ -2,8 +2,9 @@
 
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
-IR tasks #5–#7 were accepted through PRs #23–#25. Selected task #8 adds an independent
-static target core. Future compiler behavior is reserved below, not declared
+IR tasks #5–#7 were accepted through PRs #23–#25. Target #8 was accepted through
+PR #26; selected task #9 adds hygienic Alloy serialization. Future compiler behavior
+is reserved below, not declared
 implemented or proved.
 
 ## Honest project boundary
@@ -12,7 +13,8 @@ implemented or proved.
 
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap, admitted structural IR, independent target core and absence of compiler passes. Distinguish reviewed decisions,
+build bootstrap, admitted structural IR, independent target core, checked serialization
+and absence of compiler passes. Distinguish reviewed decisions,
 contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
@@ -227,6 +229,31 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Hygienic deterministic Alloy text
+
+`req~compiler-alloy-text~1`
+
+Render every selected target constructor using legal identity-based names,
+explicit precedence/grouping, multiplicities, declaration ownership, command
+polarity and complete exact/upper scopes. Retain original source names and byte
+spans in deterministic declaration maps, never executable syntax. Handle repeated,
+shadowed, reserved, Unicode and internal names without capture or aliasing.
+
+Prove name injectivity and print/parse reconstruction against an independent
+parser for the emitted subset, or obtain explicit review for an alternative
+assurance boundary. The [candidate boundary](alloy-text.md#proved-boundary-and-review-obligation)
+proves reconstruction for successful rendering by translation validation;
+unconditional successful renderability is not claimed and remains a review
+consideration. Preserve whole target identity, reject malformed metadata and
+failed correspondence, and keep native execution and actual Alloy parsing/solving
+outside the kernel claim. Compare real pinned Analyzer ASTs and exact-candidate
+meaning, including grouping/name mutations. Extend all constructor checks with M2.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -292,7 +319,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-alloy-text` | [#9](https://github.com/kbak/clafer-compiler-lean/issues/9) | Hygienic deterministic serialization and assurance |
 | `compiler-structural-encoding` | [#10](https://github.com/kbak/clafer-compiler-lean/issues/10) | Complete guarded structural translation |
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
