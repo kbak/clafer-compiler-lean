@@ -25,7 +25,7 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 | `ClaferCompiler.Frontend` | Authored parser and checked declaration resolution; #16/#17, expressions later #18 | Runtime modules |
 | `ClaferCompiler.IR` | Executable structural/inherited tables and admission; #7/#13, typed expressions #14 | Runtime modules |
 | `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics; #8, then #9/#10/#15 | Runtime modules |
-| `ClaferCompiler.Driver` | Pure bootstrap response; #5, then #19/#20 | Runtime modules |
+| `ClaferCompiler.Driver` | Native M1 command, strict JSON and diagnostics; #19, source integration later #20 | Runtime modules |
 | `ClaferCompiler.SemanticsBridge` | Structural/inherited interpretation and admission proofs; #7/#13, typed expressions #14, source resolution #17 | Runtime/proof modules and upstream |
 | `ClaferCompiler.Correctness` | Bootstrap, local generation, M1/inherited preservation and target arithmetic proofs; #5/#10/#11/#13/#15, then #20 | Runtime/proof modules and upstream |
 | `ClaferCompiler` | Public aggregate for proof consumers | Owned library modules |
@@ -35,7 +35,10 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 Runtime imports are transitively kept outside `SemanticsBridge`, `Correctness`,
 the aggregate and all four upstream roots. Libraries cannot import `Main` or tests.
 The upstream smoke module imports only the independent upstream public roots.
-Cycles, missing local imports, symlinked sources and unknown roots fail. Within
+The exact pinned-toolchain JSON imports `Lean.Data.Json.Parser`
+and `Lean.Data.Json.FromToJson.Basic` are admitted for #19 library reuse; arbitrary
+`Lean`/elaborator imports remain rejected. Cycles, missing local imports, symlinked
+sources and unknown roots fail. Within
 `Backend`, only the `Alloy` responsibility is currently selected. Other backends
 require their own scope decision. Upstream's pinned clean sources retain their
 one-way `Clafer -> FormalCD -> DPGraph -> Mathlib` graph; downstream cannot add a
@@ -78,6 +81,9 @@ before checking. After the build and axiom audit, kernel replay and the isolated
 regression suite run concurrently. Replay uses one worker to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
+Within the regression runner, the two independent CLI modules run in one separate
+process alongside the existing suite; both groups must execute without skips and
+pass. The runner retains all discovered cases and propagates either group's failure.
 CI's overall 30-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and refuses
 an unreviewed amendment. IntentBond exit 4 always leaves semantic review pending.
@@ -95,8 +101,10 @@ No Haskell source or fixture is redistributed.
 `impl~compiler-build-bootstrap~1`
 
 [Driver](../ClaferCompiler/Driver.lean) defines `ClaferCompiler.Driver.version` and
-`response`; [Main](../Main.lean) defines `main`. The package files above make these
-a native executable. [Module discovery](../scripts/project_modules.py) implements
+`response`; selected #19 adds `compileText` and `run`, and [Main](../Main.lean)
+defines `main`. See the [CLI contract](cli.md) for runtime-only verification. The
+package files above make these a native executable.
+[Module discovery](../scripts/project_modules.py) implements
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 [CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond on
@@ -125,7 +133,8 @@ Covers:
 
 `utest~compiler-build-gates~1`
 
-[Smoke](../tests/Smoke.lean) checks rejecting response equations and proof exports.
+[Smoke](../tests/Smoke.lean) checks the pure informational-response equations and
+proof exports; the full command dispatcher is exercised by the #19 CLI tests.
 [Upstream](../tests/Upstream.lean) independently imports `DPGraph`, `FormalCD`,
 `Clafer` and checks `DPGraph.Span.red_comp`, `FormalCD.Hom` and
 `Clafer.Verification.check_correct` without re-stating their meanings.

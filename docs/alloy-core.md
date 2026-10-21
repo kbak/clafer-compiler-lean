@@ -5,7 +5,7 @@ API for #9 and #10 after accepted oracle task #6. It was accepted through PR #26
 The accepted [structural backend](structural-encoding.md) consumes this API;
 selected [text task #9](alloy-text.md) supplies a serializer and independent parser.
 Instance decoding and global compiler preservation remain separate tasks.
-The existing native CLI still only supports `--version`.
+Selected #19 adds the [native resolved-IR CLI](cli.md), pending semantic review.
 
 ## API and supported fragment
 

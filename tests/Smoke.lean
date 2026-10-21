@@ -6,7 +6,7 @@ public section
 
 namespace ClaferCompiler.Tests
 
-theorem compile_command_unavailable : Driver.response ["compile-ir"] = none := by decide
+theorem incomplete_compile_has_no_informational_response : Driver.response ["compile-ir"] = none := by decide
 theorem version_extra_unavailable : Driver.response ["--version", "extra"] = none := by decide
 
 end ClaferCompiler.Tests

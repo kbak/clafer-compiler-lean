@@ -231,3 +231,18 @@ Standard-library finite traversal/decisions are reused, with no new dependencies
 semantic changes, copied upstream definitions or Haskell source. All new code and
 fixtures are original MIT project code. The in-memory source profile retains
 integer/inherited forms without extending the M1 interchange/backend contract.
+
+The [native resolved-IR driver](cli.md) composes the unchanged S1/S6-guided
+admission/backend/text APIs. S6 `Generator/Alloy.hs` (`genModule`, `header`) and
+`ClaferArgs.hs` were inspected: Haskell's inferred scopes, optional validation and
+multiple output modes do not replace the adopted explicit-bound, compiler-only
+command. The pinned upstream `Verification/ImportMain.lean` documents its external
+strict-decoding boundary. Lean 4.35.0 `Lean/Data/Json/Parser.lean` and
+`Std/Internal/Parsec` supply reusable parser primitives; `Init/System/IO.lean`
+supplies strict UTF-8, streams, exclusive creation and rename. The driver adds
+strict duplicate-key/surrogate/natural-token checks instead of using the generic
+parser's information-losing behavior. JSON output uses the existing Lean library.
+The [reuse assessment](cli.md#reuse-assessment) records CLI-library alternatives,
+runtime/proof limits and licenses. New code/fixtures remain original MIT; imported
+Lean library code remains Apache-2.0. No semantic definition, Haskell code,
+dependency pin or trusted scope policy changes.

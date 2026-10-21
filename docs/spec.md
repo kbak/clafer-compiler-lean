@@ -121,9 +121,10 @@ Needs: impl, utest
 Pin the Lean toolchain and Clafer Lake dependency to the source register and retain
 the upstream-compatible transitive manifest. Build every owned compiler and Lean
 test module, including modules unreachable from the root import. Build and run
-the native `clafer-compiler --version` bootstrap; reject all other invocations
-with exit 2, empty stdout and a diagnostic. Kernel-prove only the pure version
-and empty-argument response equations at this stage, not IO or compiler correctness.
+the native executable, including its version and argument rejection protocol.
+Selected #19 extends the bootstrap with the resolved-IR command specified below.
+Retain the pure version and empty-argument response equations; those equations
+prove neither IO nor compiler correctness.
 
 Every full check must replay the project/test kernel declarations and audit their
 module origins, including private/generated declarations. Reject project axioms,
@@ -191,7 +192,8 @@ IDs. Do not confuse admission with candidate satisfaction or bounded UNSAT.
 Specify the closed versioned `clafer-ir/1` JSON interchange and deterministic
 malformed/unsupported diagnostics, including strict types, duplicate-key rejection
 and explicit effective-only provenance. Implement version/profile selection on
-already decoded data; file/JSON parsing and diagnostic serialization remain #19.
+already decoded data; the selected [native CLI](cli.md) supplies strict file/JSON
+parsing and diagnostic serialization under #19.
 Reject unknown profiles and primitives; no static expression or inherited semantics
 are admitted by extension placeholders. Retain tested raw resolution/native behavior
 separately from the proved typed-core boundary and from future serialization.
@@ -511,11 +513,42 @@ Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
 Fail without a partial successful document. Distinguish recognized excluded
 features from missing/malformed syntax. The resolver supplies name/default
 diagnostics; typing remains #18. Exact English wording is not stable. The parser
-returns the first
-lexical error, otherwise the first grammatical error. Diagnostic serialization,
-IR-only locations and process exit integration remain #19/#20 obligations. The
+returns the first lexical error, otherwise the first grammatical error.
+Selected #19 serializes source diagnostics and supplies IR-only locations and
+process exits through the [native driver](cli.md). Source-text process integration
+remains #20; no source coordinates are invented for developer IR. The
 resolver prioritizes declaration/name checks, edge resolution, inheritance and
 realization ranks, then independent source correspondence validation.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Native resolved-IR command
+
+`req~compiler-cli~1`
+
+Provide the standalone `compile-ir INPUT --bounds BOUNDS --output OUTPUT` command
+for the exact guarded `clafer-ir/1` M1 profile. Decode strict UTF-8/JSON without
+losing duplicate keys, numeric token forms, unknown semantic fields or identities;
+compose existing admission, structural compilation and checked serialization.
+Require complete declaration-ID scopes, a distinct-object budget and explicit
+bitwidth, with documented overrides. Report the compiler version and exact
+semantic/reference pins; source-text compilation remains explicitly unsupported.
+
+Document deterministic input/output, diagnostics and exit behavior. Read stdin or
+files and emit complete Alloy to stdout or replace a file only after successful
+rendering. Malformed inputs exit 2, unsupported features/ranges exit 3, operational
+failures exit 1, compilation exit 0. Preserve existing file output on failure before
+rename. Never infer SAT/UNSAT or invoke a solver implicitly. Retain declaration
+identity and generated source maps in the pure API for dependent integration.
+
+Run the native binary with only its documented runtime libraries visible, without
+a Lean development toolchain, Haskell, Java or Alloy. Exercise real Analyzer loading
+and solving as external validation. Keep tested JSON/CLI/native behavior distinct
+from existing in-memory proofs. No public release or upload is authorized. The
+[CLI contract](cli.md) supplies examples, platform limits and review boundaries.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -674,7 +707,6 @@ coverage.
 | --- | --- | --- |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
 | `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
-| `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |
 | `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |
 

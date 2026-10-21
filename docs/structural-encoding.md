@@ -43,7 +43,7 @@ range rejection or invalid bitwidth. It is not UNSAT. `source diagnostic` preser
 the IR category/code/pointer/ID. `internalTarget` denotes failed generated target
 typing, an implementation failure rather than a source rejection. General absence
 of that error is not yet proved; successful results carry both target checks.
-Issue #19 must serialize these errors with the architecture's phase/category conventions.
+The selected [#19 driver](cli.md) serializes these errors with the architecture's phase/category conventions.
 
 `Compiled.module` is a `CheckedModule`, carrying syntax/binding and bounds proofs.
 `Compiled.declarations` preserves input declaration order, IDs, names and source
