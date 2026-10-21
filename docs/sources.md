@@ -133,3 +133,15 @@ does not identify the main parser's implementation. `Std.Internal.Parsec` is
 imported from the pinned toolchain under its Apache-2.0 license; no library source
 is copied and no package pin changes. Its opaque repetition helpers leave kernel
 computation/termination distinct from the conditional reconstruction theorem.
+
+The [structural encoding](structural-encoding.md) uses S1's
+`Configuration.Typed`, `Rooted`, `Inherits`, `Abstracts`, `Parents`, `References`,
+`Keys`, `Multiplicities`, `Groups`, `DeclarationDisjoint` and `StructuralSatisfies`
+in `Clafer/Semantics/Structural.lean` at the pinned semantics revision. S3's group
+union/direct-child bridge explains why childless abstract ancestors need no copied
+fields in M1. S6's `genParentConst`, `genSetUniquenessConstraint`, `genGroupConst`
+and `mkCard` in the pinned Haskell `Generator/Alloy.hs` were inspected as supplementary
+context. The backend retains the adopted empty-group/default distinctions rather
+than silently adopting Haskell's empty-child skip. All new runtime, proof and test
+code is original project code under MIT; no upstream meanings or Haskell code are
+copied. Local source/target finite tests do not replace #12's generated-text oracle.

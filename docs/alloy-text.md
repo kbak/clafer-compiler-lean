@@ -3,8 +3,9 @@
 [Issue #9](https://github.com/kbak/clafer-compiler-lean/issues/9) is selected after
 accepted target task #8 ([PR #26](https://github.com/kbak/clafer-compiler-lean/pull/26)).
 It supplies text and source maps for the independent [target API](alloy-core.md).
-This candidate awaits semantic review. Source compilation, the IR CLI and Analyzer
-instance decoding remain with #10/#19/#12 respectively.
+This candidate awaits semantic review. The accepted [structural backend](structural-encoding.md)
+implements IR-to-target compilation; the IR CLI and Analyzer instance decoding
+remain with #19 and #12 respectively.
 
 ## API, identities and mappings
 

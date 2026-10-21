@@ -7,7 +7,8 @@ Issue #2 was closed by merged PR #22; build #5, oracle tooling #6 and structural
 IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) provide
 external validation; the [IR API and proof inventory](ir.md) record the delivered
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
-accepted task #8 (PR #26). [Text task #9](alloy-text.md) is selected; its
+accepted task #8 (PR #26). The [structural backend](structural-encoding.md) is
+accepted through PR #28. [Text task #9](alloy-text.md) is selected; its
 implementation and assurance boundary await review. Later tasks require their own
 manual intake. The remaining contracts below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
@@ -199,8 +200,11 @@ finite checker becomes an M2 oracle without a new proved bridge.
 
 ## Resolved-IR API and CLI sequence
 
-API shapes (`validate`, `validateRaw` and `validateDocument` now implement the
-[admission API](ir.md); the compilation/frontend shapes remain future work):
+API shapes (`validate`, `validateRaw` and `validateDocument` implement the
+[admission API](ir.md); `Backend.Alloy.Structural.compile` implements the
+[in-memory structural compilation API](structural-encoding.md), and `Text.render`
+implements [checked serialization](alloy-text.md). Source parsing and frontend
+elaboration remain future work):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -428,7 +432,7 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. #6–#8 are accepted through PRs #24–#26; keep #9 In Progress
-until its acceptance and review gates are met. No unresolved research tag, publication step
-or blanket Haskell-parity
-promise blocks this plan.
+approve future changes. #6–#8 are accepted through PRs #24–#26, and #10 through
+PR #28. Keep #9 In Progress until its acceptance and review gates are met.
+No unresolved research tag, publication step or blanket Haskell-parity promise
+blocks this plan.

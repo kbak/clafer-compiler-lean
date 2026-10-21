@@ -1,10 +1,11 @@
 # Independent static Alloy core
 
 [Issue #8](https://github.com/kbak/clafer-compiler-lean/issues/8) supplies the target
-API for #9 and #10 after accepted oracle task #6. This implementation was accepted
-through PR #26. The selected [text task #9](alloy-text.md) now supplies a serializer
-and independent parser; there is no source encoder, decoder or compiler preservation
-theorem. The existing native CLI still only supports `--version`.
+API for #9 and #10 after accepted oracle task #6. It was accepted through PR #26.
+The accepted [structural backend](structural-encoding.md) consumes this API;
+selected [text task #9](alloy-text.md) supplies a serializer and independent parser.
+Instance decoding and global compiler preservation remain separate tasks.
+The existing native CLI still only supports `--version`.
 
 ## API and supported fragment
 
