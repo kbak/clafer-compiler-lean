@@ -26,6 +26,10 @@ class CheckScriptTest(unittest.TestCase):
                 (binary / name).symlink_to(shutil.which(name))
             stub = '''#!/usr/bin/env bash
 echo "${0##*/} $*" >> "$CALLS"
+if [[ "$*" == *axiom_audit.lean* ]]; then
+  while [[ ! -f "$CALLS.regression" ]]; do sleep 0.01; done
+  echo 'audit completed' >> "$CALLS"
+fi
 if [[ "$*" == *leanchecker* ]]; then
   echo "kernel threads=$LEAN_NUM_THREADS" >> "$CALLS"
   while [[ ! -f "$CALLS.regression" ]]; do sleep 0.01; done
@@ -59,6 +63,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('kernel threads=1', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
+        self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
+                        calls.index('audit completed'))
 
     def test_required_failures_stop_the_check(self):
         for failure in ['scripts/check.py', 'scripts/project_modules.py', '--dependencies',
@@ -68,8 +74,9 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
                 self.assertTrue(any(failure in call for call in calls), calls)
                 self.assertNotIn('All build', result.stdout)
-                if failure in ('scripts/run_tests.py', 'leanchecker'):
+                if failure in ('axiom_audit.lean', 'scripts/run_tests.py', 'leanchecker'):
                     self.assertIn('kernel completed', calls)
+                    self.assertIn('audit completed', calls)
 
     def test_missing_tool_and_skip_option_fail(self):
         result, calls = self.run_check(missing_lake=True)

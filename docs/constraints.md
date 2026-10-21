@@ -30,6 +30,14 @@ The existing native harness and upstream constructor laws are reused. No depende
 or license changes, copied semantic definitions, or Haskell source redistribution
 are needed; new compiler code remains MIT and existing Lean primitives Apache-2.0.
 
+Fresh-snapshot validation reached the final structural tests at the existing
+deadline. Before changing scheduling, checked the accepted `check.sh` kernel/test
+overlap and the accepted isolated unittest worker. Reuse the same Bash background
+process and `wait` pattern for the whole-project axiom audit: it only reads the
+completed build outputs, as kernel replay does. All three exit statuses remain
+mandatory, and the gate regressions check overlap and failure propagation. This
+adds no runner, dependency, cache of proof results or policy exception.
+
 ## Implementation and assurance plan
 
 Construct a support table from original declaration/map identities, resolve names

@@ -29,11 +29,12 @@ lake build
 python3 scripts/project_modules.py --dependencies
 mapfile -t modules < .lake/validation/modules.txt
 lake build "${modules[@]/#/+}"
-lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean
+lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean &
+audit_pid=$!
 
 # leanchecker loads each project's .olean and replays its kernel declarations.
 # The recursive roots also include helpers not imported by the library root.
-# Replay and isolated regressions only read these completed build outputs.
+# Audit, replay and isolated regressions only read these completed build outputs.
 # One replay worker avoids loading several large import environments at once.
 LEAN_NUM_THREADS=1 lake env leanchecker --verbose ClaferCompiler Main tests &
 kernel_pid=$!
@@ -41,6 +42,9 @@ test_status=0
 lake env python3 scripts/run_tests.py || test_status=$?
 kernel_status=0
 wait "$kernel_pid" || kernel_status=$?
+audit_status=0
+wait "$audit_pid" || audit_status=$?
+if (( audit_status != 0 )); then exit "$audit_status"; fi
 if (( test_status != 0 )); then exit "$test_status"; fi
 if (( kernel_status != 0 )); then exit "$kernel_status"; fi
 echo 'All build, native, import, kernel, axiom and regression gates passed.'
