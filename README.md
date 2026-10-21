@@ -7,8 +7,10 @@ tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md) is accepted. The
 [structural backend](docs/structural-encoding.md) translates admitted M1 IR into
-checked target ASTs with manual bounds. Its acceptance review and global
-preservation proofs remain pending; serialization and CLI integration are separate tasks.
+checked target ASTs with manual bounds and was accepted through PR #28. Global
+preservation proofs remain pending. The selected [representation work](docs/structural-correctness.md)
+proves concrete decoding and data round trips; serialization and CLI integration
+are separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

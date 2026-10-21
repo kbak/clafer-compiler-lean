@@ -129,3 +129,12 @@ context. The backend retains the adopted empty-group/default distinctions rather
 than silently adopting Haskell's empty-child skip. All new runtime, proof and test
 code is original project code under MIT; no upstream meanings or Haskell code are
 copied. Local source/target finite tests do not replace #12's generated-text oracle.
+
+The [representation proof layer](structural-correctness.md) uses the same S1
+`Configuration` directly and inspects the pinned `Semantics/Renaming.lean`,
+`Semantics/Bridge.lean` and `Verification/Representation.lean` for the outstanding
+composition boundary. The current stage does not claim to compose their
+preservation theorems. The runtime layout is the accepted #10 encoding guided by
+S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New representation,
+stack proofs and fixtures are original project code; no upstream meanings or
+Haskell implementation are copied or changed.

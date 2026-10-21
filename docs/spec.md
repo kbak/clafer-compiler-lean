@@ -3,8 +3,9 @@
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target task #8 through PR #26.
-Selected task #10 adds the guarded structural backend. Future compiler behavior
-is reserved below, not declared implemented or proved.
+Structural backend #10 was accepted through PR #28. Selected task #11 adds the
+finite representation proof layer; global preservation remains unfinished. Future
+compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -250,6 +251,30 @@ and omission mutations against independent source meaning. Keep finite tests and
 local proofs distinct from global soundness, bounded completeness, executable
 encode/decode and text/CLI assurance, which remain dependent tasks. The
 [encoding contract](structural-encoding.md) specifies the exact layout and handoff.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Finite structural representation
+
+`req~compiler-structural-representation~1`
+
+Provide an executable finite shared-object presentation and in-memory encoder and
+decoder for the accepted structural target layout. Preserve declaration extents,
+containment tuples and distinct reference heads. Distinguish malformed/root decode
+errors from retained semantic violations. State the concrete bijection, root,
+extent and active-role tuple equations, including all target atom coverage and
+unused-slot policy, independently of either satisfaction relation.
+
+Kernel-prove the encode/decode data round trip under explicit table/root hygiene,
+and derive decoder success and a concrete representation from satisfaction of an
+actual successful compiler output, including live-atom coverage from target
+constraints. Exercise nontrivial bag witnesses, semantic violations, renamed atoms
+and malformed tables. Keep these results distinct from the unfinished global
+source-soundness, bounded-completeness and compiled-bank composition obligations
+of #11, specified in the [correctness work](structural-correctness.md).
 
 Covers:
 - `intent~compiler-foundation~1`

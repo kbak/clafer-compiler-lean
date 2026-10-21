@@ -3,9 +3,10 @@
 The build belongs to [issue #5](https://github.com/kbak/clafer-compiler-lean/issues/5).
 The structural contract was adopted through [PR #22](https://github.com/kbak/clafer-compiler-lean/pull/22).
 Build, oracle and IR tasks #5–#7 are accepted through PRs #23–#25. The
-[structural IR and admission bridge](ir.md) and selected #8's independent
-[target core](alloy-core.md) have separate proof/test boundaries. No parser,
-translation, Alloy output or compiler correctness theorem is delivered.
+[structural IR and admission bridge](ir.md), accepted independent
+[target core](alloy-core.md), [structural backend](structural-encoding.md), and
+partial [representation proofs](structural-correctness.md) have separate boundaries.
+No parser, serialized Alloy output or global preservation theorem is delivered.
 
 ## Package and module ownership
 
@@ -23,7 +24,7 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 | `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics; #8, then #9/#10/#15 | Runtime modules |
 | `ClaferCompiler.Driver` | Pure bootstrap response; #5, then #19/#20 | Runtime modules |
 | `ClaferCompiler.SemanticsBridge` | Structural interpretation/admission proofs; #7, expressions later #14 | Runtime/proof modules and upstream |
-| `ClaferCompiler.Correctness` | Bootstrap response lemmas; #5, then #11/#15/#20 | Runtime/proof modules and upstream |
+| `ClaferCompiler.Correctness` | Bootstrap, local generation and finite representation proofs; #5/#10/#11, then #15/#20 | Runtime/proof modules and upstream |
 | `ClaferCompiler` | Public aggregate for proof consumers | Owned library modules |
 | `Main` | Native IO entrypoint; #5, then #19/#20 | Runtime modules only |
 | `tests` | All Lean test modules | Library, entrypoint and upstream |

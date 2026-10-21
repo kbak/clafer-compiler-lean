@@ -1,10 +1,12 @@
 module
 
 public import ClaferCompiler.Driver
+public import ClaferCompiler.Correctness.StructuralDecoding
 
 public section
 
-/-! Build witness only. Compiler correctness remains with #11/#15/#20. -/
+/-! Bootstrap equations and the structural representation proof layer.
+Global preservation remains unfinished under #11; M2 proofs belong to #15/#20. -/
 
 namespace ClaferCompiler.Correctness
 
