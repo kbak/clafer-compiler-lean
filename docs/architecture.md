@@ -10,7 +10,9 @@ M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
 [text task #9](alloy-text.md) are accepted through PRs #28 and #27. Selected #11
 has a partial [representation proof layer](structural-correctness.md). The
-[typed expression API](expressions.md) is selected as #14 after #7 acceptance.
+[typed expression API](expressions.md) is accepted through #14/PR #32 after #7.
+Selected #15 adds [bounded target arithmetic](expression-encoding.md); translation
+of source expressions and attachments and its preservation remain unfinished.
 Later tasks require their own manual intake. The remaining contracts below are delivery
 specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;

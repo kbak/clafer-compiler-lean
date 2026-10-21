@@ -17,6 +17,13 @@ public final class AlloyTextBridge {
         }
         if (e instanceof ExprBinary b)
             return List.of(b.op.name(), expr(b.left, bound), expr(b.right, bound));
+        if (e instanceof ExprCall c) {
+            if (!Set.of("integer/plus", "integer/minus").contains(c.fun.label))
+                throw new IllegalArgumentException("unhandled function " + c.fun.label);
+            List<Object> args = new ArrayList<>();
+            for (Expr a : c.args) args.add(expr(a, bound));
+            return List.of("call", c.fun.label, args);
+        }
         if (e instanceof ExprList l) {
             List<Object> values = new ArrayList<>(); values.add(l.op.name());
             for (Expr a : l.args) values.add(expr(a, bound));
@@ -78,6 +85,8 @@ public final class AlloyTextBridge {
         for (java.lang.reflect.Field f : A4Options.class.getFields())
             if (!java.lang.reflect.Modifier.isStatic(f.getModifiers()))
                 options.put(f.getName(), f.getName().equals("solver") ? o.solver.id() : f.get(o));
+        // Retain the effective options even if translation fails before solving.
+        Files.writeString(Path.of(name + "-options.json"), new GsonBuilder().setPrettyPrinting().create().toJson(options));
         A4Solution sol = TranslateAlloyToKodkod.execute_command(new A4Reporter(),
             model.getAllReachableSigs(), model.getAllCommands().get(0), o);
         if (sol.satisfiable()) sol.writeXML(name + ".xml", Collections.emptyList());

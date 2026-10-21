@@ -1,8 +1,8 @@
 # Typed static expressions and finite observation
 
-[Issue #14](https://github.com/kbak/clafer-compiler-lean/issues/14) is selected after
-acceptance of structural IR #7. This candidate implements the expression API and
-its proof-only upstream interpretation. Semantic acceptance remains pending.
+[Issue #14](https://github.com/kbak/clafer-compiler-lean/issues/14) is accepted
+through merged PR #32 after structural IR #7. It implements the expression API and
+its proof-only upstream interpretation.
 [Expression encoding #15](https://github.com/kbak/clafer-compiler-lean/issues/15)
 and [source elaboration #18](https://github.com/kbak/clafer-compiler-lean/issues/18)
 consume this boundary. The M1 structural admission and `clafer-ir/1` profile still

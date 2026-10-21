@@ -182,6 +182,16 @@ meaning. S5's static `clafer.cf` productions and S6's `genPExp'`, `genIFunExp` a
 checker, observation extension and tests are original MIT code. No upstream
 semantics, primitive domains, positive-map support or dependency pins changed.
 
+The [target arithmetic stage](expression-encoding.md) uses S7's Integer
+Expressions and Commands sections for `plus`/`minus`, signed intermediate bounds
+and tuple cardinality. S6's active `genOp` branches provide the corresponding
+operand-order guide. It reuses the existing target folds, Parsec grammar and
+actual Analyzer adapter; its original implementation and tests retain MIT
+licensing. The retained reference identity and pinned tools are unchanged. The
+width-16 Analyzer translation-capacity failure is retained as an operational
+result, not agreement or bounded UNSAT. Source encoding and attachment
+preservation remain unfinished under #15.
+
 The [source resolution/defaulting contract](resolution.md) maps S2's `Defaults`,
 `GroupCard`, `AST.WellFormed` and Compile naming obligations, plus S3's
 `Realization.Core.Selected`, to source occurrence paths and finite checked tables.
