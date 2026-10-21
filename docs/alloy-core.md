@@ -44,7 +44,7 @@ explicit owner, target and range multiplicity; signatures also have explicit
 multiplicity. Facts and command bodies are closed formulas. The supported terms
 are unary/binary empty relations, signature/field/variable references, union,
 intersection, difference, unary product, unary/binary join and transpose; bounded
-integer literals and relation counts; relational equality/inclusion, multiplicity,
+integer literals, relation counts and ordered addition/subtraction; relational equality/inclusion, multiplicity,
 integer equality/order, Boolean connectives and singleton `all`/`exists`.
 
 Unary-unary join, nonbinary transpose, mixed-arity operations, dangling IDs,
@@ -52,10 +52,10 @@ unbound variables and invalid field endpoints are rejected. This check does not
 implement the Analyzer's additional disjoint-type/redundancy diagnostics or its
 name resolver. #9 must establish printable forms and exercise the actual parser;
 arity-correct raw terms alone do not promise acceptance of every surface form.
-No temporal operators, general integer arithmetic, higher-arity relations,
+No temporal operators, multiplication/division/aggregation, higher-arity relations,
 closure, comprehension, subset signatures, modules, functions or predicate calls
 are part of this target fragment. M1 obligations can use quantifiers and facts;
-richer integer operations remain with #15.
+the [selected arithmetic extension](expression-encoding.md) is part of #15.
 
 Covers:
 - `req~compiler-alloy-core~1`
@@ -127,7 +127,9 @@ budgets: signatures use their scope, fields their owner/target scopes, variables
 one, unions sum, intersections take the minimum, differences retain the left
 budget, products concatenate, joins remove matching columns and transpose
 reverses columns. The product of the resulting budgets bounds tuple count.
-`Formula.safe` checks every literal and counted operand in all facts and the
+`Integer.range` propagates checked intervals through addition and subtraction,
+rejecting an unsafe intermediate even if the final result would fit. `Formula.safe`
+checks every literal, counted operand and arithmetic intermediate in all facts and the
 command, including both branches, negation and bodies of empty-domain quantifiers.
 The analysis does not use facts or successful candidate satisfaction to narrow a
 range. It can reject a safe individual instance; e.g. a possible unary count of
@@ -139,8 +141,9 @@ Boolean evaluation propagates undefined integers strictly. A quantifier evaluate
 its domain first and evaluates its body only for actual members. The empty
 universal is true; the empty existential is false. With admitted ranges and
 declaration/scope-conforming instances the intent is that all integer observations
-fit. The general column-bound/no-overflow induction is not a delivered theorem;
-the analysis is implemented and tested. Runtime range checks remain mandatory and
+fit. `Integer.range_sound` proves arithmetic agreement under explicit per-count
+tuple capacities; deriving those capacities for arbitrary target relations remains
+unproved. Runtime range checks remain mandatory and
 report an explicit error if an unrepresentable observation occurs.
 
 `check` distinguishes `malformedSyntax` and `unsupportedBounds`. `evaluate`
@@ -164,7 +167,7 @@ The [pinned Alloy 6.2.0 distribution](sources.md) is tested separately.
 | Signature Declarations; Subtypes | `Signature`, `Schema.wellFormed`, `Instance.declarations`: forest, inclusion, disjointness, abstract coverage |
 | Field Declarations; Multiplicity Keywords | `Field`, `Multiplicity.holds`: binary owner/target tuples and owner fibers |
 | Relational Expressions | `Rel.eval`: extensional tuple operations; empty binary relation denotes `none -> none` |
-| Integer Expressions | `Integer.eval`, `boundedInt`: literals and checked tuple cardinalities |
+| Integer Expressions | `Integer.eval`, `boundedInt`: literals, checked tuple cardinalities, addition and subtraction with checked intermediates |
 | Boolean Expressions; Quantification | `Formula.eval`: comparisons, connectives, singleton binding; truth/falsity are internal sugar for `no none`/`some none` |
 | Commands; Semantic Basis | `Module.eval`, `Satisfies`, `Instance.inScope`: facts, declarations, polarity and explicit finite bounds |
 

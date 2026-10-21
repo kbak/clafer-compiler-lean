@@ -60,10 +60,44 @@ def Rel.product (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.product]⟩
 def Rel.join (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.join]⟩
 def Rel.transpose (a : Rel) : Rel := ⟨a.code ++ [.transpose]⟩
 
-inductive Integer where
+inductive IntegerOp where
   | literal (value : Int)
   | count (rel : Rel)
+  | add | subtract
   deriving DecidableEq, BEq
+
+/-! [impl->req~compiler-target-arithmetic~1] -/
+
+/-- Integer programs share the target's standard-library stack-fold machinery.
+Each arithmetic instruction observes its own bounded intermediate value. -/
+structure Integer where
+  code : List IntegerOp
+  deriving DecidableEq, BEq
+
+def Integer.literal (value : Int) : Integer := ⟨[.literal value]⟩
+def Integer.count (rel : Rel) : Integer := ⟨[.count rel]⟩
+def Integer.add (left right : Integer) : Integer := ⟨left.code ++ right.code ++ [.add]⟩
+def Integer.subtract (left right : Integer) : Integer := ⟨left.code ++ right.code ++ [.subtract]⟩
+
+structure IntegerAlgebra (α : Type) where
+  literal : Int → α
+  count : Rel → α
+  add : α → α → α
+  subtract : α → α → α
+
+def IntegerAlgebra.step (a : IntegerAlgebra α) (stack : Option (List α))
+    (op : IntegerOp) : Option (List α) :=
+  match op, stack with
+  | .literal n, some xs => some (a.literal n :: xs)
+  | .count r, some xs => some (a.count r :: xs)
+  | .add, some (y :: x :: xs) => some (a.add x y :: xs)
+  | .subtract, some (y :: x :: xs) => some (a.subtract x y :: xs)
+  | _, _ => none
+
+def Integer.fold (a : IntegerAlgebra α) (fallback : α) (n : Integer) : α :=
+  match n.code.foldl a.step (some []) with
+  | some [value] => value
+  | _ => fallback
 
 inductive Comparison where
   | eq | lt | le
@@ -231,9 +265,12 @@ def Rel.typeOf (s : Schema) (depth : Nat) (rel : Rel) : Option Arity :=
     transpose := fun a => if a == some .binary then some .binary else none
   } none
 
-def Integer.wellTyped (s : Schema) (depth : Nat) : Integer → Bool
-  | .literal _ => true
-  | .count r => (r.typeOf s depth).isSome
+def Integer.wellTyped (s : Schema) (depth : Nat) (n : Integer) : Bool :=
+  n.fold {
+    literal := fun _ => true
+    count := fun r => (r.typeOf s depth).isSome
+    add := (· && ·), subtract := (· && ·)
+  } false
 
 def Formula.wellTyped (s : Schema) (depth : Nat) (formula : Formula) : Bool :=
   formula.fold {
