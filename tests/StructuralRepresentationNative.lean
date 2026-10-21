@@ -24,9 +24,9 @@ def run : IO Unit := do
     let .ok v := IR.Structural.validateRaw fixture.input
       | throw (IO.userError s!"admission: {fixture.label}")
     for i in [fixture.candidate, renameAtoms fixture.candidate] do
-      match decode v i with
+      match decode v.toLayout i with
       | .ok o =>
-        unless sameInstance (encode v o) i do
+        unless sameInstance (encode v.toLayout o) i do
           throw (IO.userError s!"round trip changed data: {fixture.label}")
         roundtrips := roundtrips + 1
       | .error e =>
@@ -36,15 +36,15 @@ def run : IO Unit := do
           throw (IO.userError s!"unexpected decode error: {fixture.label}: {repr e}")
   unless roundtrips == 72 do throw (IO.userError s!"lost fixtures: {roundtrips}")
   let .ok v := IR.Structural.validateRaw bag | throw (IO.userError "bag admission")
-  let .ok o := decode v bagInstance | throw (IO.userError "bag decoding")
+  let .ok o := decode v.toLayout bagInstance | throw (IO.userError "bag decoding")
   let d : Fin bag.declarations.size := ⟨2, by decide⟩
   unless o.heads d == [2, 3] && o.containment d == [(0, 2), (0, 3)] &&
       o.dereference d == [(2, 1), (3, 1)] do
     throw (IO.userError "collapsed reference occurrence identity")
   let dangling := { bagInstance with fields :=
     [[[0, 1]], [[0, 2], [0, 3]], [[2, 9001], [3, 1]]] }
-  let .ok danglingObs := decode v dangling | throw (IO.userError "dangling tuple decoding")
-  unless sameInstance (encode v danglingObs) dangling &&
+  let .ok danglingObs := decode v.toLayout dangling | throw (IO.userError "dangling tuple decoding")
+  unless sameInstance (encode v.toLayout danglingObs) dangling &&
       danglingObs.dereference d == [(2, 9001), (3, 1)] do
     throw (IO.userError "decoder silently removed an out-of-carrier tuple")
   let malformed : List Instance := [
@@ -54,11 +54,11 @@ def run : IO Unit := do
     { bagInstance with fields := [[[0, 1, 2]], [[0, 2], [0, 3]], [[2, 1], [3, 1]]] },
     { bagInstance with fields := [[[0, 1]], [[0, 2], [0, 3]], [[2, 1], [2, 1], [3, 1]]] }]
   for i in malformed do
-    match decode v i with
+    match decode v.toLayout i with
     | .error .malformedInstance => pure ()
     | _ => throw (IO.userError "malformed candidate was not rejected")
   let outside := { bagInstance with signatures := [[1, 2, 3], [0], [1], [2, 3]] }
-  match decode v outside with
+  match decode v.toLayout outside with
   | .error .rootOutsideObjects => pure ()
   | _ => throw (IO.userError "root outside live objects was not rejected")
   IO.println "72 corpus round trips; 1 dangling-tuple round trip; 2 distinct bag occurrences; 9 rejecting decoder cases"

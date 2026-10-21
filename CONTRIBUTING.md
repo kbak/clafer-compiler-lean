@@ -9,14 +9,15 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
 [independent Alloy core](docs/alloy-core.md), an accepted
 [structural backend](docs/structural-encoding.md), and accepted
-[checked serialization](docs/alloy-text.md). Selected #11 adds a partial
-[representation proof layer](docs/structural-correctness.md). Global preservation
-remains unfinished; CLI integration has separate owners.
-Selected #12 adds [exact three-way comparison](docs/comparison.md) and strict
-instance export. Accepted
-[static parser #16](docs/parser.md) preserves authored syntax. Selected #17 adds
-[checked structural resolution/defaulting](docs/resolution.md); source expression
-typing remains separate. Accepted #14 (PR #32) adds the
+[checked serialization](docs/alloy-text.md). Accepted #11 provides
+[M1 soundness and bounded completeness](docs/structural-correctness.md) under
+explicit finite scope and integer-range hypotheses. Selected #13 adds
+[inherited structural realization](docs/inherited-realization.md), pending semantic
+acceptance. CLI integration remains separate. Task #12 supplies
+[exact three-way comparison](docs/comparison.md) and strict instance export.
+Accepted [static parser #16](docs/parser.md) preserves authored syntax. Selected #17
+adds [checked structural resolution/defaulting](docs/resolution.md); source
+expression typing remains separate. Accepted #14 (PR #32) adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
 Selected #15 adds [bounded target arithmetic](docs/expression-encoding.md);
 source constraint translation and attachment preservation remain unfinished.

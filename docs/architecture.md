@@ -8,13 +8,15 @@ IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) pr
 external validation; the [IR API and proof inventory](ir.md) record the delivered
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
-[text task #9](alloy-text.md) are accepted through PRs #28 and #27. Selected #11
-has a partial [representation proof layer](structural-correctness.md). The
-[typed expression API](expressions.md) is accepted through #14/PR #32 after #7.
-Selected #15 adds [bounded target arithmetic](expression-encoding.md); translation
-of source expressions and attachments and its preservation remain unfinished.
-Later tasks require their own manual intake. The remaining contracts below are delivery
-specifications, not implemented APIs or proved results.
+[text task #9](alloy-text.md) are accepted through PRs #28 and #27. The maintainer
+accepted #11's [M1 representation and preservation proofs](structural-correctness.md)
+through PR #33. Selected #13 implements
+[inherited structural realization](inherited-realization.md), pending semantic
+acceptance. The [typed expression API](expressions.md) is accepted through #14/PR #32
+after #7. Selected #15 adds [bounded target arithmetic](expression-encoding.md);
+translation of source expressions and attachments and its preservation remain
+unfinished. Later tasks require their own manual intake. The remaining contracts
+below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
 
@@ -438,8 +440,11 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is selected;
-its representation work is partial and global preservation remains unproved.
+approve future changes. #6–#10 are accepted through PRs #24–#28. The maintainer accepted #11 through
+PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, including its explicit
+finite scope and integer-range assumptions. Selected #13 supplies the
+[inherited structural API and proofs](inherited-realization.md), pending semantic
+acceptance. Other tasks retain their intake gates.
 Parser #16 is accepted through PR #30; its authored API and
 unproved grammar boundary are described in the [parser contract](parser.md).
 Selected #17 supplies the [resolution/defaulting contract](resolution.md) after
@@ -448,6 +453,6 @@ No unresolved research tag, publication step or blanket Haskell-parity promise
 blocks this plan.
 
 Selected #12's [comparison contract](comparison.md) records the concrete native
-decode/export API and exact three-way execution boundary. #11's merged partial
-representation layer is its data API dependency; full source soundness and bounded
-completeness remain outstanding and are not inferred from finite comparisons.
+decode/export API and exact three-way execution boundary. It uses #11's
+representation API; the M1 in-memory preservation proofs remain distinct from
+finite native/serialized comparisons.

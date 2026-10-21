@@ -1,13 +1,15 @@
 module
 
+public import ClaferCompiler.Correctness.InheritedViews
+
 public import ClaferCompiler.Driver
-public import ClaferCompiler.Correctness.StructuralDecoding
+public import ClaferCompiler.Correctness.StructuralCorrectness
 public import ClaferCompiler.Correctness.IntegerArithmetic
 
 public section
 
-/-! Bootstrap equations and the structural representation proof layer.
-Global preservation remains unfinished under #11; M2 proofs belong to #15/#20. -/
+/-! Bootstrap equations, concrete representations and M1/inherited preservation.
+Static expression preservation retains its separate proof obligations. -/
 
 namespace ClaferCompiler.Correctness
 

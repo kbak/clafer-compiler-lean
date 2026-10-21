@@ -19,7 +19,7 @@ structure Observation (n : Nat) where
   dereference : Fin n → List (Nat × Nat)
 
 /-- Encode the concrete #10 layout. No auxiliary atoms are introduced. -/
-def encode (v : IR.Structural.Validated n) (o : Observation n) : Instance where
+def encode (v : IR.Structural.Layout n) (o : Observation n) : Instance where
   signatures := o.objects :: (order v).map o.heads
   fields := (fieldKeys v.core).map fun (d, role) =>
     (match role with | .containment => o.containment d | .dereference => o.dereference d).map
@@ -31,7 +31,7 @@ def readPairs (ts : Relation) : List (Nat × Nat) := ts.filterMap fun t =>
 
 /-- The declaration map fixes every extent and relation. Missing source roles
 have empty relations, rather than accidentally reading field zero. -/
-def observation (v : IR.Structural.Validated n) (i : Instance) (root : Nat) : Observation n where
+def observation (v : IR.Structural.Layout n) (i : Instance) (root : Nat) : Observation n where
   objects := i.signatures[0]?.getD []
   root
   heads d := i.signatures[signatureId v d]?.getD []
@@ -46,7 +46,7 @@ inductive DecodeError where
 
 /-- Decode raw in-memory target tables. This does not check source truth, invoke
 an oracle, or parse Analyzer output. A well-formed violating candidate is retained. -/
-def decode (v : IR.Structural.Validated n) (i : Instance) : Except DecodeError (Observation n) :=
+def decode (v : IR.Structural.Layout n) (i : Instance) : Except DecodeError (Observation n) :=
   if !i.wellFormed (schema v) then .error .malformedInstance
   else match i.signatures[signatureId v v.core.root]?.getD [] with
     | [root] => if (i.signatures[0]?.getD []).contains root then .ok (observation v i root)

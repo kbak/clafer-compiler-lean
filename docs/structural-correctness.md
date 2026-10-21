@@ -1,12 +1,18 @@
 # Structural representation and preservation work
 
 [Issue #11](https://github.com/kbak/clafer-compiler-lean/issues/11) is selected after
-acceptance of the [structural backend](structural-encoding.md) in PR #28. This is
-an incomplete implementation of that issue. The current artifacts establish the
-finite representation and successful decoding of satisfying target instances.
-They do **not** prove source satisfaction or bounded completeness. Issue #11 was closed with merged PR #29, but
-its global correctness requirement remains outstanding; none of these lemmas substitutes
-for the two preservation directions in the [architecture](architecture.md).
+acceptance of the [structural backend](structural-encoding.md) in PR #28. PR #29
+supplied finite representation and decoding but left preservation unfinished.
+This follow-up proves M1 soundness and bounded completeness against the independent
+source and target meanings. The maintainer accepted these proofs through
+PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, authorizing #13.
+The [inherited extension](inherited-realization.md) reuses the proved allocation
+lemmas through `Structural.Layout`; the M1 entry points retain their support guards.
+
+The result covers exactly the admitted M1 effective core. Completeness constructs
+a target for any finite satisfying source whose observation fits the manual scopes
+and signed integer ranges below. Native execution, Analyzer output decoding and
+serialized target correspondence retain their separate boundaries.
 
 ## Reuse assessment
 
@@ -17,14 +23,21 @@ Pinned upstream `Configuration` and `Configuration.rename` supply source data an
 renaming directly. Upstream `Verification.Candidate` and its noncomputable
 `encode` use canonical `Fin` labels and belong to the proof dependency; importing
 them into the native runtime would violate the existing import boundary and would
-not preserve raw target label/list order. They remain candidates for the later
-finite-source completeness composition, not a reason to duplicate source meaning.
+not preserve raw target label/list order. The proof-only `sourceObservation` instead enumerates the original arbitrary finite
+`Configuration` directly through `Fintype.equivFin`; it preserves its whole carrier
+and exact role relations without requiring a prior finite `Candidate` encoding.
 
 Lean `List` operations, `Option`/`Except`, and Mathlib `Equiv`, `Fintype.ofFinset`
 and `Fintype.card_ofFinset` provide the machinery. The new proofs supply the
 missing stack-composition lemmas for the existing postfix algebras and injective
 `eraseDups` mapping; they reuse the library's membership, filter, sort and index
-lemmas. #9 already owns parsing/printing, so no parser or external decoding package
+lemmas. `Relation.ReflTransGen.total_of_right_unique` establishes comparability
+of occupied signature paths; it avoids a second custom forest theory.
+`DPGraph.Predicates.inRange_card` supplies finite multiplicity equivalence.
+Pinned `Configuration.structural_model_iff`, `erasure_correspondence` and
+`SpanModel.normalize_satisfies` provide the bank/erasure/span compositions.
+The compiler-specific gap is the correspondence from the accepted generated target
+layout to those existing source meanings. #9 already owns parsing/printing, so no parser or external decoding package
 is added. All reused dependencies retain their pinned revisions/licenses; this
 stage adds no package or native runtime dependency.
 
@@ -55,8 +68,8 @@ object is retained for eventual source coverage rejection, not silently removed.
 This API consumes in-memory target tables. Parsing Analyzer output remains #12;
 text serialization, IR CLI integration, and external runtime trust retain their
 separate boundaries. The pure encoder does not perform bounds admission. Manual
-bounds remain #10's checked compilation inputs. This stage makes no theorem about
-source configurations fitting those bounds.
+bounds remain #10's checked compilation inputs. The completeness theorem below
+requires the source observation to fit them; it does not infer bounds.
 
 Covers:
 - `req~compiler-structural-representation~1`
@@ -125,28 +138,116 @@ mandatory and unchanged.
 Covers:
 - `req~compiler-structural-representation~1`
 
-## Remaining issue #11 obligations
+## Finite source construction
 
-The reservation `compiler-structural-correctness` is not adopted as a delivered
-requirement by this stage. Remaining work includes:
+`impl~compiler-structural-correctness~1`
 
-1. Derive every upstream `StructuralSatisfies` conjunct from generated target
-   satisfaction: root freshness/whole-carrier coverage, ancestry/disjointness,
-   abstract cover, typed relations, ownership, reference functionality, keys,
-   local intervals and group unions. Root existence and target-side atom coverage
-   alone do not establish these clauses.
-2. Construct target models from arbitrary admitted finite source configurations,
-   with exact manual scope, representation and integer-count/bitwidth hypotheses
-   independent of satisfaction. Prove bounded completeness; do not interpret
-   bounded absence as unbounded UNSAT.
-3. Compose both directions with the pinned effective-core/local compiled-bank
-   theorems while retaining their actual whole-model global hypotheses.
-4. Add theorem-level sensitivities for omitted upper bounds, collapsed bag
-   occurrences and missing global facts. Existing native omission tests and the
-   missing-owner witness do not complete that acceptance criterion.
+[StructuralSourceObservation.lean](../ClaferCompiler/Correctness/StructuralSourceObservation.lean)
+defines the noncomputable proof-only `sourceObservation` and `sourceObjects`.
+An injective `Fintype.equivFin` labelling enumerates every original object, each
+head extent and every containment/dereference pair. `source_represents` proves
+the exact representation from source typing and root singleton data. It does not
+assume target satisfaction. All ordinary relation tuples are retained, and bag
+reference heads remain distinct even with equal owners and targets. This supplies
+existence for the proof, not a new executable source enumerator. The runtime
+compiler, encoding, decoding and admission domain are unchanged.
 
-No scope, admission domain, coverage floor, source pin or proof audit is weakened.
-IntentBond exit 4 leaves semantic review pending, and this partial delivery does
-not establish the remaining acceptance criteria of #11. The maintainer selected
-#12 after merging PR #29; it uses this representation API while preserving the
-missing-proof obligations. No selection of #13 is implied.
+Covers:
+- `req~compiler-structural-correctness~1`
+
+## Kernel-checked preservation
+
+`proof~compiler-structural-correctness~1`
+
+The public entry points are in `ClaferCompiler.Correctness.Structural`, exported
+through [Correctness](../ClaferCompiler/Correctness.lean):
+
+- `compiled_sound` in
+  [StructuralReferences.lean](../ClaferCompiler/Correctness/StructuralReferences.lean)
+  takes the actual equation `compile v b = .ok c` and independent target
+  `Satisfies c.module.raw i`. It constructs the successful decoder output, root
+  membership, a concrete `Represents` witness, and full upstream
+  `StructuralSatisfies`. Source truth, decoder success, a preconstructed source
+  and a supplied preservation equivalence are absent from its hypotheses.
+- `compiled_complete` in
+  [StructuralCorrectness.lean](../ClaferCompiler/Correctness/StructuralCorrectness.lean)
+  takes an arbitrary `Configuration (Fin n) U` with `Fintype U`, actual compilation
+  success, independent source `StructuralSatisfies`, `ObservationScopesFit` and
+  `SourceCountFits`. Its witness is exactly `encode v (sourceObservation s)` with
+  a concrete representation and independent target satisfaction.
+- `compiled_sound_bank` uses upstream `structural_model_iff` to retain source
+  `Typed`, all `GlobalConditions` and the independent local compiled-bank model.
+  `compiled_complete_bank` accepts the actual constraint-free AST `Compile.Input`
+  and `SatisfiesAST`, together with an effective-core erasure *data equality*;
+  it uses upstream `erasure_correspondence`. `normalized_complete` applies
+  `SpanModel.normalize_satisfies` to arbitrary original span/link carriers,
+  preserving its local model and explicit normalized global premises. Finiteness
+  is local to the concrete model carrier; DPGraph universes remain unrestricted.
+
+`ObservationScopesFit` compares each explicit exact/upper scope with the object
+or head count in generated declaration order. `source_object_count` and
+`source_head_count` identify those lengths with the original finite carrier and
+extent cardinalities. Compilation separately checks the complete scope inventory.
+`SourceCountFits` in
+[StructuralCompletionFacts.lean](../ClaferCompiler/Correctness/StructuralCompletionFacts.lean)
+checks only numeric representability for actual local/group fibers at actual
+quantifier environments. Its `IntervalFits` condition requires every count and
+nontrivial bound observed by a generated comparison to fit signed bitwidth;
+`0..*` emits no integer observation. These hypotheses contain neither source nor
+target truth and are not a substituted preservation obligation. Safe range
+admission remains checked and tested independently; no general theorem that
+`safeBounds` implies these numeric hypotheses is claimed.
+
+The proof decomposition accounts for every source clause and target obligation:
+
+| Proof module | Obligation |
+| --- | --- |
+| [StructuralHierarchy](../ClaferCompiler/Correctness/StructuralHierarchy.lean) | Global source declaration disjointness from occupied target paths and sibling disjointness |
+| [StructuralSatisfaction](../ClaferCompiler/Correctness/StructuralSatisfaction.lean) | Typed role endpoints, inheritance, abstract cover, root freshness and whole-carrier coverage |
+| [StructuralRelations](../ClaferCompiler/Correctness/StructuralRelations.lean) | Concrete role fibers and injective tuple cardinalities |
+| [StructuralCardinality](../ClaferCompiler/Correctness/StructuralCardinality.lean) | Ownership, local intervals and union-of-child-head group counts |
+| [StructuralReferences](../ClaferCompiler/Correctness/StructuralReferences.lean) | Reference functionality, set keys and assembled soundness |
+| [StructuralCompletionFacts](../ClaferCompiler/Correctness/StructuralCompletionFacts.lean) | Every generated fact from source truth and numeric observation ranges |
+| [StructuralCompletionDeclarations](../ClaferCompiler/Correctness/StructuralCompletionDeclarations.lean) | Signature inclusion/cover/disjointness and field typing/multiplicity from source truth |
+
+These are in-memory mathematical preservation theorems. They do not prove Lean/C
+execution, external Analyzer behavior, serialization semantics or unbounded UNSAT.
+No extra axiom, proof placeholder, scope amendment or dependency upgrade is used.
+
+Covers:
+- `req~compiler-structural-correctness~1`
+
+## Preservation witnesses and sensitivity
+
+`utest~compiler-structural-correctness~1`
+
+[StructuralCorrectness.lean](../tests/StructuralCorrectness.lean) kernel-checks
+successful actual compilation of the nontrivial bag fixture, decoded source
+satisfaction and canonical finite-source completeness. It also applies soundness
+after bijective relabelling. The fixture contains two distinct reference heads
+with the same owner and target.
+
+Two counterexamples remove one generated fact at a time: omitting a child's
+upper bound admits two children against `0..1`; omitting a leaf abstract's cover
+admits an inhabitant with no concrete subtype. Each mutated target is independently
+proved satisfying, and its realized source is proved violating. A third witness
+shows that collapsing a repeated bag occurrence cannot represent the original
+source because the required object bijection would equate different cardinalities.
+The production generator is not mutated. Existing native finite representation
+and Haskell/Lean/Alloy comparison gates remain mandatory.
+
+Covers:
+- `req~compiler-structural-correctness~1`
+
+## Review and dependent handoff
+
+The #11 preservation obligations, including compiled bank/erasure/span composition
+and theorem-level sensitivities, were accepted by the maintainer through PR #33
+at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`. The retained full-check evidence
+and that explicit review, rather than IntentBond exit 4 alone, support the handoff.
+
+#12 still owns generated-text/external instance comparison and integration.
+Selected #13 extends ordinary inherited fields, explicit abstract families and
+the Appendix 6 structural skeleton through a separate checked API. Its
+[contract](inherited-realization.md) states the primitive/domain/context limits. No scope,
+admission domain, coverage floor, source pin or review gate is weakened here.

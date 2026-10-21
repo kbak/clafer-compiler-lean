@@ -9,7 +9,7 @@ namespace ClaferCompiler.Correctness.Structural
 open Backend.Alloy Backend.Alloy.Structural
 
 /-- Read one declared signature, retaining its actual source super and flags. -/
-theorem schema_signature (v : IR.Structural.Validated n) (d : Fin n) :
+theorem schema_signature (v : IR.Structural.Layout n) (d : Fin n) :
     (schema v).signatures[signatureId v d]? = some
       { parent := some ((v.core.get d).super.map (signatureId v) |>.getD 0)
         isAbstract := (v.core.get d).isAbstract } := by
@@ -43,7 +43,7 @@ theorem extent_card (s : Schema) (i : Instance) (hw : i.wellFormed s = true)
 
 /-- The emitted singleton fact forces one actual root atom; a duplicate list
 cannot disguise a larger raw extent because target well-formedness is included. -/
-theorem satisfying_root (v : IR.Structural.Validated n) (scopes : List Scope)
+theorem satisfying_root (v : IR.Structural.Layout n) (scopes : List Scope)
     (w : Nat) (i : Instance) (h : Satisfies (target v scopes w) i) :
     ∃ root, i.signatures[signatureId v v.core.root]?.getD [] = [root] ∧
       root ∈ i.signatures[0]?.getD [] := by
@@ -66,7 +66,7 @@ theorem satisfying_root (v : IR.Structural.Validated n) (scopes : List Scope)
 
 /-- Target satisfaction alone is enough for the executable decoder to return.
 No source predicate or supplied representation bridge is a premise. -/
-theorem satisfying_decode (v : IR.Structural.Validated n) (scopes : List Scope)
+theorem satisfying_decode (v : IR.Structural.Layout n) (scopes : List Scope)
     (w : Nat) (i : Instance) (h : Satisfies (target v scopes w) i) :
     ∃ o, decode v i = .ok o := by
   obtain ⟨root, hr, hm⟩ := satisfying_root v scopes w i h
@@ -77,13 +77,13 @@ theorem satisfying_decode (v : IR.Structural.Validated n) (scopes : List Scope)
 /-- This theorem applies to the actual successful compiler output. -/
 theorem compiled_decode (v : IR.Structural.Validated n) (b : Structural.Bounds)
     (c : Compiled) (hc : compile v b = .ok c) (i : Instance)
-    (h : Satisfies c.module.raw i) : ∃ o, decode v i = .ok o := by
+    (h : Satisfies c.module.raw i) : ∃ o, decode v.toLayout i = .ok o := by
   obtain ⟨scopes, _, he, _, _⟩ := compile_output v b c hc
   rw [he] at h
-  exact satisfying_decode v scopes b.bitwidth i h
+  exact satisfying_decode v.toLayout scopes b.bitwidth i h
 
 /-- The generated object-union signature is the only signature without a parent. -/
-theorem schema_parentless (v : IR.Structural.Validated n) (k : Nat) (d : Signature)
+theorem schema_parentless (v : IR.Structural.Layout n) (k : Nat) (d : Signature)
     (hd : (schema v).signatures[k]? = some d) (hp : d.parent = none) : k = 0 := by
   cases k with
   | zero => rfl
@@ -155,7 +155,7 @@ theorem declarations_live (s : Schema) (i : Instance)
   · contradiction
 
 /-- No target atom outside the live carrier is hidden by source interpretation. -/
-theorem satisfying_live (v : IR.Structural.Validated n) (scopes : List Scope)
+theorem satisfying_live (v : IR.Structural.Layout n) (scopes : List Scope)
     (w : Nat) (i : Instance) (h : Satisfies (target v scopes w) i) : Live i := by
   have sw : (schema v).wellFormed = true := (Bool.and_eq_true_iff.mp
     (Bool.and_eq_true_iff.mp h.1).1).1
@@ -166,11 +166,11 @@ representation, with atom coverage derived from target declarations. -/
 theorem compiled_representation (v : IR.Structural.Validated n) (b : Structural.Bounds)
     (c : Compiled) (hc : compile v b = .ok c) (i : Instance)
     (h : Satisfies c.module.raw i) :
-    ∃ o, decode v i = .ok o ∧ ∃ hr : o.root ∈ o.objects,
-      Nonempty (Represents v (realize o hr) i) := by
+    ∃ o, decode v.toLayout i = .ok o ∧ ∃ hr : o.root ∈ o.objects,
+      Nonempty (Represents v.toLayout (realize o hr) i) := by
   obtain ⟨scopes, _, he, _, _⟩ := compile_output v b c hc
   rw [he] at h
-  obtain ⟨o, ho⟩ := satisfying_decode v scopes b.bitwidth i h
-  exact ⟨o, ho, decoded_represents v i o ho (satisfying_live v scopes b.bitwidth i h)⟩
+  obtain ⟨o, ho⟩ := satisfying_decode v.toLayout scopes b.bitwidth i h
+  exact ⟨o, ho, decoded_represents v.toLayout i o ho (satisfying_live v.toLayout scopes b.bitwidth i h)⟩
 
 end ClaferCompiler.Correctness.Structural

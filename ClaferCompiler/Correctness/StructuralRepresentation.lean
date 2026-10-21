@@ -42,7 +42,7 @@ def Live (i : Instance) : Prop :=
 
 /-- Concrete representation, up to a bijection of the common live carrier.
 All equations concern data; neither source nor target satisfaction occurs. -/
-structure Represents (v : IR.Structural.Validated n)
+structure Represents (v : IR.Structural.Layout n)
     {U : Type} (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance) where
   wellFormed : i.wellFormed (schema v) = true
   live : Live i
@@ -56,15 +56,15 @@ structure Represents (v : IR.Structural.Validated n)
     (v.core.get d).reference.target.isSome = true ∧
       [(objects x).val, (objects t).val] ∈ i.fields[fieldId v.core d .dereference]?.getD []
 
-@[simp] theorem encode_objects (v : IR.Structural.Validated n) (o : Observation n) :
+@[simp] theorem encode_objects (v : IR.Structural.Layout n) (o : Observation n) :
     (encode v o).signatures[0]? = some o.objects := rfl
 
-@[simp] theorem encode_heads (v : IR.Structural.Validated n) (o : Observation n) (d : Fin n) :
+@[simp] theorem encode_heads (v : IR.Structural.Layout n) (o : Observation n) (d : Fin n) :
     (encode v o).signatures[signatureId v d]? = some (o.heads d) := by
   simp only [encode, signatureId, Nat.add_comm 1, List.getElem?_cons_succ,
     List.getElem?_map, List.getElem?_idxOf (mem_order v d), Option.map_some]
 
-@[simp] theorem encode_field (v : IR.Structural.Validated n) (o : Observation n)
+@[simp] theorem encode_field (v : IR.Structural.Layout n) (o : Observation n)
     (d : Fin n) (role : FieldRole) (h : (d, role) ∈ fieldKeys v.core) :
     (encode v o).fields[fieldId v.core d role]? =
       some ((match role with | .containment => o.containment d | .dereference => o.dereference d).map
@@ -86,7 +86,7 @@ structure Represents (v : IR.Structural.Validated n)
   simp
 
 /-- The map preserves individual reference heads, not only owner/target pairs. -/
-theorem encode_dereference (v : IR.Structural.Validated n) (o : Observation n)
+theorem encode_dereference (v : IR.Structural.Layout n) (o : Observation n)
     (d t : Fin n) (h : (v.core.get d).reference.target = some t) (x y : Nat) :
     [x, y] ∈ (encode v o).fields[fieldId v.core d .dereference]?.getD [] ↔
       (x, y) ∈ o.dereference d := by
@@ -95,13 +95,13 @@ theorem encode_dereference (v : IR.Structural.Validated n) (o : Observation n)
 
 /-- Structural table hygiene only. It permits semantic violations (including
 bad ownership, local/group counts, overlapping extents and set keys). -/
-def TableWellFormed (v : IR.Structural.Validated n) (o : Observation n) : Prop :=
+def TableWellFormed (v : IR.Structural.Layout n) (o : Observation n) : Prop :=
   o.objects.Nodup ∧ (∀ d, (o.heads d).Nodup) ∧
   (∀ d, (o.containment d).Nodup ∧ (o.dereference d).Nodup) ∧
   (∀ d, (v.core.get d).parent = none → o.containment d = []) ∧
   (∀ d, (v.core.get d).reference.target = none → o.dereference d = [])
 
-theorem observation_encode (v : IR.Structural.Validated n) (o : Observation n)
+theorem observation_encode (v : IR.Structural.Layout n) (o : Observation n)
     (hc : ∀ d, (v.core.get d).parent = none → o.containment d = [])
     (hd : ∀ d, (v.core.get d).reference.target = none → o.dereference d = []) :
     observation v (encode v o) o.root = o := by
@@ -132,7 +132,7 @@ theorem observation_encode (v : IR.Structural.Validated n) (o : Observation n)
   · exact funext cp
   · exact funext dr
 
-theorem encode_wellFormed (v : IR.Structural.Validated n) (o : Observation n)
+theorem encode_wellFormed (v : IR.Structural.Layout n) (o : Observation n)
     (h : TableWellFormed v o) : (encode v o).wellFormed (schema v) = true := by
   have hn (ts : List (Nat × Nat)) (hn : ts.Nodup) :
       (ts.map fun (x, y) => [x, y]).Nodup :=
@@ -159,7 +159,7 @@ theorem encode_wellFormed (v : IR.Structural.Validated n) (o : Observation n)
 
 /-- Executable round trip retains even violating candidates. Its assumptions are
 table hygiene, the chosen root singleton and root presence, not source truth. -/
-theorem decode_encode (v : IR.Structural.Validated n) (o : Observation n)
+theorem decode_encode (v : IR.Structural.Layout n) (o : Observation n)
     (h : TableWellFormed v o) (hr : o.heads v.core.root = [o.root])
     (hm : o.root ∈ o.objects) : decode v (encode v o) = .ok o := by
   simp only [decode, encode_wellFormed v o h, Bool.not_true, Bool.false_eq_true,
@@ -168,7 +168,7 @@ theorem decode_encode (v : IR.Structural.Validated n) (o : Observation n)
   rw [observation_encode v o h.2.2.2.1 h.2.2.2.2]
 
 /-- Decode reports its actual data equations; it does not certify satisfaction. -/
-theorem decode_success (v : IR.Structural.Validated n) (i : Instance) (o : Observation n)
+theorem decode_success (v : IR.Structural.Layout n) (i : Instance) (o : Observation n)
     (h : decode v i = .ok o) :
     i.wellFormed (schema v) = true ∧ o.root ∈ o.objects ∧
     i.signatures[signatureId v v.core.root]?.getD [] = [o.root] ∧
@@ -187,7 +187,7 @@ theorem decode_success (v : IR.Structural.Validated n) (i : Instance) (o : Obser
       · cases h
     · cases h
 
-def observation_represents (v : IR.Structural.Validated n) (i : Instance) (root : Nat)
+def observation_represents (v : IR.Structural.Layout n) (i : Instance) (root : Nat)
     (hr : i.signatures[signatureId v v.core.root]?.getD [] = [root])
     (hm : root ∈ i.signatures[0]?.getD []) (hw : i.wellFormed (schema v) = true)
     (hl : Live i) :
@@ -206,7 +206,7 @@ def observation_represents (v : IR.Structural.Validated n) (i : Instance) (root 
     rfl
 
 /-- Changing source object labels preserves the concrete representation equations. -/
-def Represents.rename {U V : Type} {v : IR.Structural.Validated n}
+def Represents.rename {U V : Type} {v : IR.Structural.Layout n}
     {s : Clafer.Semantics.Configuration (Fin n) U} {i : Instance}
     (r : Represents v s i) (e : U ≃ V) :
     Represents v (s.rename e) i where
@@ -220,7 +220,7 @@ def Represents.rename {U V : Type} {v : IR.Structural.Validated n}
 
 /-- A successful decoder constructs the concrete model relation, without a
 caller-supplied bridge or a source-satisfaction assumption. -/
-theorem decoded_represents (v : IR.Structural.Validated n) (i : Instance) (o : Observation n)
+theorem decoded_represents (v : IR.Structural.Layout n) (i : Instance) (o : Observation n)
     (h : decode v i = .ok o) (hl : Live i) :
     ∃ hr : o.root ∈ o.objects, Nonempty (Represents v (realize o hr) i) := by
   obtain ⟨hw, hm, hr, ho⟩ := decode_success v i o h

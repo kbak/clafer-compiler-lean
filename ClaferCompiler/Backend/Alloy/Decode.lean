@@ -28,7 +28,7 @@ def candidate (v : IR.Structural.Validated n) (o : Observation n) : Candidate wh
     (o.dereference d).map fun pair => ((v.core.get d).id, pair)
 
 def decodeCandidate (v : IR.Structural.Validated n) (i : Instance) : Except DecodeError Candidate :=
-  (decode v i).map (candidate v)
+  (decode v.toLayout i).map (candidate v)
 
 /-! Exact row correspondence is independent of source or target satisfaction.
 The external JSON/Analyzer parser is not kernel verified.

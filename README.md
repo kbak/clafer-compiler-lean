@@ -2,17 +2,20 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: structural backend with serialization; preservation work in progress.** Executable declaration
+**Status: M1 preservation accepted; inherited structural realization awaiting review.** Executable declaration
 tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md),
 [structural backend](docs/structural-encoding.md) and
 [hygienic serialization](docs/alloy-text.md) are accepted through PRs #26–#28.
 The backend translates admitted M1 IR into checked target ASTs with manual bounds.
-The selected [representation work](docs/structural-correctness.md) proves concrete
-decoding and data round trips. Global preservation proofs remain unfinished.
-The selected [three-way comparison](docs/comparison.md) exercises native-generated
-Alloy and strict instance decoding. CLI integration is a separate task.
+The [correctness work](docs/structural-correctness.md) proves decoding,
+M1 soundness and finite bounded completeness with explicit scope and integer-range
+hypotheses. The maintainer accepted #11 through PR #33. Selected
+[inherited realization](docs/inherited-realization.md) adds the full Appendix 6
+structural skeleton and preservation proofs; its semantic review is pending.
+The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
+and strict instance decoding. CLI integration is a separate task.
 The accepted [static source parser](docs/parser.md) retains authored syntax and
 source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
 adds checked declaration elaboration; source expression typing remains separate.

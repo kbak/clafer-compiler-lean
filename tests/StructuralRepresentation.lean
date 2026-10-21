@@ -18,19 +18,19 @@ def bagObservation : Observation 3 where
   containment d := [[], [(0, 1)], [(0, 2), (0, 3)]][d.val]?.getD []
   dereference d := [[], [], [(2, 1), (3, 1)]][d.val]?.getD []
 
-theorem bag_table : TableWellFormed bagValidated bagObservation := by unfold TableWellFormed; decide
+theorem bag_table : TableWellFormed bagValidated.toLayout bagObservation := by unfold TableWellFormed; decide
 
-theorem bag_roundtrip : decode bagValidated (encode bagValidated bagObservation) = .ok bagObservation :=
-  decode_encode bagValidated bagObservation bag_table rfl (by decide)
+theorem bag_roundtrip : decode bagValidated.toLayout (encode bagValidated.toLayout bagObservation) = .ok bagObservation :=
+  decode_encode bagValidated.toLayout bagObservation bag_table rfl (by decide)
 
-theorem bag_encode_identity : encode bagValidated bagObservation = bagInstance := by
+theorem bag_encode_identity : encode bagValidated.toLayout bagObservation = bagInstance := by
   simp only [encode, bag_order]
   rfl
 
 set_option maxRecDepth 10000 in
 set_option maxHeartbeats 1000000 in
 theorem bag_target_satisfies :
-    Satisfies (target bagValidated (List.replicate 4 ⟨4, false⟩) 5) bagInstance := by
+    Satisfies (target bagValidated.toLayout (List.replicate 4 ⟨4, false⟩) 5) bagInstance := by
   unfold Satisfies target schema facts declarationFacts fieldDeclaration ownership setKey head signatureId
   simp only [bag_order]
   decide
@@ -39,8 +39,8 @@ theorem bag_live : Live bagInstance := satisfying_live _ _ _ _ bag_target_satisf
 
 theorem bag_decoded_representation :
     ∃ hr : bagObservation.root ∈ bagObservation.objects,
-      Nonempty (Represents bagValidated (realize bagObservation hr) bagInstance) := by
-  apply decoded_represents bagValidated bagInstance bagObservation
+      Nonempty (Represents bagValidated.toLayout (realize bagObservation hr) bagInstance) := by
+  apply decoded_represents bagValidated.toLayout bagInstance bagObservation
   · rw [← bag_encode_identity]
     exact bag_roundtrip
   · exact bag_live
@@ -55,12 +55,12 @@ def missingOwner : Observation 3 :=
   { bagObservation with containment := fun d =>
       if d == 2 then [(0, 2)] else bagObservation.containment d }
 
-theorem violating_roundtrip : decode bagValidated (encode bagValidated missingOwner) = .ok missingOwner :=
-  decode_encode bagValidated missingOwner (by unfold TableWellFormed; decide) rfl (by decide)
+theorem violating_roundtrip : decode bagValidated.toLayout (encode bagValidated.toLayout missingOwner) = .ok missingOwner :=
+  decode_encode bagValidated.toLayout missingOwner (by unfold TableWellFormed; decide) rfl (by decide)
 
 set_option maxRecDepth 10000 in
 theorem missing_owner_fact_false :
-    (ownership bagValidated 2).eval 5 (encode bagValidated missingOwner) [] = some false := by
+    (ownership bagValidated.toLayout 2).eval 5 (encode bagValidated.toLayout missingOwner) [] = some false := by
   simp only [ownership, head, signatureId, encode, bag_order]
   decide
 

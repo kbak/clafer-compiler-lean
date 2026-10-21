@@ -3,10 +3,10 @@
 [Issue #12](https://github.com/kbak/clafer-compiler-lean/issues/12) is selected after
 merged PRs #24, #27 and #29. It connects the native structural compiler, checked
 serializer, actual Alloy Analyzer and executable decoder to the existing exact
-candidate protocol. It adds bounded evidence, not the unfinished source-soundness
-or bounded-completeness theorems listed in [structural correctness](structural-correctness.md).
-Issue #11 was closed with its partial representation delivery; closure does not
-establish those missing properties.
+candidate protocol. Its bounded native/serialized evidence is separate from the
+M1 source-soundness and bounded-completeness theorems in
+[structural correctness](structural-correctness.md), accepted by the maintainer
+through PR #33. Those theorems concern in-memory source and target meanings.
 
 ## Reuse and boundaries
 

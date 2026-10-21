@@ -12,12 +12,12 @@ open Tests.StructuralRepresentation
 /-! Kernel witnesses: export preserves distinct heads and a violating candidate.
 [utest->req~compiler-instance-decode~1] -/
 theorem bag_export :
-    decodeCandidate bagValidated (encode bagValidated bagObservation) =
+    decodeCandidate bagValidated (encode bagValidated.toLayout bagObservation) =
       .ok (candidate bagValidated bagObservation) := by
   simp only [decodeCandidate, bag_roundtrip, Except.map]
 
 theorem negative_export :
-    decodeCandidate bagValidated (encode bagValidated missingOwner) =
+    decodeCandidate bagValidated (encode bagValidated.toLayout missingOwner) =
       .ok (candidate bagValidated missingOwner) := by
   simp only [decodeCandidate, violating_roundtrip, Except.map]
 

@@ -127,6 +127,26 @@ structure Validated (n : Nat) where
   coreChecked : coreChecks core certificate
   supportChecked : supportChecks core certificate
 
+/-- Checked allocation shape shared by the M1 and inherited backends.
+It carries no M1 support assertion and is not an admission profile. -/
+structure Layout (n : Nat) where
+  core : Core n
+  certificate : Certificate n
+  coreChecked : coreChecks core certificate
+  rootNotSuper : ∀ d, (core.get d).super ≠ some core.root
+
+def Validated.toLayout (v : Validated n) : Layout n where
+  core := v.core
+  certificate := v.certificate
+  coreChecked := v.coreChecked
+  rootNotSuper := by
+    intro d hd
+    have ha := (v.supportChecked.2.2.1 d v.core.root hd).1
+    have hr := v.coreChecked.2.2.1.2.2.2
+    simp [hr] at ha
+
+instance : CoeOut (Validated n) (Layout n) := ⟨Validated.toLayout⟩
+
 /-- Error priority is core before support; success retains the exact input table. -/
 def validate (m : Core n) (k : Certificate n) : Except Diagnostic (Validated n) :=
   if hc : coreChecks m k then
@@ -198,7 +218,8 @@ def resolveDeclaration (rows : Vector (Declaration DeclId) n) (index : Fin n) :
   return d.withEdges parent super reference
 
 /-- Native input boundary; no source parsing, defaulting, solver, or Haskell dependency. -/
-def validateRaw (r : Raw) : Except Diagnostic (Validated r.declarations.size) := do
+def resolveRaw (r : Raw) :
+    Except Diagnostic (Core r.declarations.size × Certificate r.declarations.size) := do
   let rows := r.declarations.toVector
   if !(r.declarations.toList.map (·.id)).Nodup then
     throw ⟨.malformed, "ir.duplicate-id", "/declarations", none⟩
@@ -214,11 +235,16 @@ def validateRaw (r : Raw) : Except Diagnostic (Validated r.declarations.size) :=
       if hu : r.unused.size = r.declarations.size then
         let declarations ← (Vector.ofFn (fun i : Fin r.declarations.size => i)).mapM
           (resolveDeclaration rows)
-        validate ⟨declarations, root⟩
-          ⟨⟨r.parentRanks, hp⟩, ⟨r.superRanks, hs⟩, ⟨r.unused, hu⟩⟩
+        return (⟨declarations, root⟩,
+          ⟨⟨r.parentRanks, hp⟩, ⟨r.superRanks, hs⟩, ⟨r.unused, hu⟩⟩)
       else throw ⟨.malformed, "ir.certificate-length", "/unused", none⟩
     else throw ⟨.malformed, "ir.certificate-length", "/superRanks", none⟩
   else throw ⟨.malformed, "ir.certificate-length", "/parentRanks", none⟩
+
+/-- The existing M1 entry point retains both core and support checks. -/
+def validateRaw (r : Raw) : Except Diagnostic (Validated r.declarations.size) := do
+  let (m, k) ← resolveRaw r
+  validate m k
 
 /-- Version/profile selection is explicit; this is not an input-format detector. -/
 def validateDocument (version profile : String) (r : Raw) :

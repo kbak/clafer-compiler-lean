@@ -25,10 +25,10 @@ def bagCore : IR.Structural.Core 3 := ⟨#v[
 def bagCertificate : IR.Structural.Certificate 3 := ⟨#v[0, 1, 1], #v[0, 0, 0], #v[false, false, false]⟩
 def bagValidated : IR.Structural.Validated 3 := ⟨bagCore, bagCertificate, by decide, by decide⟩
 
-theorem bag_order : order bagValidated = [0, 1, 2] := by
+theorem bag_order : order bagValidated.toLayout = [0, 1, 2] := by
   have hc : ∀ a b : Fin 3,
-      (bagValidated.certificate.superRank[a] < bagValidated.certificate.superRank[b] ||
-        (bagValidated.certificate.superRank[a] == bagValidated.certificate.superRank[b] && a.val ≤ b.val)) =
+      (bagValidated.toLayout.certificate.superRank[a] < bagValidated.toLayout.certificate.superRank[b] ||
+        (bagValidated.toLayout.certificate.superRank[a] == bagValidated.toLayout.certificate.superRank[b] && a.val ≤ b.val)) =
       decide (a ≤ b) := by decide
   unfold order
   rw [funext (fun a => funext (hc a))]
@@ -39,13 +39,13 @@ theorem bag_heads_preserved :
     (Integer.count (childHeads bagCore 0)).eval 5 bagInstance [0] = some 3 := by decide
 
 set_option maxRecDepth 10000 in
-theorem set_key_enforced : (setKey bagValidated 2 0).eval 5 bagInstance [] = some false := by
+theorem set_key_enforced : (setKey bagValidated.toLayout 2 0).eval 5 bagInstance [] = some false := by
   simp only [setKey, head, signatureId, bag_order]
   decide
 
 set_option maxRecDepth 10000 in
 theorem generated_bag_facts :
-    (target bagValidated (List.replicate 4 ⟨4, false⟩) 5).eval bagInstance = some true := by
+    (target bagValidated.toLayout (List.replicate 4 ⟨4, false⟩) 5).eval bagInstance = some true := by
   simp only [target, Module.eval, facts, List.finRange_succ, List.finRange_zero,
     List.map_cons, List.map_nil, List.map_append, List.flatMap_cons, List.flatMap_nil, List.append_nil,
     declarationFacts, ownership, setKey, head, signatureId, bag_order]

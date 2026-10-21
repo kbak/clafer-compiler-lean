@@ -3,15 +3,15 @@
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
-backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
-layer; global preservation remains unfinished. The authored static parser #16 is
-accepted through PR #30. Selected #17 adds checked declaration resolution/defaults;
-source typing and source CLI integration remain separate. Accepted #14 (PR #32)
-adds typed static expressions and their independent semantic interpretation.
-Selected #15 extends bounded target arithmetic; source constraint encoding and
-its preservation remain unfinished. Future compiler behavior is reserved below,
-not declared implemented
-or proved.
+backend #10 through PRs #26–#28. The maintainer accepted #11's finite
+representation, soundness and bounded completeness proofs through PR #33.
+Selected #13 adds inherited structural realization with semantic review pending.
+The authored static parser #16 is accepted through PR #30. Selected #17 adds
+checked declaration resolution/defaults; source typing and source CLI integration
+remain separate. Accepted #14 (PR #32) adds typed static expressions and their
+independent semantic interpretation. Selected #15 extends bounded target
+arithmetic; source constraint encoding and its preservation remain unfinished.
+Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
 
@@ -20,9 +20,12 @@ or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
-backend, checked serialization, authored static parser and selected typed expression
-API, and checked source declaration resolution/defaults. Global compiler
-preservation and grammar-to-parser correspondence remain unproved.
+backend, checked serialization, authored static parser, typed expression API,
+checked source declaration resolution/defaults and accepted M1 preservation
+proofs under explicit finite scope and numeric-range assumptions. The selected
+inherited structural extension has implementation and proofs pending semantic
+acceptance. Source constraint preservation and grammar-to-parser correspondence
+remain unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -312,9 +315,66 @@ Kernel-prove the encode/decode data round trip under explicit table/root hygiene
 and derive decoder success and a concrete representation from satisfaction of an
 actual successful compiler output, including live-atom coverage from target
 constraints. Exercise nontrivial bag witnesses, semantic violations, renamed atoms
-and malformed tables. Keep these results distinct from the unfinished global
+and malformed tables. Keep these representation results distinct from the global
 source-soundness, bounded-completeness and compiled-bank composition obligations
-of #11, specified in the [correctness work](structural-correctness.md).
+of #11, specified in the [correctness contract](structural-correctness.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Structural soundness and bounded completeness
+
+`req~compiler-structural-correctness~1`
+
+For the exact admitted M1 effective domain and a successful compilation, prove
+that every independently satisfying target instance decodes to a concretely
+represented source configuration satisfying every upstream structural clause.
+Derive root, carrier coverage, typed endpoints, inheritance, abstract cover,
+declaration disjointness, ownership, references, keys, local bounds and group
+unions from the emitted target declarations and facts. Do not assume source truth,
+successful decoding or a supplied preservation equivalence.
+
+Conversely, construct a target representation of every finite source configuration
+satisfying that independent meaning and fitting the manual scopes and signed
+integer observation ranges. State scope counts and numeric definedness separately
+from source and target satisfaction. Preserve every source object and reference
+occurrence, including repeated bag targets. Compose with the pinned local-bank,
+constraint-free erasure and arbitrary-link normalization results while retaining
+their actual global hypotheses. Keep native and serialized execution outside the
+kernel theorem boundary; bounded absence does not establish unrestricted UNSAT.
+
+Kernel-check nontrivial actual compilation witnesses and mutations distinguishing
+omitted upper bounds, collapsed bag heads and missing global abstract cover.
+Keep semantic acceptance and dependent task intake separate from automated checks.
+The [correctness contract](structural-correctness.md) records exact APIs and assumptions.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Selected inherited structural realization
+
+`req~compiler-inherited-realization~1`
+
+Admit the selected inherited structural domain through a separate explicit API,
+retaining authored abstractness and original declaration/occurrence identity.
+Check the actual upstream selection, core and primitive-origin restrictions.
+Distinguish ordinary fields made effectively abstract by containment from explicit
+abstract families. Compile original inherited inventories, cover/disjointness,
+ownership and union-based realized groups without creating contextual copies.
+
+Prove soundness and finite bounded completeness against the pinned independent
+`Realization.Satisfies`, with numeric scopes/count definedness and finite primitive
+observation limits explicit. Preserve the original M1 domain and prove compatibility
+of meanings on the overlap. Prove contextual object/link restriction, discharging
+live-carrier premises for decoded satisfying targets. Supply actual compilation
+witnesses, the complete Appendix 6 structural skeleton and negative ownership,
+inherited-group and abstract-cover mutations. Keep scalar primitive interpretation,
+constraint bodies and native/serialized correspondence outside these model proofs.
+The [inherited contract](inherited-realization.md) records the exact API and limits.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -357,7 +417,7 @@ replay identities; minimize completed discrepancies with retained attempts and
 honest deletion-minimality bounds. Detect injected occurrence collapse, omitted
 cardinality/group/disjointness enforcement and swapped endpoints. Keep malformed,
 unsupported, timeout/resource and tool failure outcomes separate from completed
-agreement. Finite comparisons do not replace the outstanding global backend proofs.
+agreement. Finite comparisons do not replace the independent backend preservation proofs.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -604,8 +664,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
-| `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
 | `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
 | `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |
