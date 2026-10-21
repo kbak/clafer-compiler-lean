@@ -4,8 +4,10 @@
 acceptance of the [structural backend](structural-encoding.md) in PR #28. PR #29
 supplied finite representation and decoding but left preservation unfinished.
 This follow-up proves M1 soundness and bounded completeness against the independent
-source and target meanings. Semantic acceptance is pending; the maintainer's
-selection of #13 does not bypass its dependency on accepted #11.
+source and target meanings. The maintainer accepted these proofs through
+PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, authorizing #13.
+The [inherited extension](inherited-realization.md) reuses the proved allocation
+lemmas through `Structural.Layout`; the M1 entry points retain their support guards.
 
 The result covers exactly the admitted M1 effective core. Completeness constructs
 a target for any finite satisfying source whose observation fits the manual scopes
@@ -239,13 +241,13 @@ Covers:
 
 ## Review and dependent handoff
 
-The missing #11 preservation obligations are implemented, including the compiled
-bank/erasure/span composition and theorem-level sensitivities. They require
-semantic review against the exact theorem assumptions and the retained full-check
-evidence. IntentBond exit 4 does not provide that acceptance.
+The #11 preservation obligations, including compiled bank/erasure/span composition
+and theorem-level sensitivities, were accepted by the maintainer through PR #33
+at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`. The retained full-check evidence
+and that explicit review, rather than IntentBond exit 4 alone, support the handoff.
 
 #12 still owns generated-text/external instance comparison and integration.
-Selected #13 waits for accepted #11 before extending ordinary inherited fields,
-explicit abstract families and the Appendix 6 structural skeleton. Its separate
-primitive/domain/context observation assumptions must be explicit. No scope,
+Selected #13 extends ordinary inherited fields, explicit abstract families and
+the Appendix 6 structural skeleton through a separate checked API. Its
+[contract](inherited-realization.md) states the primitive/domain/context limits. No scope,
 admission domain, coverage floor, source pin or review gate is weakened here.

@@ -30,13 +30,13 @@ inductive FieldRole where
 
 /-- The checked super rank orders parents before children; position breaks ties.
 Every declaration occurs once, regardless of source names and input ordering. -/
-def order (v : IR.Structural.Validated n) : List (Fin n) :=
+def order (v : IR.Structural.Layout n) : List (Fin n) :=
   (List.finRange n).mergeSort fun a b =>
     v.certificate.superRank[a] < v.certificate.superRank[b] ||
       (v.certificate.superRank[a] == v.certificate.superRank[b] && a.val ≤ b.val)
 
 /-- Zero is the object union signature; declarations occupy positions 1..n. -/
-def signatureId (v : IR.Structural.Validated n) (d : Fin n) : Nat := 1 + (order v).idxOf d
+def signatureId (v : IR.Structural.Layout n) (d : Fin n) : Nat := 1 + (order v).idxOf d
 
 def fieldKeys (m : IR.Structural.Core n) : List (Fin n × FieldRole) :=
   (List.finRange n).flatMap fun d =>
@@ -46,7 +46,7 @@ def fieldKeys (m : IR.Structural.Core n) : List (Fin n × FieldRole) :=
 def fieldId (m : IR.Structural.Core n) (d : Fin n) (role : FieldRole) : Nat :=
   (fieldKeys m).idxOf (d, role)
 
-def head (v : IR.Structural.Validated n) (d : Fin n) : Rel := .sig (signatureId v d)
+def head (v : IR.Structural.Layout n) (d : Fin n) : Rel := .sig (signatureId v d)
 def contains (m : IR.Structural.Core n) (d : Fin n) : Rel := .field (fieldId m d .containment)
 def deref (m : IR.Structural.Core n) (d : Fin n) : Rel := .field (fieldId m d .dereference)
 
@@ -72,12 +72,12 @@ def subtypes (m : IR.Structural.Core n) (d : Fin n) : List (Fin n) :=
 def childHeads (m : IR.Structural.Core n) (d : Fin n) : Rel :=
   union ((children m d).map fun c => .join (.var 0) (contains m c))
 
-def ownership (v : IR.Structural.Validated n) (d : Fin n) : Formula :=
+def ownership (v : IR.Structural.Layout n) (d : Fin n) : Formula :=
   .all (head v d) (.mult .one (.join (.var 0) (.transpose (contains v.core d))))
 
 /-- For one owner, equal referents imply equal heads. Different owners may
 reference the same target. The innermost binders are y=0, x=1, owner=2. -/
-def setKey (v : IR.Structural.Validated n) (d p : Fin n) : Formula :=
+def setKey (v : IR.Structural.Layout n) (d p : Fin n) : Formula :=
   .all (head v p)
     (.all (.join (.var 0) (contains v.core d))
       (.all (.join (.var 1) (contains v.core d))
@@ -95,7 +95,7 @@ inductive Obligation where
   | setKey (declaration : IR.Structural.DeclId)
   deriving DecidableEq
 
-def declarationFacts (v : IR.Structural.Validated n) (d : Fin n) : List (Obligation × Formula) :=
+def declarationFacts (v : IR.Structural.Layout n) (d : Fin n) : List (Obligation × Formula) :=
   let row := v.core.get d
   let abstractFacts := if row.isAbstract then
     [(.abstractCover row.id, .equal (head v d) (union ((subtypes v.core d).map (head v))))]
@@ -111,12 +111,12 @@ def declarationFacts (v : IR.Structural.Validated n) (d : Fin n) : List (Obligat
       | _ => []
   abstractFacts ++ parentFacts
 
-def facts (v : IR.Structural.Validated n) : List (Obligation × Formula) :=
+def facts (v : IR.Structural.Layout n) : List (Obligation × Formula) :=
   [(.root, .mult .one (head v v.core.root)),
    (.objectCover, .equal (.sig 0) (union ((List.finRange n).map (head v))))] ++
     (List.finRange n).flatMap (declarationFacts v)
 
-def fieldDeclaration (v : IR.Structural.Validated n) (key : Fin n × FieldRole) : Field :=
+def fieldDeclaration (v : IR.Structural.Layout n) (key : Fin n × FieldRole) : Field :=
   match key with
   | (d, role) => match role with
     | .containment =>
@@ -130,7 +130,7 @@ def fieldDeclaration (v : IR.Structural.Validated n) (key : Fin n × FieldRole) 
 /-- Extends implements shared inherited identity and incomparable disjointness.
 All signature multiplicities are set: conflicting manual scopes are constraints,
 not malformed syntax. Explicit abstract facts cover the Alloy leaf exception. -/
-def schema (v : IR.Structural.Validated n) : Schema where
+def schema (v : IR.Structural.Layout n) : Schema where
   signatures := { isAbstract := true } :: (order v).map fun d =>
     { parent := some ((v.core.get d).super.map (signatureId v) |>.getD 0)
       isAbstract := (v.core.get d).isAbstract }
@@ -144,7 +144,7 @@ structure DeclarationMap where
   containment : Option Nat
   dereference : Option Nat
 
-def declarationMap (v : IR.Structural.Validated n) (d : Fin n) : DeclarationMap where
+def declarationMap (v : IR.Structural.Layout n) (d : Fin n) : DeclarationMap where
   id := (v.core.get d).id
   name := (v.core.get d).name
   source := (v.core.get d).source
@@ -152,11 +152,11 @@ def declarationMap (v : IR.Structural.Validated n) (d : Fin n) : DeclarationMap 
   containment := (v.core.get d).parent.map fun _ => fieldId v.core d .containment
   dereference := (v.core.get d).reference.target.map fun _ => fieldId v.core d .dereference
 
-def nameMap (v : IR.Structural.Validated n) : List DeclarationMap :=
+def nameMap (v : IR.Structural.Layout n) : List DeclarationMap :=
   (List.finRange n).map (declarationMap v)
 
 /-- Complete, unique ID scopes; preserve impossible but well-formed constraints. -/
-def resolveScopes (v : IR.Structural.Validated n) (b : Bounds) : Except Error (List Scope) := do
+def resolveScopes (v : IR.Structural.Layout n) (b : Bounds) : Except Error (List Scope) := do
   if b.declarations.length != n || !(b.declarations.map Prod.fst).Nodup then
     throw .malformedBounds
   let scopes ← (order v).mapM fun d =>
@@ -165,7 +165,7 @@ def resolveScopes (v : IR.Structural.Validated n) (b : Bounds) : Except Error (L
     | some entry => .ok entry.2
   return { size := b.objects } :: scopes
 
-def target (v : IR.Structural.Validated n) (scopes : List Scope) (bitwidth : Nat) : Module where
+def target (v : IR.Structural.Layout n) (scopes : List Scope) (bitwidth : Nat) : Module where
   schema := schema v
   facts := (facts v).map Prod.snd
   command := { scopes, bitwidth }
@@ -178,11 +178,11 @@ structure Compiled where
 /-- Successful compilation carries checked target binding/arity and bounds.
 No solver, parser, text serializer or semantic satisfaction test is invoked. -/
 def compile (v : IR.Structural.Validated n) (b : Bounds) : Except Error Compiled := do
-  let scopes ← resolveScopes v b
-  match check (target v scopes b.bitwidth) with
+  let scopes ← resolveScopes v.toLayout b
+  match check (target v.toLayout scopes b.bitwidth) with
   | .error .malformedSyntax => .error .internalTarget
   | .error .unsupportedBounds => .error .unsupportedBounds
-  | .ok checked => .ok ⟨checked, nameMap v, (facts v).map Prod.fst⟩
+  | .ok checked => .ok ⟨checked, nameMap v.toLayout, (facts v.toLayout).map Prod.fst⟩
 
 /-- Raw effective IR retains the existing exact admission boundary. -/
 def compileRaw (r : IR.Structural.Raw) (b : Bounds) : Except Error Compiled := do

@@ -7,14 +7,14 @@ public section
 namespace ClaferCompiler.Correctness.Structural
 open Backend.Alloy Backend.Alloy.Structural SemanticsBridge.Structural
 
-theorem ancestor_rank (v : IR.Structural.Validated n) {d e : Fin n}
+theorem ancestor_rank (v : IR.Structural.Layout n) {d e : Fin n}
     (h : (interpret v.core).Ancestor d e) :
     v.certificate.superRank[e] ≤ v.certificate.superRank[d] := by
   induction h with
   | refl => exact Nat.le_refl _
   | tail path edge ih => exact Nat.le_trans (Nat.le_of_lt (v.coreChecked.2.2.2.2.1 _ _ edge)) ih
 
-theorem sibling_ancestor (v : IR.Structural.Validated n) {d e : Fin n}
+theorem sibling_ancestor (v : IR.Structural.Layout n) {d e : Fin n}
     (hp : (v.core.get d).super = (v.core.get e).super)
     (h : (interpret v.core).Ancestor d e) : d = e := by
   rcases h.cases_head with he | ⟨p, hd, path⟩
@@ -24,7 +24,7 @@ theorem sibling_ancestor (v : IR.Structural.Validated n) {d e : Fin n}
     have le := ancestor_rank v path
     omega
 
-theorem source_siblings {U : Type} (v : IR.Structural.Validated n)
+theorem source_siblings {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U)
     (h : s.DeclarationDisjoint (interpret v.core)) (d e : Fin n)
     (hp : (v.core.get d).super = (v.core.get e).super) (x : U)
@@ -33,7 +33,7 @@ theorem source_siblings {U : Type} (v : IR.Structural.Validated n)
   · exact sibling_ancestor v hp ha
   · exact (sibling_ancestor v hp.symm ha).symm
 
-theorem source_top {U : Type} (v : IR.Structural.Validated n)
+theorem source_top {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U)
     (h : s.Inherits (interpret v.core)) (d : Fin n) (x : U) (hx : x ∈ s.head d) :
     ∃ e, (v.core.get e).super = none ∧ x ∈ s.head e := by
@@ -64,7 +64,7 @@ theorem fieldKeys_nodup (m : IR.Structural.Core n) : (fieldKeys m).Nodup := by
       rcases hk with ⟨_, _, rfl⟩ | ⟨_, _, rfl⟩ <;> rfl
     exact hde ((fst_eq d hd).symm.trans (fst_eq e he))
 
-theorem field_preimage (v : IR.Structural.Validated n) (k : Nat) (f : Field)
+theorem field_preimage (v : IR.Structural.Layout n) (k : Nat) (f : Field)
     (hk : (schema v).fields[k]? = some f) :
     ∃ key ∈ fieldKeys v.core, k = fieldId v.core key.1 key.2 ∧ f = fieldDeclaration v key := by
   cases ht : (fieldKeys v.core)[k]? with
@@ -76,7 +76,7 @@ theorem field_preimage (v : IR.Structural.Validated n) (k : Nat) (f : Field)
     rw [he] at hi
     exact ⟨key, List.mem_of_getElem? ht, hi.symm, hf⟩
 
-theorem raw_extent_live {U : Type} (v : IR.Structural.Validated n)
+theorem raw_extent_live {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (k a : Nat) (ha : a ∈ i.signatures[k]?.getD []) :
     a ∈ i.signatures[0]?.getD [] := by
@@ -84,7 +84,7 @@ theorem raw_extent_live {U : Type} (v : IR.Structural.Validated n)
   | none => simp [hk] at ha
   | some xs => exact r.live.1 xs (List.mem_of_getElem? hk) a (by simpa [hk] using ha)
 
-theorem source_signature_declarations {U : Type} (v : IR.Structural.Validated n)
+theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s) :
     ((schema v).signatures.zipIdx.all fun (decl, id) => Id.run do
@@ -209,7 +209,7 @@ theorem field_nodup (s : Schema) (i : Instance) (hw : i.wellFormed s = true) (k 
     apply List.nodup_iff_length_dedup_eq.mpr
     simpa [List.card_toFinset] using (eraseDups_card ts).symm.trans hl
 
-theorem source_field_typed {U : Type} (v : IR.Structural.Validated n)
+theorem source_field_typed {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.Typed (interpret v.core))
     (key : Fin n × FieldRole) (hk : key ∈ fieldKeys v.core) :
@@ -246,7 +246,7 @@ theorem source_field_typed {U : Type} (v : IR.Structural.Validated n)
     exact ⟨by simpa [hx] using (r.heads d x).mp headx,
       by simpa [hy] using (r.heads t y).mp heady⟩
 
-theorem source_reference_one {U : Type} (v : IR.Structural.Validated n)
+theorem source_reference_one {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.References (interpret v.core))
     (d t : Fin n) (ht : (v.core.get d).reference.target = some t)
@@ -281,7 +281,7 @@ theorem source_reference_one {U : Type} (v : IR.Structural.Validated n)
   rw [← List.toFinset_card_of_nodup hn, he]
   simp
 
-theorem source_declarations {U : Type} (v : IR.Structural.Validated n)
+theorem source_declarations {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s) :
     i.declarations (schema v) = true := by

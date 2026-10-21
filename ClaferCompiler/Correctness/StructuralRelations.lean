@@ -92,7 +92,7 @@ theorem field_atom_live (i : Instance) (hl : Live i) (k a b : Nat)
     exact ⟨hl.2 ts (List.mem_of_getElem? hk) [a, b] ht' a (by simp),
       hl.2 ts (List.mem_of_getElem? hk) [a, b] ht' b (by simp)⟩
 
-theorem represented_contains_fiber {U : Type} (v : IR.Structural.Validated n)
+theorem represented_contains_fiber {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (d c : Fin n) (hp : (v.core.get d).parent = some c)
     (p : U) (env : List Nat) (k : Nat) (hk : env[k]? = some (r.objects p).val) (t : Tuple) :
@@ -111,7 +111,7 @@ theorem represented_contains_fiber {U : Type} (v : IR.Structural.Validated n)
   · rintro ⟨x, hx, rfl⟩
     exact ⟨(r.objects x).val, (r.containment d p x).mp hx |>.2, rfl⟩
 
-theorem represented_parent_fiber {U : Type} (v : IR.Structural.Validated n)
+theorem represented_parent_fiber {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (d c : Fin n) (hp : (v.core.get d).parent = some c)
     (x : U) (t : Tuple) :

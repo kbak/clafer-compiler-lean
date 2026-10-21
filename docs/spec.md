@@ -16,9 +16,9 @@ not declared implemented or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
-backend, checked serialization, authored static parser and M1 preservation proofs
-under explicit finite scope and numeric-range assumptions. Semantic acceptance
-remains pending. Grammar-to-parser correspondence remains unproved.
+backend, checked serialization, authored static parser and accepted M1 preservation
+proofs under explicit finite scope and numeric-range assumptions. The selected
+inherited structural extension has implementation and proofs pending semantic acceptance. Grammar-to-parser correspondence remains unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -348,6 +348,32 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Selected inherited structural realization
+
+`req~compiler-inherited-realization~1`
+
+Admit the selected inherited structural domain through a separate explicit API,
+retaining authored abstractness and original declaration/occurrence identity.
+Check the actual upstream selection, core and primitive-origin restrictions.
+Distinguish ordinary fields made effectively abstract by containment from explicit
+abstract families. Compile original inherited inventories, cover/disjointness,
+ownership and union-based realized groups without creating contextual copies.
+
+Prove soundness and finite bounded completeness against the pinned independent
+`Realization.Satisfies`, with numeric scopes/count definedness and finite primitive
+observation limits explicit. Preserve the original M1 domain and prove compatibility
+of meanings on the overlap. Prove contextual object/link restriction, discharging
+live-carrier premises for decoded satisfying targets. Supply actual compilation
+witnesses, the complete Appendix 6 structural skeleton and negative ownership,
+inherited-group and abstract-cover mutations. Keep scalar primitive interpretation,
+constraint bodies and native/serialized correspondence outside these model proofs.
+The [inherited contract](inherited-realization.md) records the exact API and limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Authored static source parsing
 
 `req~compiler-parser~1`
@@ -460,7 +486,6 @@ coverage.
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
-| `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
 | `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
 | `compiler-arithmetic` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14), [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Definedness, finite observation and no-overflow correspondence |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |

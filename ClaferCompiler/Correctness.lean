@@ -1,12 +1,14 @@
 module
 
+public import ClaferCompiler.Correctness.InheritedViews
+
 public import ClaferCompiler.Driver
 public import ClaferCompiler.Correctness.StructuralCorrectness
 
 public section
 
-/-! Bootstrap equations, concrete representations and M1 preservation.
-Inherited and expression extensions retain their separate proof obligations. -/
+/-! Bootstrap equations, concrete representations and M1/inherited preservation.
+Static expression preservation retains its separate proof obligations. -/
 
 namespace ClaferCompiler.Correctness
 

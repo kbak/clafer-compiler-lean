@@ -29,7 +29,7 @@ theorem field_functional (s : Schema) (i : Instance)
     List.mem_filter.mpr ⟨hc, by simp⟩
   simpa [ht] using hc'
 
-theorem represented_references {U : Type} (v : IR.Structural.Validated n)
+theorem represented_references {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : i.declarations (schema v) = true) :
     s.References (interpret v.core) := by
@@ -46,7 +46,7 @@ theorem represented_references {U : Type} (v : IR.Structural.Validated n)
   apply Subtype.ext
   exact (hu _ ((r.dereference d x z).mp hz).2).trans hy.symm
 
-theorem represented_deref_fiber {U : Type} (v : IR.Structural.Validated n)
+theorem represented_deref_fiber {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (d c : Fin n) (hc : (v.core.get d).reference.target = some c)
     (x : U) (env : List Nat) (k : Nat) (hk : env[k]? = some (r.objects x).val) (t : Tuple) :
@@ -73,7 +73,7 @@ theorem Formula_eval_implies_true (ha : Formula.Term a) (hb : Formula.Term b)
   change (do let x ← a.eval w i env; let y ← b.eval w i env; pure (!x || y)) = some true at h
   simpa [ht] using h
 
-theorem represented_keys {U : Type} (v : IR.Structural.Validated n)
+theorem represented_keys {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) : s.Keys (interpret v.core) := by
@@ -119,7 +119,7 @@ theorem represented_keys {U : Type} (v : IR.Structural.Validated n)
 
 /-- Every independent target model of the actual generated module satisfies all
 ten upstream structural clauses under its concrete representation equations. -/
-theorem represented_sound {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem represented_sound {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) :
@@ -136,12 +136,12 @@ source truth, successful decoding or arbitrary preservation bridge is assumed. -
 theorem compiled_sound (v : IR.Structural.Validated n) (b : Structural.Bounds)
     (c : Compiled) (hc : compile v b = .ok c) (i : Instance)
     (h : Satisfies c.module.raw i) :
-    ∃ o, decode v i = .ok o ∧ ∃ hr : o.root ∈ o.objects,
-      Nonempty (Represents v (realize o hr) i) ∧
+    ∃ o, decode v.toLayout i = .ok o ∧ ∃ hr : o.root ∈ o.objects,
+      Nonempty (Represents v.toLayout (realize o hr) i) ∧
       Clafer.Semantics.StructuralSatisfies (interpret v.core) (realize o hr) := by
   obtain ⟨o, ho, hr, ⟨r⟩⟩ := compiled_representation v b c hc i h
   obtain ⟨scopes, _, he, _, _⟩ := compile_output v b c hc
   rw [he] at h
-  exact ⟨o, ho, hr, ⟨r⟩, represented_sound v _ i r scopes b.bitwidth h⟩
+  exact ⟨o, ho, hr, ⟨r⟩, represented_sound v.toLayout _ i r scopes b.bitwidth h⟩
 
 end ClaferCompiler.Correctness.Structural

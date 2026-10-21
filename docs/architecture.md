@@ -8,9 +8,10 @@ IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) pr
 external validation; the [IR API and proof inventory](ir.md) record the delivered
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
 accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
-[text task #9](alloy-text.md) are accepted through PRs #28 and #27. Selected #11
-has [M1 representation and preservation proofs](structural-correctness.md) pending
-semantic acceptance. Selected #13 awaits that acceptance. Other later tasks
+[text task #9](alloy-text.md) are accepted through PRs #28 and #27. The maintainer
+accepted #11's [M1 representation and preservation proofs](structural-correctness.md)
+through PR #33. Selected #13 now implements
+[inherited structural realization](inherited-realization.md), pending semantic acceptance. Other later tasks
 require their own manual intake. The remaining contracts below are delivery
 specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
@@ -434,10 +435,11 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. #6–#10 are accepted through PRs #24–#28. #11 is selected;
-its M1 soundness and bounded-completeness proofs are implemented with explicit
-finite scope and integer-range assumptions, pending semantic acceptance. The
-maintainer selected #13 next; its dependency gate remains in force.
+approve future changes. #6–#10 are accepted through PRs #24–#28. The maintainer accepted #11 through
+PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, including its explicit
+finite scope and integer-range assumptions. Selected #13 now supplies the
+[inherited structural API and proofs](inherited-realization.md), pending semantic
+acceptance. Other tasks retain their intake gates.
 Parser #16 is independently selected after accepted #6; its authored API and
 unproved grammar boundary are described in the [parser contract](parser.md).
 No unresolved research tag, publication step or blanket Haskell-parity promise

@@ -167,3 +167,14 @@ MIT project code. Native properties and the existing hash-checked Haskell captur
 adapter test syntax only. M1 capture rejection after parsing is not an M2 semantic
 oracle; reference EOF crashes remain tool failures, and adopted profile exclusions
 remain visible. No upstream meaning, dependency revision or language scope changes.
+
+The [inherited structural extension](inherited-realization.md) uses S3's exact
+`Realization.Core.Selected`, `Satisfies`, context views and injective link maps,
+and `RealizationCompatibility.guarded_compatibility`. S3's `Compile.GroupSemantics`
+supplies `Ancestor` and `ChildObjects`; S8 fixes the complete d01–d26 structural
+inventory and distinguishes it from mathematical primitive interpretation and
+c01–c12 constraints. S6's `genGroupConst` hierarchy traversal and parent constraints
+were inspected as supplementary generator evidence. Existing #11 allocation,
+representation and preservation machinery is reused through a checked layout.
+The finite fixture and extension are original MIT code. No upstream semantics,
+Haskell source, dependency pin, language whitelist or scope policy changes.

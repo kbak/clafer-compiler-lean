@@ -53,7 +53,7 @@ theorem occupied_reachable (s : Schema) (i : Instance) (x : Nat)
       exact (ih p hpk s.signatures[p] (List.getElem?_eq_some_iff.mpr ⟨hps, rfl⟩)
         (declaration_included s i hi k p d hd hp x hx)).tail ⟨d, hd, hp, hx⟩
 
-theorem signature_preimage (v : IR.Structural.Validated n) (k : Nat) (d : Signature)
+theorem signature_preimage (v : IR.Structural.Layout n) (k : Nat) (d : Signature)
     (hd : (schema v).signatures[k]? = some d) (hk : k ≠ 0) :
     ∃ c : Fin n, k = signatureId v c := by
   cases k with
@@ -68,7 +68,7 @@ theorem signature_preimage (v : IR.Structural.Validated n) (k : Nat) (d : Signat
       rw [he] at hi
       simp [signatureId, hi, Nat.add_comm]
 
-theorem signature_parent (v : IR.Structural.Validated n) (c p : Fin n) :
+theorem signature_parent (v : IR.Structural.Layout n) (c p : Fin n) :
     some ((v.core.get c).super.map (signatureId v) |>.getD 0) = some (signatureId v p) ↔
       (v.core.get c).super = some p := by
   cases hc : (v.core.get c).super with
@@ -76,7 +76,7 @@ theorem signature_parent (v : IR.Structural.Validated n) (c p : Fin n) :
       reduceCtorEq, iff_false]; exact Nat.ne_of_lt (signatureId_bounds v p).1
   | some d => simp [signatureId_injective v |>.eq_iff]
 
-theorem occupied_source_path (v : IR.Structural.Validated n) (i : Instance) (x : Nat)
+theorem occupied_source_path (v : IR.Structural.Layout n) (i : Instance) (x : Nat)
     (d : Fin n) {k : Nat}
     (h : Relation.ReflTransGen (OccupiedEdge (schema v) i x) (signatureId v d) k) :
     ∃ e, k = signatureId v e ∧ (interpret v.core).Ancestor e d := by
@@ -100,7 +100,7 @@ theorem occupied_source_path (v : IR.Structural.Validated n) (i : Instance) (x :
 
 /-- Sibling disjointness plus the actual finite extends forest derives global
 source declaration comparability, including cousins at different depths. -/
-theorem represented_disjoint {U : Type} (v : IR.Structural.Validated n)
+theorem represented_disjoint {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (sw : (schema v).wellFormed = true)
     (h : i.declarations (schema v) = true) :

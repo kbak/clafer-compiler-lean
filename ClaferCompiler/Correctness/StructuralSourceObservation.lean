@@ -64,7 +64,7 @@ noncomputable def sourceObjects {U : Type} [Fintype U]
       obtain ⟨x, hx⟩ := (source_object_mem s a.val).mp a.property
       exact ⟨x, Subtype.ext hx⟩⟩
 
-theorem source_table {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_table {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (h : s.Typed (interpret v.core)) :
     TableWellFormed v (sourceObservation s) := by
   classical
@@ -85,7 +85,7 @@ theorem source_table {U : Type} [Fintype U] (v : IR.Structural.Validated n)
     have hc : (v.core.get d).reference.target = some c := by simpa [interpret] using hc
     simp [hd] at hc
 
-theorem source_root {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_root {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (h : s.Rooted (interpret v.core)) :
     (sourceObservation s).heads v.core.root = [(sourceObservation s).root] := by
   classical
@@ -96,7 +96,7 @@ theorem source_root {U : Type} [Fintype U] (v : IR.Structural.Validated n)
     simp only [hh, exists_eq_left, eq_comm]
   simp only [sourceObservation, he, Finset.toList_singleton]
 
-theorem source_live {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_live {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) : Live (encode v (sourceObservation s)) := by
   constructor
   · intro xs hxs a ha
@@ -122,7 +122,7 @@ theorem source_live {U : Type} [Fintype U] (v : IR.Structural.Validated n)
 
 /-- Every finite typed rooted source configuration has a concrete target-table
 representation, before imposing target declarations or generated facts. -/
-noncomputable def source_represents {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+noncomputable def source_represents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (ht : s.Typed (interpret v.core))
     (hr : s.Rooted (interpret v.core)) : Represents v s (encode v (sourceObservation s)) where
   wellFormed := encode_wellFormed v _ (source_table v s ht)

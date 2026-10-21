@@ -9,10 +9,11 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
 [independent Alloy core](docs/alloy-core.md), an accepted
 [structural backend](docs/structural-encoding.md), and accepted
-[checked serialization](docs/alloy-text.md). Selected #11 adds
+[checked serialization](docs/alloy-text.md). Accepted #11 provides
 [M1 soundness and bounded completeness](docs/structural-correctness.md) under
-explicit finite scope and integer-range hypotheses. Semantic acceptance is pending;
-CLI integration and inherited realization have separate owners. Selected
+explicit finite scope and integer-range hypotheses. Selected #13 adds
+[inherited structural realization](docs/inherited-realization.md), pending semantic
+acceptance. CLI integration remains separate. Selected
 [static parser #16](docs/parser.md) preserves authored syntax; resolution/defaulting
 and expression typing remain separate tasks.
 See [build and proof checks](docs/build.md).

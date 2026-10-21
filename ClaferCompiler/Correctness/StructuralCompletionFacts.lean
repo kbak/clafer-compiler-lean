@@ -7,7 +7,7 @@ public import ClaferCompiler.Correctness.StructuralReferences
 namespace ClaferCompiler.Correctness.Structural
 open Backend.Alloy Backend.Alloy.Structural SemanticsBridge.Structural
 
-theorem represented_head_membership {U : Type} (v : IR.Structural.Validated n)
+theorem represented_head_membership {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (d : Fin n) (env : List Nat) (t : Tuple) :
     t ∈ (head v d).eval i env ↔ ∃ x, x ∈ s.head d ∧ t = [(r.objects x).val] := by
@@ -39,7 +39,7 @@ theorem all_represented_iff {U : Type} (P : U → Prop) (f : U → Nat) (domain 
 
 /-- Bounds on the actual finite source fibers, separate from source truth and
 from target truth. Empty quantifier domains impose no dynamic observations. -/
-def SourceCountFits {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+def SourceCountFits {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (w : Nat) : Prop := by
   classical
   exact (∀ d c, (v.core.get d).parent = some c → ∀ p ∈ s.head c,
@@ -47,7 +47,7 @@ def SourceCountFits {U : Type} [Fintype U] (v : IR.Structural.Validated n)
     (∀ d, (v.core.get d).isAbstract = false → ∀ p ∈ s.head d,
     IntervalFits w (v.core.get d).groupBounds (Fintype.card {x // s.Child (interpret v.core) d p x}))
 
-theorem source_ownership {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_ownership {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.Parents (interpret v.core))
     (d c : Fin n) (hc : (v.core.get d).parent = some c) (w : Nat) :
@@ -64,7 +64,7 @@ theorem source_ownership {U : Type} [Fintype U] (v : IR.Structural.Validated n)
     (Subtype.val_injective.comp r.objects.injective) _
     (represented_parent_fiber v s i r d c hc x)).mpr (h d c hc x hx)
 
-theorem source_local_bounds {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_local_bounds {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.Multiplicities (interpret v.core))
     (w : Nat) (fits : SourceCountFits v s w)
@@ -81,7 +81,7 @@ theorem source_local_bounds {U : Type} [Fintype U] (v : IR.Structural.Validated 
     (represented_contains_fiber v s i r d c hc p _ 0 rfl)]
   exact ⟨fits.1 d c hc p hp, (DPGraph.Predicates.inRange_card _ _).mp (h d c hc p hp)⟩
 
-theorem source_group_bounds {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_group_bounds {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.Groups (interpret v.core))
     (w : Nat) (fits : SourceCountFits v s w) (d : Fin n)
@@ -97,7 +97,7 @@ theorem source_group_bounds {U : Type} [Fintype U] (v : IR.Structural.Validated 
     (Subtype.val_injective.comp r.objects.injective) _ (represented_children v s i r d p)]
   exact ⟨fits.2 d hd p hp, (DPGraph.Predicates.inRange_card _ _).mp (h d hd p hp)⟩
 
-theorem source_abstract_cover {U : Type} (v : IR.Structural.Validated n)
+theorem source_abstract_cover {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (hi : s.Inherits (interpret v.core))
     (ha : s.Abstracts (interpret v.core)) (w : Nat) (d : Fin n)
@@ -119,7 +119,7 @@ theorem source_abstract_cover {U : Type} (v : IR.Structural.Validated n)
     obtain ⟨x, hx, ht⟩ := (represented_head_membership v s i r c [] t).mp ht
     exact ⟨x, hi c d ((subtype_inventory _ _ _).mp hc) x hx, ht⟩
 
-theorem source_object_cover {U : Type} (v : IR.Structural.Validated n)
+theorem source_object_cover {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : s.Rooted (interpret v.core)) (w : Nat) :
     (Formula.equal (.sig 0) (union ((List.finRange n).map (head v)))).eval w i [] = some true := by
@@ -160,7 +160,7 @@ theorem equal_implies_true (a b c d : Rel) (w : Nat) (i : Instance) (env : List 
     relationSubset (d.eval i env) (c.eval i env)) = q
   cases p <;> cases q <;> decide
 
-theorem source_set_key {U : Type} (v : IR.Structural.Validated n)
+theorem source_set_key {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s)
     (d p t : Fin n) (hp : (v.core.get d).parent = some p)
@@ -190,7 +190,7 @@ theorem source_set_key {U : Type} (v : IR.Structural.Validated n)
   apply (equal_eval_true _ _ _ _ _).mpr
   simp
 
-theorem source_facts {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s)
     (w : Nat) (fits : SourceCountFits v s w) :
@@ -227,7 +227,7 @@ theorem source_facts {U : Type} [Fintype U] (v : IR.Structural.Validated n)
   · exact source_object_cover v s i r h.2.1 w
   · exact decls d f hd
 
-theorem source_module_eval {U : Type} [Fintype U] (v : IR.Structural.Validated n)
+theorem source_module_eval {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s)
     (scopes : List Scope) (w : Nat) (fits : SourceCountFits v s w) :

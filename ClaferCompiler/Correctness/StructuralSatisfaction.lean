@@ -20,7 +20,7 @@ theorem field_typed (s : Schema) (i : Instance)
 
 /-- Typed endpoints follow from target field declarations and concrete tuple
 equations, without a source well-typedness premise. -/
-theorem represented_typed {U : Type} (v : IR.Structural.Validated n)
+theorem represented_typed {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : i.declarations (schema v) = true) :
     s.Typed (interpret v.core) := by
@@ -37,7 +37,7 @@ theorem represented_typed {U : Type} (v : IR.Structural.Validated n)
     refine ⟨(r.heads d x).mpr hs.1, c, ?_, (r.heads c t).mpr hs.2⟩
     simpa [interpret] using hc
 
-theorem represented_inherits {U : Type} (v : IR.Structural.Validated n)
+theorem represented_inherits {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : i.declarations (schema v) = true) :
     s.Inherits (interpret v.core) := by
@@ -86,7 +86,7 @@ theorem equal_eval_true (a b : Rel) (w : Nat) (i : Instance) (env : List Nat) :
 
 /-- Explicit generated abstract coverage includes the empty-family case, which
 Alloy's bare abstract-leaf declaration alone does not enforce. -/
-theorem represented_abstract_cover {U : Type} (v : IR.Structural.Validated n)
+theorem represented_abstract_cover {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) (d : Fin n)
@@ -107,18 +107,16 @@ theorem represented_abstract_cover {U : Type} (v : IR.Structural.Validated n)
   exact ⟨c, (subtype_inventory v.core d c).mp hc,
     (r.heads c x).mpr (by simpa [head] using hxq)⟩
 
-theorem ancestor_root_iff (v : IR.Structural.Validated n) (d : Fin n) :
+theorem ancestor_root_iff (v : IR.Structural.Layout n) (d : Fin n) :
     (interpret v.core).Ancestor d v.core.root ↔ d = v.core.root := by
   constructor
   · intro h
     rcases h.cases_tail with he | ⟨e, _, he⟩
     · exact he.symm
-    · have ha := (v.supportChecked.2.2.1 e v.core.root he).1
-      have hr := v.coreChecked.2.2.1.2.2.2
-      simp [hr] at ha
+    · exact (v.rootNotSuper e he).elim
   · rintro rfl; exact .refl
 
-theorem root_ancestor_iff (v : IR.Structural.Validated n) (d : Fin n) :
+theorem root_ancestor_iff (v : IR.Structural.Layout n) (d : Fin n) :
     (interpret v.core).Ancestor v.core.root d ↔ d = v.core.root := by
   constructor
   · intro h
@@ -129,7 +127,7 @@ theorem root_ancestor_iff (v : IR.Structural.Validated n) (d : Fin n) :
       simp [hr] at he
   · rintro rfl; exact .refl
 
-theorem represented_rooted {U : Type} (v : IR.Structural.Validated n)
+theorem represented_rooted {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) : s.Rooted (interpret v.core) := by
@@ -162,7 +160,7 @@ theorem represented_rooted {U : Type} (v : IR.Structural.Validated n)
     · exact Or.inl ((root x).mp (he ▸ hd))
     · exact Or.inr ⟨d, he, hd⟩
 
-theorem represented_abstracts {U : Type} (v : IR.Structural.Validated n)
+theorem represented_abstracts {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) : s.Abstracts (interpret v.core) := by

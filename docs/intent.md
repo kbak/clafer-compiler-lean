@@ -22,18 +22,21 @@ build bootstrap, reproducible external [comparison tooling](oracles.md), executa
 [hygienic text serialization](alloy-text.md). The
 [guarded structural backend](structural-encoding.md) translates admitted M1 IR into
 checked target ASTs with explicit manual bounds. The M1 correctness proof layer
-has a separate semantic acceptance gate; CLI integration remains a later task.
+is accepted. Selected [inherited realization](inherited-realization.md) adds the
+Appendix 6 structural skeleton and preservation proofs, pending semantic review;
+CLI integration remains a later task.
 The selected [static parser](parser.md) preserves authored syntax and source diagnostics;
 resolution/defaulting and expression typing remain separate tasks. The selected direction is
 structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
 was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
 through merged PRs #23–#25; target #8, text #9 and structural backend #10 through
-PRs #26–#28. Correctness task #11 is selected. Its
+PRs #26–#28. Correctness task #11 is accepted through maintainer review of PR #33. Its
 [representation and preservation layer](structural-correctness.md) proves M1
 soundness and bounded completeness for finite sources fitting explicit scopes
-and integer ranges. Semantic acceptance is pending. The maintainer selected #13
-after completion of #11; its implementation waits for that prerequisite acceptance.
+and integer ranges. The maintainer accepted those proofs at
+`67b9137cde9e2b486733aecd6eb4f5559b780ea3` and selected #13. Its inherited
+structural implementation and proofs now await semantic acceptance.
 Parser task #16 is selected after accepted prerequisite #6; its semantic review
 remains pending. Other later tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
