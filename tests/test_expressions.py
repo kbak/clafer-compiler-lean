@@ -33,4 +33,4 @@ class ExpressionsTest(unittest.TestCase):
             result = run(str(binary))
             self.assertEqual(result.stderr, '')
             self.assertEqual(result.stdout.strip(),
-                             '41 expression cases; 882 arithmetic boundaries; extraction and observations passed')
+                             '41 expression cases; 882 arithmetic boundaries; 360 extraction interval boundaries; extraction and observations passed')

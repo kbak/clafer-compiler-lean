@@ -15,7 +15,7 @@ Parser task #16 is accepted through PR #30; its
 [authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 is
 selected after accepted #16/#7; its [checked resolution/defaults](docs/resolution.md)
 await semantic review. Typed static expression task #14 is accepted through PR #32.
-Task #15 is selected; its [target arithmetic work](docs/expression-encoding.md)
+Task #15 is selected; its [target arithmetic and source range work](docs/expression-encoding.md)
 does not yet supply source constraint or attachment preservation. Do not implement
 compiler features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.

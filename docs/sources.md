@@ -207,6 +207,17 @@ width-16 Analyzer translation-capacity failure is retained as an operational
 result, not agreement or bounded UNSAT. Source encoding and attachment
 preservation remain unfinished under #15.
 
+The [source range proofs](expression-encoding.md#source-range-analysis-proofs)
+connect the existing runtime analyzer to S4's unchanged partial `Expr.denote`.
+They reuse `CollectionMeaning`, the downstream finite-observation bridge and
+Mathlib's finite-set cardinality/image/product lemmas. Full primitive membership
+does not establish finite observation membership; the latter is derived from the
+executable observation check, original inclusion links and recorded lexical
+bindings. S6's arithmetic operand-order guide remains supplementary; no Haskell
+meaning is substituted. The proof and test code is original MIT code, with no
+dependency, license, scope or upstream semantic changes. Scalar representability
+in S7's bounded target is distinct from source-to-target expression preservation.
+
 The [source resolution/defaulting contract](resolution.md) maps S2's `Defaults`,
 `GroupCard`, `AST.WellFormed` and Compile naming obligations, plus S3's
 `Realization.Core.Selected`, to source occurrence paths and finite checked tables.

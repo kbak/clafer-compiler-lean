@@ -21,7 +21,7 @@ source diagnostics. Selected [resolution/defaults](docs/resolution.md) (#17)
 adds checked declaration elaboration; source expression typing remains separate.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
 and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
-adds bounded target arithmetic; source constraint translation and attachment
+adds bounded target arithmetic and source range proofs; source constraint translation and attachment
 preservation remain unfinished.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.

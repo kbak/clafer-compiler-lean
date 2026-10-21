@@ -10,7 +10,8 @@ The authored static parser #16 is accepted through PR #30. Selected #17 adds
 checked declaration resolution/defaults; source typing and source CLI integration
 remain separate. Accepted #14 (PR #32) adds typed static expressions and their
 independent semantic interpretation. Selected #15 extends bounded target
-arithmetic; source constraint encoding and its preservation remain unfinished.
+arithmetic and proves source range-analysis soundness; source constraint encoding
+and its preservation remain unfinished.
 Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -563,9 +564,16 @@ original links under explicit independent model obligations. Prove admitted
 expression denotation invariant across such extensions and finite meaning for
 admitted collections, including integer navigation and quantifier domains.
 Keep primitive/root structural composition explicit; do not claim whole-domain
-finite equivalence. General range-analysis soundness against denotation, bounded
-Alloy arithmetic and structural pipeline composition remain #15/#20 obligations;
-tested range behavior is distinct from these future theorems.
+finite equivalence. Prove the executable range analyzer sound against that
+independent denotation: every defined number lies in its returned representable
+interval and every collection's distinct cardinality meets its returned budget.
+Derive finite recorded membership through navigation, widening and lexical binding
+from checked observations. Include every numeric intermediate and actual quantified
+body, without assuming final constraint truth or successful singleton extraction.
+Compose the finite-observation bridge for arbitrary full-integer extensions and
+show scalar compatibility with target bounded-integer admission. Source-to-target
+expression/attachment preservation and structural pipeline composition remain
+obligations of #15/#20. See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
 
 Covers:
 - `intent~compiler-foundation~1`

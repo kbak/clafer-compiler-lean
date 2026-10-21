@@ -19,7 +19,7 @@ Accepted [static parser #16](docs/parser.md) preserves authored syntax. Selected
 adds [checked structural resolution/defaulting](docs/resolution.md); source
 expression typing remains separate. Accepted #14 (PR #32) adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
-Selected #15 adds [bounded target arithmetic](docs/expression-encoding.md);
+Selected #15 adds [bounded target arithmetic and source range proofs](docs/expression-encoding.md);
 source constraint translation and attachment preservation remain unfinished.
 See [build and proof checks](docs/build.md).
 

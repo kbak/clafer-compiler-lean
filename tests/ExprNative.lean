@@ -30,6 +30,27 @@ def outcome (t : Ty 3) (e : Term 3 3) (b : Bounds 3 := bounds) : String :=
   match validateBounds s b [] t e with
   | .ok _ => "ok" | .error d => d.code
 
+/-- Exhaust the actual values in small extraction intervals. The oracle checks
+each mathematical result, independently of the analyzer's endpoint transfers. -/
+def extractionIntervalCases : IO Unit := do
+  let support : Support 2 0 := ⟨#v[1, 2], #v[], 0, #v[true, true]⟩
+  let locals : List (Local 2) := [⟨1, "a", 0⟩, ⟨2, "b", 1⟩]
+  let intervals : List Interval := [⟨-3, -2⟩, ⟨-2, 0⟩, ⟨-1, 1⟩, ⟨0, 0⟩, ⟨0, 2⟩, ⟨1, 3⟩]
+  let members := fun r : Interval => (List.range (r.upper - r.lower + 1).toNat).map
+    (fun (k : Nat) => r.lower + (k : Int))
+  for width in [1, 2, 3, 4, 5] do
+    let limit := (2 ^ (width - 1) : Int)
+    let fits := fun v => -limit ≤ v && v < limit
+    for left in intervals do
+      for right in intervals do
+        for op in [Arithmetic.add, .subtract] do
+          let e : Term 2 0 := .arithmetic op (.integerOf 0 (.var 0)) (.integerOf 1 (.var 1))
+          let result := validateBounds support ⟨width, #v[1, 1], #v[left, right]⟩ locals .integer e
+          let expected := (members left).all fun x => (members right).all fun y =>
+            fits x && fits y && fits (match op with | .add => x + y | .subtract => x - y)
+          unless result.isOk == expected do
+            throw <| IO.userError s!"extraction interval range: width {width}, {repr left}, {repr right}, {repr op}"
+
 /-!
 [utest->req~compiler-expressions~1]
 [utest->req~compiler-arithmetic~1]
@@ -80,6 +101,7 @@ def cases : List (String × Ty 3 × Term 3 3 × String) := [
 ]
 
 def run : IO Unit := do
+  extractionIntervalCases
   for (label, ty, e, expected) in cases do
     unless outcome ty e == expected do throw <| IO.userError s!"{label}: {outcome ty e}, expected {expected}"
   let nested := (List.range 100).foldl (fun e _ => Term.not e) (.boolean true : Term 3 3)
@@ -140,6 +162,6 @@ def run : IO Unit := do
     throw <| IO.userError "same-ID primitive observations compare sets"
   let omitted := { observed with objects := observed.objects.set 2 [] }
   unless !(omitted.withinBounds s bounds) do throw <| IO.userError "missing observed link endpoint"
-  IO.println s!"{cases.length} expression cases; 882 arithmetic boundaries; extraction and observations passed"
+  IO.println s!"{cases.length} expression cases; 882 arithmetic boundaries; 360 extraction interval boundaries; extraction and observations passed"
 
 end ClaferCompiler.Tests.Expressions
