@@ -16,13 +16,14 @@ Needs: req
 The repository contains the adopted structural compiler contract and a Lean/Lake
 build bootstrap, reproducible external [comparison tooling](oracles.md), executable
 [structural IR](ir.md) with admission proofs and an independent
-[static Alloy target core](alloy-core.md). It has no compiler passes or compiler
-correctness proofs. The selected direction is structural only. Behavioral/temporal
-modeling is outside this roadmap.
+[static Alloy target core](alloy-core.md). The
+[guarded structural backend](structural-encoding.md) translates admitted M1 IR into checked target ASTs with explicit manual bounds. Global compiler correctness
+proofs and text/CLI integration remain separate tasks. The selected direction is
+structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
 was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
-through merged PRs #23–#25. Target task #8 is selected; its semantic review remains
-pending. Later tasks require their own selection.
+through merged PRs #23–#25. Target task #8 is accepted through merged PR #26.
+Structural backend task #10 is selected; its semantic review remains pending. Later tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
@@ -74,6 +75,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
+- [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.
 - [Security policy](../SECURITY.md): sensitive reports during the private phase.
