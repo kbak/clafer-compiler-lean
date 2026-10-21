@@ -13,9 +13,10 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [representation proof layer](docs/structural-correctness.md). Global preservation
 remains unfinished; CLI integration has separate owners.
 Selected #12 adds [exact three-way comparison](docs/comparison.md) and strict
-instance export. Selected
-[static parser #16](docs/parser.md) preserves authored syntax; resolution/defaulting
-and source expression typing remain separate tasks. Selected #14 adds the
+instance export. Accepted
+[static parser #16](docs/parser.md) preserves authored syntax. Selected #17 adds
+[checked structural resolution/defaulting](docs/resolution.md); source expression
+typing remains separate. Selected #14 adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
 See [build and proof checks](docs/build.md).
 

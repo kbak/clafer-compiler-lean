@@ -181,3 +181,17 @@ meaning. S5's static `clafer.cf` productions and S6's `genPExp'`, `genIFunExp` a
 `genOp` were inspected for constructor shape and operand order. The downstream
 checker, observation extension and tests are original MIT code. No upstream
 semantics, primitive domains, positive-map support or dependency pins changed.
+
+The [source resolution/defaulting contract](resolution.md) maps S2's `Defaults`,
+`GroupCard`, `AST.WellFormed` and Compile naming obligations, plus S3's
+`Realization.Core.Selected`, to source occurrence paths and finite checked tables.
+The downstream success, coverage, upstream default agreement, well-formedness and
+selected-realization theorems have no satisfaction premise. Inspected pinned S5
+`ResolverInheritance.hs` (`resolveNSuper`, `analyzeGCard`, `analyzeCard`),
+`ResolverName.hs` (`resolveName`, `findUnique`), `Desugarer.hs` and S6 `Intclafer.hs`.
+The exact direct-type lookup policy and common-domain importer comparisons are in
+that contract; broader Haskell navigation/relocation is not silently admitted.
+Standard-library finite traversal/decisions are reused, with no new dependencies,
+semantic changes, copied upstream definitions or Haskell source. All new code and
+fixtures are original MIT project code. The in-memory source profile retains
+integer/inherited forms without extending the M1 interchange/backend contract.

@@ -4,8 +4,9 @@ These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
 backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
-layer; global preservation remains unfinished. Selected task #16 adds the authored
-static parser; resolution, source typing and source CLI integration remain separate.
+layer; global preservation remains unfinished. The authored static parser #16 is
+accepted through PR #30. Selected #17 adds checked declaration
+resolution/defaults; source typing and source CLI integration remain separate.
 Selected #14 adds typed static expressions and their independent semantic
 interpretation. Future compiler behavior is reserved below, not declared implemented
 or proved.
@@ -18,7 +19,7 @@ The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core, structural
 backend, checked serialization, authored static parser and selected typed expression
-API. Global compiler
+API, and checked source declaration resolution/defaults. Global compiler
 preservation and grammar-to-parser correspondence remain unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
@@ -388,7 +389,55 @@ Covers:
 
 Needs: impl, utest
 
-## Source parser diagnostics
+## Source declaration resolution
+
+`req~compiler-resolution~1`
+
+Resolve the accepted authored declaration tree deterministically into finite
+identity-based structural tables. Preserve every declaration, its source path and
+span, repeated names in distinct contexts, parent/super/reference edges, set/bag
+head identity, original constraints and their owner occurrences. Resolve forward
+and cyclic references without following target edges recursively. Require unique
+nearest lexical lookup or unique global lookup, with explicit parentless abstract
+types for supers. Reject missing/ambiguous names, duplicate siblings, reserved
+user names, inheritance cycles and excluded inheritance forms with stable source
+diagnostics. Integer aliases refer to one explicitly classified canonical primitive.
+
+Define independent source coverage, lookup and elaboration rules and kernel-prove
+that successful elaboration satisfies them and yields the upstream well-formed
+structural core and selected realization domain. Well-formed output alone is
+insufficient. Retain ordinary inherited fields and explicit abstract families;
+keep constraints available for #18. The explicit M1 conversion must reject richer
+features and constraints, and pass the existing exact M1 admission. Compare
+resolved fields with the pinned importer on its common domain, retaining expected
+identity/provenance differences. See the [resolution contract](resolution.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Authored and effective defaults
+
+`req~compiler-defaults~1`
+
+Retain omitted versus authored multiplicity, group keyword versus numeric
+provenance, explicit abstractness and effective inherited abstractness. An omitted
+group inherits the superclass's complete effective group, otherwise unrestricted.
+An omitted parented local bound is optional under a keyword group and one under
+a numeric group; authored bounds override it. Effective abstractness is the
+explicit flag or the parent's effective flag. Kernel-prove agreement with pinned
+`Clafer.Defaults`; keep the documented numeric-group and `opt` differences from
+Haskell. Do not fabricate parent fibers for parentless abstracts. An explicit
+M1 projection may normalize that unused local slot to unrestricted while retaining
+authored metadata; it must preserve every other declaration field.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Source frontend diagnostics
 
 `req~compiler-diagnostics~1`
 
@@ -397,10 +446,13 @@ malformed/unsupported category, message, logical filename, primary zero-based
 half-open UTF-8 byte span, one-based line/scalar column and related locations.
 Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
 Fail without a partial successful document. Distinguish recognized excluded
-features from missing/malformed syntax; do not invent name-resolution or typing
-results. Exact English wording is not stable. The parser returns the first
+features from missing/malformed syntax. The resolver supplies name/default
+diagnostics; typing remains #18. Exact English wording is not stable. The parser
+returns the first
 lexical error, otherwise the first grammatical error. Diagnostic serialization,
-IR-only locations and process exit integration remain #19/#20 obligations.
+IR-only locations and process exit integration remain #19/#20 obligations. The
+resolver prioritizes declaration/name checks, edge resolution, inheritance and
+realization ranks, then independent source correspondence validation.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -526,7 +578,6 @@ coverage.
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
-| `compiler-resolution`, `compiler-defaults` | [#17](https://github.com/kbak/clafer-compiler-lean/issues/17) | Declarative resolution/defaulting success relation |
 | `compiler-constraint-elaboration` | [#18](https://github.com/kbak/clafer-compiler-lean/issues/18) | Typed source elaboration and meaning |
 | `compiler-cli` | [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Native resolved-IR CLI and output protocol |
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |

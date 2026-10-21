@@ -4,8 +4,9 @@ Issue [#16](https://github.com/kbak/clafer-compiler-lean/issues/16) owns
 `ClaferCompiler.Frontend.parse : String → String → Except Diagnostic Document`.
 Arguments are the logical filename and original UTF-8 source. This is an in-memory
 API; the production executable still only implements its bootstrap command.
-Resolution/defaulting (#17), expression typing (#18), and source CLI integration
-(#20) are separate tasks. Successful parsing does not establish semantic validity,
+[Resolution/defaulting (#17)](resolution.md) now consumes this API; expression
+typing (#18) and source CLI integration (#20) remain separate tasks. Successful parsing does not establish semantic
+validity,
 M1 admission, satisfiability, or compiler correctness.
 
 ## Reuse and representation
