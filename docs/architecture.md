@@ -3,9 +3,11 @@
 This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
 under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
 Structural-only development and the upstream typed-core M2 scope are selected.
-Issue #2 was closed by merged PR #22 and #5 by merged PR #23; oracle task #6 is selected. Later tasks
-require their own manual intake. These are delivery specifications, not
-implemented APIs or proved results.
+Issue #2 was closed by merged PR #22; build #5 and oracle tooling #6 were accepted
+through PRs #23 and #24. The [comparison tools](oracles.md) provide external validation.
+IR task #7 is selected and its [API and proof inventory](ir.md) record the delivered
+M1 admission boundary. Later tasks require their own manual intake. The remaining
+contracts below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
 
@@ -195,7 +197,8 @@ finite checker becomes an M2 oracle without a new proved bridge.
 
 ## Resolved-IR API and CLI sequence
 
-API shapes (names to be finalized in #7; no compiler API exists yet):
+API shapes (`validate`, `validateRaw` and `validateDocument` now implement the
+[admission API](ir.md); the compilation/frontend shapes remain future work):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics
@@ -205,7 +208,8 @@ parse(source) -> Result AuthoredSyntax Diagnostics                 [M2]
 elaborate(AuthoredSyntax) -> Result ValidatedIR Diagnostics         [M2]
 ```
 
-The developer interchange is versioned JSON (`clafer-ir/1` initially), with an
+The developer interchange is [versioned JSON](ir.md#developer-interchange-contract)
+(`clafer-ir/1` initially; parsing belongs to #19), with an
 explicit profile, ordered declarations, stable-within-input IDs, separate display
 names, origins, parent/super/reference IDs, local/group bounds and optional source
 origins. M1 permits effective-only provenance explicitly marked as such. M2 extends
@@ -419,6 +423,6 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 
 The closure and merge record the disposition; historical candidate wording in
 that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. Keep #6 In Progress until its acceptance and review gates
+approve future changes. Keep #7 In Progress until its acceptance and review gates
 are met. No unresolved research tag, publication step or blanket Haskell-parity
 promise blocks this plan.

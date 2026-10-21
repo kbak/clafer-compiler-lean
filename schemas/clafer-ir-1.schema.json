@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Clafer developer IR v1 (M1 effective profile)",
+  "type": "object",
+  "required": [
+    "version",
+    "profile",
+    "root",
+    "declarations",
+    "parentRanks",
+    "superRanks",
+    "unused"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": "clafer-ir/1"
+    },
+    "profile": {
+      "const": "m1-effective"
+    },
+    "root": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "declarations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/declaration"
+      }
+    },
+    "parentRanks": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "superRanks": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "unused": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      }
+    }
+  },
+  "$defs": {
+    "bounds": {
+      "type": "object",
+      "required": [
+        "lower",
+        "upper"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "lower": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "const": "*"
+            }
+          ]
+        }
+      }
+    },
+    "reference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "basic"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "target"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "set",
+                "bag"
+              ]
+            },
+            "target": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "declaration": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "origin",
+        "parent",
+        "super",
+        "reference",
+        "isAbstract",
+        "localBounds",
+        "groupBounds",
+        "source",
+        "authored"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "root",
+            "user",
+            "integer",
+            "string",
+            "boolean"
+          ]
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "super": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reference": {
+          "$ref": "#/$defs/reference"
+        },
+        "isAbstract": {
+          "type": "boolean"
+        },
+        "localBounds": {
+          "$ref": "#/$defs/bounds"
+        },
+        "groupBounds": {
+          "$ref": "#/$defs/bounds"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authored": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/authored"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "file",
+        "startByte",
+        "endByte"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "startByte": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endByte": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "authored": {
+      "type": "object",
+      "required": [
+        "isAbstract",
+        "localBounds",
+        "groupBounds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "isAbstract": {
+          "type": "boolean"
+        },
+        "localBounds": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/bounds"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "groupBounds": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/bounds"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

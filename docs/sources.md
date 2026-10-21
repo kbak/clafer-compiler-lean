@@ -8,7 +8,14 @@ The [architecture contract](architecture.md) specifies the selected common fragm
 and deliberate differences. The build bootstrap adapts upstream validation helpers
 under their MIT license;
 see the attribution and exact paths in [the build contract](build.md). Semantic
-definitions and Haskell source/fixtures are not copied.
+definitions and Haskell source/fixtures are not copied. The [IR bridge](ir.md)
+uses S1 directly: its executable guards are proved equivalent to the pinned
+`coreChecks`/`supportChecks`, not a second semantic authority. S5
+`ReferenceEmpty`, `ReferenceSet`, `ReferenceBag`, `SuperSome`, `Card*` and `GCard*`
+were inspected for the representation boundary: M1 imports resolved effective
+values and direct IDs, without reconstructing Haskell defaulting or accepting
+arbitrary target expressions. The new runtime/table/fixture code is original;
+no Haskell code or fixtures are redistributed.
 
 ## Immutable baselines
 
