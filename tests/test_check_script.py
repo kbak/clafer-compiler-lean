@@ -60,7 +60,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
         self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
-        self.assertIn('kernel threads=2', calls)
+        self.assertIn('kernel threads=4', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
@@ -116,6 +116,12 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             (root/'tests/test_comparison.py').write_text(good)
             (root/'tests/test_source_cli.py').write_text(good)
             (root/'tests/test_source_pipeline.py').write_text(good)
+            added = ('test_constraints', 'test_parser', 'test_resolution', 'test_qualification',
+                     'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
+                     'test_expressions', 'test_inherited', 'test_integer_arithmetic',
+                     'test_structural_alloy', 'test_structural_ir', 'test_structural_representation')
+            for module in added:
+                (root/'tests'/f'{module}.py').write_text(good)
             for source,expected in [(good,0),('',1),
                 ('import unittest\nclass T(unittest.TestCase):\n'
                  ' @unittest.skip("fixture")\n def test_skipped(self): pass\n',1),
@@ -140,7 +146,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
 
             # The source group is independently mandatory and propagates failure/skips.
             (root/'tests/test_comparison.py').write_text(good)
-            for module in ('test_source_cli', 'test_source_pipeline'):
+            for module in ('test_source_cli', 'test_source_pipeline', *added):
                 for source in ['', good.replace('pass', 'self.fail("source")'),
                                'import unittest\nclass T(unittest.TestCase):\n'
                                ' @unittest.skip("source")\n def test_skip(self): pass\n']:
@@ -150,3 +156,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                         env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                 (root/'tests'/f'{module}.py').write_text(good)
+            (root/'tests/test_qualification.py').unlink()
+            result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
+                cwd=root, capture_output=True, text=True,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
+            self.assertNotEqual(result.returncode, 0, 'Missing scheduled suite must fail')

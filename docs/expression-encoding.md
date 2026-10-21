@@ -6,9 +6,9 @@ baseline is `b36a9b8478a2ad3e2310c768aac04943369d31ba`. This work extends the
 independent Alloy target and consumes the [typed expression API](expressions.md).
 Target arithmetic and source range proofs were accepted through PRs #34 and #38.
 The constraint-translation continuation starts at accepted main
-`9ef2d6a6bc9a047cb0985033960aa4c92e2c2cb2` and awaits semantic review. It supplies
+`9ef2d6a6bc9a047cb0985033960aa4c92e2c2cb2` and was accepted through PR #41. It supplies
 constructor and attachment preservation under the explicit conditions below.
-Source CLI integration #20 requires accepted #15.
+Source CLI integration #20 is accepted through PR #44; see [composed assurance](pipeline.md).
 
 ## Delivered target arithmetic
 

@@ -15,10 +15,11 @@ its [checked resolution/defaults](docs/resolution.md) are accepted
 through merged PR #35. Task #18 and its
 [source constraint elaboration](docs/constraints.md) are accepted through PR #40.
 Typed static expression task #14 is accepted through PR #32.
-Task #15 is accepted through PR #41. Selected #20 adds the
+Task #15 is accepted through PR #41. Task #20 and its primitive-carrier
+corrections #42/#43 are accepted through PR #44, supplying the
 [source pipeline](docs/pipeline.md), full integer model composition and complete
-telematics validation; its implementation and primitive-carrier corrections
-#42/#43 await semantic acceptance. Do not implement
+telematics validation. Selected #21 prepares [private qualification](docs/qualification.md);
+its evidence and candidate acceptance remain subject to independent review. Do not implement
 compiler features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
