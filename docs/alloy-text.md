@@ -74,6 +74,7 @@ levels, free variables, domain capture and additional commands.
 | Union, intersection, difference | `( a + b )`, `( a & b )`, `( a - b )` |
 | Product, join, transpose | `( a -> b )`, `( a . b )`, `( ~ a )` |
 | Integer literal/cardinality | `( -8 )`, `( 7 )`, `( # a )` |
+| Integer arithmetic | `( plus [ a , b ] )`, `( minus [ a , b ] )`; ordered integer operands, distinct from relational `+`/`-` |
 | Truth/falsity | `( no none )`, `( some none )` |
 | Relational equality/inclusion | `( a = b )`, `( a in b )` |
 | `lone`, `one`, `some` predicates | `( lone a )`, `( one a )`, `( some a )` |

@@ -58,6 +58,10 @@ def reduce (depth : Nat) : List Piece → Option Piece
       if r = s then some (.formula (.mult .set r)) else none
   | [.word "~", .rel r] => some (.rel (.transpose r))
   | [.word "#", .rel r] => some (.integer (.count r))
+  | [.word "plus", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
+      some (.integer (.add a b))
+  | [.word "minus", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
+      some (.integer (.subtract a b))
   | [.word "not", .formula p] => some (.formula (.neg p))
   | [.word m, .rel r] => do
       let m ← readMult m

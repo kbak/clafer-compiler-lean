@@ -6,8 +6,9 @@ IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and str
 backend #10 through PRs #26–#28. Selected #11 adds the finite representation proof
 layer; global preservation remains unfinished. Selected task #16 adds the authored
 static parser; resolution, source typing and source CLI integration remain separate.
-Selected #14 adds typed static expressions and their independent semantic
-interpretation. Future compiler behavior is reserved below, not declared implemented
+Accepted #14 (PR #32) adds typed static expressions and their independent semantic
+interpretation. Selected #15 extends bounded target arithmetic; source constraint
+encoding and its preservation remain unfinished. Future compiler behavior is reserved below, not declared implemented
 or proved.
 
 ## Honest project boundary
@@ -452,6 +453,33 @@ Keep primitive/root structural composition explicit; do not claim whole-domain
 finite equivalence. General range-analysis soundness against denotation, bounded
 Alloy arithmetic and structural pipeline composition remain #15/#20 obligations;
 tested range behavior is distinct from these future theorems.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Bounded target arithmetic
+
+`req~compiler-target-arithmetic~1`
+
+Extend the independent Alloy target with ordered integer addition and subtraction
+over literals, finite distinct-tuple cardinalities and nested integer expressions.
+Use mathematical intermediate values with explicit signed representability at
+widths 1–16; propagate undefined operands and overflow rather than wrapping or
+converting them to false. Conservatively admit every intermediate using explicit
+scope-derived count inventories, including branches under negation, implication
+and quantifiers. Reject malformed integer stack programs and invalid relation
+operands through target admission.
+
+Prove constructor definedness/value equations and checked-interval agreement with
+mathematical arithmetic under explicit leaf count-capacity premises. Those
+premises must state actual tuple bounds, never final truth or preservation.
+Retain the remaining general relation-inventory and source-denotation obligations.
+Extend checked serialization and independent parsing for all integer constructors;
+exercise the actual pinned Analyzer with independent ASTs, boundary cases and
+operand, grouping and lexical-binding mutations. This target layer does not
+claim source expression or attachment preservation. See [encoding work](expression-encoding.md).
 
 Covers:
 - `intent~compiler-foundation~1`

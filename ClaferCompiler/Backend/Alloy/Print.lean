@@ -27,9 +27,12 @@ def relText (depth : Nat) (r : Rel) : String := r.fold {
   product := binary "->", join := binary ".", transpose := unary "~"
 } ""
 
-def intText (depth : Nat) : Integer → String
-  | .literal n => parens n.repr
-  | .count r => unary "#" (relText depth r)
+def intText (depth : Nat) (n : Integer) : String := n.fold {
+  literal := fun n => parens n.repr
+  count := fun r => unary "#" (relText depth r)
+  add := fun a b => parens ("plus [ " ++ a ++ " , " ++ b ++ " ]")
+  subtract := fun a b => parens ("minus [ " ++ a ++ " , " ++ b ++ " ]")
+} ""
 
 def formulaText (p : Formula) (depth : Nat := 0) : String := p.fold {
   truth := fun _ => parens "no none", falsity := fun _ => parens "some none"

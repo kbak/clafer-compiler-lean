@@ -2,6 +2,7 @@ module
 
 public import ClaferCompiler.Driver
 public import ClaferCompiler.Correctness.StructuralDecoding
+public import ClaferCompiler.Correctness.IntegerArithmetic
 
 public section
 
