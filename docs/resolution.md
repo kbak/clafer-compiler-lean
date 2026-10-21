@@ -51,7 +51,10 @@ claim their bodies are resolved/typed. No source JSON or CLI interface is added.
 
 Root ID/index 0 is `Sing`. User declarations receive IDs 1 onward in source
 preorder. Paths are lists of zero-based *element* indices, so constraint positions
-are retained. Optional canonical `int` is last and exists only when referenced;
+are retained. Canonical `int` is last and exists when referenced or when the
+document contains a constraint. The #20 correction gives it unrestricted `0..*`
+multiplicity and root containment, so finite observations can extend to all
+mathematical integers. See [carrier review](pipeline.md#carrier-decision-exposed-by-composition);
 `int` and `integer` resolve to the same primitive origin. IDs are stable for the
 same syntax tree, including comments/CRLF variants, not persistent across edits.
 Names and byte positions do not define identity. Reference cycles are allowed;

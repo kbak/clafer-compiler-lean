@@ -229,6 +229,23 @@ class OracleTests(unittest.TestCase):
         # Restore the genuine explicit runtime after negative setup tests.
         oracle.load_tools(os.environ["CLAFER_ORACLE_TOOLS"], self.api)
 
+    def test_bridge_build_directories_are_not_shared(self):
+        # A fresh pinned compile may not overwrite a class used by another JVM.
+        # Mock compilation, retaining real configuration/identity admission.
+        from unittest.mock import patch
+        tools = self.p.loads(Path(os.environ["CLAFER_ORACLE_TOOLS"]).read_bytes())
+        seen = []
+        def prepare():
+            cache = Path(os.environ['CLAFER_ALLOY_CACHE'])
+            seen.append(cache)
+            return dict(identity=tools['alloy_identity'], classes=cache/'bridge')
+        with patch.object(self.api['alloy_runtime'], 'prepare', side_effect=prepare):
+            first = oracle.load_tools(os.environ['CLAFER_ORACLE_TOOLS'], self.api)[2]
+            second = oracle.load_tools(os.environ['CLAFER_ORACLE_TOOLS'], self.api)[2]
+        self.assertNotEqual(first['classes'], second['classes'])
+        self.assertTrue(all(p.parent == Path(tools['alloy_cache']).resolve() for p in seen))
+        self.assertEqual(first['identity'], second['identity'])
+
     def test_insufficient_bitwidth_is_unsupported(self):
         result = oracle.compare_case(
             self.captures["bag"][0] / "capture",

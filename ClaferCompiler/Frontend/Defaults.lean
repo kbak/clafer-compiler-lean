@@ -94,6 +94,14 @@ in the original document and are accessed by their owner path, never erased. -/
 def isDeclaration : Element → Bool
   | .declaration _ _ _ => true | _ => false
 
+def constraintHere (es : List Element) : Bool := es.any fun e => !isDeclaration e
+
+/-- Constraint interpretation requires the mathematical integer universe even
+when no authored reference targets it (for example, `[0 = 0]`). -/
+def hasConstraints (doc : Document) (c : Candidate n) : Bool :=
+  constraintHere doc.elements || c.paths.any fun path =>
+    constraintHere ((path.bind (childrenAt doc)).getD [])
+
 def CoversChildren (doc : Document) (c : Candidate n) (path : Path) : Prop :=
   ∀ k : Fin ((childrenAt doc path).getD []).length,
     isDeclaration (((childrenAt doc path).getD [])[k]) = true →
@@ -199,14 +207,15 @@ def Elaboration (doc : Document) (c : Candidate n) : Prop :=
   (∀ i : Fin n, if i = c.core.root then
     c.paths[i] = none ∧ (c.core.get i).name = "Sing" ∧
       c.groups[i] = .bounds {} ∧ (c.core.get i).groupBounds = {} ∧
-      (c.core.get i).localBounds = ⟨1, .finite 1⟩
+      (c.core.get i).localBounds = ⟨1, .finite 1⟩ ∧
+      (hasConstraints doc c = true → ∃ d, (c.core.get d).origin = .integer)
    else if (c.core.get i).origin = .integer then
     c.paths[i] = none ∧ (c.core.get i).name = "int" ∧
       (c.core.get i).parent = some c.core.root ∧ (c.core.get i).super = none ∧
       (c.core.get i).reference = .basic ∧ (c.core.get i).isAbstract = false ∧
       c.groups[i] = .bounds {} ∧ (c.core.get i).groupBounds = {} ∧
-      (c.core.get i).localBounds = ⟨1, .finite 1⟩ ∧ i.val + 1 = n ∧
-      (∃ j : Fin n, (c.core.get j).reference.target = some i)
+      (c.core.get i).localBounds = {} ∧ i.val + 1 = n ∧
+      ((∃ j : Fin n, (c.core.get j).reference.target = some i) ∨ hasConstraints doc c = true)
    else SourceRow doc c i) ∧
   (∀ i j : Fin n, PathOrder c i j) ∧
   (∀ i s : Fin n, (c.core.get i).super = some s →
@@ -219,6 +228,7 @@ def Elaboration (doc : Document) (c : Candidate n) : Prop :=
   (∀ i p : Fin n, (c.core.get i).parent = some p →
     c.realizationRank[p] < c.realizationRank[i]) ∧ StructuralChecks doc c
 
+set_option synthInstance.maxSize 1024 in
 instance (doc : Document) (c : Candidate n) : Decidable (Elaboration doc c) := by
   unfold Elaboration
   infer_instance

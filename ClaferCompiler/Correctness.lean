@@ -7,12 +7,14 @@ public import ClaferCompiler.Correctness.StructuralCorrectness
 public import ClaferCompiler.Correctness.IntegerArithmetic
 public import ClaferCompiler.Correctness.ExprIntermediateRanges
 public import ClaferCompiler.Correctness.ExpressionScalarFacts
+public import ClaferCompiler.Correctness.PipelinePresence
 
 public section
 
 /-! Bootstrap equations, concrete representations and M1/inherited preservation.
 Static expression/attachment preservation uses concrete leaf representations and
-checked finite observations; source pipeline composition belongs to #20. -/
+checked finite observations. PipelinePresence composes the actual source pipeline,
+full integer source soundness and data-bounded completeness. -/
 
 namespace ClaferCompiler.Correctness
 

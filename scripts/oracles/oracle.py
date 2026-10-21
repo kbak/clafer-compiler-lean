@@ -13,6 +13,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tarfile
+import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -156,8 +157,11 @@ def load_tools(path, api):
         raise ValueError("Exporter/build identity changed")
     os.environ.update(CLAFER_ALLOY_JAR=str(external(tools["jar"])),
                       CLAFER_JAVA_HOME=str(external(tools["java_home"])),
-                      CLAFER_ALLOY_CACHE=str(external(tools["alloy_cache"])))
-    # Compile the bridge from the pinned source, never trust cached classes.
+                      CLAFER_ALLOY_CACHE=tempfile.mkdtemp(prefix="bridge-run-",
+                          dir=external(tools["alloy_cache"])))
+    # Compile the pinned bridge into a private build directory. Concurrent suites
+    # must never overwrite a class file another JVM is loading. The immutable
+    # JAR/JDK are shared; compiled bridge identity is still checked below.
     alloy = api["alloy_runtime"].prepare()
     if alloy["identity"] != tools["alloy_identity"]:
         raise ValueError("Alloy/Java runtime identity changed; provision again")

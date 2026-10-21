@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Clafer explicit source bounds v2",
+  "type": "object",
+  "required": [
+    "version",
+    "objects",
+    "bitwidth",
+    "declarations",
+    "integers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": "clafer-bounds/2"
+    },
+    "objects": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bitwidth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "declarations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "size",
+          "exact"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "exact": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "integers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "lower",
+          "upper"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lower": {
+            "type": "integer"
+          },
+          "upper": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

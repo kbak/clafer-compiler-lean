@@ -1,0 +1,154 @@
+{
+  "version": "clafer-bounds/2",
+  "objects": 36,
+  "bitwidth": 7,
+  "declarations": [
+    {
+      "id": 0,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 1,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 2,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 3,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 4,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 5,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 6,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 7,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 8,
+      "size": 6,
+      "exact": true
+    },
+    {
+      "id": 9,
+      "size": 6,
+      "exact": true
+    },
+    {
+      "id": 10,
+      "size": 2,
+      "exact": true
+    },
+    {
+      "id": 11,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 12,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 13,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 14,
+      "size": 2,
+      "exact": true
+    },
+    {
+      "id": 15,
+      "size": 4,
+      "exact": true
+    },
+    {
+      "id": 16,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 17,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 18,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 19,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 20,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 21,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 22,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 23,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 24,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 25,
+      "size": 0,
+      "exact": true
+    },
+    {
+      "id": 26,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 27,
+      "size": 2,
+      "exact": true
+    }
+  ],
+  "integers": [
+    {
+      "id": 27,
+      "lower": 2,
+      "upper": 3
+    }
+  ]
+}
