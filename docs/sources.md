@@ -232,6 +232,17 @@ semantic changes, copied upstream definitions or Haskell source. All new code an
 fixtures are original MIT project code. The in-memory source profile retains
 integer/inherited forms without extending the M1 interchange/backend contract.
 
+The [source constraint elaborator](constraints.md) uses S4's `Support.MapResolved`,
+`Typing.Expr` and partial `DenotationLaws`, S3's original owner/field identity, and
+S8's exact c01–c12 manual `Examples/Telematics/Expressions.lean` inventory.
+Pinned S5 `ResolverName.hs` and `Desugarer.hs` were inspected for binding priority,
+head/target navigation and connective shape; broader Haskell features are not
+adopted. Existing source/typed representations, Std traversal and native harnesses
+are reused. The independent compiler inference rules, proofs and reconstructed
+fixture are original MIT project code. No upstream definition, dependency pin,
+license, runtime primitive domain or scope policy changed. The manual-inventory
+comparison is distinct from grammar correspondence and backend preservation.
+
 The [native resolved-IR driver](cli.md) composes the unchanged S1/S6-guided
 admission/backend/text APIs. S6 `Generator/Alloy.hs` (`genModule`, `header`) and
 `ClaferArgs.hs` were inspected: Haskell's inferred scopes, optional validation and

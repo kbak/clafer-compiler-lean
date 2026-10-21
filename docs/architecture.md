@@ -211,8 +211,9 @@ API shapes (`validate`, `validateRaw` and `validateDocument` implement the
 [admission API](ir.md); `Backend.Alloy.Structural.compile` implements the
 [in-memory structural compilation API](structural-encoding.md), and `Text.render`
 implements [checked serialization](alloy-text.md). The [authored parser](parser.md)
-implements `parse` under accepted task #16. Selected #17 implements
-[checked declaration elaboration](resolution.md); expression elaboration remains #18):
+implements `parse` under accepted task #16. Accepted #17 implements
+[checked declaration elaboration](resolution.md). Selected #18 implements
+[source constraint elaboration](constraints.md), with semantic review pending):
 
 ```text
 admit(profile, rawIR) -> Result ValidatedIR Diagnostics

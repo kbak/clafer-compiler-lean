@@ -16,9 +16,10 @@ explicit finite scope and integer-range hypotheses. Selected #13 adds
 acceptance. Selected #19 adds the [native resolved-IR CLI](docs/cli.md), pending semantic
 review; source-text integration remains separate. Task #12 supplies
 [exact three-way comparison](docs/comparison.md) and strict instance export.
-Accepted [static parser #16](docs/parser.md) preserves authored syntax. Selected #17
-adds [checked structural resolution/defaulting](docs/resolution.md); source
-expression typing remains separate. Accepted #14 (PR #32) adds the
+Accepted [static parser #16](docs/parser.md) preserves authored syntax. Accepted #17 (PR #35)
+adds [checked structural resolution/defaulting](docs/resolution.md). Selected #18
+adds [source expression elaboration](docs/constraints.md), pending semantic review.
+Accepted #14 (PR #32) adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
 Selected #15 adds [bounded target arithmetic and source range proofs](docs/expression-encoding.md);
 source constraint translation and attachment preservation remain unfinished.
