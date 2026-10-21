@@ -11,9 +11,12 @@ and [comparison tools](docs/oracles.md) are available. The independent
 The backend translates admitted M1 IR into checked target ASTs with manual bounds.
 The selected [representation work](docs/structural-correctness.md) proves concrete
 decoding and data round trips. Global preservation proofs remain unfinished;
-CLI integration is a separate task. The selected [typed expression API](docs/expressions.md)
-adds checked static syntax and independent semantic interpretation; its acceptance
-review and expression encoding remain pending.
+CLI integration is a separate task.
+The selected [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics; resolution and source expression typing remain separate tasks.
+The selected [typed expression API](docs/expressions.md) adds checked static syntax
+and independent semantic interpretation; its acceptance review and expression
+encoding remain pending.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 
