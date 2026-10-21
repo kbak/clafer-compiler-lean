@@ -154,3 +154,12 @@ preservation theorems. The runtime layout is the accepted #10 encoding guided by
 S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New representation,
 stack proofs and fixtures are original project code; no upstream meanings or
 Haskell implementation are copied or changed.
+
+The [authored parser correspondence](parser.md#sources-and-comparison) records #16's
+exact grammar, generated Alex character classes and public Haskell parse checks.
+It reuses Lean 4.35.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
+copying parser infrastructure. New Clafer-specific code and fixtures are original
+MIT project code. Native properties and the existing hash-checked Haskell capture
+adapter test syntax only. M1 capture rejection after parsing is not an M2 semantic
+oracle; reference EOF crashes remain tool failures, and adopted profile exclusions
+remain visible. No upstream meaning, dependency revision or language scope changes.

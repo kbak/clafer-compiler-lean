@@ -11,7 +11,9 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [structural backend](docs/structural-encoding.md), and accepted
 [checked serialization](docs/alloy-text.md). Selected #11 adds a partial
 [representation proof layer](docs/structural-correctness.md). Global preservation
-remains unfinished; CLI integration has separate owners.
+remains unfinished; CLI integration has separate owners. Selected
+[static parser #16](docs/parser.md) preserves authored syntax; resolution/defaulting
+and expression typing remain separate tasks.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests

@@ -8,7 +8,9 @@ Follow the contract's review status and manual intake gates. The build, comparis
 and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
 Independent Alloy target #8, text #9 and structural backend #10 are accepted
 through PRs #26–#28. Correctness task #11 is selected; its representation layer is
-partial and global preservation remains unfinished. Do not implement compiler
+partial and global preservation remains unfinished. Parser task #16 is independently
+selected after accepted #6; its [authored API and assurance boundary](docs/parser.md)
+await semantic review. Do not implement compiler
 features until their owning task is selected and its dependencies are accepted.
 Behavior and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and

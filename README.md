@@ -12,6 +12,8 @@ The backend translates admitted M1 IR into checked target ASTs with manual bound
 The selected [representation work](docs/structural-correctness.md) proves concrete
 decoding and data round trips. Global preservation proofs remain unfinished;
 CLI integration is a separate task.
+The selected [static source parser](docs/parser.md) retains authored syntax and
+source diagnostics; resolution and typing remain separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 
