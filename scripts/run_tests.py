@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run every Python regression, failing on empty, skipped or failed suites.
 
-CLI and isolated audit fixtures run separately alongside the remaining regressions.
+CLI, exact comparison and isolated audit fixtures run alongside the remaining regressions.
 All groups are mandatory; process isolation keeps module state and mocks separate.
 """
 from pathlib import Path
@@ -10,7 +10,7 @@ import sys
 import unittest
 
 
-ISOLATED_MODULES = {'test_cli', 'test_cli_external', 'test_axiom_audit'}
+ISOLATED_MODULES = {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'}
 
 
 def cases(suite):

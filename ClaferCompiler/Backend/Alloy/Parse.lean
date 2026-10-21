@@ -20,6 +20,15 @@ inductive Piece where
   | grouped (r : Rel)
   | integer (i : Integer)
   | formula (p : Formula)
+  | scalarField (owner : Nat)
+  | scalarImage (owner : Nat) (rel : Rel)
+  | scalarSum (owner : Nat) (rel : Rel)
+  | scalarOne (owner : Nat) (rel : Rel)
+  | scalarLower (owner : Nat) (lo : Int) (rel : Rel)
+  | scalarUpper (owner : Nat) (hi : Int) (rel : Rel)
+  | scalarRange (owner : Nat) (lo hi : Int) (rel : Rel)
+  | scalarBounded (owner : Nat) (lo hi : Int) (rel : Rel)
+  | scalarGuard (owner : Nat) (lo hi : Int) (rel : Rel)
 
 def required (value : Option α) : Parser α :=
   match value with | some a => pure a | none => fail "invalid canonical Alloy"
@@ -43,6 +52,7 @@ def leaf (depth : Nat) (s : String) : Option Piece :=
   match readSymbol s with
   | some (.signature n) => some (.rel (.sig n))
   | some (.field n) => some (.rel (.field n))
+  | some (.auxiliary n) => some (.scalarField n)
   | some (.binder n) => if n < depth then some (.rel (.var (depth - n - 1))) else none
   | _ => (s.toInt?).map fun n => .integer (.literal n)
 
@@ -51,11 +61,27 @@ Extra relation grouping distinguishes the canonical tautological `set` predicate
 def reduce (depth : Nat) : List Piece → Option Piece
   | [.word s] => leaf depth s
   | [.rel r] => some (.grouped r)
+  | [.scalarField n] => some (.scalarField n)
+  | [.rel r, .word ".", .scalarField o] => some (.scalarImage o r)
+  | [.word "sum", .word "[", .scalarImage o r, .word "]"] => some (.scalarSum o r)
+  | [.word "one", .scalarImage o r] => some (.scalarOne o r)
+  | [.integer ⟨[.literal lo]⟩, .word "=<", .scalarSum o r] => some (.scalarLower o lo r)
+  | [.scalarSum o r, .word "=<", .integer ⟨[.literal hi]⟩] => some (.scalarUpper o hi r)
+  | [.scalarLower o lo r, .word "and", .scalarUpper p hi q] =>
+      if o == p && r == q then some (.scalarRange o lo hi r) else none
+  | [.scalarOne o r, .word "and", .scalarRange p lo hi q] =>
+      if o == p && r == q then some (.scalarBounded o lo hi r) else none
+  | [.formula ⟨[.mult .one r]⟩, .word "and", .scalarBounded o lo hi q] =>
+      if r == q then some (.scalarGuard o lo hi r) else none
+  | [.scalarGuard o lo hi r, .word "implies", .scalarSum p q,
+      .word "else", .integer ⟨[.literal fallback]⟩] =>
+      if o == p && r == q && lo == fallback then some (.integer (.scalar o lo hi r)) else none
   | [.word "none", .word "->", .word "none"] => some (.rel (.empty .binary))
   | [.word "no", .word "none"] => some (.formula .truth)
   | [.word "some", .word "none"] => some (.formula .falsity)
   | [.grouped r, .word "in", .grouped s] =>
       if r = s then some (.formula (.mult .set r)) else none
+  | [.rel r, .word "<:", .word "iden"] => some (.rel (.diagonal r))
   | [.word "~", .rel r] => some (.rel (.transpose r))
   | [.word "#", .rel r] => some (.integer (.count r))
   | [.word "plus", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
@@ -127,9 +153,17 @@ def signature : Parser (Nat × Signature × List (Nat × Field)) := do
   let id ← signatureId
   let parent ← (token "extends" *> (some <$> signatureId)) <|> pure none
   token "{"
-  let fields ← commaSeparated (field id)
+  let fields ← commaSeparated ((Sum.inl <$> attempt (field id)) <|> (do
+    token (Symbol.auxiliary id).name
+    token ":"
+    token "one"
+    token "Int"
+    pure (Sum.inr ())))
   token "}"
-  return (id, ⟨parent, abstract_, mult⟩, fields)
+  let scalars := fields.filterMap fun f => match f with | .inr _ => some () | _ => none
+  if scalars.length > 1 then fail "duplicate scalar field"
+  return (id, ⟨parent, abstract_, mult, !scalars.isEmpty⟩,
+    fields.filterMap fun f => match f with | .inl f => some f | _ => none)
 
 def scope : Parser (Nat × Scope) := do
   let exact ← (token "exactly" *> pure true) <|> pure false

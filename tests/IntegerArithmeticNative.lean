@@ -63,7 +63,7 @@ def run (directory : String) : IO Unit := do
             else Integer.subtract (.literal x) (.literal y)
           let expected := inRange x && inRange y && inRange value
           let m := model width (comparison term 0)
-          if term.safe m 0 != expected || term.eval width ⟨[], []⟩ [] !=
+          if term.safe m 0 != expected || term.eval width ⟨[], [], []⟩ [] !=
               (if expected then some value else none) then
             throw (IO.userError s!"boundary mismatch width={width} x={x} y={y} add={add}")
           boundaries := boundaries + 1
@@ -92,9 +92,9 @@ def run (directory : String) : IO Unit := do
     let .ok repeated := Text.render checked (Text.anonymousNames m)
       | throw (IO.userError "repeat render")
     if rendered.text != repeated.text then throw (IO.userError "nondeterminism")
-    let candidate : Instance := if index < 16 then ⟨[], []⟩ else if index == 19 then
-      ⟨[[0, 1], [2, 3]], [[[0, 2], [0, 3], [1, 2], [1, 3]]]⟩
-      else ⟨[List.range ((m.command.scopes.head?).map Scope.size |>.getD 0)], []⟩
+    let candidate : Instance := if index < 16 then ⟨[], [], []⟩ else if index == 19 then
+      ⟨[[0, 1], [2, 3]], [[[0, 2], [0, 3], [1, 2], [1, 3]]], []⟩
+      else ⟨[List.range ((m.command.scopes.head?).map Scope.size |>.getD 0)], [], []⟩
     let .ok value := evaluate checked candidate | throw (IO.userError s!"undefined {index}")
     if value != expected then throw (IO.userError s!"meaning {index}")
     IO.FS.writeFile (root / s!"case_{index}.als") rendered.text

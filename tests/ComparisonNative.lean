@@ -60,7 +60,7 @@ def tables (text : String) : Except String Instance := do
     let [1, id, a, b] := r | throw "field row"
     if id ≥ nf then throw "field index"
     fields := fields.modify id (fun xs => xs ++ [[a, b]])
-  return ⟨signatures, fields⟩
+  return ⟨signatures, fields, []⟩
 
 def run (args : List String) : IO Unit := do
   let [action, input, directory, parameter] := args | throw (IO.userError "arguments")

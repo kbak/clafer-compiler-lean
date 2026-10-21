@@ -5,14 +5,14 @@ contract was adopted by issue #2 and merged PR #22. Build, comparison and struct
 IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
 backend #10 through PRs #26–#28. The maintainer accepted #11's finite
 representation, soundness and bounded completeness proofs through PR #33.
-Selected #13 adds inherited structural realization with semantic review pending.
+Accepted #13 (PR #36) adds inherited structural realization.
 The authored static parser #16 is accepted through PR #30. Accepted #17 (PR #35) adds
-checked declaration resolution/defaults. Selected #18 adds source constraint
-elaboration with semantic review pending; source CLI integration remains separate.
+checked declaration resolution/defaults. Accepted #18 (PR #40) adds source constraint
+elaboration; source CLI integration remains separate.
 Accepted #14 (PR #32) adds typed static expressions and their
 independent semantic interpretation. Selected #15 extends bounded target
-arithmetic and proves source range-analysis soundness; source constraint encoding
-and its preservation remain unfinished.
+arithmetic with source constraint translation and conditional constructor/attachment
+preservation. Its semantic review is pending; source CLI integration belongs to #20.
 Future compiler behavior is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -24,10 +24,8 @@ its relationship to Clafer Semantics and the Haskell comparison compiler, and th
 build bootstrap, admitted structural IR, independent target core, structural
 backend, checked serialization, authored static parser, typed expression API,
 checked source declaration resolution/defaults and accepted M1 preservation
-proofs under explicit finite scope and numeric-range assumptions. The selected
-inherited structural extension has implementation and proofs pending semantic
-acceptance. Source constraint preservation and grammar-to-parser correspondence
-remain unproved.
+proofs under explicit finite scope and numeric-range assumptions. The inherited structural extension and its preservation proofs are accepted. Source constraint preservation has explicit finite-observation and representation
+conditions and awaits semantic review; grammar-to-parser correspondence remains unproved.
 Distinguish reviewed decisions, contract candidates and future implementation/proof
 promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
@@ -608,8 +606,8 @@ from checked observations. Include every numeric intermediate and actual quantif
 body, without assuming final constraint truth or successful singleton extraction.
 Compose the finite-observation bridge for arbitrary full-integer extensions and
 show scalar compatibility with target bounded-integer admission. Source-to-target
-expression/attachment preservation and structural pipeline composition remain
-obligations of #15/#20. See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
+expression/attachment preservation is specified below; structural source pipeline
+composition remains an obligation of #20. See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -670,6 +668,44 @@ Extend checked serialization and independent parsing for all integer constructor
 exercise the actual pinned Analyzer with independent ASTs, boundary cases and
 operand, grouping and lexical-binding mutations. This target layer does not
 claim source expression or attachment preservation. See [encoding work](expression-encoding.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Static constraint encoding and preservation
+
+`req~compiler-expression-encoding~1`
+
+Translate every admitted typed static expression constructor into the independent
+Alloy target. Preserve lexical positions, owner `this`, original map roles,
+ordered operands, explicit identity/inclusion widening and finite primitive
+observations. Generate separate definedness and value/truth; undefined extraction
+must remain distinguishable from false under negation and quantification.
+Conservatively reject all unsafe numeric intermediates, including vacuous bodies.
+
+Represent observed integer objects with typed, total scalar fields and emit
+interval and injectivity facts. Prove the corresponding enforcement from target
+field admission and the generated facts. For checked observations within explicit
+budgets/intervals and concrete object/map/scalar representation equations, prove
+constructor definedness, value and truth correspondence to the independent pinned
+source denotation. Derive numeric representability from source admission; do not
+assume successful source extraction, final constraint truth or desired equality.
+Retain the finite-observation bridge to arbitrary full mathematical integer extensions.
+
+Compile every attached body in order, retaining original identity, owner and span,
+including repeats and inherited owners. Prove exact occurrence preservation and
+all-body satisfaction equivalence under the stated representation conditions;
+derive source truth from satisfaction of the generated module. Keep full structural
+source-pipeline composition and source CLI integration in #20.
+
+Extend checked serialization/reconstruction for the emitted scalar and identity
+forms. Run native and actual pinned Analyzer checks covering all constructors,
+empty/nonempty domains, scalar range/identity, inherited contexts, lexical capture,
+ordered operands, parent/dereference confusion, undefinedness and overflow. Keep
+these tests distinct from kernel proofs and semantic acceptance.
+See the [encoding contract](expression-encoding.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -741,7 +777,6 @@ coverage.
 
 | Reserved name(s) | Owning roadmap issue | Future promise |
 | --- | --- | --- |
-| `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
 | `compiler-pipeline-correctness`, `compiler-telematics` | [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) | Source pipeline, composed assurance and complete example |
 | `compiler-qualification`, `compiler-performance` | [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) | Private acceptance evidence and reproducible measurements |
 

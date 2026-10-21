@@ -55,7 +55,7 @@ def generatedCases : List Case :=
         input := r, limits := bounds r 5
         candidate := ⟨[[0, 1, 2, 3, 4], [0], [1, 4], [2, 3]],
           [[[0, 1], [0, 4]], select parents [[0, 2], [0, 3]],
-            select refs [[2, 1], [2, 4], [3, 1], [3, 4]]]⟩
+            select refs [[2, 1], [2, 4], [3, 1], [3, 4]]], []⟩
         expected := false } -- Expected outcomes come from the independent checker.
 
 def runComparison : IO Unit := do

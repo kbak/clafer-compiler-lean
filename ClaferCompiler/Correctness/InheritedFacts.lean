@@ -21,18 +21,18 @@ theorem base_checked (v : Validated n) (scopes : List Scope) (w : Nat)
     tauto
 
 theorem run_eval (schema : Schema) (fs : List Formula) (scopes : List Scope)
-    (w : Nat) (i : Instance) :
+    (w : Nat) (i : Instance) (scalar : i.scalarFields w schema = true) :
     ({ schema, facts := fs, command := { scopes, bitwidth := w } } : Module).eval i = some true ↔
       ∀ f ∈ fs, f.eval w i [] = some true := by
-  change (do let values ← fs.mapM (fun f => f.eval w i []); pure (values.all id && true)) = some true ↔ _
-  simpa using (mapM_all_true fs (fun f => f.eval w i []))
+  change (do let values ← fs.mapM (fun f => f.eval w i []); pure (values.all id && true && i.scalarFields w schema)) = some true ↔ _
+  simpa [scalar] using (mapM_all_true fs (fun f => f.eval w i []))
 
 theorem base_satisfies (v : Validated n) (scopes : List Scope) (w : Nat) (i : Instance)
     (h : Satisfies (target v scopes w) i) :
     Satisfies (Backend.Alloy.Structural.target v.layout scopes w) i := by
   obtain ⟨ht, hb⟩ := base_checked v scopes w h.1 h.2.1
   refine ⟨ht, hb, h.2.2.1, h.2.2.2.1, h.2.2.2.2.1, ?_⟩
-  apply (run_eval _ _ _ _ _).mpr
+  apply (run_eval _ _ _ _ _ (Structural.no_scalar_fields v.layout w i)).mpr
   intro f hf
   exact Module.fact_true _ _ h.2.2.2.2.2 f (List.mem_append_left _ hf)
 

@@ -39,7 +39,7 @@ def modules : List Module :=
     { model .truth with command := ⟨.check, .subset r (.product a b), [⟨2, true⟩, ⟨2, true⟩], 4⟩ },
     { model .truth with facts := [.mult .some a, .mult .lone b] },
     hierarchyModel .truth,
-    ⟨⟨[⟨none, true, .set⟩], []⟩, [], ⟨.run, .truth, [⟨1, true⟩], 2⟩⟩,
+    ⟨⟨[⟨none, true, .set, false⟩], []⟩, [], ⟨.run, .truth, [⟨1, true⟩], 2⟩⟩,
     ⟨⟨[], []⟩, [], ⟨.run, .truth, [], 1⟩⟩,
     ⟨⟨[{}, {}], [⟨1, 0, .one⟩, ⟨0, 1, .lone⟩, ⟨0, 0, .some⟩]⟩, [],
       ⟨.run, .truth, [⟨1, true⟩, ⟨1, true⟩], 2⟩⟩

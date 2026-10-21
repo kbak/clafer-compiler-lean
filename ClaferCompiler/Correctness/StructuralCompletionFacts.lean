@@ -227,6 +227,11 @@ theorem source_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
   · exact source_object_cover v s i r h.2.1 w
   · exact decls d f hd
 
+theorem no_scalar_fields (v : IR.Structural.Layout n) (w : Nat) (i : Instance) :
+    i.scalarFields w (schema v) = true := by
+  apply i.scalarFields_of_no_scalars
+  simp [schema]
+
 theorem source_module_eval {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s)
@@ -236,9 +241,10 @@ theorem source_module_eval {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     intro f hf
     obtain ⟨q, hq, rfl⟩ := List.mem_map.mp hf
     exact source_facts v s i r h w fits q hq)
+  have hv := no_scalar_fields v w i
   change (do let fs ← ((facts v).map Prod.snd).mapM (fun f => f.eval w i [])
              let body ← some true
-             pure (fs.all id && body == true)) = some true
-  simpa using hf
+             pure (fs.all id && body == true && i.scalarFields w (schema v))) = some true
+  simpa [hv] using hf
 
 end ClaferCompiler.Correctness.Structural

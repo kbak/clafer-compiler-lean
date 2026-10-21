@@ -22,13 +22,13 @@ build bootstrap, reproducible external [comparison tooling](oracles.md), executa
 [hygienic text serialization](alloy-text.md). The
 [guarded structural backend](structural-encoding.md) translates admitted M1 IR into
 checked target ASTs with explicit manual bounds. The M1 correctness proof layer
-is accepted. Selected [inherited realization](inherited-realization.md) adds the
-Appendix 6 structural skeleton and preservation proofs, pending semantic review;
+is accepted. Accepted [inherited realization](inherited-realization.md) (PR #36) adds the
+Appendix 6 structural skeleton and preservation proofs.
 Inherited/source-text CLI integration remains a later task; #19 exposes only M1 IR.
 The accepted [static parser](parser.md) preserves authored syntax and source diagnostics;
 [checked declaration resolution/defaulting](resolution.md) is accepted through #17/PR #35.
-Selected [source constraint elaboration](constraints.md) #18 adds typed bodies and
-source derivations, with semantic review pending. The selected direction is
+Accepted [source constraint elaboration](constraints.md) #18 (PR #40) adds typed
+bodies and source derivations. The selected direction is
 structural only. Behavioral/temporal modeling is outside this roadmap.
 The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
 was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
@@ -37,21 +37,22 @@ PRs #26–#28. Correctness task #11 is accepted through maintainer review of PR 
 [representation and preservation layer](structural-correctness.md) proves M1
 soundness and bounded completeness for finite sources fitting explicit scopes
 and integer ranges. The maintainer accepted those proofs at
-`67b9137cde9e2b486733aecd6eb4f5559b780ea3` and selected #13. Its inherited
-structural implementation and proofs await semantic acceptance.
+`67b9137cde9e2b486733aecd6eb4f5559b780ea3` and selected #13, whose inherited
+structural implementation and proofs were accepted through PR #36.
 Parser task #16 is accepted through PR #30. Task #17 is accepted through merged
-PR #35. Task #18 is selected after #17/#14;
-its source elaboration and proof handoff await semantic acceptance.
+PR #35. Task #18 source elaboration and its proof handoff were
+accepted through PR #40 after #17/#14.
 Typed expression task #14 is accepted through PR #32. The
 [expression API](expressions.md) supplies checked syntax, independent denotation
 and finite-observation proofs. Task #15 is selected; its
 [bounded target arithmetic](expression-encoding.md) was merged through PR #34.
-Source range-analysis proofs now connect finite observation budgets to independent
-denotation, with semantic review pending. Source constraint translation and
-attachment preservation remain unfinished. Selected #19 supplies the
+Source range-analysis proofs were accepted through PR #38. The continuation adds
+source-to-target constructor and attachment preservation, generated numeric-domain
+enforcement and actual Analyzer checks, with semantic review pending. #20 source
+pipeline integration depends on accepted #15. Accepted #19 (PR #39) supplies the
 [native resolved-IR CLI](cli.md) after accepted #12,
 with strict developer JSON, explicit bounds and deterministic diagnostics/output;
-its semantic review is pending. Other tasks require their own selection.
+source-text integration remains separate. Other tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
@@ -109,7 +110,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
-- [Expression encoding](expression-encoding.md): target arithmetic, source range proofs and remaining preservation obligations.
+- [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.

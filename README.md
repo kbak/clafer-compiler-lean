@@ -2,7 +2,7 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: M1 preservation accepted; inherited structural realization awaiting review.** Executable declaration
+**Status: structural preservation accepted; constraint encoding awaiting semantic review.** Executable declaration
 tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md),
@@ -11,20 +11,21 @@ and [comparison tools](docs/oracles.md) are available. The independent
 The backend translates admitted M1 IR into checked target ASTs with manual bounds.
 The [correctness work](docs/structural-correctness.md) proves decoding,
 M1 soundness and finite bounded completeness with explicit scope and integer-range
-hypotheses. The maintainer accepted #11 through PR #33. Selected
-[inherited realization](docs/inherited-realization.md) adds the full Appendix 6
-structural skeleton and preservation proofs; its semantic review is pending.
+hypotheses. The maintainer accepted #11 through PR #33. Accepted
+[inherited realization](docs/inherited-realization.md) (PR #36) adds the full Appendix 6
+structural skeleton and preservation proofs.
 The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
-and strict instance decoding. Selected #19 supplies the
-[native resolved-IR CLI](docs/cli.md), pending semantic review.
+and strict instance decoding. Accepted #19 (PR #39) supplies the
+[native resolved-IR CLI](docs/cli.md).
 The accepted [static source parser](docs/parser.md) retains authored syntax and
 source diagnostics. Accepted [resolution/defaults](docs/resolution.md) (#17/PR #35)
-adds checked declaration elaboration. Selected [source constraints](docs/constraints.md)
-(#18) adds automatic typed elaboration and source derivations, pending semantic review.
+adds checked declaration elaboration. Accepted [source constraints](docs/constraints.md)
+(#18/PR #40) adds automatic typed elaboration and source derivations.
 The accepted [typed expression API](docs/expressions.md) adds checked static syntax
 and independent semantic interpretation. Selected [expression encoding work](docs/expression-encoding.md)
-adds bounded target arithmetic and source range proofs; source constraint translation and attachment
-preservation remain unfinished.
+adds source constraint translation, definedness and attachment preservation under
+explicit representation and observation conditions. Semantic review is pending;
+source CLI integration belongs to #20.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

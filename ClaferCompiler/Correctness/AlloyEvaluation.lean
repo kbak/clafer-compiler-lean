@@ -8,6 +8,13 @@ public section
 
 namespace ClaferCompiler.Backend.Alloy
 
+theorem Instance.scalarFields_of_no_scalars (w : Nat) (s : Schema) (i : Instance)
+    (h : ∀ d ∈ s.signatures, d.scalar = false) : i.scalarFields w s = true := by
+  apply List.all_eq_true.mpr
+  intro pair hp
+  have hm := List.mem_of_getElem? (List.mk_mem_zipIdx_iff_getElem?.mp hp)
+  simp [h pair.1 hm]
+
 theorem eraseDups_of_nodup [BEq α] [LawfulBEq α] {xs : List α}
     (h : xs.Nodup) : xs.eraseDups = xs := by
   induction xs with
@@ -53,8 +60,12 @@ inductive Rel.Term : Rel → Prop where
   | field (i) : Term (.field i)
   | var (i) : Term (.var i)
   | union : Term a → Term b → Term (.union a b)
+  | inter : Term a → Term b → Term (.inter a b)
+  | diff : Term a → Term b → Term (.diff a b)
+  | product : Term a → Term b → Term (.product a b)
   | join : Term a → Term b → Term (.join a b)
   | transpose : Term a → Term (.transpose a)
+  | diagonal : Term a → Term (.diagonal a)
 
 private theorem Rel.Term.run_exists (h : Rel.Term r) (alg : RelAlgebra α) :
     ∃ x, ∀ stack, r.code.foldl alg.step (some stack) = some (x :: stack) := by
@@ -67,6 +78,18 @@ private theorem Rel.Term.run_exists (h : Rel.Term r) (alg : RelAlgebra α) :
     obtain ⟨a, ha⟩ := ia
     obtain ⟨b, hb⟩ := ib
     exact ⟨alg.union a b, fun _ => by simp [Rel.union, List.foldl_append, ha, hb, RelAlgebra.step]⟩
+  | inter ha hb ia ib =>
+    obtain ⟨a, ha⟩ := ia
+    obtain ⟨b, hb⟩ := ib
+    exact ⟨alg.inter a b, fun _ => by simp [Rel.inter, List.foldl_append, ha, hb, RelAlgebra.step]⟩
+  | diff ha hb ia ib =>
+    obtain ⟨a, ha⟩ := ia
+    obtain ⟨b, hb⟩ := ib
+    exact ⟨alg.diff a b, fun _ => by simp [Rel.diff, List.foldl_append, ha, hb, RelAlgebra.step]⟩
+  | product ha hb ia ib =>
+    obtain ⟨a, ha⟩ := ia
+    obtain ⟨b, hb⟩ := ib
+    exact ⟨alg.product a b, fun _ => by simp [Rel.product, List.foldl_append, ha, hb, RelAlgebra.step]⟩
   | join ha hb ia ib =>
     obtain ⟨a, ha⟩ := ia
     obtain ⟨b, hb⟩ := ib
@@ -74,6 +97,10 @@ private theorem Rel.Term.run_exists (h : Rel.Term r) (alg : RelAlgebra α) :
   | transpose ha ia =>
     obtain ⟨a, ha⟩ := ia
     exact ⟨alg.transpose a, fun _ => by simp [Rel.transpose, List.foldl_append, ha, RelAlgebra.step]⟩
+
+  | diagonal ha ia =>
+    obtain ⟨a, ha⟩ := ia
+    exact ⟨alg.diagonal a, fun _ => by simp [Rel.diagonal, List.foldl_append, ha, RelAlgebra.step]⟩
 
 theorem Rel.Term.run (h : Rel.Term r) (alg : RelAlgebra α) (fallback : α) (stack : List α) :
     r.code.foldl alg.step (some stack) = some (r.fold alg fallback :: stack) := by
@@ -96,6 +123,30 @@ theorem Rel.fold_transpose_term (ha : Rel.Term a) (alg : RelAlgebra α) (z : α)
     a.transpose.fold alg z = alg.transpose (a.fold alg z) := by
   unfold Rel.fold
   simp only [Rel.transpose, List.foldl_append, ha.run alg z]
+  rfl
+
+theorem Rel.fold_inter_term (ha : Rel.Term a) (hb : Rel.Term b) (alg : RelAlgebra α) (z : α) :
+    (a.inter b).fold alg z = alg.inter (a.fold alg z) (b.fold alg z) := by
+  unfold Rel.fold
+  simp only [Rel.inter, List.foldl_append, ha.run alg z, hb.run alg z]
+  rfl
+
+theorem Rel.fold_diff_term (ha : Rel.Term a) (hb : Rel.Term b) (alg : RelAlgebra α) (z : α) :
+    (a.diff b).fold alg z = alg.diff (a.fold alg z) (b.fold alg z) := by
+  unfold Rel.fold
+  simp only [Rel.diff, List.foldl_append, ha.run alg z, hb.run alg z]
+  rfl
+
+theorem Rel.fold_product_term (ha : Rel.Term a) (hb : Rel.Term b) (alg : RelAlgebra α) (z : α) :
+    (a.product b).fold alg z = alg.product (a.fold alg z) (b.fold alg z) := by
+  unfold Rel.fold
+  simp only [Rel.product, List.foldl_append, ha.run alg z, hb.run alg z]
+  rfl
+
+theorem Rel.fold_diagonal_term (ha : Rel.Term a) (alg : RelAlgebra α) (z : α) :
+    a.diagonal.fold alg z = alg.diagonal (a.fold alg z) := by
+  unfold Rel.fold
+  simp only [Rel.diagonal, List.foldl_append, ha.run alg z]
   rfl
 
 @[simp] theorem Rel.eval_empty (i : Instance) (env : List Nat) (a : Arity) :
@@ -124,6 +175,9 @@ theorem Rel.eval_transpose (ha : Rel.Term a) (i : Instance) (env : List Nat) :
 satisfaction. These are separate obligations. -/
 inductive Formula.Term : Formula → Prop where
   | truth : Term .truth
+  | falsity : Term .falsity
+  | subset (a b) : Term (.subset a b)
+  | neg : Term a → Term (.neg a)
   | equal (a b) : Term (.equal a b)
   | mult (m r) : Term (.mult m r)
   | compare (op a b) : Term (.compare op a b)
@@ -135,6 +189,11 @@ private theorem Formula.Term.run_exists (h : Formula.Term p) (alg : FormulaAlgeb
     ∃ x, ∀ stack, p.code.foldl alg.step (some stack) = some (x :: stack) := by
   induction h with
   | truth => exact ⟨alg.truth, fun _ => rfl⟩
+  | falsity => exact ⟨alg.falsity, fun _ => rfl⟩
+  | subset a b => exact ⟨alg.subset a b, fun _ => rfl⟩
+  | neg ha ia =>
+    obtain ⟨a, ha⟩ := ia
+    exact ⟨alg.neg a, fun _ => by simp [Formula.neg, List.foldl_append, ha, FormulaAlgebra.step]⟩
   | equal a b => exact ⟨alg.equal a b, fun _ => rfl⟩
   | mult m r => exact ⟨alg.mult m r, fun _ => rfl⟩
   | compare op a b => exact ⟨alg.compare op a b, fun _ => rfl⟩
@@ -154,6 +213,12 @@ theorem Formula.Term.run (h : Formula.Term p) (alg : FormulaAlgebra α) (fallbac
     p.code.foldl alg.step (some stack) = some (p.fold alg fallback :: stack) := by
   obtain ⟨x, hx⟩ := h.run_exists alg
   simp [Formula.fold, hx]
+
+theorem Formula.fold_neg_term (ha : Formula.Term a) (alg : FormulaAlgebra α) (z : α) :
+    a.neg.fold alg z = alg.neg (a.fold alg z) := by
+  unfold Formula.fold
+  simp only [Formula.neg, List.foldl_append, ha.run alg z]
+  rfl
 
 theorem Formula.fold_conj_term (ha : Formula.Term a) (hb : Formula.Term b)
     (alg : FormulaAlgebra α) (z : α) :
@@ -236,7 +301,7 @@ theorem Module.fact_true (m : Module) (i : Instance) (h : m.eval i = some true)
       | none => simp [hs, hb] at h
       | some b =>
         simp [hs, hb] at h
-        simp [h.1]
+        simp [h.1.1]
   exact (mapM_all_true _ _).mp hm f hf
 
 end ClaferCompiler.Backend.Alloy

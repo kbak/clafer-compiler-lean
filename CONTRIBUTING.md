@@ -11,18 +11,18 @@ The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [structural backend](docs/structural-encoding.md), and accepted
 [checked serialization](docs/alloy-text.md). Accepted #11 provides
 [M1 soundness and bounded completeness](docs/structural-correctness.md) under
-explicit finite scope and integer-range hypotheses. Selected #13 adds
-[inherited structural realization](docs/inherited-realization.md), pending semantic
-acceptance. Selected #19 adds the [native resolved-IR CLI](docs/cli.md), pending semantic
-review; source-text integration remains separate. Task #12 supplies
+explicit finite scope and integer-range hypotheses. Accepted #13 (PR #36) adds
+[inherited structural realization](docs/inherited-realization.md). Accepted #19
+(PR #39) adds the [native resolved-IR CLI](docs/cli.md); source-text integration remains separate. Task #12 supplies
 [exact three-way comparison](docs/comparison.md) and strict instance export.
 Accepted [static parser #16](docs/parser.md) preserves authored syntax. Accepted #17 (PR #35)
-adds [checked structural resolution/defaulting](docs/resolution.md). Selected #18
-adds [source expression elaboration](docs/constraints.md), pending semantic review.
+adds [checked structural resolution/defaulting](docs/resolution.md). Accepted #18 (PR #40)
+adds [source expression elaboration](docs/constraints.md).
 Accepted #14 (PR #32) adds the
 [typed expression API](docs/expressions.md) and independent semantic interpretation.
-Selected #15 adds [bounded target arithmetic and source range proofs](docs/expression-encoding.md);
-source constraint translation and attachment preservation remain unfinished.
+Selected #15 adds [source constraint encoding and preservation](docs/expression-encoding.md),
+including separate definedness and every attachment occurrence. Semantic review
+is pending; #20 source CLI integration requires accepted #15.
 See [build and proof checks](docs/build.md).
 
 ## Issues and pull requests
@@ -98,7 +98,8 @@ Set `CLAFER_ORACLE_EVIDENCE` to an external directory to retain oracle runs
 (otherwise each run creates a fresh directory under the system temporary directory).
 The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
-axioms, runs all Python/native regressions, and replays the kernel. It rejects
+axioms, runs all Python/native regressions, and replays the kernel. Exact comparison, CLI and isolated audit regressions share
+the existing worker process alongside the other tests. It rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared

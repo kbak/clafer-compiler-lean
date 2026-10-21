@@ -28,8 +28,8 @@ def bag := raw #[root, child 200, { child 300 with reference := .bag 200 }]
   #[0, 1, 1] #[0, 0, 0] #[false, false, false]
 def set := { bag with declarations := #[root, child 200, { child 300 with reference := .set 200 }] }
 def bagInstance : Instance := ⟨[[0, 1, 2, 3], [0], [1], [2, 3]],
-  [[[0, 1]], [[0, 2], [0, 3]], [[2, 1], [3, 1]]]⟩
-def twoInstance : Instance := ⟨[[0, 1, 2], [0], [1, 2]], [[[0, 1], [0, 2]]]⟩
+  [[[0, 1]], [[0, 2], [0, 3]], [[2, 1], [3, 1]]], []⟩
+def twoInstance : Instance := ⟨[[0, 1, 2], [0], [1, 2]], [[[0, 1], [0, 2]]], []⟩
 def optional := { two with declarations := #[root, { child 200 with localBounds := ⟨0, .finite 1⟩ }] }
 def xor := { two with declarations := #[{ root with groupBounds := ⟨1, .finite 1⟩ }, child 200] }
 def bagGroup (k : Nat) := { bag with declarations :=
@@ -38,12 +38,12 @@ def owners := raw #[root, child 10, child 20,
   { child 30 with parent := some 10, reference := .set 20 }]
   #[0, 1, 1, 2] #[0, 0, 0, 0] #[false, false, false, false]
 def ownersInstance : Instance := ⟨[[0, 1, 2, 3, 4, 5], [0], [1, 2], [3], [4, 5]],
-  [[[0, 1], [0, 2]], [[0, 3]], [[1, 4], [2, 5]], [[4, 3], [5, 3]]]⟩
+  [[[0, 1], [0, 2]], [[0, 3]], [[1, 4], [2, 5]], [[4, 3], [5, 3]]], []⟩
 def nested := raw #[root, child 10, { child 20 with parent := some 10 }]
   #[0, 1, 2] #[0, 0, 0] #[false, false, false]
 def abstractLeaf := raw #[root, abstractType 20] #[0, 0] #[0, 0] #[false, false]
-def leafInstance : Instance := ⟨[[0, 1], [0], [1]], []⟩
-def inheritedInstance : Instance := ⟨[[0, 1], [0], [1], [1]], [[[0, 1]]]⟩
+def leafInstance : Instance := ⟨[[0, 1], [0], [1]], [], []⟩
+def inheritedInstance : Instance := ⟨[[0, 1], [0], [1], [1]], [[[0, 1]]], []⟩
 def siblings := raw #[root, abstractType 20,
   { child 200 with super := some 20 }, { child 300 with super := some 20 }]
   #[0, 0, 1, 1] #[0, 0, 1, 1] #[false, false, false, false]
@@ -63,20 +63,20 @@ def sample (label : String) (r : IR.Structural.Raw) (i : Instance) (expected : B
     (size : Nat := 4) : Case := ⟨label, r, bounds r size, i, expected⟩
 
 def cases : List Case := [
-  sample "root only and empty group" emptyModel ⟨[[17], [17]], []⟩ true,
-  sample "missing root" emptyModel ⟨[[], []], []⟩ false,
-  sample "multiple roots" emptyModel ⟨[[0, 1], [0, 1]], []⟩ false,
-  sample "object outside all source extents" emptyModel ⟨[[0, 1], [0]], []⟩ false,
-  sample "root freshness" two ⟨[[0], [0], [0]], [[[0, 0]]]⟩ false,
+  sample "root only and empty group" emptyModel ⟨[[17], [17]], [], []⟩ true,
+  sample "missing root" emptyModel ⟨[[], []], [], []⟩ false,
+  sample "multiple roots" emptyModel ⟨[[0, 1], [0, 1]], [], []⟩ false,
+  sample "object outside all source extents" emptyModel ⟨[[0, 1], [0]], [], []⟩ false,
+  sample "root freshness" two ⟨[[0], [0], [0]], [[[0, 0]]], []⟩ false,
   sample "ordinary containment" two twoInstance true,
   sample "missing owner" two { twoInstance with fields := [[[0, 1]]] } false,
   sample "owner first orientation" two { twoInstance with fields := [[[1, 0], [2, 0]]] } false,
   sample "optional upper bound" optional twoInstance false,
   sample "local lower bound" { two with declarations :=
       #[root, { child 200 with localBounds := ⟨1, .unbounded⟩ }] }
-    ⟨[[0], [0], []], [[]]⟩ false,
-  sample "empty realized xor" xor ⟨[[0], [0], []], [[]]⟩ false,
-  sample "one realized xor" xor ⟨[[0, 1], [0], [1]], [[[0, 1]]]⟩ true,
+    ⟨[[0], [0], []], [[]], []⟩ false,
+  sample "empty realized xor" xor ⟨[[0], [0], []], [[]], []⟩ false,
+  sample "one realized xor" xor ⟨[[0, 1], [0], [1]], [[[0, 1]]], []⟩ true,
   sample "group upper bound" xor twoInstance false,
   sample "bag distinct heads one target" bag bagInstance true,
   sample "set duplicate owner target" set bagInstance false,
@@ -86,39 +86,39 @@ def cases : List Case := [
     [[[0, 1]], [[0, 2], [0, 3]], [[2, 1]]] } false,
   sample "reference functionality" bag
     ⟨[[0, 1, 2, 3, 4], [0], [1, 4], [2, 3]],
-      [[[0, 1], [0, 4]], [[0, 2], [0, 3]], [[2, 1], [2, 4], [3, 1]]]⟩ false 5,
+      [[[0, 1], [0, 4]], [[0, 2], [0, 3]], [[2, 1], [2, 4], [3, 1]]], []⟩ false 5,
   sample "different owners may share target" owners ownersInstance true 6,
   sample "set key remains per owner" owners { ownersInstance with fields :=
     [[[0, 1], [0, 2]], [[0, 3]], [[1, 4], [1, 5]], [[4, 3], [5, 3]]] } false 6,
   sample "two parents rejected" nested
-    ⟨[[0, 1, 2, 3], [0], [1, 2], [3]], [[[0, 1], [0, 2]], [[1, 3], [2, 3]]]⟩ false,
+    ⟨[[0, 1, 2, 3], [0], [1, 2], [3]], [[[0, 1], [0, 2]], [[1, 3], [2, 3]]], []⟩ false,
   sample "cross containment incomparable overlap" nested
-    ⟨[[0, 1], [0], [1], [1]], [[[0, 1]], [[1, 1]]]⟩ false,
+    ⟨[[0, 1], [0], [1], [1]], [[[0, 1]], [[1, 1]]], []⟩ false,
   sample "inherited object identity" inheritance inheritedInstance true,
   sample "missing super membership" inheritance
     { inheritedInstance with signatures := [[0, 1], [0], [], [1]] } false,
   sample "uncovered abstract object" inheritance
-    ⟨[[0, 1, 2], [0], [1, 2], [1]], [[[0, 1]]]⟩ false,
+    ⟨[[0, 1, 2], [0], [1, 2], [1]], [[[0, 1]]], []⟩ false,
   sample "sibling overlap" siblings
-    ⟨[[0, 1], [0], [1], [1], [1]], [[[0, 1]], [[0, 1]]]⟩ false,
-  sample "empty abstract leaf" abstractLeaf ⟨[[0], [0], []], []⟩ true,
+    ⟨[[0, 1], [0], [1], [1], [1]], [[[0, 1]], [[0, 1]]], []⟩ false,
+  sample "empty abstract leaf" abstractLeaf ⟨[[0], [0], []], [], []⟩ true,
   sample "nonempty abstract leaf" abstractLeaf leafInstance false,
-  sample "zero unused abstract chain" unusedChain ⟨[[0], [0], [], []], []⟩ true,
-  sample "nonempty unused abstract chain" unusedChain ⟨[[0, 1], [0], [1], [1]], []⟩ false,
+  sample "zero unused abstract chain" unusedChain ⟨[[0], [0], [], []], [], []⟩ true,
+  sample "nonempty unused abstract chain" unusedChain ⟨[[0, 1], [0], [1], [1]], [], []⟩ false,
   sample "reverse order abstract chain" reversed
-    ⟨[[0, 1], [0], [1], [1], [1]], [[[0, 1]]]⟩ true,
+    ⟨[[0, 1], [0], [1], [1], [1]], [[[0, 1]]], []⟩ true,
   sample "reference cycles" referenceCycle
-    ⟨[[0, 1, 2], [0], [1], [2]], [[[0, 1]], [[1, 2]], [[0, 2]], [[2, 1]]]⟩ true,
+    ⟨[[0, 1, 2], [0], [1], [2]], [[[0, 1]], [[1, 2]], [[0, 2]], [[2, 1]]], []⟩ true,
   sample "zero interval empty group" { emptyModel with declarations :=
-      #[{ root with groupBounds := ⟨0, .finite 0⟩ }] } ⟨[[0], [0]], []⟩ true,
+      #[{ root with groupBounds := ⟨0, .finite 0⟩ }] } ⟨[[0], [0]], [], []⟩ true,
   sample "empty parent vacuity" { nested with declarations :=
       #[root, child 10, { child 20 with parent := some 10, localBounds := ⟨2, .finite 3⟩ }] }
-    ⟨[[0], [0], [], []], [[], []]⟩ true,
+    ⟨[[0], [0], [], []], [[], []], []⟩ true,
   ⟨"total budget is not summed inherited scopes", inheritance,
     { bounds inheritance with objects := 2 }, inheritedInstance, true⟩,
   ⟨"total budget constraint", two, { bounds two with objects := 2 }, twoInstance, false⟩,
   ⟨"exact root zero still compiles", emptyModel,
-    ⟨[(100, ⟨0, true⟩)], 0, 1⟩, ⟨[[], []], []⟩, false⟩,
+    ⟨[(100, ⟨0, true⟩)], 0, 1⟩, ⟨[[], []], [], []⟩, false⟩,
   ⟨"exact declaration scope", two, ⟨[(100, ⟨1, true⟩), (200, ⟨3, true⟩)], 4, 5⟩,
     twoInstance, false⟩
 ]
@@ -170,10 +170,10 @@ def run : IO Unit := do
       reordered.module.raw.command.scopes.map (fun s => (s.size, s.exact)) do
     throw (IO.userError "bound input order changed allocation")
   for (r, i, tag) in [
-      (emptyModel, ⟨[[], []], []⟩, Obligation.root),
+      (emptyModel, ⟨[[], []], [], []⟩, Obligation.root),
       (two, { twoInstance with fields := [[[0, 1]]] }, Obligation.ownership 200),
       (optional, twoInstance, Obligation.localBounds 200),
-      (xor, ⟨[[0], [0], []], [[]]⟩, Obligation.groupBounds 100),
+      (xor, ⟨[[0], [0], []], [[]], []⟩, Obligation.groupBounds 100),
       (set, bagInstance, Obligation.setKey 300),
       (abstractLeaf, leafInstance, Obligation.abstractCover 20)] do
     let .ok original := compileRaw r (bounds r) | throw (IO.userError "mutation input")

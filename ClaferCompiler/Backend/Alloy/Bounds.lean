@@ -40,6 +40,7 @@ def Rel.columns (scopes : List Scope) (schema : Schema) (env : List Nat) (rel : 
     product := (· ++ ·)
     join := fun a b => a.dropLast ++ b.drop 1
     transpose := List.reverse
+    diagonal := fun a => a ++ a
   } []
 
 /-! [impl->req~compiler-target-arithmetic~1] -/
@@ -60,6 +61,7 @@ def Integer.range (m : Module) (depth : Nat) (n : Integer) : Option IntRange :=
     count := fun r => IntRange.checked m.command.bitwidth
       ⟨0, Int.ofNat ((r.columns m.command.scopes m.schema
         (List.replicate depth 1)).foldl (· * ·) 1)⟩
+    scalar := fun _ lo hi _ => IntRange.checked m.command.bitwidth ⟨lo, hi⟩
     add := fun a b => do
       let a ← a; let b ← b
       IntRange.checked m.command.bitwidth ⟨a.lower + b.lower, a.upper + b.upper⟩
