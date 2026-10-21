@@ -66,12 +66,40 @@ def fixture_path(item):
     return path
 
 
+def share_checker_dependencies():
+    """Reuse the checked transitive packages in the upstream Lake workspace."""
+    subprocess.run([sys.executable, str(ROOT / "scripts/project_modules.py"),
+                    "--repo", str(ROOT), "--dependencies",
+                    "--output-dir", str(ROOT / ".lake/validation")], check=True)
+    packages = json.loads((ROOT / "lake-manifest.json").read_text())["packages"]
+    destination = UPSTREAM / ".lake/packages"
+    destination.mkdir(parents=True, exist_ok=True)
+    for package in packages:
+        if package["name"] == "clafer":
+            continue
+        target = destination / package["name"]
+        if target.exists() or target.is_symlink():
+            # Preserve an existing clean checkout, but do not bless a stale or
+            # locally edited nested dependency just because the outer one passed.
+            command = ["git", "-C", str(target)]
+            revision = subprocess.check_output(command + ["rev-parse", "HEAD"], text=True).strip()
+            dirty = subprocess.check_output(command + ["status", "--porcelain"], text=True)
+            if revision != package["rev"] or dirty:
+                raise ValueError("Checker dependency differs from pin: " + package["name"])
+        else:
+            # Relative links remain inside the copied dependency package tree in
+            # IntentBond snapshots. Neither upstream sources nor manifests change.
+            source = ROOT / ".lake/packages" / package["name"]
+            target.symlink_to(os.path.relpath(source, destination), target_is_directory=True)
+
+
 # [impl->req~compiler-oracles~1]
 def prepare(output):
     """Provision outside the check deadline and retain notices/dependency inputs."""
     output = external(output)
     output.mkdir(parents=True, exist_ok=False)
     api = adapters()
+    share_checker_dependencies()
     runtime, p = api["runtime"], api["protocol"]
     for name in ("CLAFER_CAPTURE_CACHE", "CLAFER_ALLOY_CACHE", "CLAFER_CAPTURE",
                  "CLAFER_CAPTURE_BUILD", "CLAFER_ALLOY_JAR", "CLAFER_JAVA_HOME"):

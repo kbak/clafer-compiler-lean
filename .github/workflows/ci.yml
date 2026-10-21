@@ -1,8 +1,6 @@
 name: CI
 on:
-  pull_request:
-  push:
-    branches: [main]
+  # Development uses mandatory local IntentBond checks; hosted checks are opt-in.
   workflow_dispatch:
 permissions:
   contents: read

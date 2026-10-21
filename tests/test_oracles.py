@@ -7,10 +7,86 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts/oracles"))
 import oracle
+
+
+# [utest->req~compiler-oracles~1]
+class CheckerDependencyTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.packages = self.root / ".lake/packages"
+        self.upstream = self.packages / "clafer"
+        self.mathlib = self.packages / "mathlib"
+        self.mathlib.mkdir(parents=True)
+        self.upstream.mkdir()
+        # A real tiny Git dependency exercises identity/dirty checks without
+        # cloning the actual Mathlib tree in every regression.
+        def git(*args):
+            return subprocess.check_output(["git", "-C", str(self.mathlib), *args], text=True).strip()
+        git("init", "-q")
+        git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+            "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
+            "commit", "--allow-empty", "-qm", "Fixture dependency")
+        oracle.write(self.root / "lake-manifest.json", dict(packages=[
+            dict(name="clafer"), dict(name="mathlib", rev=git("rev-parse", "HEAD"))]))
+        self.enterContext(patch.object(oracle, "ROOT", self.root))
+        self.enterContext(patch.object(oracle, "UPSTREAM", self.upstream))
+        # The existing dependency validator has its own integration coverage;
+        # these tests isolate sharing only after that validator returns success.
+        real_run = subprocess.run
+        def run(command, *args, **kwargs):
+            if str(self.root / "scripts/project_modules.py") in command:
+                return subprocess.CompletedProcess(command, 0)
+            return real_run(command, *args, **kwargs)
+        self.validate = self.enterContext(patch.object(oracle.subprocess, "run", side_effect=run))
+
+    def test_relative_shared_packages_survive_snapshot_copy(self):
+        oracle.share_checker_dependencies()
+        link = self.upstream / ".lake/packages/mathlib"
+        self.assertTrue(link.is_symlink())
+        self.assertFalse(Path(os.readlink(link)).is_absolute())
+        self.assertEqual(self.mathlib, link.resolve())
+        oracle.share_checker_dependencies()
+        snapshot = self.root / "snapshot"
+        shutil.copytree(self.packages, snapshot, symlinks=True)
+        self.assertEqual(snapshot / "mathlib", (snapshot / "clafer/.lake/packages/mathlib").resolve())
+        self.validate.assert_any_call([
+            sys.executable, str(self.root / "scripts/project_modules.py"),
+            "--repo", str(self.root), "--dependencies",
+            "--output-dir", str(self.root / ".lake/validation")], check=True)
+
+    def test_dirty_existing_dependency_is_rejected_and_preserved(self):
+        oracle.share_checker_dependencies()
+        marker = self.mathlib / "local-change"
+        marker.write_text("preserve me")
+        with self.assertRaisesRegex(ValueError, "Checker dependency differs"):
+            oracle.share_checker_dependencies()
+        self.assertEqual("preserve me", marker.read_text())
+
+    def test_failed_validation_does_not_create_aliases(self):
+        self.validate.side_effect = subprocess.CalledProcessError(1, "dependency-validation")
+        with self.assertRaises(subprocess.CalledProcessError):
+            oracle.share_checker_dependencies()
+        self.assertFalse((self.upstream / ".lake").exists())
+
+    def test_existing_checkout_at_wrong_revision_is_rejected(self):
+        target = self.upstream / ".lake/packages/mathlib"
+        target.parent.mkdir(parents=True)
+        shutil.copytree(self.mathlib, target)
+        subprocess.run(["git", "-C", str(target), "-c", "user.name=Fixture",
+                        "-c", "user.email=fixture@example.invalid", "-c", "commit.gpgsign=false",
+                        "-c", "core.hooksPath=/dev/null", "commit", "--allow-empty", "-qm",
+                        "Different revision"], check=True)
+        with self.assertRaisesRegex(ValueError, "Checker dependency differs"):
+            oracle.share_checker_dependencies()
+        self.assertTrue(target.is_dir())
+        self.assertFalse(target.is_symlink())
 
 
 # [utest->req~compiler-oracles~1]

@@ -61,7 +61,13 @@ provisioning. Invalid explicit settings fail. `tools.json` retains their resolve
 paths outside source. Checks require this record, revalidate identities and
 recompile the bridge; they do not silently provision missing tools or skip tests.
 Fresh snapshots reuse dependency packages and external tools, rebuilding project
-outputs. CI retains setup logs, notices, tool receipts and all oracle evidence.
+outputs. Manually dispatched CI retains setup logs, notices, tool receipts and all
+oracle evidence; automatic hosted runs are deferred during development.
+Preparation validates the outer and inherited manifest identities, then shares
+missing nested checker dependencies through relative links to the already
+prepared packages. Existing clean nested checkouts are preserved; dirty or wrong
+revisions fail. The links remain inside a copied package tree, avoiding a second
+Mathlib download/build without changing manifests or upstream source meanings.
 
 The following commands take new external output directories. A bounds file is a
 JSON object with `root: 1` and an explicit natural upper bound for each compiler

@@ -78,6 +78,10 @@ project outputs are rebuilt. No private paths or credentials belong in source.
 The existing scope already selects all files and review paths. Its coverage floors,
 check command and 120-second execution deadline are unchanged. Dependency preparation
 is outside that deadline; CI allows 30 minutes for provisioning and the check.
+During development, CI runs only on manual dispatch, not on pushes or pull requests.
+Run the full local IntentBond check before handoff. Use GitHub Actions → CI → Run
+workflow when a clean hosted run is needed; automatic CI is deferred until
+development is complete.
 The workflow refuses differing baseline/candidate scope bytes; any future amendment
 needs explicit review before selecting it as trusted policy.
 
