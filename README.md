@@ -2,13 +2,14 @@
 
 A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
 
-**Status: guarded structural backend candidate.** Executable declaration
+**Status: structural backend with serialization under review.** Executable declaration
 tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
 and [comparison tools](docs/oracles.md) are available. The independent
-[static Alloy target model](docs/alloy-core.md) is accepted. The
-[structural backend](docs/structural-encoding.md) translates admitted M1 IR into
-checked target ASTs with manual bounds. Its acceptance review and global
-preservation proofs remain pending; serialization and CLI integration are separate tasks.
+[static Alloy target model](docs/alloy-core.md) and
+[structural backend](docs/structural-encoding.md) are accepted. The backend translates
+admitted M1 IR into checked target ASTs with manual bounds;
+[hygienic serialization](docs/alloy-text.md) is available for review.
+Global preservation proofs and CLI integration remain separate tasks.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 
