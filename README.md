@@ -8,7 +8,9 @@ and [comparison tools](docs/oracles.md) are available. The independent
 [static Alloy target model](docs/alloy-core.md) is accepted. The
 [structural backend](docs/structural-encoding.md) translates admitted M1 IR into
 checked target ASTs with manual bounds. Its acceptance review and global
-preservation proofs remain pending; serialization and CLI integration are separate tasks.
+preservation proofs remain pending. The selected [typed expression API](docs/expressions.md)
+adds checked static syntax and independent semantic interpretation; its acceptance
+review, expression encoding, serialization and CLI integration remain separate.
 The repository and its [planning board](https://github.com/users/kbak/projects/3)
 are private while the design is being worked out.
 

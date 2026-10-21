@@ -3,7 +3,8 @@
 These requirements cover the current documentation and workflow. The structural
 contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
 IR tasks #5–#7 were accepted through PRs #23–#25; target task #8 through PR #26.
-Selected task #10 adds the guarded structural backend. Future compiler behavior
+Selected task #10 adds the guarded structural backend; selected #14 adds typed
+static expressions and their independent semantic interpretation. Future compiler behavior
 is reserved below, not declared implemented or proved.
 
 ## Honest project boundary
@@ -13,7 +14,7 @@ is reserved below, not declared implemented or proved.
 The README and intent explain the selected structural Clafer-to-Alloy direction,
 its relationship to Clafer Semantics and the Haskell comparison compiler, and the
 build bootstrap, admitted structural IR, independent target core and selected
-structural backend. Global compiler preservation remains unproved. Distinguish
+structural backend and typed expression API. Global compiler preservation remains unproved. Distinguish
 reviewed decisions, contract candidates and future implementation/proof promises. Contract adoption precedes dependent
 manual intake; planning tickets do not start implementation. Keep the repository
 and Project private until the maintainer explicitly requests publication.
@@ -256,6 +257,57 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Executable typed static expressions
+
+`req~compiler-expressions~1`
+
+Provide executable finite support and annotated syntax for every adopted M2 typed
+core constructor, with checked sorts, lexical positions, fresh nested binders,
+explicit identity/inclusion widening and original byte spans. Preserve `this`,
+global extents, repeated map occurrences and operand order. Reject malformed
+annotations and direct observations of the complete primitive integer extent.
+Return the original tree with checked typing and observation evidence.
+
+Interpret successful typed trees into the pinned independent typed core, using
+its existing partial denotation. Prove exact admission, footprint preservation
+and admissible environment interpretation. Undefined remains distinct from false;
+reference-head and target-set counts remain distinct. Permit map-free literals
+through direct denotation without changing upstream Compile support. This API
+neither extends M1 admission nor implements a parser, general finite evaluator,
+Alloy constraint encoding or production CLI. See the [expression contract](expressions.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Static arithmetic and finite observation
+
+`req~compiler-arithmetic~1`
+
+Retain mathematical Int meaning with explicit width, finite observation budgets,
+value intervals and separate definedness obligations. Conservatively check every
+literal, integer extraction and arithmetic intermediate, including all Boolean
+branches and binder bodies, for signed representability at widths 1–16. Reject
+unsafe profiles as unsupported, without wrapping or asserting UNSAT. Check
+candidate observations and external environments against their recorded budgets
+and intervals independently of constraint truth.
+
+Prove exact finite singleton extraction, interval transfer/representability,
+and construction of full-integer bindings retaining nonprimitive objects and
+original links under explicit independent model obligations. Prove admitted
+expression denotation invariant across such extensions and finite meaning for
+admitted collections, including integer navigation and quantifier domains.
+Keep primitive/root structural composition explicit; do not claim whole-domain
+finite equivalence. General range-analysis soundness against denotation, bounded
+Alloy arithmetic and structural pipeline composition remain #15/#20 obligations;
+tested range behavior is distinct from these future theorems.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Documentation and workflow artifacts
 
 `impl~scaffold-boundary~1`
@@ -325,8 +377,6 @@ coverage.
 | `compiler-structural-correctness` | [#11](https://github.com/kbak/clafer-compiler-lean/issues/11) | Soundness and bounded completeness |
 | `compiler-differential`, `compiler-instance-decode` | [#12](https://github.com/kbak/clafer-compiler-lean/issues/12) | Exact-candidate comparisons and strict decode |
 | `compiler-inherited-realization` | [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) | Selected inherited-field/abstract-family extension |
-| `compiler-expressions` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14) | Executable typed expressions and semantic agreement |
-| `compiler-arithmetic` | [#14](https://github.com/kbak/clafer-compiler-lean/issues/14), [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Definedness, finite observation and no-overflow correspondence |
 | `compiler-expression-encoding` | [#15](https://github.com/kbak/clafer-compiler-lean/issues/15) | Static constraint preservation |
 | `compiler-parser` | [#16](https://github.com/kbak/clafer-compiler-lean/issues/16) | Accepted grammar/parser correspondence |
 | `compiler-diagnostics` | [#16](https://github.com/kbak/clafer-compiler-lean/issues/16), [#19](https://github.com/kbak/clafer-compiler-lean/issues/19) | Stable diagnostic categories, codes and locations |

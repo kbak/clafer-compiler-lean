@@ -129,3 +129,12 @@ context. The backend retains the adopted empty-group/default distinctions rather
 than silently adopting Haskell's empty-child skip. All new runtime, proof and test
 code is original project code under MIT; no upstream meanings or Haskell code are
 copied. Local source/target finite tests do not replace #12's generated-text oracle.
+
+The selected [expression API](expressions.md) maps S4's complete typed constructor
+inventory directly into the pinned upstream denotation. `DenotationSupport` and
+`DenotationInvariance` supply observation invariance and original-link equivalence;
+`Integer` and `CollectionMeaning` supply partial extraction and typed collection
+meaning. S5's static `clafer.cf` productions and S6's `genPExp'`, `genIFunExp` and
+`genOp` were inspected for constructor shape and operand order. The downstream
+checker, observation extension and tests are original MIT code. No upstream
+semantics, primitive domains, positive-map support or dependency pins changed.

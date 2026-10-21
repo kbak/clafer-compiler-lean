@@ -8,7 +8,8 @@ implementation. A Todo ticket or this documentation does not start compiler work
 The current checkout has a pinned Lean/Lake build, native bootstrap, external
 [oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
 [independent Alloy core](docs/alloy-core.md) and the selected
-[structural backend](docs/structural-encoding.md). Global preservation and text/CLI
+[structural backend](docs/structural-encoding.md) and
+[typed expression API](docs/expressions.md). Global preservation and text/CLI
 integration remain separate tasks.
 See [build and proof checks](docs/build.md).
 

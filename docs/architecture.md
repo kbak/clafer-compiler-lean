@@ -7,7 +7,8 @@ Issue #2 was closed by merged PR #22; build #5, oracle tooling #6 and structural
 IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) provide
 external validation; the [IR API and proof inventory](ir.md) record the delivered
 M1 admission boundary. The independent [target core](alloy-core.md) belongs to
-selected task #8. Later tasks require their own manual intake. The remaining
+accepted task #8. The [typed expression API](expressions.md) is selected as #14
+after #7 acceptance. Later tasks require their own manual intake. The remaining
 contracts below are delivery specifications, not implemented APIs or proved results.
 [Requirements](spec.md) covers the present documentation obligations;
 [reserved requirements](spec.md#reserved-implementation-requirements) remain future work.
@@ -102,7 +103,8 @@ extra semantic restrictions on the compiler's own IR API.
 S4 is the authority for meanings; #14 owns executable syntax and interpretation,
 #15 translation/constructor proofs, and #18 source elaboration. Every row needs
 positive and rejecting/violating examples, including undefined cases where relevant.
-`Expr` below is `Clafer.Constraints.Expr`, not a delivered compiler type.
+`Expr` below is `Clafer.Constraints.Expr`; the corresponding delivered #14 representation is
+`ClaferCompiler.IR.Expr.Term` with `Checked` typing evidence.
 
 | Accepted constructor(s) | Meaning and boundary | Surface route |
 | --- | --- | --- |
