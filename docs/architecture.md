@@ -13,7 +13,7 @@ accepted #11's [M1 representation and preservation proofs](structural-correctnes
 through PR #33. Selected #13 implements
 [inherited structural realization](inherited-realization.md), pending semantic
 acceptance. The [typed expression API](expressions.md) is accepted through #14/PR #32
-after #7. Selected #15 adds [bounded target arithmetic](expression-encoding.md);
+after #7. Selected #15 adds [bounded target arithmetic and source range proofs](expression-encoding.md);
 translation of source expressions and attachments and its preservation remain
 unfinished. Later tasks require their own manual intake. The remaining contracts
 below are delivery specifications, not implemented APIs or proved results.

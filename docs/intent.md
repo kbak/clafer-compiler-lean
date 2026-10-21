@@ -43,9 +43,10 @@ acceptance; its resolution/defaulting semantic review remains pending.
 Typed expression task #14 is accepted through PR #32. The
 [expression API](expressions.md) supplies checked syntax, independent denotation
 and finite-observation proofs. Task #15 is selected; its
-[bounded target arithmetic](expression-encoding.md) is implemented with review
-pending. Source constraint translation and attachment preservation remain
-unfinished. Other tasks require their own selection.
+[bounded target arithmetic](expression-encoding.md) was merged through PR #34.
+Source range-analysis proofs now connect finite observation budgets to independent
+denotation, with semantic review pending. Source constraint translation and
+attachment preservation remain unfinished. Other tasks require their own selection.
 Approval of a roadmap does not start its implementation tickets.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
@@ -102,7 +103,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
-- [Expression encoding](expression-encoding.md): target arithmetic, partial progress and remaining preservation obligations.
+- [Expression encoding](expression-encoding.md): target arithmetic, source range proofs and remaining preservation obligations.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.

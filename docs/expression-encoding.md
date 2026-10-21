@@ -4,8 +4,9 @@
 after accepted #9, #10 and #14 (PRs #27, #28 and #32). The starting implementation
 baseline is `b36a9b8478a2ad3e2310c768aac04943369d31ba`. This work extends the
 independent Alloy target and consumes the [typed expression API](expressions.md).
-Implementation and semantic review are in progress; the issue's constructor,
-attachment and arithmetic preservation obligations remain acceptance criteria.
+Target arithmetic was merged through PR #34. The source range-proof continuation
+is pending semantic review; the issue's source-to-target constructor and attachment
+preservation obligations remain acceptance criteria.
 
 ## Delivered target arithmetic
 
@@ -55,7 +56,60 @@ source-to-target theorem is claimed from that equality.
 Covers:
 - `req~compiler-target-arithmetic~1`
 
-## Serialization and validation
+## Source range-analysis proofs
+
+`proof~compiler-source-ranges~1`
+
+[Observation bounds](../ClaferCompiler/Correctness/ExprObservationBounds.lean)
+derive finite recorded membership, distinct-object budgets, observed integer
+intervals and map endpoints from the executable `Observation.withinBounds` check.
+`recorded_result` proves that every admitted collection stays within these finite
+observations, including identity/inclusion widening, relational image/join and
+lexical variables. Equal-ID observations and original inclusion links supply the
+widening argument; membership in the infinite primitive class alone is insufficient.
+
+[Range soundness](../ClaferCompiler/Correctness/ExprRanges.lean) proves
+`analyzeAt_sound` for the existing executable analyzer and every typed constructor.
+`admitted_sound` exposes its result: numbers that are defined lie in the returned
+representable interval; collections are total finite sets whose distinct cardinality
+is at most the returned budget. No expression truth or definedness premise is used
+to obtain these guarantees. Undefined singleton extraction remains undefined.
+
+[Intermediate ranges](../ClaferCompiler/Correctness/ExprIntermediateRanges.lean)
+proves `admitted_all_numbers_fit`, including numeric operands under both Boolean
+branches and bodies at every actual quantified object. Empty domains have no body
+evaluations, while admission still checks their body syntax. `bounded_environment_sound`
+derives the observation and lexical premises directly from `Environment.bounded`.
+All results retain the independent `ObservationValid` binding obligations, which
+describe identities, links and inclusion maps and contain no constraint truth.
+
+`admitted_extension_sound` composes the established finite-observation bridge to
+preserve the returned estimate in every full mathematical integer extension.
+`admitted_integer_target` shows that a defined admitted source integer is accepted
+unchanged by the target's `boundedInt`. This scalar representability lemma is not
+source-to-Alloy expression correspondence. `AllNumbersFit` is stated over the
+canonical full-integer extension; it is a property of the upstream denotation,
+not another evaluator. Structural primitive/root composition remains separate.
+
+Covers:
+- `req~compiler-arithmetic~1`
+
+`utest~compiler-source-ranges~1`
+
+[Kernel witnesses](../tests/ExprRanges.lean) instantiate the analyzer theorems on
+navigation/extraction, ordered subtraction, a binary join count and a quantified
+primitive variable with a false Boolean sibling. They retain undefined extraction,
+reject unrecorded external integers and reject intermediate overflow despite final
+cancellation. [Native interval tests](../tests/ExprNative.lean) enumerate every
+mathematical input value for 360 interval/operator/width combinations, independently
+of the analyzer's endpoint formulas. The existing [runner](../tests/test_expressions.py)
+executes these alongside the earlier 882 literal-boundary combinations. These
+tests and theorems establish source range safety, not emitted expression facts.
+
+Covers:
+- `req~compiler-arithmetic~1`
+
+## Serialization and target validation
 
 `utest~compiler-target-integers~1`
 
@@ -97,9 +151,10 @@ Issue #15 remains In Progress. The following obligations are unchanged:
   extraction, primitive observations, owner/navigation bindings and lexical scope.
 - Generate separate definedness and value/truth, with explicit interval/domain
   enforcement and inherited-context restrictions for every attachment occurrence.
-- Prove full source range-analysis soundness, constructor correspondence and the
-  all-attachments theorem against the independent upstream denotation; compose
-  the finite-observation bridge without assuming final truth.
+- Prove source-to-target constructor correspondence and the all-attachments theorem
+  against the independent upstream denotation. Compose the source range proofs
+  with concrete target representation and generated enforcement without assuming
+  final truth.
 - Extend target representation, serialization and actual Analyzer checks for
   integer-valued relations and source-context/definedness mutations.
 
@@ -107,6 +162,27 @@ No source constructor is newly admitted or rejected by this target-only stage.
 M1 admission, dependency pins, the trusted scope and its deadline are unchanged.
 
 ## Reuse assessment
+
+The source range-proof continuation starts from accepted main at
+`92b21bd7b5ac9e47a39a4fa71428bc8338773e52` (the original checkout was
+`81e57ccb770643252165dd99ac28b318650e7973`). It reuses `ExprBounds.analyzeAt`,
+`Observation.withinBounds`, the existing interpretation and finite-observation
+bridge. The pinned upstream `CollectionMeaning` proves membership in full class
+domains, but that is insufficient for bounded primitive observations: its integer
+domain contains all mathematical integers. The downstream proof must additionally
+track membership in the recorded finite observations, including after identity
+and inclusion widening and lexical binding. This is a compiler budget obligation,
+not a change to the upstream denotation.
+
+Mathlib's existing `Set.ncard_le_ncard`, `ncard_union_le`, `ncard_image_le` and
+`ncard_prod`, plus the existing structural proof's generic `eraseDups_nodup`,
+supply the collection counting machinery. Lean's existing finite
+lists, vectors and recursors remain the executable implementation. The pinned
+Haskell `genOp` arithmetic branches were checked as the supplementary operand-order
+reference; they supply no proof of the adopted conservative source policy.
+No new evaluator, container library, solver, package or copied source is needed.
+The new proof modules remain outside the native import closure and add no
+dependency or license cost.
 
 The accepted target already provides postfix relation/formula algebras, checked
 syntax and bounds, finite set-of-tuples evaluation, hygienic names and a checked
@@ -120,8 +196,8 @@ license cost and preserve the native/proof import boundary.
 The pinned upstream `Constraints/Denotation.lean`, `Integer.lean`,
 `DenotationInvariance.lean` and the existing expression bridge supply independent
 partial mathematical meaning. They cannot be imported into native target code.
-The existing source range analyzer checks all branches, but its interval lemmas
-alone do not prove the complete analyzer's agreement with denotation.
+The source range proof now connects that existing analyzer to the independent
+denotation; it does not introduce a source evaluator or target encoding.
 
 The retained official Alloy reference's Integer Expressions section and pinned
 Haskell `Generator/Alloy.hs` `genOp` distinguish integer addition/subtraction from

@@ -83,8 +83,11 @@ A large budget alone is not an integer expression; it is checked when observed b
 cardinality. Finite primitive budgets count observed integer objects, not the
 infinite primitive extent. The analysis may reject an individually safe candidate;
 it does not assert UNSAT. The arithmetic interval-transfer and representability
-lemmas are kernel checked; general analyzer-to-denotation and bounded-Alloy
-correspondence remain obligations of #15. The analyzer is exercised natively.
+lemmas are kernel checked. Selected #15 now supplies
+[general analyzer-to-denotation proofs](expression-encoding.md#source-range-analysis-proofs)
+and scalar target representability, pending semantic review. Source-to-Alloy
+constructor and attachment correspondence remain unfinished. The analyzer is
+also exercised natively.
 
 [ExprObservation](../ClaferCompiler/IR/ExprObservation.lean) distinguishes
 `Atom.object id` from `Atom.integer value`. `Observation` contains finite object
