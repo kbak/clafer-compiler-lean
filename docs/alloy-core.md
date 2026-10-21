@@ -2,9 +2,10 @@
 
 [Issue #8](https://github.com/kbak/clafer-compiler-lean/issues/8) supplies the target
 API for #9 and #10 after accepted oracle task #6. It was accepted through PR #26.
-The separate [structural backend](structural-encoding.md) now consumes this API.
-The target core contains no source encoder, serializer, parser, decoder or compiler
-preservation theorem. The existing native CLI still only supports `--version`.
+The accepted [structural backend](structural-encoding.md) consumes this API;
+selected [text task #9](alloy-text.md) supplies a serializer and independent parser.
+Instance decoding and global compiler preservation remain separate tasks.
+The existing native CLI still only supports `--version`.
 
 ## API and supported fragment
 
@@ -24,7 +25,8 @@ returns a module carrying proofs that its arity/binding and bound checks passed.
 `Rel.typeOf` checks unary/binary shape and signature/field IDs. All binders are
 unary object binders, with de Bruijn index zero denoting the nearest binder.
 Domains are checked in the outer context, bodies in a context extended by one.
-There are no names or implicit receiver bindings. #9 owns names and surface syntax.
+There are no names or implicit receiver bindings in the core.
+The [text API](alloy-text.md) supplies names and surface syntax.
 
 `Rel` and `Formula` store finite postfix instruction lists, with public builders
 such as `Rel.join left right` and `Formula.all domain body`. The first operand is
@@ -219,6 +221,7 @@ requires the source-matched checkout and prepared pinned dependencies. A failed
 process, timeout or absent tool fails the gate; none becomes a Boolean observation.
 The full existing oracle suite still exercises Haskell and upstream Lean.
 
-Review must assess the reference mapping, conservative analysis and finite
-observations. IntentBond exit 4 leaves that review pending; no scope or coverage
-policy changes are part of this task.
+Acceptance of #8 through PR #26 covers the reference mapping, conservative analysis
+and finite observations. Later changes still require their own review. IntentBond
+exit 4 leaves that review pending; no scope or coverage policy changes are part
+of this task.

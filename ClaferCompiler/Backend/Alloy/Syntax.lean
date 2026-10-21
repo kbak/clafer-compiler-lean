@@ -23,15 +23,18 @@ structure Signature where
   parent : Option Nat := none
   isAbstract : Bool := false
   multiplicity : Multiplicity := .set
+  deriving DecidableEq, BEq
 
 structure Field where
   owner : Nat
   target : Nat
   multiplicity : Multiplicity := .set
+  deriving DecidableEq, BEq
 
 structure Schema where
   signatures : List Signature
   fields : List Field := []
+  deriving DecidableEq, BEq
 
 inductive RelOp where
   | empty (arity : Arity)
@@ -39,10 +42,12 @@ inductive RelOp where
   | field (id : Nat)
   | var (index : Nat)
   | union | inter | diff | product | join | transpose
+  deriving DecidableEq, BEq
 
 /-- Postfix syntax; public builders preserve operand order. Raw code is checked. -/
 structure Rel where
   code : List RelOp
+  deriving DecidableEq, BEq
 
 def Rel.empty (a : Arity) : Rel := ⟨[.empty a]⟩
 def Rel.sig (i : Nat) : Rel := ⟨[.sig i]⟩
@@ -58,6 +63,7 @@ def Rel.transpose (a : Rel) : Rel := ⟨a.code ++ [.transpose]⟩
 inductive Integer where
   | literal (value : Int)
   | count (rel : Rel)
+  deriving DecidableEq, BEq
 
 inductive Comparison where
   | eq | lt | le
@@ -72,9 +78,11 @@ inductive FormulaOp where
   | neg | conj | disj | implies
   | all (domain : Rel)
   | exists_ (domain : Rel)
+  deriving DecidableEq, BEq
 
 structure Formula where
   code : List FormulaOp
+  deriving DecidableEq, BEq
 
 def Formula.truth : Formula := ⟨[.truth]⟩
 def Formula.falsity : Formula := ⟨[.falsity]⟩
@@ -178,6 +186,7 @@ theorem Formula.fold_all (a : FormulaAlgebra α) (p : Formula) (value : α)
 structure Scope where
   size : Nat
   exact : Bool := false
+  deriving DecidableEq, BEq
 
 inductive CommandKind where
   | run | check
@@ -188,11 +197,13 @@ structure Command where
   body : Formula := .truth
   scopes : List Scope
   bitwidth : Nat
+  deriving DecidableEq, BEq
 
 structure Module where
   schema : Schema
   facts : List Formula := []
   command : Command
+  deriving DecidableEq, BEq
 
 def Schema.wellFormed (s : Schema) : Bool :=
   (s.signatures.zipIdx.all fun (decl, i) =>

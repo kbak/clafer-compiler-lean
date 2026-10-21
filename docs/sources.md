@@ -118,6 +118,22 @@ No branch name, floating latest release, SoSyM research tag or upstream maintena
 branch is a substitute for the commit pin or a prerequisite for compiler intake.
 Repository/Project privacy, manual intake and publication approval remain unchanged.
 
+The [Alloy text contract](alloy-text.md) maps #9's emitted grammar to S7's lexical,
+namespace, precedence, declaration and command rules. It also uses S6's field
+naming/ownership examples and S8's exact-candidate profile. Its grammar, printer,
+native tests, reference text and AST adapter are original project code. The
+retained reference snapshot identity is unchanged; no upstream definitions or
+Haskell source were copied. Parser reconstruction is a successful-render theorem;
+Analyzer correspondence and total successful renderability are not kernel proofs.
+The [parser reuse assessment](alloy-text.md#parser-reuse-assessment) selects the
+pinned Lean standard-library Parsec implementation for this candidate and inspects Haskell's
+[grammar build rules](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Makefile).
+The Haskell main frontend uses BNFC/Happy and Alex; its Parsec dependency alone
+does not identify the main parser's implementation. `Std.Internal.Parsec` is
+imported from the pinned toolchain under its Apache-2.0 license; no library source
+is copied and no package pin changes. Its opaque repetition helpers leave kernel
+computation/termination distinct from the conditional reconstruction theorem.
+
 The [structural encoding](structural-encoding.md) uses S1's
 `Configuration.Typed`, `Rooted`, `Inherits`, `Abstracts`, `Parents`, `References`,
 `Keys`, `Multiplicities`, `Groups`, `DeclarationDisjoint` and `StructuralSatisfies`

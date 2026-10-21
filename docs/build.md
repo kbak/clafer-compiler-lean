@@ -6,7 +6,8 @@ Build, oracle and IR tasks #5–#7 are accepted through PRs #23–#25. The
 [structural IR and admission bridge](ir.md), accepted independent
 [target core](alloy-core.md), [structural backend](structural-encoding.md), and
 partial [representation proofs](structural-correctness.md) have separate boundaries.
-No parser, serialized Alloy output or global preservation theorem is delivered.
+The accepted [serializer and canonical parser](alloy-text.md) have a separate
+successful-render assurance boundary; no global preservation theorem is delivered.
 
 ## Package and module ownership
 

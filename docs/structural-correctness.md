@@ -8,6 +8,26 @@ They do **not** prove source satisfaction or bounded completeness. Issue #11 and
 its global correctness requirement remain open; none of these lemmas substitutes
 for the two preservation directions in the [architecture](architecture.md).
 
+## Reuse assessment
+
+The representation reuses #10's `order`, `signatureId`, `fieldKeys`, `fieldId`,
+`schema` and generation/inventory theorems, and #8's `Instance`, `wellFormed`,
+`declarations`, `Satisfies` and evaluators. It introduces no second target evaluator.
+Pinned upstream `Configuration` and `Configuration.rename` supply source data and
+renaming directly. Upstream `Verification.Candidate` and its noncomputable
+`encode` use canonical `Fin` labels and belong to the proof dependency; importing
+them into the native runtime would violate the existing import boundary and would
+not preserve raw target label/list order. They remain candidates for the later
+finite-source completeness composition, not a reason to duplicate source meaning.
+
+Lean `List` operations, `Option`/`Except`, and Mathlib `Equiv`, `Fintype.ofFinset`
+and `Fintype.card_ofFinset` provide the machinery. The new proofs supply the
+missing stack-composition lemmas for the existing postfix algebras and injective
+`eraseDups` mapping; they reuse the library's membership, filter, sort and index
+lemmas. #9 already owns parsing/printing, so no parser or external decoding package
+is added. All reused dependencies retain their pinned revisions/licenses; this
+stage adds no package or native runtime dependency.
+
 ## Executable finite presentation
 
 `impl~compiler-structural-representation~1`
