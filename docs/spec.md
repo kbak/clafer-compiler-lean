@@ -35,6 +35,12 @@ semantic review pending, never approval. During development, local checks remain
 mandatory and hosted CI runs only on manual dispatch. When run, CI must preserve
 evidence and expose that distinction. Scope changes require explicit review.
 
+Before implementation, check repository code, pinned upstream sources, standard
+libraries and relevant maintained libraries/tools for reusable solutions. Prefer
+reuse when it meets the contract. Record candidates and concrete gaps or tradeoffs
+before writing custom infrastructure, including proof/runtime boundaries and
+dependency/license costs. Independence alone is not a reason to rebuild machinery.
+
 Covers:
 - `intent~compiler-foundation~1`
 

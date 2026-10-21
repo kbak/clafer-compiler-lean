@@ -125,3 +125,9 @@ native tests, reference text and AST adapter are original project code. The
 retained reference snapshot identity is unchanged; no upstream definitions or
 Haskell source were copied. Parser reconstruction is a successful-render theorem;
 Analyzer correspondence and total successful renderability are not kernel proofs.
+The [parser reuse assessment](alloy-text.md#parser-reuse-assessment) also inspects
+the pinned Lean standard-library Parsec implementation and Haskell's
+[grammar build rules](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Makefile).
+The Haskell main frontend uses BNFC/Happy and Alex; its Parsec dependency alone
+does not identify the main parser's implementation. No dependency changes or
+source redistribution follow from this assessment.

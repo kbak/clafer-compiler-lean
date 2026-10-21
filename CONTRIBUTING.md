@@ -26,6 +26,17 @@ their acceptance criteria are met. Planning issues are not implementation approv
 IntentMade uses manual intake and draft PRs. Only its credential-bearing coordinator
 may run ticket operations; workers return proposed updates without credentials.
 
+## Reuse before implementation
+
+Check existing repository code, pinned upstream sources, standard libraries and
+relevant maintained libraries/tools before implementing. Prefer a reusable solution
+that meets the contract. Before writing custom infrastructure, record the candidates
+checked and concrete gaps or tradeoffs in the affected design or task notes. Assess
+semantic fit, proof and runtime boundaries, maintenance, dependency and license
+costs. Independence from another component does not require implementing general
+machinery from scratch. Keep unresolved choices explicit; see the
+[Alloy parser assessment](docs/alloy-text.md#parser-reuse-assessment).
+
 ## Setup and validation
 
 Python 3.11+, Git, Bash, Java 17+, Elan and a C toolchain are required.

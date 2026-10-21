@@ -8,6 +8,8 @@ Build a structural Clafer-to-Alloy compiler in Lean 4 in this separate repositor
 using Clafer Semantics as its independent mathematical foundation and the Haskell
 Clafer compiler as a compatibility reference. Keep the repository and planning
 board private, with IntentBond traceability and manual task intake.
+Avoid unnecessary infrastructure by checking reusable implementations before
+writing new ones and recording concrete reasons for custom solutions.
 
 Needs: req
 

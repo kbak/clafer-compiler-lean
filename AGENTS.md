@@ -13,6 +13,13 @@ Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.
 
+Before implementing, check existing repository code, pinned upstream sources,
+standard libraries and relevant maintained libraries/tools for reusable solutions.
+Prefer reuse when it meets the contract. Before writing custom infrastructure,
+record the candidates checked and concrete gaps or tradeoffs in the affected design
+or task notes, including proof/runtime boundaries and dependency/license costs.
+An independence requirement alone does not justify rebuilding library machinery.
+
 Use IntentBond for planning, implementation and review. Read the development skill
 and applicable references from the revision pinned in
 [requirements/intentbond.txt](requirements/intentbond.txt):
