@@ -239,7 +239,7 @@ independent acceptance; publication remains a separate decision in #3.
 ## Retaining and retrieving evidence
 
 The accepted M0–M3 candidate has a
-[private draft archive](https://github.com/kbak/clafer-compiler-lean/releases/tag/untagged-44b44004a5f4fce1eea9)
+[private draft archive](https://github.com/kbak/clafer-compiler-lean/releases)
 identified by `qualification-m0-m3-e816480`. It retains the original
 `candidate-e816480.tar.gz`, the later `acceptance-2026-10-21.json`, and
 `SHA256SUMS`. The candidate is `e8164804d1917d7b01f8111e1f269bd6c7ffdb4b`;
