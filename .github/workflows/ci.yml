@@ -1,14 +1,24 @@
 name: CI
 on:
-  # Development uses mandatory local IntentBond checks; hosted checks are opt-in.
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     name: Lean, native, comparison oracles and IntentBond
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: '2'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -34,6 +44,19 @@ jobs:
           lint: 'false'
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
+      - name: Select external tool caches
+        run: |
+          echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
+          echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
+      - name: Restore pinned dependency builds and external tools
+        id: dependencies
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            .lake/packages
+            ${{ runner.temp }}/clafer-capture
+            ${{ runner.temp }}/clafer-alloy
+          key: compiler-dependencies-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'scripts/oracles/profile.json', 'scripts/prepare_dependencies.sh', 'scripts/project_modules.py') }}
       - name: Prepare pinned dependency sources and build artifacts
         run: |
           bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
@@ -41,10 +64,24 @@ jobs:
       - name: Prepare pinned comparison tools and retain license inventory
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgmp-dev bubblewrap
+          sudo apt-get install -y libgmp-dev bubblewrap apparmor
+          sudo install -Dm755 /usr/bin/bwrap /usr/local/lib/clafer-ci/bwrap
+          sudo install -m644 .github/ci/bwrap.apparmor /etc/apparmor.d/clafer-ci-bwrap
+          sudo apparmor_parser --replace /etc/apparmor.d/clafer-ci-bwrap
+          /usr/local/lib/clafer-ci/bwrap --unshare-user --die-with-parent --ro-bind / / /usr/bin/true
+          echo '/usr/local/lib/clafer-ci' >> "$GITHUB_PATH"
           python3 scripts/oracles/oracle.py prepare "$RUNNER_TEMP/oracle-tools" 2>&1 | tee "$RUNNER_TEMP/oracle-setup.log"
           echo "CLAFER_ORACLE_TOOLS=$RUNNER_TEMP/oracle-tools/tools.json" >> "$GITHUB_ENV"
           echo "CLAFER_ORACLE_EVIDENCE=$RUNNER_TEMP/oracle-evidence" >> "$GITHUB_ENV"
+      - name: Save successfully prepared dependencies and tools
+        if: steps.dependencies.outputs.cache-hit != 'true'
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            .lake/packages
+            ${{ runner.temp }}/clafer-capture
+            ${{ runner.temp }}/clafer-alloy
+          key: ${{ steps.dependencies.outputs.cache-primary-key }}
       - name: Check build, proofs, native behavior and traceability
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}
@@ -56,9 +93,10 @@ jobs:
             baseline=$candidate
           fi
           if git cat-file -e "$baseline:scope.json" 2>/dev/null; then
-            git show "$baseline:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
-            # Candidate policy cannot silently authorize itself.
-            cmp "$RUNNER_TEMP/trusted-scope.json" scope.json
+            git show "$baseline:scope.json" > "$RUNNER_TEMP/baseline-scope.json"
+            python3 scripts/ci_scope.py --baseline "$RUNNER_TEMP/baseline-scope.json" \
+              --candidate scope.json --output "$RUNNER_TEMP/trusted-scope.json" \
+              --record "$RUNNER_TEMP/scope-selection.json"
           else
             git show "$candidate:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
             # The initial repository has no requirements to trace as a baseline.
@@ -66,10 +104,17 @@ jobs:
             baseline=$candidate
             echo 'Initial scope adoption requires explicit review; validating the new baseline.' >> "$GITHUB_STEP_SUMMARY"
           fi
+          echo "Candidate: $candidate; baseline: $baseline" >> "$GITHUB_STEP_SUMMARY"
           set +e
           ib check --repo "$GITHUB_WORKSPACE" --scope "$RUNNER_TEMP/trusted-scope.json" \
-            --base "$baseline" --candidate "$candidate" --out "$RUNNER_TEMP/intentbond-evidence"
+            --base "$baseline" --candidate "$candidate" --out "$RUNNER_TEMP/intentbond-evidence" &
+          check_pid=$!
+          tail --pid="$check_pid" --retry --follow=name --lines=+1 \
+            "$RUNNER_TEMP/intentbond-evidence/tests.log" 2>/dev/null &
+          log_pid=$!
+          wait "$check_pid"
           result=$?
+          wait "$log_pid"
           set -e
           if [ "$result" = 4 ]; then
             echo 'Automation passed; semantic review remains pending. This check is not approval.' >> "$GITHUB_STEP_SUMMARY"
@@ -84,6 +129,8 @@ jobs:
           path: |
             ${{ runner.temp }}/intentbond-evidence/
             ${{ runner.temp }}/trusted-scope.json
+            ${{ runner.temp }}/baseline-scope.json
+            ${{ runner.temp }}/scope-selection.json
             ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/

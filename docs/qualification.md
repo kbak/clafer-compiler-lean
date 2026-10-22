@@ -236,6 +236,44 @@ applicable proofs/tests/comparisons. Preserve the independent SoSyM snapshot;
 research tag creation is not a compiler gate. Each private candidate requires
 independent acceptance; publication remains a separate decision in #3.
 
+## Retaining and retrieving evidence
+
+The accepted M0–M3 candidate has a
+[private draft archive](https://github.com/kbak/clafer-compiler-lean/releases)
+identified by `qualification-m0-m3-e816480`. It retains the original
+`candidate-e816480.tar.gz`, the later `acceptance-2026-10-21.json`, and
+`SHA256SUMS`. The candidate is `e8164804d1917d7b01f8111e1f269bd6c7ffdb4b`;
+the archive's SHA-256 is
+`42880b55068fd3cabdac775c7d532240d578ab11340ea8024dd2c9913e9821a0`.
+Its original pending-review record is historical; the separate acceptance record
+does not rewrite it. Neither record attests to later source revisions.
+The additional `validation-history-20261022.tar.gz` asset retains earlier failed
+qualification runs and the cleanup checks, including the standalone success and
+snapshot timeouts. Its separate `.sha256` file verifies that archive.
+
+Authenticated maintainers with access to drafts can retrieve and verify it:
+
+```sh
+gh release download qualification-m0-m3-e816480 --repo kbak/clafer-compiler-lean \
+  --dir /tmp/qualification-retrieval
+cd /tmp/qualification-retrieval
+sha256sum --check SHA256SUMS
+```
+
+Draft assets avoid Actions artifact expiration. They can still be deleted, so
+retain a second private backup. The uploaded archive was downloaded and its hashes
+checked against the original; a second copy is retained outside temporary storage.
+GitHub release assets and ordinary SHA-256 tools provide this storage without a
+new service, package dependency or repository binary. The archive includes source,
+notices, raw measurements, exact comparison replays, source-bound check evidence
+and runtime smoke results.
+
+Keep evidence drafts private and review their contents before any future visibility
+change: logs can contain machine paths and internal context. A draft archive is
+not binary redistribution clearance. CI's 30-day artifacts support current review;
+accepted candidates need a separately retained archive. Preserve failed checks and
+their source identities alongside successful evidence rather than replacing them.
+
 ## Traceability
 
 `impl~compiler-private-qualification~1`

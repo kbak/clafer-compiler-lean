@@ -75,19 +75,20 @@ Lean's code generator, C compiler/linker, runtime and operating system. `main` i
 performs IO; the two pure equations below do not prove IO or machine-code behavior.
 The native tests exercise stdout, stderr and exit status independently.
 
-`scope.json` already includes all source and review paths and retains its original
-coverage policy, command and 120-second check deadline. Provision dependencies
-before checking. After the build, the axiom audit, kernel replay and the isolated
+`scope.json` includes all source and review paths, with a 600-second check deadline.
+The reviewed deadline amendment changes no coverage policy, command or gate.
+Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated
 regression suite run concurrently. Every process is awaited and every exit status
-must succeed. Replay uses four workers to bound the number of
+must succeed. Replay uses two workers to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
-Within the regression runner, the two CLI modules and the isolated audit-fixture
-module run in one separate process alongside the remaining suite; both groups must execute without skips and
-pass. The runner retains all discovered cases and propagates either group's failure.
-CI's overall 30-minute job budget includes dependency downloads
-and compilation. It compares candidate scope bytes with the baseline and refuses
-an unreviewed amendment. IntentBond exit 4 always leaves semantic review pending.
+The regression runner partitions the discovered tests into isolated concurrent
+groups; every group must execute without skips and pass. It retains every
+discovered case and propagates each group's failure.
+CI's overall 45-minute job budget includes dependency downloads
+and compilation. It compares candidate scope bytes with the baseline and permits
+only the exact reviewed deadline migration described below. IntentBond exit 4
+always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
 are verified and compiler outputs are not restored. No check has a skip mode.
 
@@ -109,8 +110,47 @@ package files above make these a native executable.
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 [CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond on
-manual dispatch. Push and pull-request triggers are deferred during development;
-the full local check remains mandatory before handoff.
+pull requests, pushes to `main` and manual dispatch. The full local check remains
+mandatory before handoff. GitHub's cache action, already used by pinned Clafer
+Semantics, reuses dependency packages and external comparison tools under keys
+derived from the toolchain, dependency manifest, oracle profile and preparation
+scripts. Preparation
+and clean-pin/tool-identity checks still run after restoration; project build
+outputs and successful proof/test results are not restored. There is no alternate
+reduced CI suite or added runtime dependency.
+
+The [scope selector](../scripts/ci_scope.py) adapts the pinned Clafer Semantics
+`scripts/ci_scope.py` (MIT, copyright 2026 Kacper Bak). IntentBond already accepts
+external trusted policy; plain `cmp` cannot distinguish an approved amendment from
+an arbitrary edit. The selector constructs the approved `120` → `600` deadline
+from the original baseline, pins both byte hashes and rejects every other change.
+It never replaces the Git comparison baseline. CI retains the selected policy and
+migration receipt. [Regression tests](../tests/test_ci_scope.py) check accepted
+policy identities, weakened gates, altered coverage and unknown/reversed migrations.
+This is unverified Python review tooling, with no added dependency or runtime code.
+
+Dependency preparation reuses the module inventory and import parser to build all
+upstream modules imported by project sources, including the telematics examples
+outside the upstream root module. These are pinned dependency outputs; project
+outputs are still rebuilt in the check. The regression runner reuses Python's
+standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
+concurrent groups by CPU availability, with at most four groups. Every discovered
+case and each group's exit status remain mandatory. CI uses the cache action's
+separate restore/save steps to retain successfully prepared dependencies even if
+later project verification fails. This adds no compiler dependency and removes or
+relaxes no semantic assertion, input case, per-command limit or trusted check deadline.
+Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
+the full retained log and check exit status remain authoritative.
+
+CI sets `LEAN_NUM_THREADS=2` for its two-CPU runner; kernel replay also uses two
+workers. This bounds Lean's own parallelism as well as regression groups.
+Ubuntu's [AppArmor namespace policy](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
+requires explicit permission for the runtime-isolation test. CI installs a
+dedicated copy of the distribution's Bubblewrap executable and attaches the
+[namespace profile](../.github/ci/bwrap.apparmor) to that path. It loads the profile
+and probes namespace creation before validation; the real empty-root native test
+remains mandatory. This is ephemeral runner provisioning, with no application
+runtime dependency or global AppArmor disablement.
 
 Covers:
 - `req~compiler-build~1`
