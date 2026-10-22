@@ -1,9 +1,9 @@
 # Source constraint elaboration
 
-Selected [issue #18](https://github.com/kbak/clafer-compiler-lean/issues/18) follows
-accepted declaration resolution #17 (PR #35) and typed expressions #14 (PR #32).
-This work retains the authored parser boundary and the backend's independent
-definedness, finite observation and overflow obligations.
+The source constraint elaborator consumes [resolved declarations](resolution.md)
+and produces [typed static expressions](expressions.md). It retains authored
+source locations and the backend's independent definedness, finite-observation
+and overflow obligations.
 
 ## Reuse assessment
 

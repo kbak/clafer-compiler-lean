@@ -59,20 +59,11 @@ def objectBudget (v : IR.Inherited.Validated n) (budget : Nat) : Formula :=
   .compare .le (.count (.diff (.sig 0)
     (Structural.union ((Expressions.scalarIds v).map Rel.sig)))) (.literal budget)
 
-def backendDiagnostic (file : String) : Structural.Error → Diagnostic
-  | .source d => {
+def backendDiagnostic (file : String) : Structural.Error → Diagnostic :=
+  Driver.backendDiagnostic file fun d => {
       code := d.code, phase := "encoding", file, pointer := d.pointer, declaration := d.declaration
       category := match d.category with | .malformed => .malformed | .unsupported => .unsupported
       message := "source encoding or conservative range admission failed" }
-  | .malformedBounds => {
-      code := "bounds.declarations", phase := "bounds", file, pointer := "/declarations"
-      message := "each declaration ID requires exactly one scope" }
-  | .unsupportedBounds => {
-      code := "bounds.unsafe", phase := "bounds", file, category := .unsupported
-      message := "bitwidth or conservative integer range is unsupported" }
-  | .internalTarget => {
-      code := "compiler.target", phase := "encoding", category := .operational
-      message := "generated target failed internal validation" }
 
 structure Product where
   prepared : Frontend.Pipeline.Prepared

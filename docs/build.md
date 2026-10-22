@@ -22,14 +22,14 @@ its [comparison profile](oracles.md) belongs to #6, and it is not a native depen
 
 | Root | Role and owner | Allowed project dependencies |
 | --- | --- | --- |
-| `ClaferCompiler.Frontend` | Authored parser and checked declaration resolution; #16/#17, expressions later #18 | Runtime modules |
-| `ClaferCompiler.IR` | Executable structural/inherited tables and admission; #7/#13, typed expressions #14 | Runtime modules |
-| `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics; #8, then #9/#10/#15 | Runtime modules |
-| `ClaferCompiler.Driver` | Native M1 command, strict JSON and diagnostics; #19, source integration later #20 | Runtime modules |
-| `ClaferCompiler.SemanticsBridge` | Structural/inherited interpretation and admission proofs; #7/#13, typed expressions #14, source resolution #17 | Runtime/proof modules and upstream |
-| `ClaferCompiler.Correctness` | Bootstrap, local generation, M1/inherited preservation and target arithmetic proofs; #5/#10/#11/#13/#15, then #20 | Runtime/proof modules and upstream |
+| `ClaferCompiler.Frontend` | Authored parser, checked declaration resolution and constraint elaboration | Runtime modules |
+| `ClaferCompiler.IR` | Executable structural/inherited tables, admission and typed expressions | Runtime modules |
+| `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics, encoding and serialization | Runtime modules |
+| `ClaferCompiler.Driver` | Native source/IR commands, strict JSON, bounds and diagnostics | Runtime modules |
+| `ClaferCompiler.SemanticsBridge` | Structural/inherited interpretation, admission, expressions and source elaboration proofs | Runtime/proof modules and upstream |
+| `ClaferCompiler.Correctness` | Response, generation, preservation, arithmetic and full source-model proofs | Runtime/proof modules and upstream |
 | `ClaferCompiler` | Public aggregate for proof consumers | Owned library modules |
-| `Main` | Native IO entrypoint; #5, then #19/#20 | Runtime modules only |
+| `Main` | Native IO entrypoint | Runtime modules only |
 | `tests` | All Lean test modules | Library, entrypoint and upstream |
 
 Runtime imports are transitively kept outside `SemanticsBridge`, `Correctness`,
@@ -101,9 +101,9 @@ No Haskell source or fixture is redistributed.
 
 `impl~compiler-build-bootstrap~1`
 
-[Driver](../ClaferCompiler/Driver.lean) defines `ClaferCompiler.Driver.version` and
-`response`; selected #19 adds `compileText` and `run`, and [Main](../Main.lean)
-defines `main`. See the [CLI contract](cli.md) for runtime-only verification. The
+[Driver](../ClaferCompiler/Driver.lean) defines `ClaferCompiler.Driver.version`,
+`response`, `compileText`, `compileSource` and `run`; [Main](../Main.lean) defines
+`main`. See the [CLI contract](cli.md) for runtime-only verification. The
 package files above make these a native executable.
 [Module discovery](../scripts/project_modules.py) implements
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
@@ -140,6 +140,12 @@ proof exports; the full command dispatcher is exercised by the #19 CLI tests.
 `Clafer` and checks `DPGraph.Span.red_comp`, `FormalCD.Hom` and
 `Clafer.Verification.check_correct` without re-stating their meanings.
 [Native tests](../tests/test_native.py) execute the linked program.
+The [native fixture helper](../tests/native.py) shares temporary entry-point
+creation and Lake/C linking for the IR, inherited, representation and expression
+tests. It uses Python's standard `subprocess`/`tempfile` with the existing explicit
+module lists and 45-second command timeout; fixture selection and assertions stay
+in each test. This adds no dependency or proof claim. Evidence-producing Analyzer
+harnesses retain their separate source snapshots and command receipts.
 [Inventory regressions](../tests/test_project_modules.py) exercise unimported
 helpers, unknown roots, dependency boundaries, cycles, missing tests and escapes.
 [Audit regressions](../tests/test_axiom_audit.py) compile isolated private/generated

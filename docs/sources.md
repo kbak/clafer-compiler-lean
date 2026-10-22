@@ -35,8 +35,9 @@ scopes, bitwidth, source/IR/output/candidate identities and exact replay command
 outside source. The version label alone does not reproduce a comparison.
 Before copying code or fixtures, inspect the pinned file's notices and retain
 required attribution. The [oracle inventory](oracles.md#inspected-licenses-and-distribution-contents)
-records #6's inspected source/distribution notices; #21 must reconcile packaged
-dependencies before packaging. A source citation is not a redistribution license.
+records inspected source/distribution notices; [private qualification](qualification.md)
+records the packaged runtime dependency inventory and remaining distribution gates.
+A source citation is not a redistribution license.
 
 ## Published source and locators
 
@@ -103,16 +104,17 @@ never bless an output merely because the reference changed. Keep previous receip
 and replayability. Update the source register, dependency manifest, requirements
 and affected tests/links together in a reviewed PR. The build bootstrap supplies
 those dependency files. Admission fixtures and
-compiler/Haskell comparisons become required when their owning tasks deliver them.
+compiler/Haskell comparisons remain required for the delivered features.
 The [target core correspondence](alloy-core.md#source-correspondence-and-external-boundary)
 records #8's reference snapshot identity, exact constructor mapping and independent
 Lean/Analyzer observations. Its fixtures and Java adapter are original MIT-licensed
 project code; no reference specification text or Haskell code is redistributed.
-The general range analysis is tested, not claimed as a proved no-overflow theorem.
+The target core's general range analysis is tested, not claimed as a proved no-overflow theorem.
 
 The current oracle check executes paired Haskell captures, upstream admission and
 exact-candidate Lean/Alloy comparisons, alongside build/import/native/kernel/axiom
-checks. Downstream compiler-generated Alloy remains owned by #12.
+checks. The [three-way comparison](comparison.md) additionally checks
+compiler-generated Alloy.
 
 No branch name, floating latest release, SoSyM research tag or upstream maintenance
 branch is a substitute for the commit pin or a prerequisite for compiler intake.
@@ -166,7 +168,7 @@ S7-pinned Analyzer and native decoder; all new adapter/test code is original MIT
 S6's `genParentConst`, `genGroupConst`, `mkCard` and signature `extends` emission
 were inspected to retain the virtual-root, multiplicity and hierarchy differences.
 No source meaning, upstream tool, fixture identity or dependency pin is changed.
-The four-byte `A ?` source in tests/fixtures/comparison is original project code.
+The four-byte `A ?` source in `tests/fixtures/comparison` is original project code.
 
 The [authored parser correspondence](parser.md#sources-and-comparison) records #16's
 exact grammar, generated Alex character classes and public Haskell parse checks.
@@ -272,7 +274,7 @@ runtime/proof limits and licenses. New code/fixtures remain original MIT; import
 Lean library code remains Apache-2.0. No semantic definition, Haskell code,
 dependency pin or trusted scope policy changes.
 
-## Source pipeline composition (#20)
+## Source pipeline composition
 
 The pinned S3 `Realization.Satisfies` and S4 `IntegerBinding` jointly require an
 infinite rooted primitive domain. The complete S8 telematics `Input`,
@@ -289,7 +291,7 @@ the inherited/source observation boundary with its own proved checker; it does
 not run the guarded Haskell/M1 comparison outside its accepted domain. See the
 [pipeline inventory](pipeline.md) for exact theorem and external replay limits.
 
-## Private qualification (#21)
+## Private qualification
 
 The [qualification adapters](qualification.md) reuse the full accepted corpus,
 S5/S6's public `Language.Clafer` pipeline and `Generator.Alloy.genModule`, the

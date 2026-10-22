@@ -1,6 +1,6 @@
 # Intent and delivery boundaries
 
-## Prepare the compiler project
+## Build a structural compiler
 
 `intent~compiler-foundation~1`
 
@@ -15,48 +15,25 @@ Needs: req
 
 ## Current boundary
 
-The repository contains the adopted structural compiler contract and a Lean/Lake
-build bootstrap, reproducible external [comparison tooling](oracles.md), executable
-[structural IR](ir.md) with admission proofs and an independent
-[static Alloy target core](alloy-core.md) with
-[hygienic text serialization](alloy-text.md). The
-[guarded structural backend](structural-encoding.md) translates admitted M1 IR into
-checked target ASTs with explicit manual bounds. The M1 correctness proof layer
-is accepted. Accepted [inherited realization](inherited-realization.md) (PR #36) adds the
-Appendix 6 structural skeleton and preservation proofs.
-Accepted #20 (PR #44) integrates source-text compilation while retaining the accepted M1 IR command.
-The accepted [static parser](parser.md) preserves authored syntax and source diagnostics;
-[checked declaration resolution/defaulting](resolution.md) is accepted through #17/PR #35.
-Accepted [source constraint elaboration](constraints.md) #18 (PR #40) adds typed
-bodies and source derivations. The selected direction is
-structural only. Behavioral/temporal modeling is outside this roadmap.
-The [contract adoption issue](https://github.com/kbak/clafer-compiler-lean/issues/2)
-was accepted through merged PR #22. Build, oracle and IR tasks #5–#7 were accepted
-through merged PRs #23–#25; target #8, text #9 and structural backend #10 through
-PRs #26–#28. Correctness task #11 is accepted through maintainer review of PR #33. Its
-[representation and preservation layer](structural-correctness.md) proves M1
-soundness and bounded completeness for finite sources fitting explicit scopes
-and integer ranges. The maintainer accepted those proofs at
-`67b9137cde9e2b486733aecd6eb4f5559b780ea3` and selected #13, whose inherited
-structural implementation and proofs were accepted through PR #36.
-Parser task #16 is accepted through PR #30. Task #17 is accepted through merged
-PR #35. Task #18 source elaboration and its proof handoff were
-accepted through PR #40 after #17/#14.
-Typed expression task #14 is accepted through PR #32. The
-[expression API](expressions.md) supplies checked syntax, independent denotation
-and finite-observation proofs. Task #15 is accepted through PR #41; its
-[bounded target arithmetic](expression-encoding.md) was merged through PR #34.
-Source range-analysis proofs were accepted through PR #38. The continuation adds
-source-to-target constructor and attachment preservation, generated numeric-domain
-enforcement and actual Analyzer checks. Accepted [#20](pipeline.md) (PR #44) composes
-the source pipeline, full integer model proofs and complete telematics validation,
-including the two primitive-carrier corrections. Selected [#21](qualification.md)
-prepares private candidate artifacts, the feature/evidence inventory and reproducible
-performance measurements. Candidate acceptance remains a separate review gate. Accepted #19 (PR #39) supplies the
-[native resolved-IR CLI](cli.md) after accepted #12,
-with strict developer JSON, explicit bounds and deterministic diagnostics/output;
-source-text integration is accepted through #20. Other tasks require their own selection.
-Approval of a roadmap does not start its implementation tickets.
+The compiler accepts the selected structural source language and guarded M1
+resolved IR, producing checked static Alloy with explicit bounds. The
+[source pipeline](pipeline.md) composes parsing, declaration resolution/defaulting,
+typed constraint elaboration, inherited realization and expression encoding.
+Its assurance includes M1 soundness and finite bounded completeness, expression
+preservation, and full integer source-model composition under the stated
+representation, scope and observation assumptions. Grammar-to-parser correspondence
+and native/serialized execution remain tested boundaries.
+
+The [qualification inventory](qualification.md#feature-and-evidence-inventory)
+links each supported feature to its contract and evidence. Qualification tooling
+was accepted through [PR #45](https://github.com/kbak/clafer-compiler-lean/pull/45);
+each generated candidate still needs independent review and redistribution
+clearance. The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4)
+and linked issues retain delivery and acceptance history.
+
+New compiler features require explicit selection and accepted dependencies.
+Approval of a roadmap does not start its implementation tickets. Behavioral and
+temporal modeling remain outside the project.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
@@ -67,7 +44,7 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 Publication remains a separate
 [decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
-The selected [three-way comparison](comparison.md) connects actual native-generated
+The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
 
@@ -87,7 +64,7 @@ The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:
   model, composed assurance and private qualification.
 
 The [architecture contract](architecture.md) specifies the detailed feature matrix,
-interfaces, arithmetic policy, ownership and proposed theorem shapes. Source and
+interfaces, arithmetic policy, ownership and required theorem shapes. Source and
 target meanings must be independent. Tested bounded agreement is distinct from
 proved soundness/completeness within stated representation and scope bounds;
 neither establishes unrestricted Haskell compatibility or unbounded UNSAT.
@@ -95,20 +72,23 @@ neither establishes unrestricted Haskell compatibility or unbounded UNSAT.
 The [source register](sources.md) pins both guides and records their different
 roles. A SoSyM research tag or maintenance branch is not a compiler prerequisite.
 
-## Review and remaining choices
+## Review boundaries
 
-The upstream-core M2 scope is selected. Detailed surface forms, diagnostic/API
-conventions, conservative arithmetic admission and the finite observation bridge
-were adopted with issue #2. Implementation tasks will supply their
-exact Lean declarations, algorithms, fixtures and proof/test artifacts; none exists
-by virtue of this plan. See the [review handoff](architecture.md#review-handoff).
+The adopted upstream-core M2 scope fixes the selected surface forms, diagnostics,
+conservative arithmetic admission and finite observation bridge. Exact delivered
+APIs and proof assumptions live in the component contracts below. Scope changes,
+semantic acceptance and publication require explicit review; see the
+[review handoff](architecture.md#review-handoff).
 
 ## Documentation map
 
-- [Requirements](spec.md): current repository and planning obligations.
+- [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
-- [Native CLI](cli.md): resolved-IR command, strict JSON, diagnostics and runtime boundary.
+- [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
+- [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
+- [Private qualification](qualification.md): feature inventory, benchmarks and candidate review.
+- [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
@@ -117,6 +97,7 @@ by virtue of this plan. See the [review handoff](architecture.md#review-handoff)
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
+- [Inherited realization](inherited-realization.md): original objects/links, context views and structural preservation.
 - [Correctness work](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
 - [Source constraints](constraints.md): inference rules, automatic elaboration, attachment and meaning proofs.
 - [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.

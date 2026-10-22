@@ -1,26 +1,15 @@
 # Structural compiler contract
 
-This is the adopted [contract](https://github.com/kbak/clafer-compiler-lean/issues/2)
-under the [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
-Structural-only development and the upstream typed-core M2 scope are selected.
-Issue #2 was closed by merged PR #22; build #5, oracle tooling #6 and structural
-IR #7 were accepted through PRs #23–#25. The [comparison tools](oracles.md) provide
-external validation; the [IR API and proof inventory](ir.md) record the delivered
-M1 admission boundary. The independent [target core](alloy-core.md) belongs to
-accepted task #8 (PR #26). The [structural backend](structural-encoding.md) and
-[text task #9](alloy-text.md) are accepted through PRs #28 and #27. The maintainer
-accepted #11's [M1 representation and preservation proofs](structural-correctness.md)
-through PR #33. Accepted #13 (PR #36) implements
-[inherited structural realization](inherited-realization.md). The [typed expression API](expressions.md) is accepted through #14/PR #32
-after #7. Accepted #15 (PR #41) adds [source constraint encoding and preservation](expression-encoding.md),
-including explicit definedness, numeric-domain enforcement and attachment occurrence
-preservation under checked observations and concrete leaf representations. Accepted
-#20 (PR #44) supplies [source CLI composition and full-model proofs](pipeline.md).
-Selected #21 provides the [qualification inventory](qualification.md#feature-and-evidence-inventory).
-The theorem shapes below remain specifications; exact proved boundaries are linked
-to their implementations.
-[Requirements](spec.md) covers the present documentation obligations;
-[qualification requirements](spec.md#private-candidate-qualification) remain subject to acceptance review.
+This contract defines the selected structural language, interfaces, independent
+meanings and assurance obligations. It was adopted in
+[issue #2](https://github.com/kbak/clafer-compiler-lean/issues/2) under the
+[structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4).
+
+The [source pipeline](pipeline.md) implements the integrated source command;
+the [qualification inventory](qualification.md#feature-and-evidence-inventory)
+links supported features to their contracts and evidence. The theorem shapes
+below are specifications. Component contracts state the exact proved boundaries,
+while [requirements](spec.md) record the compiler and workflow obligations.
 
 ## Ownership and dependencies
 
@@ -39,8 +28,8 @@ from source meaning to Alloy is allowed; constructing DP graphs at runtime is
 not required. Generic DPGraph/FormalCD universes must not be restricted to finite
 ones to accommodate the backend.
 
-Module ownership is binding. The [build bootstrap](build.md) creates the module
-roots; its empty feature modules do not implement their later tasks.
+Module ownership is binding. The [build contract](build.md) records the module
+roots and their permitted import boundaries.
 Each owner delivers implementation, proofs where promised, positive/negative
 fixtures, exact declaration names, source-matched evidence and unresolved limits.
 
@@ -226,7 +215,7 @@ elaborate(AuthoredSyntax) -> Result ValidatedIR Diagnostics         [M2]
 ```
 
 The developer interchange is [versioned JSON](ir.md#developer-interchange-contract)
-(`clafer-ir/1`; strict decoding is supplied by selected #19), with an
+(`clafer-ir/1`; strict decoding is supplied by the native driver), with an
 explicit profile, ordered declarations, stable-within-input IDs, separate display
 names, origins, parent/super/reference IDs, local/group bounds and optional source
 origins. M1 permits effective-only provenance explicitly marked as such. M2 extends
@@ -427,11 +416,11 @@ reference occurrences, negative candidates, tool options/hashes, seeds and minim
 replays. Unsupported/timeouts are recorded separately. M2 comparisons require the
 new expression/inherited bridge; Haskell remains useful supplementary evidence.
 
-The [build check](build.md) now builds every compiler/test module, audits axioms,
-replays the kernel and exercises the native bootstrap. IntentBond retains source
-and traceability evidence. These checks do not prove the future compiler statements.
-Actual feature declarations and proof/test artifacts arrive in their owning tasks;
-any scope amendment requires explicit review.
+The [build check](build.md) builds every compiler/test module, audits axioms,
+replays the kernel and exercises the native compiler. IntentBond retains source
+and traceability evidence. Kernel-checked declarations establish their stated
+properties; passing runtime checks does not prove further compiler statements.
+Any scope amendment requires explicit review.
 
 <a id="review-handoff"></a>
 
@@ -444,20 +433,14 @@ Issue #2 and merged PR #22 adopted these contract decisions before #5 intake:
 3. The model-relation/theorem assumptions and finite-observation obligation;
    its implementation/proof belongs to #14/#15/#20.
 
-The closure and merge record the disposition; historical candidate wording in
-that issue is not current task status. A passing automated check or exit 4 cannot
-approve future changes. #6–#10 are accepted through PRs #24–#28. The maintainer accepted #11 through
-PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, including its explicit
-finite scope and integer-range assumptions. Accepted #13 (PR #36) supplies the
-[inherited structural API and proofs](inherited-realization.md). Other tasks retain their intake gates.
-Parser #16 is accepted through PR #30; its authored API and
-unproved grammar boundary are described in the [parser contract](parser.md).
-Accepted #17 (PR #35) supplies the [resolution/defaulting contract](resolution.md)
-after #16/#7 acceptance.
-No unresolved research tag, publication step or blanket Haskell-parity promise
-blocks this plan.
+The merge records contract adoption; historical candidate wording is not current
+task status. A passing automated check or exit 4 cannot approve changes. Exact
+proof assumptions and acceptance records belong in the component contracts,
+including [M1 correctness](structural-correctness.md),
+[inherited realization](inherited-realization.md) and the [source pipeline](pipeline.md).
+New work retains manual intake and independent review gates. No research tag,
+publication step or blanket Haskell-parity promise is a prerequisite.
 
-Selected #12's [comparison contract](comparison.md) records the concrete native
-decode/export API and exact three-way execution boundary. It uses #11's
-representation API; the M1 in-memory preservation proofs remain distinct from
+The [comparison contract](comparison.md) records native decoding and exact
+three-way execution. The in-memory preservation proofs remain distinct from
 finite native/serialized comparisons.
