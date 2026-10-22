@@ -247,6 +247,9 @@ the archive's SHA-256 is
 `42880b55068fd3cabdac775c7d532240d578ab11340ea8024dd2c9913e9821a0`.
 Its original pending-review record is historical; the separate acceptance record
 does not rewrite it. Neither record attests to later source revisions.
+The additional `validation-history-20261022.tar.gz` asset retains earlier failed
+qualification runs and the cleanup checks, including the standalone success and
+snapshot timeouts. Its separate `.sha256` file verifies that archive.
 
 Authenticated maintainers with access to drafts can retrieve and verify it:
 

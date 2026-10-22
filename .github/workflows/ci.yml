@@ -14,9 +14,6 @@ jobs:
     name: Lean, native, comparison oracles and IntentBond
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    env:
-      CLAFER_CAPTURE_CACHE: ${{ runner.temp }}/clafer-capture
-      CLAFER_ALLOY_CACHE: ${{ runner.temp }}/clafer-alloy
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -42,6 +39,10 @@ jobs:
           lint: 'false'
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
+      - name: Select external tool caches
+        run: |
+          echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
+          echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       - name: Cache pinned dependency builds and external tools
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
