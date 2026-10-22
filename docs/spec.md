@@ -39,6 +39,8 @@ handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. Local checks remain mandatory. Hosted CI
 runs on pull requests, pushes to `main` and manual dispatch, preserving evidence
 and exposing the same review distinction. Scope changes require explicit review.
+CI checks scope identity against the baseline, permitting only exact reviewed
+migrations without replacing the Git comparison baseline.
 
 Before implementation, check repository code, pinned upstream sources, standard
 libraries and relevant maintained libraries/tools for reusable solutions. Prefer
@@ -49,7 +51,7 @@ dependency/license costs. Independence alone is not a reason to rebuild machiner
 Covers:
 - `intent~compiler-foundation~1`
 
-Needs: impl
+Needs: impl, utest
 
 ## Issue tracking and manual intake
 
