@@ -85,7 +85,7 @@ and fails if either fails. No module, test or kernel gate is skipped.
 The regression runner partitions the discovered tests into isolated concurrent
 groups; every group must execute without skips and pass. It retains every
 discovered case and propagates each group's failure.
-CI's overall 30-minute job budget includes dependency downloads
+CI's overall 45-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and permits
 only the exact reviewed deadline migration described below. IntentBond exit 4
 always leaves semantic review pending.
@@ -113,7 +113,8 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 pull requests, pushes to `main` and manual dispatch. The full local check remains
 mandatory before handoff. GitHub's cache action, already used by pinned Clafer
 Semantics, reuses dependency packages and external comparison tools under keys
-derived from the toolchain, dependency manifest and oracle profile. Preparation
+derived from the toolchain, dependency manifest, oracle profile and preparation
+scripts. Preparation
 and clean-pin/tool-identity checks still run after restoration; project build
 outputs and successful proof/test results are not restored. There is no alternate
 reduced CI suite or added runtime dependency.
@@ -127,6 +128,19 @@ It never replaces the Git comparison baseline. CI retains the selected policy an
 migration receipt. [Regression tests](../tests/test_ci_scope.py) check accepted
 policy identities, weakened gates, altered coverage and unknown/reversed migrations.
 This is unverified Python review tooling, with no added dependency or runtime code.
+
+Dependency preparation reuses the module inventory and import parser to build all
+upstream modules imported by project sources, including the telematics examples
+outside the upstream root module. These are pinned dependency outputs; project
+outputs are still rebuilt in the check. The regression runner reuses Python's
+standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
+concurrent groups by CPU availability, with at most four groups. Every discovered
+case and each group's exit status remain mandatory. CI uses the cache action's
+separate restore/save steps to retain successfully prepared dependencies even if
+later project verification fails. None of these changes adds a dependency or
+changes the test assertions, per-command limits or trusted check deadline.
+Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
+the full retained log and check exit status remain authoritative.
 
 Covers:
 - `req~compiler-build~1`

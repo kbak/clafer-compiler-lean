@@ -4,6 +4,8 @@
 CLI, source-pipeline comparison and audit fixtures run alongside other regressions.
 All groups are mandatory; process isolation keeps module state and mocks separate.
 """
+from concurrent.futures import ThreadPoolExecutor
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -52,11 +54,16 @@ present = [Path('tests',name+'.py').is_file() for name in ISOLATED_MODULES]
 if any(present) and not all(present):
     raise SystemExit('All isolated modules are required')
 if all(present):
-    workers = [subprocess.Popen([sys.executable, str(Path(__file__).resolve()), flag])
-               for flag in ISOLATED_GROUPS]
-    try:
-        passed = run(unittest.TestSuite(t for t in all_cases if t.__class__.__module__ not in ISOLATED_MODULES))
-    finally:
-        worker_codes = [worker.wait() for worker in workers]
-    raise SystemExit(0 if passed and all(code == 0 for code in worker_codes) else 1)
+    cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
+    worker_count = max(1, min(4, cpus))
+    print(f'Regression groups: {len(ISOLATED_GROUPS) + 1}; workers: {worker_count}', flush=True)
+    def isolated(flag):
+        return subprocess.run([sys.executable, str(Path(__file__).resolve()), flag]).returncode == 0
+    with ThreadPoolExecutor(max_workers=worker_count) as pool:
+        futures = [pool.submit(isolated, flag) for flag in ISOLATED_GROUPS]
+        remaining = unittest.TestSuite(t for t in all_cases
+                                       if t.__class__.__module__ not in ISOLATED_MODULES)
+        futures.append(pool.submit(run, remaining))
+        results = [future.result() for future in futures]
+    raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)

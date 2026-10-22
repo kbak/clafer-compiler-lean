@@ -42,6 +42,16 @@ class InventoryTest(unittest.TestCase):
                     project.validate(self.root)
                 (self.root / path).unlink()
 
+    def test_dependency_preparation_includes_examples_and_unreachable_imports(self):
+        self.write('ClaferCompiler/Correctness/Hidden.lean',
+                   'public import Clafer.Examples.Unreachable\nimport Mathlib.Data.Finset.Basic\n')
+        dependencies = project.dependency_imports(self.root)
+        self.assertIn('Clafer.Examples.Telematics.Input', dependencies)
+        self.assertIn('Clafer.Examples.Telematics.Expressions', dependencies)
+        self.assertIn('Clafer.Examples.Unreachable', dependencies)
+        self.assertIn('Mathlib.Data.Finset.Basic', dependencies)
+        self.assertFalse(any(d.startswith(('ClaferCompiler', 'tests', 'Lean')) for d in dependencies))
+
     def test_runtime_cannot_reach_proof_or_upstream_imports(self):
         for dependency in ['Clafer', 'FormalCD', 'DPGraph', 'Mathlib',
                            'ClaferCompiler', 'ClaferCompiler.SemanticsBridge',

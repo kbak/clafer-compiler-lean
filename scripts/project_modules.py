@@ -122,6 +122,13 @@ def inventory(repo):
     return dict(sorted(modules.items()))
 
 
+def dependency_imports(repo):
+    """Include pinned imports of every owned module, even unreachable helpers."""
+    return sorted({dependency for path in inventory(repo).values()
+                   for dependency in imports((repo / path).read_text())
+                   if dependency.split('.')[0] in UPSTREAM})
+
+
 def validate(repo):
     modules = inventory(repo)
     config = tomllib.loads((repo / 'lakefile.toml').read_text())

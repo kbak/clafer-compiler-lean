@@ -161,3 +161,23 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 cwd=root, capture_output=True, text=True,
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
             self.assertNotEqual(result.returncode, 0, 'Missing scheduled suite must fail')
+
+            # A one-CPU schedule must retain every case without overlapping groups.
+            locked = ('import fcntl, time, unittest\nclass T(unittest.TestCase):\n'
+                      ' def test_serial(self):\n'
+                      '  with open("active.lock", "w") as lock:\n'
+                      '   fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)\n'
+                      '   time.sleep(0.03)\n')
+            (root/'tests/test_qualification.py').write_text(locked)
+            fixtures = list((root/'tests').glob('test_*.py'))
+            for fixture in fixtures:
+                fixture.write_text(locked)
+            wrapper = ('import runpy, sys; from unittest.mock import patch; '
+                       'script=sys.argv[1]; sys.argv=[script]\n'
+                       'with patch("os.sched_getaffinity", return_value={0}):\n'
+                       ' runpy.run_path(script, run_name="__main__")\n')
+            result = subprocess.run([sys.executable, '-c', wrapper, str(ROOT/'scripts/run_tests.py')],
+                cwd=root, capture_output=True, text=True,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.stderr.count('test_serial ('), len(fixtures))

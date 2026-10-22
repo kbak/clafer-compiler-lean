@@ -13,12 +13,13 @@ lake env lean --version
 python3 scripts/project_modules.py --dependencies
 mapfile -t imports < <(python3 - <<'PY'
 from pathlib import Path
-from scripts.project_modules import imports
+from scripts.project_modules import dependency_imports, imports
 root = Path('.lake/packages/clafer')
 paths = [p for name in ('DPGraph', 'FormalCD', 'Clafer')
          for p in [root / (name + '.lean'), *(root / name).rglob('*.lean')]]
-print('\n'.join(sorted({dep for p in paths for dep in imports(p.read_text())
-                       if dep.split('.')[0] == 'Mathlib'})))
+dependencies = {dep for p in paths for dep in imports(p.read_text())}
+dependencies.update(dependency_imports(Path('.')))
+print('\n'.join(sorted(dep for dep in dependencies if dep.split('.')[0] == 'Mathlib')))
 PY
 )
 if (( ${#imports[@]} == 0 )); then
@@ -28,5 +29,15 @@ fi
 if ! lake exe cache get "${imports[@]}"; then
   echo 'Mathlib cache unavailable; building the pinned dependencies from source.' >&2
 fi
-lake build +Clafer
+mapfile -t dependencies < <(python3 - <<'PY'
+from pathlib import Path
+from scripts.project_modules import dependency_imports
+print('\n'.join(dependency_imports(Path('.'))))
+PY
+)
+if (( ${#dependencies[@]} == 0 )); then
+  echo 'Missing project dependency import inventory' >&2
+  exit 1
+fi
+lake build "${dependencies[@]/#/+}"
 python3 scripts/project_modules.py --dependencies
