@@ -17,6 +17,8 @@ jobs:
     name: Lean, native, comparison oracles and IntentBond
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: '2'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -62,7 +64,12 @@ jobs:
       - name: Prepare pinned comparison tools and retain license inventory
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgmp-dev bubblewrap
+          sudo apt-get install -y libgmp-dev bubblewrap apparmor
+          sudo install -Dm755 /usr/bin/bwrap /usr/local/lib/clafer-ci/bwrap
+          sudo install -m644 .github/ci/bwrap.apparmor /etc/apparmor.d/clafer-ci-bwrap
+          sudo apparmor_parser --replace /etc/apparmor.d/clafer-ci-bwrap
+          /usr/local/lib/clafer-ci/bwrap --unshare-user --die-with-parent --ro-bind / / /usr/bin/true
+          echo '/usr/local/lib/clafer-ci' >> "$GITHUB_PATH"
           python3 scripts/oracles/oracle.py prepare "$RUNNER_TEMP/oracle-tools" 2>&1 | tee "$RUNNER_TEMP/oracle-setup.log"
           echo "CLAFER_ORACLE_TOOLS=$RUNNER_TEMP/oracle-tools/tools.json" >> "$GITHUB_ENV"
           echo "CLAFER_ORACLE_EVIDENCE=$RUNNER_TEMP/oracle-evidence" >> "$GITHUB_ENV"

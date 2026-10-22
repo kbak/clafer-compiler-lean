@@ -35,9 +35,9 @@ audit_pid=$!
 # leanchecker loads each project's .olean and replays its kernel declarations.
 # The recursive roots also include helpers not imported by the library root.
 # Audit, replay and isolated regressions only read these completed build outputs.
-# Four bounded replay workers use LeanChecker's existing task scheduler; all
-# modules are still replayed, with at most four import environments loaded at once.
-LEAN_NUM_THREADS=4 lake env leanchecker --verbose ClaferCompiler Main tests &
+# Two bounded replay workers use LeanChecker's existing task scheduler; all
+# modules are still replayed, with at most two import environments loaded at once.
+LEAN_NUM_THREADS=2 lake env leanchecker --verbose ClaferCompiler Main tests &
 kernel_pid=$!
 test_status=0
 lake env python3 scripts/run_tests.py || test_status=$?

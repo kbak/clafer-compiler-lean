@@ -60,7 +60,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
         self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
-        self.assertIn('kernel threads=4', calls)
+        self.assertIn('kernel threads=2', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),

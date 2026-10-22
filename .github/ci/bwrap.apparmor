@@ -1,0 +1,6 @@
+# Permit user namespaces for the dedicated Bubblewrap copy on ephemeral CI runners.
+abi <abi/4.0>,
+
+profile clafer-ci-bwrap /usr/local/lib/clafer-ci/bwrap flags=(unconfined) {
+  userns,
+}

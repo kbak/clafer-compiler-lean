@@ -79,7 +79,7 @@ The native tests exercise stdout, stderr and exit status independently.
 The reviewed deadline amendment changes no coverage policy, command or gate.
 Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated
 regression suite run concurrently. Every process is awaited and every exit status
-must succeed. Replay uses four workers to bound the number of
+must succeed. Replay uses two workers to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
 The regression runner partitions the discovered tests into isolated concurrent
@@ -137,10 +137,20 @@ standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
 concurrent groups by CPU availability, with at most four groups. Every discovered
 case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if
-later project verification fails. None of these changes adds a dependency or
-changes the test assertions, per-command limits or trusted check deadline.
+later project verification fails. This adds no compiler dependency and removes or
+relaxes no semantic assertion, input case, per-command limit or trusted check deadline.
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
+
+CI sets `LEAN_NUM_THREADS=2` for its two-CPU runner; kernel replay also uses two
+workers. This bounds Lean's own parallelism as well as regression groups.
+Ubuntu's [AppArmor namespace policy](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
+requires explicit permission for the runtime-isolation test. CI installs a
+dedicated copy of the distribution's Bubblewrap executable and attaches the
+[namespace profile](../.github/ci/bwrap.apparmor) to that path. It loads the profile
+and probes namespace creation before validation; the real empty-root native test
+remains mandatory. This is ephemeral runner provisioning, with no application
+runtime dependency or global AppArmor disablement.
 
 Covers:
 - `req~compiler-build~1`
