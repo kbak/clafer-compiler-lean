@@ -1,11 +1,12 @@
 # Private compiler qualification
 
-Task [#21](https://github.com/kbak/clafer-compiler-lean/issues/21) is selected after
-the acceptance of #20 through merged PR #44. The qualification baseline is
-`b0b4f23543266f26acb5907ee76ed3fa215362e2`. Qualification prepares a private
-candidate; semantic acceptance and publication remain separate decisions.
+Qualification links supported features to evidence, measures reproducible build
+and compilation costs, and prepares private candidate bundles. The tooling was
+accepted through [PR #45](https://github.com/kbak/clafer-compiler-lean/pull/45).
+Each candidate still requires independent semantic review and redistribution
+clearance; publication remains a separate decision.
 
-## Reuse assessment and implementation plan
+## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the
 native compiler and proofs, audits transitive axioms, replays the kernel, runs
@@ -53,10 +54,9 @@ LGPL components must be addressed before distributing a binary. Keep all
 measurements, binaries, machine details and receipts outside
 source. No dependency pin, language scope or trusted coverage policy changes.
 
-Delivery order: close the feature/evidence inventory; implement and test the
-measurement/packaging adapters; run the full unchanged check; commit and verify
-the candidate; measure clean and warm builds plus compiler runtime; prepare a
-source-bound private bundle and draft review handoff with unresolved limits.
+For each candidate, run the full check, commit and verify the source, measure
+clean/warm builds and compiler runtime, then prepare a source-bound private bundle.
+Retain unresolved limits for independent review.
 
 ## Feature and evidence inventory
 
@@ -233,8 +233,8 @@ their own licenses; the local bundle is not a general distribution clearance.
 The [dependency upgrade policy](sources.md#discrepancies-and-reviewed-upgrades)
 continues to require immutable pins, assumption/meaning/license review and all
 applicable proofs/tests/comparisons. Preserve the independent SoSyM snapshot;
-research tag creation is not a compiler gate. Independent qualification acceptance
-is required before closing #21; publication remains #3.
+research tag creation is not a compiler gate. Each private candidate requires
+independent acceptance; publication remains a separate decision in #3.
 
 ## Traceability
 

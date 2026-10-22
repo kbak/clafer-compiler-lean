@@ -2,13 +2,13 @@ module
 
 public import Lean.Data.Json.FromToJson.Basic
 public import ClaferCompiler.Frontend.Surface
+public import ClaferCompiler.Backend.Alloy.Structural
 
 @[expose] public section
 namespace ClaferCompiler.Driver
 open Lean
 
-/-! Versioned diagnostics preserve IR identities without fabricating source
-coordinates. Source diagnostic serialization is reusable by #20.
+/-! Versioned diagnostics preserve IR identities and authored source coordinates.
 [impl->req~compiler-diagnostics~1] -/
 inductive Category where
   | malformed | unsupported | operational
@@ -65,5 +65,21 @@ def admissionDiagnostic (file : String) (d : IR.Structural.Diagnostic) : Diagnos
   code := d.code, phase := "admission", file, pointer := d.pointer, declaration := d.declaration
   category := match d.category with | .malformed => .malformed | .unsupported => .unsupported
   message := "IR admission failed; check the M1 guards, identities and certificates" }
+
+/-- Backend failures share bounds/target diagnostics; the caller supplies the
+source diagnostic so each input profile retains its own phase and location. -/
+def backendDiagnostic (boundsFile : String)
+    (sourceDiagnostic : IR.Structural.Diagnostic → Diagnostic) :
+    Backend.Alloy.Structural.Error → Diagnostic
+  | .source d => sourceDiagnostic d
+  | .malformedBounds => {
+      code := "bounds.declarations", phase := "bounds", file := boundsFile, pointer := "/declarations"
+      message := "each declaration ID requires exactly one scope" }
+  | .unsupportedBounds => {
+      code := "bounds.unsafe", phase := "bounds", file := boundsFile, category := .unsupported
+      message := "bitwidth or conservative integer range is unsupported" }
+  | .internalTarget => {
+      code := "compiler.target", phase := "encoding", category := .operational
+      message := "generated target failed internal validation" }
 
 end ClaferCompiler.Driver

@@ -1,20 +1,11 @@
-# Repository and planning requirements
+# Compiler and repository requirements
 
-These requirements cover the current documentation and workflow. The structural
-contract was adopted by issue #2 and merged PR #22. Build, comparison and structural
-IR tasks #5–#7 were accepted through PRs #23–#25; target #8, text #9 and structural
-backend #10 through PRs #26–#28. The maintainer accepted #11's finite
-representation, soundness and bounded completeness proofs through PR #33.
-Accepted #13 (PR #36) adds inherited structural realization.
-The authored static parser #16 is accepted through PR #30. Accepted #17 (PR #35) adds
-checked declaration resolution/defaults. Accepted #18 (PR #40) adds source constraint
-elaboration. Accepted #20 (PR #44) integrates the source CLI.
-Accepted #14 (PR #32) adds typed static expressions and their
-independent semantic interpretation. Accepted #15 (PR #41) extends bounded target
-arithmetic with source constraint translation and conditional constructor/attachment
-preservation. The [source pipeline](pipeline.md), composed proofs and complete
-telematics evidence are accepted through #20/PR #44. Selected #21 supplies private
-qualification and performance evidence, subject to independent acceptance.
+These requirements cover the compiler, its assurance boundaries and the repository
+workflow. The [architecture](architecture.md) defines the selected structural
+fragment. Component contracts in the [documentation map](intent.md#documentation-map)
+record exact delivered APIs, proof assumptions and testing limits; the
+[roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains task dependencies
+and acceptance history.
 
 ## Honest project boundary
 
@@ -98,17 +89,17 @@ Needs: impl
 
 `req~compiler-boundaries~1`
 
-Document one-way compiler-to-semantics ownership and proposed module handoffs.
+Document one-way compiler-to-semantics ownership and module handoffs.
 Keep independently defined source/target satisfaction, concrete encode/decode
 relations, soundness, bounded completeness, frontend elaboration and serialized
 text/runtime trust boundaries explicit. Bounds/representation assumptions must
-not assume the preservation conclusion. Pin candidate semantic and Haskell
+not assume the preservation conclusion. Pin semantic and Haskell
 baselines, retain source locators/licenses and define reviewed upgrades. No
 research tag is required. Reserve future behavioral requirement IDs without
 inventing implementation/proof coverage; acceptance review precedes dependent
 manual intake. The build enforces module ownership/import boundaries and exercises
-independent upstream imports. The remaining semantic/compiler contracts are
-future obligations, not proved compiler properties.
+independent upstream imports. Keep required theorem shapes distinct from actual
+proved declarations and their explicit assumptions.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -123,7 +114,7 @@ Pin the Lean toolchain and Clafer Lake dependency to the source register and ret
 the upstream-compatible transitive manifest. Build every owned compiler and Lean
 test module, including modules unreachable from the root import. Build and run
 the native executable, including its version and argument rejection protocol.
-Selected #19 extends the bootstrap with the resolved-IR command specified below.
+Exercise the source and resolved-IR commands specified below.
 Retain the pure version and empty-argument response equations; those equations
 prove neither IO nor compiler correctness.
 
@@ -164,8 +155,9 @@ limits, malformed input and errors must remain distinct from agreement or bounde
 UNSAT. Required checks fail rather than skip. Retain exact candidates, both
 outputs, options and replay instructions outside source. Discrepancies require
 minimized evidence, independent expected semantics and an issue before semantic
-changes. Haskell is supplementary evidence; no downstream compiler or new proof
-is claimed. #12 owns adding downstream compiler Alloy to the comparison.
+changes. Haskell is supplementary evidence. This base oracle establishes neither
+compiler correctness nor a new proof; the [three-way comparison](comparison.md)
+adds downstream compiler Alloy to the comparison.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -197,7 +189,7 @@ already decoded data; the selected [native CLI](cli.md) supplies strict file/JSO
 parsing and diagnostic serialization under #19.
 Reject unknown profiles and primitives; no static expression or inherited semantics
 are admitted by extension placeholders. Retain tested raw resolution/native behavior
-separately from the proved typed-core boundary and from future serialization.
+separately from the proved typed-core boundary and serialized execution.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -221,7 +213,7 @@ Maintain the construct correspondence and retained source identity against the
 official reference. Kernel-check constructor laws and independent truth tables,
 and compare representative equivalent formulas through the pinned real Analyzer.
 Keep formal target properties distinct from tested Analyzer correspondence and
-future serialization/source preservation proofs. See the [target contract](alloy-core.md).
+serialization/source preservation proofs. See the [target contract](alloy-core.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -241,8 +233,8 @@ body. Count distinct tuples, retain runtime representability checks and propagat
 undefined integer observations distinctly from false. Scope allocation numerals
 and multiplicity predicates do not themselves introduce Alloy integer expressions.
 
-Preserve valid scopes excluding every model as unsatisfiable constraints; future
-source compilation may express conflicting declaration multiplicity as a fact.
+Preserve valid scopes excluding every model as unsatisfiable constraints; source
+compilation may express conflicting declaration multiplicity as a fact.
 Do not infer scopes, encode infinity as an integer, silently wrap arithmetic or
 add richer M2 integer operations. State the proof/test boundary of range analysis.
 
@@ -513,14 +505,13 @@ half-open UTF-8 byte span, one-based line/scalar column and related locations.
 Retain original CRLF/Unicode byte offsets and use zero-width EOF locations.
 Fail without a partial successful document. Distinguish recognized excluded
 features from missing/malformed syntax. The resolver supplies name/default
-diagnostics. Selected #18 adds typed-expression diagnostics with phase `type`;
-its source constraint contract specifies the accepted inference rules. Exact
+diagnostics. The constraint elaborator supplies typed-expression diagnostics with
+phase `type`; its source constraint contract specifies the accepted inference rules. Exact
 English wording is not stable. The parser returns the first lexical error,
 otherwise the first grammatical error.
-Selected #19 serializes source diagnostics and supplies IR-only locations and
-process exits through the [native driver](cli.md). Source-text process integration
-remains #20; no source coordinates are invented for developer IR. The
-resolver prioritizes declaration/name checks, edge resolution, inheritance and
+The [native driver](cli.md) serializes source diagnostics and supplies IR-only
+locations and process exits for both commands. No source coordinates are invented
+for developer IR. The resolver prioritizes declaration/name checks, edge resolution, inheritance and
 realization ranks, then independent source correspondence validation.
 
 Covers:
@@ -866,18 +857,17 @@ Covers:
 The [ownership map](architecture.md#ownership-and-dependencies),
 [assurance contract](architecture.md#independent-meanings-and-theorem-obligations),
 [review handoff](architecture.md#review-handoff), [source register](sources.md)
-and reservation table below implement the documentation obligation. No Lean
-declaration or compiler theorem is claimed by these Markdown artifacts.
+and requirement reservation policy below implement the documentation obligation.
+No Lean declaration or compiler theorem is claimed by these Markdown artifacts.
 
 Covers:
 - `req~compiler-boundaries~1`
 
 ## Reserved implementation requirements
 
-The final reserved names `compiler-qualification` and `compiler-performance` are
-now active requirements above, submitted for acceptance with #21. There are no
-remaining reserved implementation IDs in the selected roadmap. New scope needs
-its own reviewed requirements and manual intake; this does not imply acceptance
+`compiler-qualification` and `compiler-performance` are active requirements above.
+There are no remaining reserved implementation IDs in the selected roadmap. New
+scope needs its own reviewed requirements and manual intake; this does not imply acceptance
 of the qualification candidate.
 
 The active [oracle contract and artifacts](oracles.md) cover #6; the

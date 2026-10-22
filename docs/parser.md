@@ -1,13 +1,10 @@
 # Authored static source parser
 
-Issue [#16](https://github.com/kbak/clafer-compiler-lean/issues/16) owns
-`ClaferCompiler.Frontend.parse : String → String → Except Diagnostic Document`.
-Arguments are the logical filename and original UTF-8 source. This is an in-memory
-API; the production executable still only implements its bootstrap command.
-[Resolution/defaulting (#17)](resolution.md) now consumes this API; expression
-typing (#18) and source CLI integration (#20) remain separate tasks. Successful parsing does not establish semantic
-validity,
-M1 admission, satisfiability, or compiler correctness.
+`ClaferCompiler.Frontend.parse : String → String → Except Diagnostic Document`
+accepts a logical filename and original UTF-8 source. The [source pipeline](pipeline.md)
+uses this in-memory API before [resolution/defaulting](resolution.md) and
+[constraint elaboration](constraints.md). Successful parsing does not establish
+semantic validity, M1 admission, satisfiability or compiler correctness.
 
 ## Reuse and representation
 
@@ -207,11 +204,13 @@ execution remain **tested, unproved** boundaries. No `sorry`, admission axiom or
 claim of complete Haskell compatibility is used. The standard parser primitives,
 UTF-8 runtime and native C/IO remain part of the execution trust boundary.
 
-#17 receives the complete `Document`, including source and authored tokens; it must
-establish resolution/default rules independently. #18 receives every expression
-and attachment occurrence and owns typing/coercions/meaning. #20 must include this
-unproved parsing boundary in its composed assurance statement. IntentBond exit 4
-retains semantic review pending and does not accept #16 or unblock #17 by itself.
+The [resolver](resolution.md) receives the complete `Document`, including source
+and authored tokens, and establishes resolution/default rules independently.
+[Constraint elaboration](constraints.md) handles every expression and attachment
+occurrence, including typing, coercions and meaning. The [source pipeline](pipeline.md)
+retains this unproved parsing boundary in its composed assurance statement.
+IntentBond exit 4 leaves semantic review pending; acceptance and dependent intake
+require review.
 
 ## Trace artifacts
 

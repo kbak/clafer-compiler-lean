@@ -246,8 +246,8 @@ and theorem-level sensitivities, were accepted by the maintainer through PR #33
 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`. The retained full-check evidence
 and that explicit review, rather than IntentBond exit 4 alone, support the handoff.
 
-#12 still owns generated-text/external instance comparison and integration.
-Selected #13 extends ordinary inherited fields, explicit abstract families and
-the Appendix 6 structural skeleton through a separate checked API. Its
-[contract](inherited-realization.md) states the primitive/domain/context limits. No scope,
+The [comparison layer](comparison.md) owns generated-text/external instance
+comparison and integration. The inherited extension adds ordinary inherited
+fields, explicit abstract families and the Appendix 6 structural skeleton through
+a separate checked API. Its [contract](inherited-realization.md) states the primitive/domain/context limits. No scope,
 admission domain, coverage floor, source pin or review gate is weakened here.

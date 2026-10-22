@@ -5,26 +5,9 @@ Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
 The repository is private. Structural Clafer-to-Alloy development is the selected
 direction; contract review and explicit manual intake of each task precede
 implementation. A Todo ticket or this documentation does not start compiler work.
-The current checkout has a pinned Lean/Lake build, native bootstrap, external
-[oracle tools](docs/oracles.md), [structural IR admission](docs/ir.md) and an
-[independent Alloy core](docs/alloy-core.md), an accepted
-[structural backend](docs/structural-encoding.md), and accepted
-[checked serialization](docs/alloy-text.md). Accepted #11 provides
-[M1 soundness and bounded completeness](docs/structural-correctness.md) under
-explicit finite scope and integer-range hypotheses. Accepted #13 (PR #36) adds
-[inherited structural realization](docs/inherited-realization.md). Accepted #19
-(PR #39) adds the [native resolved-IR CLI](docs/cli.md). Accepted #20 (PR #44) adds source-text integration. Task #12 supplies
-[exact three-way comparison](docs/comparison.md) and strict instance export.
-Accepted [static parser #16](docs/parser.md) preserves authored syntax. Accepted #17 (PR #35)
-adds [checked structural resolution/defaulting](docs/resolution.md). Accepted #18 (PR #40)
-adds [source expression elaboration](docs/constraints.md).
-Accepted #14 (PR #32) adds the
-[typed expression API](docs/expressions.md) and independent semantic interpretation.
-Accepted #15 (PR #41) adds [source constraint encoding and preservation](docs/expression-encoding.md),
-including separate definedness and every attachment occurrence. Accepted #20 adds the
-[source pipeline](docs/pipeline.md), composed assurance and primitive-carrier corrections.
-Selected #21 prepares [private qualification and benchmarks](docs/qualification.md).
-See [build and proof checks](docs/build.md).
+See the [documentation map](docs/intent.md#documentation-map) for component contracts
+and the [qualification inventory](docs/qualification.md#feature-and-evidence-inventory)
+for supported features and their evidence.
 
 ## Issues and pull requests
 
@@ -84,13 +67,14 @@ and applicable references. Maintain intent, requirements, implementation and lin
 together, then run:
 
 ```sh
-bash scripts/check.sh
 export CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"
-../clafer-compiler-tools/bin/ib check --repo "$PWD" --base "$BASE_COMMIT"   --candidate worktree --out /tmp/clafer-compiler-evidence-UNIQUE
+../clafer-compiler-tools/bin/ib check --repo "$PWD" --base "$BASE_COMMIT" \
+  --candidate worktree --out /tmp/clafer-compiler-evidence-UNIQUE
 ```
 
-Use a new evidence directory outside the repository each time. The normal check
-uses scope from the baseline; initial scope adoption requires explicit review and
+IntentBond runs `bash scripts/check.sh`; running it separately is optional during
+development. Use a new evidence directory outside the repository each time.
+The normal check uses scope from the baseline; initial scope adoption requires explicit review and
 an explicitly supplied scope. Exit 4 means automated checks passed with semantic
 review pending. It does not approve a change. Preserve the original baseline for
 `ib verify` after committing; retain evidence and unresolved review items.
@@ -121,8 +105,19 @@ needs explicit review before selecting it as trusted policy.
 
 ## Documentation and conduct
 
-Keep the README brief and current intent in `docs/intent.md`. Use lowercase,
-hyphen-separated documentation names. Keep runtime state, credentials, transcripts
-and execution evidence out of source. Cite exact upstream revisions and check
-licenses before copying material. Be respectful, constructive, and specific in
+Keep the README focused on capabilities, getting started and assurance limits.
+`docs/intent.md` owns the documentation map; requirements live in `docs/spec.md`,
+interfaces and proof boundaries in component contracts, and source identities in
+`docs/sources.md`. Link to the authoritative page instead of repeating its content.
+Record task history and before/after accounts in issues and PRs.
+
+Write current behavior directly, using short paragraphs and descriptive headings.
+Use backticks for identifiers, paths, filenames, commands, options, literal values
+and traceability IDs; use fenced blocks with a language for examples. Keep prose
+link labels readable. Preserve exact source revisions, theorem assumptions and
+proof-versus-test distinctions. Use lowercase, hyphen-separated documentation names
+and check local links and examples when editing.
+
+Keep runtime state, credentials, transcripts and execution evidence out of source.
+Check licenses before copying material. Be respectful, constructive and specific in
 reviews. Contact the maintainer privately about conduct or sensitive concerns.

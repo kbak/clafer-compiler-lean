@@ -353,7 +353,7 @@ solver, copied upstream definitions or license cost is needed. Runtime encoding
 stays independent of semantic imports. The constructor and attachment results above discharge the selected conditional
 preservation obligations; their semantic acceptance remains a manual review gate.
 
-Task #15 was accepted through PR #41. Selected [#20](pipeline.md) derives the
-representation premises from actual target data and composes full structural
-integer completion, query agreement and bounded source completeness. Its
-semantic acceptance is separate from #15's constructor/attachment acceptance.
+The [source pipeline](pipeline.md) derives the representation premises from
+actual target data and composes full structural integer completion, query
+agreement and bounded source completeness. Those full-model results have their
+own assumptions beyond constructor/attachment preservation.

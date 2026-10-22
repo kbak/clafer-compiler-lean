@@ -1,11 +1,11 @@
 # Hygienic Alloy serialization
 
-[Issue #9](https://github.com/kbak/clafer-compiler-lean/issues/9) is selected after
-accepted target task #8 ([PR #26](https://github.com/kbak/clafer-compiler-lean/pull/26)).
-It supplies text and source maps for the independent [target API](alloy-core.md).
-This candidate awaits semantic review. The accepted [structural backend](structural-encoding.md)
-implements IR-to-target compilation; the IR CLI and Analyzer instance decoding
-remain with #19 and #12 respectively.
+The serializer emits hygienic Alloy text and source maps from the independent
+[target API](alloy-core.md). The [structural backend](structural-encoding.md)
+produces target modules; the [native driver](cli.md) writes their text, and
+[three-way comparison](comparison.md) checks actual Analyzer instances.
+Successful rendering carries a reconstruction proof. Native and Analyzer
+execution retain the boundaries described below.
 
 ## API, identities and mappings
 
@@ -161,7 +161,7 @@ input targets. Nonetheless it is project code: a proof about it alone does not
 prove Alloy grammar/meaning correspondence. Reflexive `set` sugar and concrete
 syntax correspondence are tested against the Analyzer, not claimed as a proved
 Analyzer semantics theorem. #8's independent model remains the semantic authority
-for future compiler proofs. Native Lean/C execution, the external parser,
+for compiler proofs. Native Lean/C execution, the external parser,
 Analyzer translation, SAT4J and later external decoding remain trust boundaries.
 
 Covers:

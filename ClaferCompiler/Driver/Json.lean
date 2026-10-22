@@ -7,8 +7,9 @@ public import Lean.Data.Json.FromToJson.Basic
 namespace ClaferCompiler.Driver.StrictJson
 open Lean Std.Internal.Parsec Std.Internal.Parsec.String
 
-/-! The developer protocol uses only natural-number tokens. Reuse Parsec and
-JSON values/escaping, but reject information loss in the generic JSON parser.
+/-! Strict integer tokens: natural numbers for IR, with signed endpoints for
+source bounds. Reuse Parsec and JSON values/escaping without the generic parser's
+information loss.
 [impl->req~compiler-cli~1]
 [impl->req~compiler-ir~1] -/
 

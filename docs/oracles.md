@@ -1,11 +1,10 @@
 # Reproducible comparison tools
 
-[Issue #6](https://github.com/kbak/clafer-compiler-lean/issues/6) supplies external
-Haskell, Lean and Alloy tools for the adopted structural contract. It reuses
-`scripts/verification/` from the immutable Clafer Semantics Lake dependency.
-These original runs compare Haskell-generated Alloy with the upstream Lean checker.
-Selected #12 adds the [three-way comparison](comparison.md) with native-generated Alloy.
-There is no new theorem in this task.
+The external Haskell, Lean and Alloy tools reproduce comparisons for the selected
+structural contract. They reuse `scripts/verification/` from the immutable Clafer
+Semantics Lake dependency. The base oracle compares Haskell-generated Alloy with
+the upstream Lean checker; [three-way comparison](comparison.md) also checks
+native-generated Alloy. These executions supply testing evidence, not new theorems.
 
 ## Tools and profile
 
@@ -73,7 +72,7 @@ The following commands take new external output directories. A bounds file is a
 JSON object with `root: 1` and an explicit natural upper bound for each compiler
 UID; use the [fixture inventory](../tests/fixtures/oracles/inventory.json) for
 examples. Candidate JSON uses the upstream object/member/containment/reference
-format, not the future compiler IR.
+format, distinct from the developer IR interchange.
 
 ```sh
 python3 scripts/oracles/oracle.py capture --tools "$CLAFER_ORACLE_TOOLS" \
@@ -123,7 +122,7 @@ Four small rejection sources are original compiler-repository MIT fixtures.
 All 13 sources execute the real exporter and all nine admitted captures reach
 Lean admission. Three exact-candidate comparisons and one replay exercise the
 real solver. This is a reproducible smoke corpus, not exhaustive verification of
-all admitted candidates or future M2 semantics. The full upstream search and
+all admitted candidates or the broader M2 semantics. The full upstream search and
 mutation utilities remain available at the pinned revision for #12.
 
 ## Inspected licenses and distribution contents
@@ -148,10 +147,11 @@ separately hashed notices, all retained by preparation:
 
 Only SAT4J is selected. The JAR also bundles other native solvers and libraries;
 this is an inventory of supplied notices, not a complete redistribution clearance
-or an assertion that each embedded class has a mapped license. #21 must reconcile
-all packaged dependencies (including Haskell/JDK/native/runtime dependencies)
-before any packaging decision. This task keeps tools and licenses external and
-does not distribute their binaries or change repository licensing.
+or an assertion that each embedded class has a mapped license. The
+[qualification inventory](qualification.md) distinguishes packaged runtime
+dependencies from external comparison tools. Distribution requires review of all
+bundled licenses. The oracle tools and their notices remain external; they are
+not included in the compiler candidate.
 
 ## Discrepancy triage
 

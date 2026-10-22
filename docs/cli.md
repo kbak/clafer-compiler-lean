@@ -1,15 +1,18 @@
 # Native source and resolved-IR compiler
 
-[Issue #19](https://github.com/kbak/clafer-compiler-lean/issues/19) selects the
-native M1 driver, accepted through PR #39. Selected [#20](pipeline.md) adds source
-compilation and version-2 bounds, pending semantic review.
+The native driver compiles guarded M1 resolved IR or selected structural Clafer
+source to static Alloy with explicit bounds. The [source pipeline](pipeline.md)
+adds typed constraint elaboration and version-2 bounds. Both commands share strict
+decoding, deterministic diagnostics and checked output serialization.
 
 ## Reuse assessment
 
 The driver composes the existing `IR.Structural.validateDocument`,
 `Backend.Alloy.Structural.compile` and `Text.render`. It preserves their guards,
-explicit scopes and successful-render reconstruction boundary. The #12 numeric
-test transport is deliberately not the developer JSON protocol. The pinned
+explicit scopes and successful-render reconstruction boundary. Both input profiles
+reuse `Driver.backendDiagnostic` for bounds/target failures and `renderProduct`
+for checked text and maps; their source diagnostic adapters retain the appropriate
+phase and input location. The #12 numeric test transport is deliberately not the developer JSON protocol. The pinned
 upstream `Clafer/Verification/ImportMain.lean` also requires external strict JSON
 decoding and imports proof machinery, so it cannot serve the standalone driver.
 
@@ -40,11 +43,11 @@ system dynamic loader. These tools are verification prerequisites, not compiler
 runtime dependencies. Lean library imports retain Apache-2.0 licensing; original
 driver/test code remains MIT. No dependency pins or scope policy change.
 
-The full check's fixed 120-second deadline also requires overlapping the new CLI
-suite with existing regressions. The existing unittest discovery/runner and
-standard `subprocess` are reused: one process runs the M1 CLI, comparison and audit
-regressions, another runs the source CLI and pipeline comparisons, and the parent
-runs all remaining discovered cases. Every group must execute a nonempty suite
+The full check's fixed 120-second deadline requires concurrent regression groups.
+The existing `unittest` discovery/runner and standard `subprocess` are reused: one process runs the M1 CLI, comparison and audit
+regressions, another runs source CLI/pipeline comparisons, and two more run
+frontend/qualification and target regressions. The parent runs the remaining
+discovered cases. Every group must execute a nonempty suite
 without skips and pass. Separate processes avoid sharing Python mocks or module
 state. Test harnesses link the production objects already built by Lake; concurrent
 Alloy invocations use separate Java bridge build directories. Pytest/xdist was considered but would
@@ -169,7 +172,8 @@ network isolation is not required for this runtime dependency check.
 System glibc components retain their LGPL licenses and Lean's statically linked
 components retain their upstream notices. This private execution check uses host
 libraries without copying them into source or publishing a distribution. Packaging
-license qualification remains #21. This issue authorizes no public binary release.
+license qualification is recorded in [private qualification](qualification.md).
+No public binary release is authorized.
 
 ## Assurance and handoff
 

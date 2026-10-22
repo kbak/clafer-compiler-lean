@@ -1,15 +1,13 @@
 # Guarded structural Alloy encoding
 
-[Issue #10](https://github.com/kbak/clafer-compiler-lean/issues/10) implements the
-first in-memory backend after accepted [IR #7](ir.md) and [target #8](alloy-core.md).
-It was accepted through [PR #28](https://github.com/kbak/clafer-compiler-lean/pull/28).
-The selected [correctness work](structural-correctness.md) proves M1 soundness and
-finite bounded completeness with explicit scope/range hypotheses; semantic
-acceptance remains pending.
-It accepts the exact guarded effective M1 domain and explicit manual bounds,
-returning a checked target AST and declaration map. Text serialization belongs to
-#9, the IR CLI to #19, global preservation to #11 and actual generated-text/solver
-comparison and decoding to #12. The production CLI still supports only `--version`.
+The backend accepts the guarded effective M1 domain and explicit manual bounds,
+returning a checked target AST and declaration map. The
+[correctness layer](structural-correctness.md) proves M1 soundness and finite
+bounded completeness with explicit scope/range hypotheses.
+
+[Text serialization](alloy-text.md), [native commands](cli.md) and
+[generated-text comparison/decoding](comparison.md) compose this API while
+retaining their own assurance boundaries.
 
 ## API and admission
 
@@ -28,7 +26,7 @@ defaults, erase expressions or weaken admission. The typed API receives the
 actual checked source table. No extra source-feature restriction is introduced.
 Unsupported primitives, reference inheritance, abstract bodies and other excluded
 forms retain the IR rejection. Source text, JSON decoding and version/profile
-dispatch must go through their existing/future boundaries before this API.
+dispatch must go through their respective boundaries before this API.
 
 `Bounds.declarations` contains exactly one `(input declaration ID, Scope)` for
 every declaration, including root and abstracts. `Bounds.objects` is an upper
@@ -43,7 +41,7 @@ range rejection or invalid bitwidth. It is not UNSAT. `source diagnostic` preser
 the IR category/code/pointer/ID. `internalTarget` denotes failed generated target
 typing, an implementation failure rather than a source rejection. General absence
 of that error is not yet proved; successful results carry both target checks.
-The selected [#19 driver](cli.md) serializes these errors with the architecture's phase/category conventions.
+The [native driver](cli.md) serializes these errors with the architecture's phase/category conventions.
 
 `Compiled.module` is a `CheckedModule`, carrying syntax/binding and bounds proofs.
 `Compiled.declarations` preserves input declaration order, IDs, names and source
@@ -71,7 +69,7 @@ root has no super and cannot be a super target, so root freshness follows from
 this same layout. Every signature uses `set` multiplicity. The root singleton is
 a fact, allowing exact scope zero to remain a valid contradictory request.
 
-The object carrier for future decoding is exactly signature 0. Every live atom
+The object carrier for decoding is exactly signature 0. Every live atom
 must occur in a declaration extent. Allocation slots absent from all extents are
 unobservable and excluded from the source carrier. An atom in signature 0 but
 outside all source extents violates cover. The object union is counted once,

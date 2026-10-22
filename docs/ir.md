@@ -1,12 +1,10 @@
 # Executable structural IR
 
-[Issue #7](https://github.com/kbak/clafer-compiler-lean/issues/7) implements the
-M1 in-memory IR API after acceptance of the [build](build.md). Its executable
-code imports only `Std`; its proof interpretation imports the pinned upstream
-admission module. No compiler pass, Alloy output, source parser, defaulting or
-candidate-satisfaction algorithm is provided here. Selected #19 supplies the
-[native file/JSON driver](cli.md), composing this API
-with the accepted structural backend and serializer.
+The M1 in-memory IR exposes executable declaration tables and admission checks.
+Its runtime code imports only `Std`; its proof interpretation imports the pinned
+upstream admission module. The [native file/JSON driver](cli.md) composes admission
+with the [structural backend](structural-encoding.md) and serializer. Source
+parsing, defaulting and candidate satisfaction have separate contracts.
 
 ## Data and entrypoints
 

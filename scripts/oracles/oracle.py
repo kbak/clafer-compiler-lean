@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the pinned external oracles; no downstream compiler is implemented.
+"""Reproduce the pinned external Haskell/Lean/Alloy comparison oracles.
 
 Uses the MIT-licensed adapters in the pinned Clafer Semantics Lake dependency
 (Copyright 2026 Kacper Bak). See docs/oracles.md for trust and replay boundaries.

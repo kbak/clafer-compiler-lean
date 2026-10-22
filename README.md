@@ -1,90 +1,73 @@
 # Clafer Compiler Lean
 
-A planned structural [Clafer](https://www.clafer.org/)-to-Alloy compiler in Lean 4.
+A structural [Clafer](https://www.clafer.org/)-to-Alloy compiler written in Lean 4,
+with machine-checked preservation proofs for its supported model representations.
+Clafer combines class and feature modeling: declarations describe objects,
+containment, references and inheritance, while constraints restrict valid models.
 
-**Status: source pipeline accepted; private qualification in progress.** Executable declaration
-tables, [proved M1 admission](docs/ir.md), the pinned Lake build, native checks
-and [comparison tools](docs/oracles.md) are available. The independent
-[static Alloy target model](docs/alloy-core.md),
-[structural backend](docs/structural-encoding.md) and
-[hygienic serialization](docs/alloy-text.md) are accepted through PRs #26–#28.
-The backend translates admitted M1 IR into checked target ASTs with manual bounds.
-The [correctness work](docs/structural-correctness.md) proves decoding,
-M1 soundness and finite bounded completeness with explicit scope and integer-range
-hypotheses. The maintainer accepted #11 through PR #33. Accepted
-[inherited realization](docs/inherited-realization.md) (PR #36) adds the full Appendix 6
-structural skeleton and preservation proofs.
-The [three-way comparison](docs/comparison.md) exercises native-generated Alloy
-and strict instance decoding. Accepted #19 (PR #39) supplies the
-[native resolved-IR CLI](docs/cli.md).
-The accepted [static source parser](docs/parser.md) retains authored syntax and
-source diagnostics. Accepted [resolution/defaults](docs/resolution.md) (#17/PR #35)
-adds checked declaration elaboration. Accepted [source constraints](docs/constraints.md)
-(#18/PR #40) adds automatic typed elaboration and source derivations.
-The accepted [typed expression API](docs/expressions.md) adds checked static syntax
-and independent semantic interpretation. Accepted [expression encoding](docs/expression-encoding.md)
-(PR #41) supplies constructor and attachment preservation. Accepted
-[source pipeline #20](docs/pipeline.md) (PR #44) composes the actual source command, full
-integer source soundness and bounded completeness, and all twelve telematics
-bodies. [Private qualification #21](docs/qualification.md) supplies the feature
-inventory, reproducible measurements and local candidate preparation; acceptance
-requires independent review. No public release is authorized.
-The repository and its [planning board](https://github.com/users/kbak/projects/3)
-are private while the design is being worked out.
+The compiler accepts Clafer source or a guarded resolved-IR format and emits
+static Alloy with explicit bounds. Compilation does not run a solver.
+**The repository and its candidate binaries remain private; publication requires
+[a separate decision](https://github.com/kbak/clafer-compiler-lean/issues/3).**
 
-[Intent](docs/intent.md) · [Architecture](docs/architecture.md) · [Contributing](CONTRIBUTING.md) ·
+[Documentation](docs/intent.md#documentation-map) · [Contributing](CONTRIBUTING.md) ·
 [Issues](https://github.com/kbak/clafer-compiler-lean/issues) · [MIT license](LICENSE)
 
-## Scope
+## Supported scope
 
-This repository hosts the compiler. The separate
-[Clafer Semantics](https://github.com/kbak/clafer-semantics) project formalizes
-Clafer's modeling semantics and is an immutable, commit-pinned Lake dependency.
-The [Haskell compiler](https://github.com/gsdlab/clafer) guides
-syntax and compatibility comparisons. [Pinned sources](docs/sources.md) define
-their separate roles.
+| Capability | Contract |
+| --- | --- |
+| Declarations, cardinalities, containment, set/bag references and selected inheritance | [Structural encoding](docs/structural-encoding.md), [inherited realization](docs/inherited-realization.md) |
+| Boolean logic, sets/relations, navigation, finite quantifiers, cardinality and integer addition/subtraction | [Static expressions](docs/expressions.md) |
+| Source parsing, checked resolution/defaults and typed constraint elaboration | [Source pipeline](docs/pipeline.md) |
+| Native source and resolved-IR commands, diagnostics and explicit bounds | [CLI](docs/cli.md) |
+| Complete supported Appendix 6 telematics model and reproducible validation | [Pipeline evidence](docs/pipeline.md), [private qualification](docs/qualification.md) |
 
-Start with the upstream guarded structural core through a resolved-IR API, then
-add its selected static expressions, inherited realization and text frontend.
-Behavioral/temporal modeling is excluded. The [feature matrix](docs/architecture.md#feature-matrix)
-records the exact boundaries; full Haskell compatibility is not promised.
+[Clafer Semantics](https://github.com/kbak/clafer-semantics) supplies independent
+source meanings and reusable proofs as a commit-pinned Lake dependency. The
+[Haskell compiler](https://github.com/gsdlab/clafer) guides syntax and compatibility
+comparisons. Their roles and immutable revisions are in the [source register](docs/sources.md).
 
-## Build and check
+The [feature matrix](docs/architecture.md#feature-matrix) defines the exact supported
+fragment. Temporal behavior, enums, runtime strings/reals, multiplication/division,
+general aggregation and automatic scope inference are outside it. Full Haskell
+compatibility is not promised.
 
-Install Lean through Elan, Python 3.11+, Git, Bash, Java 17, GMP headers and a C toolchain. The repository
-selects Lean 4.35.0. Prepare pinned dependencies once, then run all gates:
+## Build and compile
+
+Install Elan, Git, Python 3.11+, Bash and a C toolchain. The repository pins
+Lean 4.35.0 and its dependency graph. Fetch and build those dependencies, then
+build the compiler:
 
 ```sh
 bash scripts/prepare_dependencies.sh
-python3 scripts/oracles/oracle.py prepare /tmp/clafer-oracle-tools-UNIQUE
-export CLAFER_ORACLE_TOOLS=/tmp/clafer-oracle-tools-UNIQUE/tools.json
-bash scripts/check.sh
+lake build clafer-compiler
 .lake/build/bin/clafer-compiler --version
 ```
 
-Contributions also require the pinned [IntentBond](https://github.com/kbak/intentbond)
-check; see [setup and validation](CONTRIBUTING.md#setup-and-validation).
-The [build contract](docs/build.md) describes module ownership, kernel/axiom
-auditing and the native execution trust boundary. The executable compiles the
-guarded M1 developer IR with explicit bounds:
-
-```sh
-.lake/build/bin/clafer-compiler compile-ir tests/fixtures/cli/optional.json \
-  --bounds tests/fixtures/cli/bounds.json --output /tmp/example.als
-```
-
-See the [CLI contract](docs/cli.md) for stdin/stdout, diagnostics, exit codes and
-runtime-only use. Compile source with explicit version-2 bounds:
+Compile the included telematics model using its explicit bounds:
 
 ```sh
 .lake/build/bin/clafer-compiler compile-source tests/fixtures/constraints/telematics.cfr \
   --bounds tests/fixtures/pipeline/telematics.bounds.json --output /tmp/telematics.als
 ```
 
-The validation suite also
-requires Bubblewrap and `ldd` on Linux/glibc.
+Open the generated file in Alloy to explore bounded instances. The [CLI guide](docs/cli.md)
+explains bounds, the `compile-ir` command, stdin/stdout and diagnostics. A built
+binary needs only the [native runtime](docs/cli.md#native-runtime), without Lean,
+Haskell or Java installed.
 
-Plan work in issues before implementation. Factory intake is manual, and a
-planning issue does not authorize compiler work. Contract review precedes dependent
-implementation intake. The [requirements](docs/spec.md) distinguish current
-planning obligations from reserved future implementation requirements.
+## Assurance and validation
+
+The kernel-checked results include admission, structural soundness and bounded
+completeness, expression preservation, and full integer source-model composition.
+They have explicit representation, scope, observation and numeric-range assumptions;
+see the [proof contracts](docs/pipeline.md#composed-assurance).
+Grammar-to-parser correspondence and native/serialized execution remain tested
+boundaries. Finite Lean/Haskell/Alloy comparisons complement the proofs; they do
+not establish unrestricted compatibility or unbounded unsatisfiability.
+
+Contributions run the full build, kernel and axiom audits, native regressions,
+pinned external comparisons and IntentBond checks. Follow [setup and validation](CONTRIBUTING.md#setup-and-validation)
+for the additional tools and evidence requirements. Work is selected through
+issues and manual intake; review precedes acceptance.

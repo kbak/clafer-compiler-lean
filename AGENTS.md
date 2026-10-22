@@ -3,25 +3,16 @@
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
 [architecture](docs/architecture.md), [sources](docs/sources.md),
 [contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
-This is a private structural IR/build project with an adopted Clafer-to-Alloy contract.
-Follow the contract's review status and manual intake gates. The build, comparison
-and structural IR/admission tasks #5, #6 and #7 are accepted through PRs #23–#25.
-Independent Alloy target #8, text #9 and structural backend #10 are accepted
-through PRs #26–#28. Correctness task #11 was accepted by the maintainer through
-PR #33 at 67b9137cde9e2b486733aecd6eb4f5559b780ea3. Inherited realization #13 and its preservation proofs are accepted through PR #36. Task #12 supplies accepted exact three-way comparison and decoding. Accepted #19 (PR #39) integrates the [native resolved-IR CLI](docs/cli.md).
-Parser task #16 is accepted through PR #30; its
-[authored API and assurance boundary](docs/parser.md) remain explicit. Task #17 and
-its [checked resolution/defaults](docs/resolution.md) are accepted
-through merged PR #35. Task #18 and its
-[source constraint elaboration](docs/constraints.md) are accepted through PR #40.
-Typed static expression task #14 is accepted through PR #32.
-Task #15 is accepted through PR #41. Task #20 and its primitive-carrier
-corrections #42/#43 are accepted through PR #44, supplying the
-[source pipeline](docs/pipeline.md), full integer model composition and complete
-telematics validation. Selected #21 prepares [private qualification](docs/qualification.md);
-its evidence and candidate acceptance remain subject to independent review. Do not implement
-compiler features until their owning task is selected and its dependencies are accepted.
-Behavior and publication remain outside this work.
+This is a private structural Clafer-to-Alloy compiler. Follow the adopted
+contract and manual intake gates. The [documentation map](docs/intent.md#documentation-map)
+and [qualification inventory](docs/qualification.md#feature-and-evidence-inventory)
+identify the delivered APIs, proof assumptions and testing boundaries. The
+[roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) and linked issues
+record acceptance and dependencies.
+
+Do not implement compiler features until their owning task is selected and its
+dependencies are accepted. Candidate acceptance requires independent review;
+behavioral modeling and publication remain outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.
@@ -37,7 +28,7 @@ Use IntentBond for planning, implementation and review. Read the development ski
 and applicable references from the revision pinned in
 [requirements/intentbond.txt](requirements/intentbond.txt):
 [IntentBond skill](https://github.com/kbak/intentbond/blob/a430efa8d82e2a88ed2607bfe838066bb9d73f3c/intentbond/skills/intentbond/SKILL.md).
-Reuse matching installed tooling; follow CONTRIBUTING.md if missing.
+Reuse matching installed tooling; follow `CONTRIBUTING.md` if missing.
 Capture the starting Git commit before editing. Maintain affected intent,
 requirements, source, tests and links together. Run `ib check` and retain external
 evidence before handoff. Exit 4 leaves semantic review pending. Do not weaken
@@ -51,3 +42,7 @@ private deployment paths and runtime state outside source.
 
 When Lean work is authorized, do not present `sorry`, `admit`, or unchecked axioms
 as completed proofs. Keep tested behavior distinct from proved properties.
+
+Follow the [documentation style](CONTRIBUTING.md#documentation-and-conduct):
+keep the README concise, link authoritative contracts, format code-related terms
+with backticks, and retain task history in issues/PRs rather than living docs.
