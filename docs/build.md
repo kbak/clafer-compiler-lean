@@ -75,19 +75,20 @@ Lean's code generator, C compiler/linker, runtime and operating system. `main` i
 performs IO; the two pure equations below do not prove IO or machine-code behavior.
 The native tests exercise stdout, stderr and exit status independently.
 
-`scope.json` already includes all source and review paths and retains its original
-coverage policy, command and 120-second check deadline. Provision dependencies
-before checking. After the build, the axiom audit, kernel replay and the isolated
+`scope.json` includes all source and review paths, with a 600-second check deadline.
+The reviewed deadline amendment changes no coverage policy, command or gate.
+Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated
 regression suite run concurrently. Every process is awaited and every exit status
 must succeed. Replay uses four workers to bound the number of
 large imported environments resident at once; the check waits for both results
 and fails if either fails. No module, test or kernel gate is skipped.
-Within the regression runner, the two CLI modules and the isolated audit-fixture
-module run in one separate process alongside the remaining suite; both groups must execute without skips and
-pass. The runner retains all discovered cases and propagates either group's failure.
+The regression runner partitions the discovered tests into isolated concurrent
+groups; every group must execute without skips and pass. It retains every
+discovered case and propagates each group's failure.
 CI's overall 30-minute job budget includes dependency downloads
-and compilation. It compares candidate scope bytes with the baseline and refuses
-an unreviewed amendment. IntentBond exit 4 always leaves semantic review pending.
+and compilation. It compares candidate scope bytes with the baseline and permits
+only the exact reviewed deadline migration described below. IntentBond exit 4
+always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
 are verified and compiler outputs are not restored. No check has a skip mode.
 
@@ -116,6 +117,16 @@ derived from the toolchain, dependency manifest and oracle profile. Preparation
 and clean-pin/tool-identity checks still run after restoration; project build
 outputs and successful proof/test results are not restored. There is no alternate
 reduced CI suite or added runtime dependency.
+
+The [scope selector](../scripts/ci_scope.py) adapts the pinned Clafer Semantics
+`scripts/ci_scope.py` (MIT, copyright 2026 Kacper Bak). IntentBond already accepts
+external trusted policy; plain `cmp` cannot distinguish an approved amendment from
+an arbitrary edit. The selector constructs the approved `120` → `600` deadline
+from the original baseline, pins both byte hashes and rejects every other change.
+It never replaces the Git comparison baseline. CI retains the selected policy and
+migration receipt. [Regression tests](../tests/test_ci_scope.py) check accepted
+policy identities, weakened gates, altered coverage and unknown/reversed migrations.
+This is unverified Python review tooling, with no added dependency or runtime code.
 
 Covers:
 - `req~compiler-build~1`

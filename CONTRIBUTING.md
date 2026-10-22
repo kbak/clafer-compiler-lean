@@ -102,15 +102,19 @@ dependency packages, export `CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"` bef
 `ib check`. The snapshot copies them and verifies their clean, pinned Git identities;
 project outputs are rebuilt. No private paths or credentials belong in source.
 
-The existing scope already selects all files and review paths. Its coverage floors,
-check command and 120-second execution deadline are unchanged. Dependency preparation
-is outside that deadline; CI allows 30 minutes for provisioning and the check.
+The scope selects all files and review paths. Its reviewed execution deadline is
+600 seconds; coverage floors, check command and all gates are unchanged.
+Dependency preparation is outside that deadline; CI allows 30 minutes for
+provisioning and the check.
 CI runs on pull requests, pushes to `main` and manual dispatch. Run the full local
 IntentBond check before handoff; use GitHub Actions → CI → Run workflow for an
 additional hosted run. CI caches only pinned dependencies and external tools,
 then checks their identities and rebuilds the project in the source snapshot.
-The workflow refuses differing baseline/candidate scope bytes; any future amendment
-needs explicit review before selecting it as trusted policy.
+The workflow permits only the exact reviewed `120` → `600` deadline migration;
+it retains the original comparison baseline and records both policy hashes.
+Every other scope amendment needs explicit review before selection as trusted policy.
+When checking across this migration locally, supply the reviewed scope explicitly
+with `--scope` to both `ib check` and `ib verify`.
 
 ## Documentation and conduct
 

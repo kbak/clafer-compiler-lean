@@ -4,11 +4,13 @@ This is a private research compiler with a native command-line interface and no
 supported stable releases. Fixes apply to `main`. Qualification archives are
 private review artifacts, not supported releases.
 
-Report sensitive issues directly to repository owner `@kbak` through an established
-private channel. Include the affected revision, platform, impact and a minimal
-reproducer. Do not include credentials in issues, pull requests, logs or reports.
-A contact route usable by outside contributors remains required by
-[readiness issue #3](https://github.com/kbak/clafer-compiler-lean/issues/3).
+Report sensitive issues to `@kbak` through the shared
+[Clafer Semantics private reporting form](https://github.com/kbak/clafer-semantics/security/advisories/new).
+Identify `clafer-compiler-lean` as the affected project and include the revision,
+platform, impact and a minimal reproducer. The form requires a GitHub account;
+private reporting is enabled on that repository. Use the same private route for
+conduct concerns. Do not include credentials or publish sensitive details in
+public issues. This compiler repository remains private.
 
 The compiler reads source/IR and bounds files and writes Alloy and optional
 metadata. Treat model inputs as untrusted. Running the compiler does not invoke

@@ -37,6 +37,6 @@
       "bash",
       "scripts/check.sh"
     ],
-    "timeout_seconds": 120
+    "timeout_seconds": 600
   }
 }

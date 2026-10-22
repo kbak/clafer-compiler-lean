@@ -313,3 +313,11 @@ and `ldd` output with each candidate. Haskell/Stack/GHC, Java and the multi-lice
 Alloy JAR are comparison/build tools and are not packaged. This prepares a local
 review artifact; redistribution obligations for linked components must be resolved
 before external distribution, independently of repository publication.
+
+## CI policy selection
+
+The deadline selector adapts `scripts/ci_scope.py` from the pinned S1 repository
+(MIT, copyright 2026 Kacper Bak). Python's standard JSON and SHA-256 libraries
+preserve the exact reviewed policy transition; IntentBond consumes the external
+selected policy. The [build contract](build.md) records the reuse assessment and
+tests. This adds no compiler meaning, proof assumption or runtime dependency.
