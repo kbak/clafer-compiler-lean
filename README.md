@@ -13,6 +13,9 @@ static Alloy with explicit bounds. Compilation does not run a solver.
 [Documentation](docs/intent.md#documentation-map) · [Contributing](CONTRIBUTING.md) ·
 [Issues](https://github.com/kbak/clafer-compiler-lean/issues) · [MIT license](LICENSE)
 
+See [what the experiment establishes](docs/lessons.md) for the main findings,
+potential reuse and evidence-based comparison with the Haskell compiler.
+
 ## Supported scope
 
 | Capability | Contract |

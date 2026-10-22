@@ -109,8 +109,13 @@ package files above make these a native executable.
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 [CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond on
-manual dispatch. Push and pull-request triggers are deferred during development;
-the full local check remains mandatory before handoff.
+pull requests, pushes to `main` and manual dispatch. The full local check remains
+mandatory before handoff. GitHub's cache action, already used by pinned Clafer
+Semantics, reuses dependency packages and external comparison tools under keys
+derived from the toolchain, dependency manifest and oracle profile. Preparation
+and clean-pin/tool-identity checks still run after restoration; project build
+outputs and successful proof/test results are not restored. There is no alternate
+reduced CI suite or added runtime dependency.
 
 Covers:
 - `req~compiler-build~1`

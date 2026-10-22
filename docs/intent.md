@@ -88,6 +88,7 @@ semantic acceptance and publication require explicit review; see the
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
 - [Private qualification](qualification.md): feature inventory, benchmarks and candidate review.
+- [Lessons](lessons.md): findings, possible reuse and limits of the Haskell comparison.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.

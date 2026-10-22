@@ -36,9 +36,9 @@ Needs: impl
 Pin IntentBond to an immutable source revision. Keep intent, requirements and
 artifact links together, and run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
-semantic review pending, never approval. During development, local checks remain
-mandatory and hosted CI runs only on manual dispatch. When run, CI must preserve
-evidence and expose that distinction. Scope changes require explicit review.
+semantic review pending, never approval. Local checks remain mandatory. Hosted CI
+runs on pull requests, pushes to `main` and manual dispatch, preserving evidence
+and exposing the same review distinction. Scope changes require explicit review.
 
 Before implementation, check repository code, pinned upstream sources, standard
 libraries and relevant maintained libraries/tools for reusable solutions. Prefer

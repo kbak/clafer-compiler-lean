@@ -24,6 +24,15 @@ their acceptance criteria are met. Planning issues are not implementation approv
 IntentMade uses manual intake and draft PRs. Only its credential-bearing coordinator
 may run ticket operations; workers return proposed updates without credentials.
 
+The intended `main` safeguards are pull requests, the full CI check, resolved
+review conversations, and blocked force pushes/deletion. GitHub currently refuses
+branch protection on this private repository under the owner's plan; the maintainer
+must enforce the review/check workflow manually until an eligible plan is enabled.
+[Readiness issue #3](https://github.com/kbak/clafer-compiler-lean/issues/3) retains the
+settings review. The single-maintainer workflow does not pretend that self-approval
+is an independent review. CI success and administrator overrides do not grant
+semantic acceptance.
+
 ## Reuse before implementation
 
 Check existing repository code, pinned upstream sources, standard libraries and
@@ -96,10 +105,10 @@ project outputs are rebuilt. No private paths or credentials belong in source.
 The existing scope already selects all files and review paths. Its coverage floors,
 check command and 120-second execution deadline are unchanged. Dependency preparation
 is outside that deadline; CI allows 30 minutes for provisioning and the check.
-During development, CI runs only on manual dispatch, not on pushes or pull requests.
-Run the full local IntentBond check before handoff. Use GitHub Actions → CI → Run
-workflow when a clean hosted run is needed; automatic CI is deferred until
-development is complete.
+CI runs on pull requests, pushes to `main` and manual dispatch. Run the full local
+IntentBond check before handoff; use GitHub Actions → CI → Run workflow for an
+additional hosted run. CI caches only pinned dependencies and external tools,
+then checks their identities and rebuilds the project in the source snapshot.
 The workflow refuses differing baseline/candidate scope bytes; any future amendment
 needs explicit review before selecting it as trusted policy.
 
@@ -120,4 +129,6 @@ and check local links and examples when editing.
 
 Keep runtime state, credentials, transcripts and execution evidence out of source.
 Check licenses before copying material. Be respectful, constructive and specific in
-reviews. Contact the maintainer privately about conduct or sensitive concerns.
+reviews. Use the [private reporting guidance](SECURITY.md) for conduct or sensitive
+concerns. Disagreement about a model or proof should address the claim and evidence;
+harassment and disclosure of another person's private information are unacceptable.
