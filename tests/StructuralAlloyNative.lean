@@ -137,6 +137,18 @@ def without (c : Compiled) (tag : Obligation) : Module :=
       if label == tag then none else some f }
 
 def run : IO Unit := do
+  -- Exercise cached native lookup, including reversed order and absent roles.
+  for input in [emptyModel, bag, referenceCycle, reversed] do
+    let .ok validated := IR.Structural.validateRaw input
+      | throw (IO.userError "allocation fixture admission")
+    let v := validated.toLayout
+    let a := cachedAllocation v
+    for d in List.finRange input.declarations.size do
+      unless a.signatures d == signatureId v d do
+        throw (IO.userError "cached signature identity")
+      for role in [FieldRole.containment, FieldRole.dereference] do
+        unless a.fields d role == fieldId v.core d role do
+          throw (IO.userError "cached field identity or missing-role fallback")
   for c in cases do
     unless observe c.input c.limits c.candidate == some c.expected do
       throw (IO.userError s!"{c.label}: wrong outcome or compilation/evaluation error")

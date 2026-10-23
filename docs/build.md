@@ -75,6 +75,13 @@ Lean's code generator, C compiler/linker, runtime and operating system. `main` i
 performs IO; the two pure equations below do not prove IO or machine-code behavior.
 The native tests exercise stdout, stderr and exit status independently.
 
+Runtime optimizations use Lean's standard `@[csimp]` mechanism with kernel-checked
+function equalities: cached backend indices, shared rendering chunks and bounded
+rank iteration that stops at a fixed point. The specification definitions remain
+available to proofs. These equalities cover Lean-level results; they do not verify
+the code generator or C toolchain. Native regressions and the
+[measurement harness](qualification.md#measurements-and-replay) check that boundary.
+
 `scope.json` includes all source and review paths, with a 600-second check deadline.
 The reviewed deadline amendment changes no coverage policy, command or gate.
 Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated

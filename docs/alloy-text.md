@@ -146,6 +146,12 @@ instruction lists, signature flags/parents, field identities/order/multiplicitie
 facts, de Bruijn indices, command polarity, scopes and bitwidth; there is no
 lossy normalization or source/target satisfaction hypothesis in this equation.
 
+The native `renderShared` implementation computes `chunks` once and reuses them
+for text and UTF-8 byte mappings through `sourceMapChunks`. The kernel-checked
+`render_eq_renderShared` equality registers this sharing with `@[csimp]` and
+covers the entire result. Metadata validation and independent reconstruction run
+on every call as before. No parser, dependency or proof assumption is replaced.
+
 The proof method is **translation validation**: an independent parser
 reconstructs the output and decidable structural equality is checked before
 success. It is not a structural-induction theorem that `render` always succeeds

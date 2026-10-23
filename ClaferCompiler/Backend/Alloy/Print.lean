@@ -96,13 +96,16 @@ def sourceFor (names : Names) : Symbol → Option SourceName
   | .field i => (names.fields[i]?).join
   | _ => none
 
-def sourceMap (m : Module) (names : Names) : List Mapping :=
-  ((chunks m).foldl (fun (state : Nat × List Mapping) c =>
+def sourceMapChunks (pieces : List Chunk) (names : Names) : List Mapping :=
+  (pieces.foldl (fun (state : Nat × List Mapping) c =>
     let next := state.1 + c.text.utf8ByteSize
     let entries := match c.symbol with
       | none => state.2
       | some s => ⟨s, c.text, sourceFor names s, state.1, next⟩ :: state.2
     (next, entries)) (0, [])).2.reverse
+
+def sourceMap (m : Module) (names : Names) : List Mapping :=
+  sourceMapChunks (chunks m) names
 
 def SourceName.valid (s : SourceName) : Bool :=
   match s.logicalFile, s.startByte, s.endByte with
@@ -137,6 +140,18 @@ def render (m : CheckedModule) (names : Names) : Except RenderError (Rendered m)
     if h : parse text = some m.raw then .ok ⟨text, sourceMap m.raw names, h⟩
     else .error .syntaxCorrespondence
   else .error .malformedMetadata
+
+/-- Build text chunks once for both the output and its byte mappings. The
+independent parse/reconstruction check remains part of every successful call. -/
+def renderShared (m : CheckedModule) (names : Names) : Except RenderError (Rendered m) :=
+  if names.valid m.raw then
+    let pieces := chunks m.raw
+    let text := String.join (pieces.map Chunk.text)
+    if h : parse text = some m.raw then .ok ⟨text, sourceMapChunks pieces names, h⟩
+    else .error .syntaxCorrespondence
+  else .error .malformedMetadata
+
+@[csimp] theorem render_eq_renderShared : render = renderShared := rfl
 
 /-- The independent parser reconstructs the entire resolved target, including
 facts, field identity/order, binder indices, command polarity and all scopes.

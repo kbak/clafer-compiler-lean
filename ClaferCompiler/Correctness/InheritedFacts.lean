@@ -106,7 +106,8 @@ theorem groups_iff {U : Type} [Fintype U] (v : Validated n)
           {x // Clafer.Compile.Groups.ChildObjects
             (SemanticsBridge.Inherited.interpret v.core).family s d p x} := by
   classical
-  simp only [groups, List.forall_mem_map, List.mem_filter, List.mem_finRange,
+  simp only [groups, Backend.Alloy.Structural.allocation_head_apply,
+    List.forall_mem_map, List.mem_filter, List.mem_finRange,
     Bool.not_eq_true', true_and, group_eval_iff v s i r w]
 
 end ClaferCompiler.Correctness.Inherited

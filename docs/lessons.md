@@ -57,7 +57,7 @@ exact source identities to remain useful after temporary directories disappear.
 | Semantic assurance in the selected fragment | This project supplies kernel-checked admission, elaboration and preservation results against independent meanings, with explicit assumptions. The inspected Haskell reference pipeline does not supply an equivalent proof chain. This is a stronger documented assurance argument, not a measured overall defect rate. |
 | Executable correctness | Parser recognition, JSON decoding correspondence, generated native code, emitted-text interpretation and solving remain tested boundaries. No end-to-end verified executable claim follows. |
 | Language coverage and compatibility | The Haskell compiler supports a wider language. This compiler deliberately restricts structural syntax, inheritance and arithmetic, and retains adopted defaulting differences. Even structural inputs must satisfy the published feature matrix. |
-| Measured compiler performance | The pinned Haskell compiler was faster and used less memory on all three measured common-domain inputs. No Lean performance advantage was demonstrated. |
+| Measured compiler performance | In the initial qualification experiment described below, the pinned Haskell compiler was faster and used less memory on all three common-domain inputs. This is a result for that candidate, not a language-level performance ranking. |
 | Reliability in use | The experiment did not measure field defect rates, long-term maintenance costs, adversarial robustness or user outcomes. A blanket “higher quality” conclusion is unsupported. |
 
 The [qualification experiment](qualification.md#measurements-and-replay) measured
@@ -68,6 +68,13 @@ common-domain source and independently audited scopes. At candidate
 larger inputs. Peak process memory was approximately 65–67 MiB for Lean and
 12–18 MiB for Haskell. These are descriptive observations on the recorded host,
 not general performance guarantees. Solver performance was not compared.
+
+[Optimization evidence](https://github.com/kbak/clafer-compiler-lean/issues/50)
+tracks subsequent native measurements. Kernel-proved function equalities allow
+cached indices, shared rendering and early fixed-point termination while retaining
+the existing preservation proofs. Performance still needs measurement: equivalent
+definitions can have very different execution costs, and small inputs can be
+dominated by process startup.
 
 ## Use for other projects
 

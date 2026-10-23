@@ -57,8 +57,12 @@ set_option maxHeartbeats 2000000 in
 theorem target_satisfies : Satisfies (target validated scopes 8) instance_ := by
   unfold Satisfies target Structural.target Structural.schema Structural.facts
     Structural.declarationFacts Structural.fieldDeclaration Structural.ownership Structural.setKey
-    Structural.head Structural.signatureId groups childHeads
-  simp only [Structural.head, Structural.signatureId, order_eq, children, ancestors_eq]
+    groups childHeads
+  simp only [Structural.allocation_head_apply, Structural.allocation_contains_apply,
+    Structural.allocation_deref_apply, Structural.allocation_head, Structural.allocation_fields,
+    Structural.allocation_signatures, Structural.head, children, ancestors_eq]
+  unfold Structural.head Structural.signatureId
+  simp only [order_eq]
   decide
 
 def compiled : Compiled := ⟨⟨target validated scopes 8,
