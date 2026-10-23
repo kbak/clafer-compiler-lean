@@ -13,6 +13,29 @@ static Alloy with explicit bounds. Compilation does not run a solver.
 [Documentation](docs/intent.md#documentation-map) · [Contributing](CONTRIBUTING.md) ·
 [Issues](https://github.com/kbak/clafer-compiler-lean/issues) · [MIT license](LICENSE)
 
+## Purpose and verification
+
+This project connects the independent mathematical specifications in
+[Clafer Semantics](https://github.com/kbak/clafer-semantics) to a working native
+compiler. Its purpose is to establish which valid configurations the translation
+preserves, under which assumptions, using machine-checked proofs and execution
+tests. The compiler and proofs provide a reference for future implementations
+and a practical example of building software against formal specifications.
+
+```mermaid
+flowchart TB
+    C["Checked Clafer representation"] -->|"Compiler"| A["Checked Alloy representation"]
+    C -->|"SemanticsBridge"| S["Clafer meaning<br/>defined in clafer-semantics"]
+    A -->|"Independent target semantics"| T["Alloy meaning<br/>defined in compiler repository"]
+    S <-->|"Soundness and bounded completeness"| T
+```
+
+The diagram shows the in-memory proof boundary for supported inputs. Preservation
+has explicit representation, scope, observation and numeric-range assumptions;
+see the [composed proof contract](docs/pipeline.md#composed-assurance).
+Parser and external execution limits are described under
+[assurance and validation](#assurance-and-validation).
+
 See [what the experiment establishes](docs/lessons.md) for the main findings,
 potential reuse and evidence-based comparison with the Haskell compiler.
 
