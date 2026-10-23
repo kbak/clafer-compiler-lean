@@ -63,10 +63,9 @@ def ranks (rows : Array (Declaration Nat)) (super : Bool) : Array Nat :=
 /-- Bounded iteration stops only at an exact fixed point. The equality below
 also covers cycles and exhausted budgets; later admission keeps rejecting them. -/
 def repeatStable {α : Type} [DecidableEq α] (step : α → α) : Nat → α → α
-  | 0, value => value
-  | k + 1, value =>
+  := Nat.rec (motive := fun _ => α → α) id fun _ recur value =>
     let next := step value
-    if next = value then value else repeatStable step k next
+    if next = value then value else recur next
 
 private theorem repeat_fixed {α : Type} (step : α → α) (value : α)
     (fixed : step value = value) (k : Nat) : Nat.repeat step k value = value := by
@@ -85,7 +84,7 @@ private theorem repeatStable_eq {α : Type} [DecidableEq α] (step : α → α) 
   induction k generalizing value with
   | zero => rfl
   | succ k ih =>
-    simp only [repeatStable]
+    change (if step value = value then value else repeatStable step k (step value)) = _
     split
     · rename_i h
       exact (repeat_fixed step value h (k + 1)).symm

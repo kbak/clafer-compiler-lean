@@ -118,7 +118,7 @@ The native replacement `realizationRanksStable` stops when consecutive rank
 arrays are equal. `realizationRanks_eq_stable` proves exact equality with the
 specified result for every input and registers it with `@[csimp]`. The supporting
 `repeatStable` proof includes exhausted budgets and nonconverging cycles; admission
-checks still reject invalid ranks. This reuses standard array equality and folds,
+checks still reject invalid ranks. This reuses `Nat.rec`, array equality and folds,
 with no graph dependency. It saves converged rounds without improving the
 worst-case iteration bound.
 
