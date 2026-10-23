@@ -112,7 +112,10 @@ set_option maxHeartbeats 1000000 in
 theorem omitted_upper_bound_accepts :
     Satisfies (omitFact optionalValidated.toLayout (List.replicate 3 ⟨4, false⟩) 5 (.localBounds 200))
       (encode optionalValidated.toLayout optionalObservation) := by
-  unfold Satisfies omitFact target schema facts declarationFacts fieldDeclaration ownership setKey head signatureId encode
+  unfold Satisfies omitFact target schema facts declarationFacts fieldDeclaration ownership setKey encode
+  simp only [allocation_head_apply, allocation_contains_apply, allocation_deref_apply,
+    allocation_head, allocation_fields, allocation_signatures]
+  unfold head signatureId
   simp only [optional_order]
   decide
 
@@ -151,7 +154,10 @@ set_option maxHeartbeats 1000000 in
 theorem omitted_abstract_cover_accepts :
     Satisfies (omitFact leafValidated.toLayout (List.replicate 3 ⟨4, false⟩) 5 (.abstractCover 200))
       (encode leafValidated.toLayout leafObservation) := by
-  unfold Satisfies omitFact target schema facts declarationFacts fieldDeclaration ownership setKey head signatureId encode
+  unfold Satisfies omitFact target schema facts declarationFacts fieldDeclaration ownership setKey encode
+  simp only [allocation_head_apply, allocation_contains_apply, allocation_deref_apply,
+    allocation_head, allocation_fields, allocation_signatures]
+  unfold head signatureId
   simp only [leaf_order]
   decide
 

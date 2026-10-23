@@ -31,7 +31,10 @@ set_option maxRecDepth 10000 in
 set_option maxHeartbeats 1000000 in
 theorem bag_target_satisfies :
     Satisfies (target bagValidated.toLayout (List.replicate 4 ⟨4, false⟩) 5) bagInstance := by
-  unfold Satisfies target schema facts declarationFacts fieldDeclaration ownership setKey head signatureId
+  unfold Satisfies target schema facts declarationFacts fieldDeclaration ownership setKey
+  simp only [allocation_head_apply, allocation_contains_apply, allocation_deref_apply,
+    allocation_head, allocation_fields, allocation_signatures, head]
+  unfold head signatureId
   simp only [bag_order]
   decide
 
@@ -61,7 +64,8 @@ theorem violating_roundtrip : decode bagValidated.toLayout (encode bagValidated.
 set_option maxRecDepth 10000 in
 theorem missing_owner_fact_false :
     (ownership bagValidated.toLayout 2).eval 5 (encode bagValidated.toLayout missingOwner) [] = some false := by
-  simp only [ownership, head, signatureId, encode, bag_order]
+  simp only [ownership, allocation_head_apply, allocation_contains_apply,
+    head, signatureId, encode, bag_order]
   decide
 
 end ClaferCompiler.Tests.StructuralRepresentation

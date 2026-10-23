@@ -50,6 +50,15 @@ spans, with signature and optional containment/dereference field indices.
 and source declaration. Numeric target identity never comes from a display name.
 The original validated IR remains the source of authored metadata and diagnostics.
 
+Native compilation shares a dense `cachedAllocation` across schema, facts and
+metadata generation. It uses Lean's `Vector.ofFn` and existing `order`/`fieldKeys`
+functions; no indexing library is added. `cachedAllocation_eq` proves equality
+with the reference allocation, including lookups of absent field roles.
+`compile_eq_compileCached` registers the complete result equality with Lean's
+`@[csimp]` mechanism for both structural and inherited compilation. The reference
+definitions remain the basis of preservation proofs; emitted identities, metadata
+and errors are equal. Native code generation remains a tested boundary.
+
 Covers:
 - `req~compiler-structural-encoding~1`
 

@@ -40,7 +40,8 @@ theorem bag_heads_preserved :
 
 set_option maxRecDepth 10000 in
 theorem set_key_enforced : (setKey bagValidated.toLayout 2 0).eval 5 bagInstance [] = some false := by
-  simp only [setKey, head, signatureId, bag_order]
+  simp only [setKey, allocation_head_apply, allocation_contains_apply,
+    allocation_deref_apply, head, signatureId, bag_order]
   decide
 
 set_option maxRecDepth 10000 in
@@ -48,7 +49,9 @@ theorem generated_bag_facts :
     (target bagValidated.toLayout (List.replicate 4 ⟨4, false⟩) 5).eval bagInstance = some true := by
   simp only [target, Module.eval, Instance.scalarFields, schema, facts, List.finRange_succ, List.finRange_zero,
     List.map_cons, List.map_nil, List.map_append, List.flatMap_cons, List.flatMap_nil, List.append_nil,
-    declarationFacts, ownership, setKey, head, signatureId, bag_order]
+    declarationFacts, ownership, setKey, allocation_head_apply, allocation_contains_apply,
+    allocation_deref_apply, allocation_head, allocation_fields, allocation_signatures,
+    head, signatureId, bag_order]
   decide
 
 end ClaferCompiler.Tests.StructuralAlloy

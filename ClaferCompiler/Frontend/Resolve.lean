@@ -60,12 +60,52 @@ def ranks (rows : Array (Declaration Nat)) (super : Bool) : Array Nat :=
     match (if super then d.super else d.parent) with
     | none => 0 | some p => old[p]?.getD 0 + 1)) rows.size (Array.replicate rows.size 0)
 
-def realizationRanks (rows : Array (Declaration Nat)) : Array Nat :=
-  Nat.repeat (fun old => rows.mapIdx (fun i d =>
+/-- Bounded iteration stops only at an exact fixed point. The equality below
+also covers cycles and exhausted budgets; later admission keeps rejecting them. -/
+def repeatStable {α : Type} [DecidableEq α] (step : α → α) : Nat → α → α
+  := Nat.rec (motive := fun _ => α → α) id fun _ recur value =>
+    let next := step value
+    if next = value then value else recur next
+
+private theorem repeat_fixed {α : Type} (step : α → α) (value : α)
+    (fixed : step value = value) (k : Nat) : Nat.repeat step k value = value := by
+  induction k with
+  | zero => rfl
+  | succ k ih => simp only [Nat.repeat, ih, fixed]
+
+private theorem repeat_apply {α : Type} (step : α → α) (k : Nat) (value : α) :
+    Nat.repeat step k (step value) = step (Nat.repeat step k value) := by
+  induction k with
+  | zero => rfl
+  | succ k ih => simp only [Nat.repeat, ih]
+
+private theorem repeatStable_eq {α : Type} [DecidableEq α] (step : α → α) (k : Nat) (value : α) :
+    repeatStable step k value = Nat.repeat step k value := by
+  induction k generalizing value with
+  | zero => rfl
+  | succ k ih =>
+    change (if step value = value then value else repeatStable step k (step value)) = _
+    split
+    · rename_i h
+      exact (repeat_fixed step value h (k + 1)).symm
+    · rw [ih, repeat_apply]
+      rfl
+
+def realizationStep (rows : Array (Declaration Nat)) (old : Array Nat) : Array Nat :=
+  rows.mapIdx (fun i d =>
     let fromParent := d.parent.map (fun p => old[p]?.getD 0 + 1) |>.getD 0
     rows.foldl (fun value child =>
-      if child.super == some i then max value (old[child.id]?.getD 0 + 1) else value) fromParent))
-    rows.size (Array.replicate rows.size 0)
+      if child.super == some i then max value (old[child.id]?.getD 0 + 1) else value) fromParent)
+
+def realizationRanks (rows : Array (Declaration Nat)) : Array Nat :=
+  Nat.repeat (realizationStep rows) rows.size (Array.replicate rows.size 0)
+
+def realizationRanksStable (rows : Array (Declaration Nat)) : Array Nat :=
+  repeatStable (realizationStep rows) rows.size (Array.replicate rows.size 0)
+
+@[csimp] theorem realizationRanks_eq_stable : realizationRanks = realizationRanksStable := by
+  funext rows
+  exact (repeatStable_eq _ _ _).symm
 
 def prepare (doc : Document) : Except Diagnostic
     (Raw × Array (Option Path) × Array Group × Array Nat) := do

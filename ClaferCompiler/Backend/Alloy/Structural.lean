@@ -50,6 +50,56 @@ def head (v : IR.Structural.Layout n) (d : Fin n) : Rel := .sig (signatureId v d
 def contains (m : IR.Structural.Core n) (d : Fin n) : Rel := .field (fieldId m d .containment)
 def deref (m : IR.Structural.Core n) (d : Fin n) : Rel := .field (fieldId m d .dereference)
 
+/-- Shared lookup functions; the reference allocation retains the original indices. -/
+structure Allocation (n : Nat) where
+  signatures : Fin n → Nat
+  fields : Fin n → FieldRole → Nat
+
+def allocation (v : IR.Structural.Layout n) : Allocation n :=
+  ⟨signatureId v, fieldId v.core⟩
+
+/-- Sort once and retain dense lookup tables for this compilation. Missing field
+roles keep the original `idxOf` fallback, so even unused lookups are identical. -/
+def cachedAllocation (v : IR.Structural.Layout n) : Allocation n :=
+  let ordered := order v
+  let keys := fieldKeys v.core
+  let signatures := Vector.ofFn fun d : Fin n => 1 + ordered.idxOf d
+  let fields := Vector.ofFn fun d : Fin n =>
+    (keys.idxOf (d, FieldRole.containment), keys.idxOf (d, FieldRole.dereference))
+  ⟨fun d => signatures[d], fun d role =>
+    match role with | .containment => fields[d].1 | .dereference => fields[d].2⟩
+
+@[simp] theorem cachedAllocation_eq (v : IR.Structural.Layout n) :
+    cachedAllocation v = allocation v := by
+  unfold cachedAllocation allocation
+  dsimp only
+  congr 1
+  · funext d
+    simp [signatureId]
+  · funext d role
+    cases role <;> simp [fieldId]
+
+abbrev Allocation.head (a : Allocation n) (d : Fin n) : Rel := .sig (a.signatures d)
+abbrev Allocation.contains (a : Allocation n) (d : Fin n) : Rel := .field (a.fields d .containment)
+abbrev Allocation.deref (a : Allocation n) (d : Fin n) : Rel := .field (a.fields d .dereference)
+
+@[simp] theorem allocation_signatures (v : IR.Structural.Layout n) :
+    (allocation v).signatures = signatureId v := rfl
+@[simp] theorem allocation_fields (v : IR.Structural.Layout n) :
+    (allocation v).fields = fieldId v.core := rfl
+@[simp] theorem allocation_head (v : IR.Structural.Layout n) :
+    (allocation v).head = head v := rfl
+@[simp] theorem allocation_contains (v : IR.Structural.Layout n) :
+    (allocation v).contains = contains v.core := rfl
+@[simp] theorem allocation_deref (v : IR.Structural.Layout n) :
+    (allocation v).deref = deref v.core := rfl
+@[simp] theorem allocation_head_apply (v : IR.Structural.Layout n) (d : Fin n) :
+    (allocation v).head d = head v d := rfl
+@[simp] theorem allocation_contains_apply (v : IR.Structural.Layout n) (d : Fin n) :
+    (allocation v).contains d = contains v.core d := rfl
+@[simp] theorem allocation_deref_apply (v : IR.Structural.Layout n) (d : Fin n) :
+    (allocation v).deref d = deref v.core d := rfl
+
 def union (rs : List Rel) : Rel := rs.foldl Rel.union (.empty .unary)
 
 /-- Bounds apply to distinct heads. Unbounded is omission, never an Int value.
@@ -69,20 +119,23 @@ def subtypes (m : IR.Structural.Core n) (d : Fin n) : List (Fin n) :=
   (List.finRange n).filter fun c => (m.get c).super == some d
 
 /-- A child union at one owner; reference heads are never dereferenced here. -/
-def childHeads (m : IR.Structural.Core n) (d : Fin n) : Rel :=
-  union ((children m d).map fun c => .join (.var 0) (contains m c))
+def childHeads (m : IR.Structural.Core n) (d : Fin n)
+    (fields : Fin n → FieldRole → Nat := fieldId m) : Rel :=
+  union ((children m d).map fun c => .join (.var 0) (.field (fields c .containment)))
 
-def ownership (v : IR.Structural.Layout n) (d : Fin n) : Formula :=
-  .all (head v d) (.mult .one (.join (.var 0) (.transpose (contains v.core d))))
+def ownership (v : IR.Structural.Layout n) (d : Fin n)
+    (a : Allocation n := allocation v) : Formula :=
+  .all (a.head d) (.mult .one (.join (.var 0) (.transpose (a.contains d))))
 
 /-- For one owner, equal referents imply equal heads. Different owners may
 reference the same target. The innermost binders are y=0, x=1, owner=2. -/
-def setKey (v : IR.Structural.Layout n) (d p : Fin n) : Formula :=
-  .all (head v p)
-    (.all (.join (.var 0) (contains v.core d))
-      (.all (.join (.var 1) (contains v.core d))
-        (.implies (.equal (.join (.var 1) (deref v.core d))
-                          (.join (.var 0) (deref v.core d)))
+def setKey (v : IR.Structural.Layout n) (d p : Fin n)
+    (a : Allocation n := allocation v) : Formula :=
+  .all (a.head p)
+    (.all (.join (.var 0) (a.contains d))
+      (.all (.join (.var 1) (a.contains d))
+        (.implies (.equal (.join (.var 1) (a.deref d))
+                          (.join (.var 0) (a.deref d)))
                   (.equal (.var 1) (.var 0)))))
 
 /-- Every emitted fact retains its obligation and input declaration identity. -/
@@ -95,46 +148,50 @@ inductive Obligation where
   | setKey (declaration : IR.Structural.DeclId)
   deriving DecidableEq
 
-def declarationFacts (v : IR.Structural.Layout n) (d : Fin n) : List (Obligation × Formula) :=
+def declarationFacts (v : IR.Structural.Layout n) (d : Fin n)
+    (a : Allocation n := allocation v) : List (Obligation × Formula) :=
   let row := v.core.get d
   let abstractFacts := if row.isAbstract then
-    [(.abstractCover row.id, .equal (head v d) (union ((subtypes v.core d).map (head v))))]
-    else [(.groupBounds row.id, .all (head v d) (interval row.groupBounds (childHeads v.core d)))]
+    [(.abstractCover row.id, .equal (a.head d) (union ((subtypes v.core d).map (a.head))))]
+    else [(.groupBounds row.id, .all (a.head d) (interval row.groupBounds (childHeads v.core d a.fields)))]
   let parentFacts := match row.parent with
     | none => []
     | some p =>
-      [(.ownership row.id, ownership v d),
-       (.localBounds row.id, .all (head v p)
-         (interval row.localBounds (.join (.var 0) (contains v.core d))))] ++
+      [(.ownership row.id, ownership v d a),
+       (.localBounds row.id, .all (a.head p)
+         (interval row.localBounds (.join (.var 0) (a.contains d))))] ++
       match row.reference with
-      | .set _ => [(.setKey row.id, setKey v d p)]
+      | .set _ => [(.setKey row.id, setKey v d p a)]
       | _ => []
   abstractFacts ++ parentFacts
 
-def facts (v : IR.Structural.Layout n) : List (Obligation × Formula) :=
-  [(.root, .mult .one (head v v.core.root)),
-   (.objectCover, .equal (.sig 0) (union ((List.finRange n).map (head v))))] ++
-    (List.finRange n).flatMap (declarationFacts v)
+def facts (v : IR.Structural.Layout n)
+    (a : Allocation n := allocation v) : List (Obligation × Formula) :=
+  [(.root, .mult .one (a.head v.core.root)),
+   (.objectCover, .equal (.sig 0) (union ((List.finRange n).map (a.head))))] ++
+    (List.finRange n).flatMap (fun d => declarationFacts v d a)
 
-def fieldDeclaration (v : IR.Structural.Layout n) (key : Fin n × FieldRole) : Field :=
+def fieldDeclaration (v : IR.Structural.Layout n) (key : Fin n × FieldRole)
+    (a : Allocation n := allocation v) : Field :=
   match key with
   | (d, role) => match role with
     | .containment =>
-      { owner := (v.core.get d).parent.map (signatureId v) |>.getD 0
-        target := signatureId v d }
+      { owner := (v.core.get d).parent.map (a.signatures) |>.getD 0
+        target := a.signatures d }
     | .dereference =>
-      { owner := signatureId v d
-        target := (v.core.get d).reference.target.map (signatureId v) |>.getD 0
+      { owner := a.signatures d
+        target := (v.core.get d).reference.target.map (a.signatures) |>.getD 0
         multiplicity := .one }
 
 /-- Extends implements shared inherited identity and incomparable disjointness.
 All signature multiplicities are set: conflicting manual scopes are constraints,
 not malformed syntax. Explicit abstract facts cover the Alloy leaf exception. -/
-def schema (v : IR.Structural.Layout n) : Schema where
+def schema (v : IR.Structural.Layout n)
+    (a : Allocation n := allocation v) : Schema where
   signatures := { isAbstract := true } :: (order v).map fun d =>
-    { parent := some ((v.core.get d).super.map (signatureId v) |>.getD 0)
+    { parent := some ((v.core.get d).super.map (a.signatures) |>.getD 0)
       isAbstract := (v.core.get d).isAbstract }
-  fields := (fieldKeys v.core).map (fieldDeclaration v)
+  fields := (fieldKeys v.core).map (fun key => fieldDeclaration v key a)
 
 structure DeclarationMap where
   id : IR.Structural.DeclId
@@ -144,16 +201,18 @@ structure DeclarationMap where
   containment : Option Nat
   dereference : Option Nat
 
-def declarationMap (v : IR.Structural.Layout n) (d : Fin n) : DeclarationMap where
+def declarationMap (v : IR.Structural.Layout n) (d : Fin n)
+    (a : Allocation n := allocation v) : DeclarationMap where
   id := (v.core.get d).id
   name := (v.core.get d).name
   source := (v.core.get d).source
-  signature := signatureId v d
-  containment := (v.core.get d).parent.map fun _ => fieldId v.core d .containment
-  dereference := (v.core.get d).reference.target.map fun _ => fieldId v.core d .dereference
+  signature := a.signatures d
+  containment := (v.core.get d).parent.map fun _ => a.fields d .containment
+  dereference := (v.core.get d).reference.target.map fun _ => a.fields d .dereference
 
-def nameMap (v : IR.Structural.Layout n) : List DeclarationMap :=
-  (List.finRange n).map (declarationMap v)
+def nameMap (v : IR.Structural.Layout n)
+    (a : Allocation n := allocation v) : List DeclarationMap :=
+  (List.finRange n).map (fun d => declarationMap v d a)
 
 /-- Complete, unique ID scopes; preserve impossible but well-formed constraints. -/
 def resolveScopes (v : IR.Structural.Layout n) (b : Bounds) : Except Error (List Scope) := do
@@ -165,9 +224,10 @@ def resolveScopes (v : IR.Structural.Layout n) (b : Bounds) : Except Error (List
     | some entry => .ok entry.2
   return { size := b.objects } :: scopes
 
-def target (v : IR.Structural.Layout n) (scopes : List Scope) (bitwidth : Nat) : Module where
-  schema := schema v
-  facts := (facts v).map Prod.snd
+def target (v : IR.Structural.Layout n) (scopes : List Scope) (bitwidth : Nat)
+    (a : Allocation n := allocation v) : Module where
+  schema := schema v a
+  facts := (facts v a).map Prod.snd
   command := { scopes, bitwidth }
 
 structure Compiled where
@@ -183,6 +243,20 @@ def compile (v : IR.Structural.Validated n) (b : Bounds) : Except Error Compiled
   | .error .malformedSyntax => .error .internalTarget
   | .error .unsupportedBounds => .error .unsupportedBounds
   | .ok checked => .ok ⟨checked, nameMap v.toLayout, (facts v.toLayout).map Prod.fst⟩
+
+/-- Native implementation shares allocation across target generation and metadata. -/
+def compileCached (v : IR.Structural.Validated n) (b : Bounds) : Except Error Compiled := do
+  let scopes ← resolveScopes v.toLayout b
+  let a := cachedAllocation v.toLayout
+  match check (target v.toLayout scopes b.bitwidth a) with
+  | .error .malformedSyntax => .error .internalTarget
+  | .error .unsupportedBounds => .error .unsupportedBounds
+  | .ok checked => .ok ⟨checked, nameMap v.toLayout a, (facts v.toLayout a).map Prod.fst⟩
+
+/-- The compiler replacement preserves the entire result, including errors. -/
+@[csimp] theorem compile_eq_compileCached : @compile = @compileCached := by
+  funext n v b
+  simp only [compile, compileCached, cachedAllocation_eq]
 
 /-- Raw effective IR retains the existing exact admission boundary. -/
 def compileRaw (r : IR.Structural.Raw) (b : Bounds) : Except Error Compiled := do

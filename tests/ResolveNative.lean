@@ -39,6 +39,12 @@ def render (file source : String) : String :=
 /-- Deliberate mutations exercise the independent source validator, including
 well-formed tables whose target/defaults no longer correspond to the source. -/
 def mutationChecks : IO Unit := do
+  -- Exact fixed points may stop early; nonconverging updates retain their budget.
+  unless repeatStable (fun x : Nat => x + 1) 0 7 == 7 &&
+      repeatStable (fun x : Nat => x + 1) 5 0 == 5 &&
+      repeatStable (fun x : Nat => if x == 0 then 1 else 0) 5 0 == 1 &&
+      repeatStable (fun x : Nat => min (x + 1) 3) 20 0 == 3 do
+    throw (IO.userError "bounded fixed-point iteration")
   let .ok doc := Frontend.parse "mutations.cfr" "Target\nOther\nOwner\n  r -> Target\n"
     | throw (IO.userError "mutation parser failed")
   let .ok e := elaborate doc | throw (IO.userError "mutation elaboration failed")

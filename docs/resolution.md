@@ -113,6 +113,15 @@ elaboration of every valid input, sufficient traversal fuel for manually built
 ASTs, and native execution are not kernel-proved. Internal correspondence failure
 is a failed compilation, never agreement or UNSAT.
 
+Realization-rank computation uses bounded `Nat.repeat` as its specification.
+The native replacement `realizationRanksStable` stops when consecutive rank
+arrays are equal. `realizationRanks_eq_stable` proves exact equality with the
+specified result for every input and registers it with `@[csimp]`. The supporting
+`repeatStable` proof includes exhausted budgets and nonconverging cycles; admission
+checks still reject invalid ranks. This reuses `Nat.rec`, array equality and folds,
+with no graph dependency. It saves converged rounds without improving the
+worst-case iteration bound.
+
 `SemanticsBridge.Resolution` proves:
 
 - `elaborate_correspondence`: successful results satisfy the independent relation.

@@ -13,7 +13,7 @@ theorem schema_signature (v : IR.Structural.Layout n) (d : Fin n) :
     (schema v).signatures[signatureId v d]? = some
       { parent := some ((v.core.get d).super.map (signatureId v) |>.getD 0)
         isAbstract := (v.core.get d).isAbstract } := by
-  simp only [schema, signatureId, Nat.add_comm 1, List.getElem?_cons_succ,
+  simp only [schema, allocation_signatures, signatureId, Nat.add_comm 1, List.getElem?_cons_succ,
     List.getElem?_map, List.getElem?_idxOf (mem_order v d), Option.map_some]
 
 /-- The target's own declaration semantics enforces each extends inclusion. -/

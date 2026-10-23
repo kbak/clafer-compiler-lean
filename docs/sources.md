@@ -293,6 +293,17 @@ not run the guarded Haskell/M1 comparison outside its accepted domain. See the
 
 ## Private qualification
 
+Runtime optimization reuses the pinned Lean `Vector.ofFn`, array access/equality,
+list folds and `Nat.repeat`, plus its `@[csimp]` equality-rewrite mechanism.
+Existing backend allocation and printer chunks supply the domain-specific work;
+the [backend](structural-encoding.md), [renderer](alloy-text.md) and
+[resolver](resolution.md) contracts state the exact equality boundaries. Standard
+containers suffice for these finite tables; adding a graph or indexing package
+would introduce a dependency without removing the Clafer-specific proof work.
+The existing qualification harness and pinned Haskell adapter supply measurements.
+No source pin, library dependency or license changes; the added code is original
+MIT project code and reused Lean facilities retain their Apache-2.0 license.
+
 The [qualification adapters](qualification.md) reuse the full accepted corpus,
 S5/S6's public `Language.Clafer` pipeline and `Generator.Alloy.genModule`, the
 existing verified external build recipe, and S7's actual parser for independent
