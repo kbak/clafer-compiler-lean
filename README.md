@@ -1,5 +1,8 @@
 # Clafer Compiler Lean
 
+[![CI](https://github.com/kbak/clafer-compiler-lean/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kbak/clafer-compiler-lean/actions/workflows/ci.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kbak/clafer-compiler-lean)
+
 A structural [Clafer](https://www.clafer.org/)-to-Alloy compiler written in Lean 4,
 with machine-checked preservation proofs for its supported model representations.
 Clafer combines class and feature modeling: declarations describe objects,
