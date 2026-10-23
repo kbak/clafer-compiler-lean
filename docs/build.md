@@ -155,8 +155,8 @@ relaxes no semantic assertion, input case, per-command limit or trusted check de
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 
-CI sets `LEAN_NUM_THREADS=2` for its two-CPU runner; kernel replay also uses two
-workers. This bounds Lean's own parallelism as well as regression groups.
+CI sets `LEAN_NUM_THREADS=2`; kernel replay also uses two workers. Regression
+groups use at most four workers, bounded by the runner's available CPUs.
 Ubuntu's [AppArmor namespace policy](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
 requires explicit permission for the runtime-isolation test. CI installs a
 dedicated copy of the distribution's Bubblewrap executable and attaches the
