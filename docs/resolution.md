@@ -1,24 +1,23 @@
 # Structural source resolution and defaults
 
-Accepted [issue #17](https://github.com/kbak/clafer-compiler-lean/issues/17) follows
-accepted parser #16 (PR #30) and IR #7 (PR #25). The frontend resolves authored
-structural declarations and was accepted through merged PR #35. The source
-and its constraint occurrences survive unchanged for selected
-[source expression elaboration #18](constraints.md).
+The frontend resolves authored structural declarations, checks their identities
+and defaults, and retains source constraint occurrences for
+[expression elaboration](constraints.md).
 
-## Reuse assessment and implementation plan
+<a id="reuse-assessment-and-implementation-plan"></a>
 
-Before implementation, inspected the existing authored `Surface`/`Parser`,
-`IR.Structural` lookup, checked finite edges, certificates and admission, and its
-`SemanticsBridge.Structural` interpretation. Reuse those representations and the
-native test/oracle harness. The pinned upstream `Clafer.Syntax.Defaults`,
+## Reuse assessment
+
+The resolver reuses authored `Surface`/`Parser` data, `IR.Structural` lookup,
+checked finite edges, certificates and admission, the `SemanticsBridge.Structural`
+interpretation, and the native test/oracle harness. The pinned upstream `Clafer.Syntax.Defaults`,
 `GroupCard.childDefault`, `AST.WellFormed`, `Compile` input contract and
 `Realization.Core.Selected` supply independent meanings, but consume already
 resolved data and provide no executable source resolver. Their noncomputable
 traversals also do not meet the production import boundary.
 
-Inspected pinned Haskell `ResolverInheritance.hs`, `ResolverName.hs`,
-`Desugarer.hs` and `Intclafer.hs`. They supply comparison behavior, not a production
+The pinned Haskell `ResolverInheritance.hs`, `ResolverName.hs`, `Desugarer.hs`
+and `Intclafer.hs` supply comparison behavior, not a production
 runtime or authority for changing the adopted default rules. In particular numeric
 groups and `opt` have documented default differences. General Haskell expression
 navigation, nested explicit abstracts and relocation exceed this source profile.
@@ -32,7 +31,7 @@ and finite rank relaxation, avoiding custom general infrastructure. Existing MIT
 project code and Apache-2.0 Lean dependencies suffice; no new package, license cost,
 vendored meaning or Haskell source copy is introduced.
 
-Implementation proceeds from source occurrence inventory, through identity/name
+Resolution proceeds from source occurrence inventory, through identity/name
 resolution, then defaults/ranks, a declarative translation validator and upstream
 proof bridge. Native positive/negative and pinned importer comparisons accompany
 it. Successful validation must prove source correspondence, not merely output
@@ -52,9 +51,9 @@ claim their bodies are resolved/typed. No source JSON or CLI interface is added.
 Root ID/index 0 is `Sing`. User declarations receive IDs 1 onward in source
 preorder. Paths are lists of zero-based *element* indices, so constraint positions
 are retained. Canonical `int` is last and exists when referenced or when the
-document contains a constraint. The #20 correction gives it unrestricted `0..*`
+document contains a constraint. It has unrestricted `0..*`
 multiplicity and root containment, so finite observations can extend to all
-mathematical integers. See [carrier review](pipeline.md#carrier-decision-exposed-by-composition);
+mathematical integers. See [full integer carrier](pipeline.md#full-integer-carrier);
 `int` and `integer` resolve to the same primitive origin. IDs are stable for the
 same syntax tree, including comments/CRLF variants, not persistent across edits.
 Names and byte positions do not define identity. Reference cycles are allowed;
@@ -77,7 +76,7 @@ a local use cannot capture its own type name. Missing eligible candidates fail.
 Duplicate names in one authored body fail even when never referenced. Repeated
 names in different bodies retain distinct identities. This is the declared direct
 `Name` type-position policy; expression navigation and inherited contextual name
-lookup belong to #18. Haskell's general path-valued resolution and nested abstract
+lookup belong to [constraint elaboration](constraints.md). Haskell's general path-valued resolution and nested abstract
 relocation do not expand the selected profile.
 
 `SourceRow` equates resolved edges with these lookup rules and the original source
@@ -140,7 +139,9 @@ worst-case iteration bound.
 
 No whole `AST.WellFormed` theorem with typed constraint bodies, expression
 elaboration, candidate satisfaction, backend preservation or grammar/parser
-correspondence is claimed. #18/#20 own the remaining composed boundary. The
+correspondence follows from these resolver theorems.
+[Constraint elaboration](constraints.md) and the [source pipeline](pipeline.md)
+state their own proof boundaries. The
 MCS `Compile.Input` positive-map-support requirement is not imposed on unresolved
 literal-only source constraints.
 

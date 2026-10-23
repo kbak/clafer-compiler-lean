@@ -1,19 +1,18 @@
 # Selected inherited structural realization
 
-Issue [#13](https://github.com/kbak/clafer-compiler-lean/issues/13) is selected after
-the maintainer accepted the #11 proofs in [PR #33](https://github.com/kbak/clafer-compiler-lean/pull/33)
-at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`. This is the starting commit for
-this extension. Its semantic acceptance remains a separate review gate.
+The inherited backend extends structural compilation with ordinary inherited
+fields, explicit abstract families and contextual views of the original objects
+and links. Its separate admission API preserves the M1 support guards.
 
 ## Reuse and source boundary
 
 The implementation reuses the accepted structural allocator, finite observations,
-independent Alloy evaluator and #11 preservation lemmas. `Structural.Layout`
+independent Alloy evaluator and [M1 preservation lemmas](structural-correctness.md). `Structural.Layout`
 extracts the checked allocation assumptions those lemmas actually require:
 core checks, parent/super ranks and a root that cannot be a supertype. It is not
 an admission profile. The original `Structural.Validated`, `validateRaw`, document
 profile and `compile` still enforce the exact M1 support guards. Calls to shared
-allocation/representation helpers now use `v.toLayout` explicitly.
+allocation/representation helpers use `v.toLayout` explicitly.
 
 Pinned upstream `Semantics.Realization.Core.Selected`, `Satisfies`, `View`,
 `headView`, `derefView`, `targetLink`, and `RealizationCompatibility` already supply
@@ -123,7 +122,8 @@ primitive-domain interpretation. A model containing every mathematical integer
 cannot have this finite live carrier. The fixture uses `int 0..*` and one observed
 integer object, without claiming a complete primitive-domain interpretation.
 Value preservation, expression denotation, c01–c12, final selection and the full
-finite/infinite primitive bridge belong to #14/#15/#20. These statements neither
+finite/infinite primitive bridge belong to the [expression API](expressions.md),
+[constraint encoder](expression-encoding.md) and [source pipeline](pipeline.md). These statements neither
 prove unbounded UNSAT nor transfer to native/serialized/Analyzer execution without
 their respective assurance boundaries.
 

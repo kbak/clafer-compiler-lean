@@ -1,12 +1,10 @@
 # Exact three-way structural comparison
 
-[Issue #12](https://github.com/kbak/clafer-compiler-lean/issues/12) is selected after
-merged PRs #24, #27 and #29. It connects the native structural compiler, checked
-serializer, actual Alloy Analyzer and executable decoder to the existing exact
-candidate protocol. Its bounded native/serialized evidence is separate from the
-M1 source-soundness and bounded-completeness theorems in
-[structural correctness](structural-correctness.md), accepted by the maintainer
-through PR #33. Those theorems concern in-memory source and target meanings.
+The comparison layer connects the native structural compiler, checked Alloy
+text and strict external instance decoding to the pinned Lean and Haskell
+oracles. It tests identical finite candidates across all three interpretations.
+The [structural preservation proofs](structural-correctness.md) establish the
+separate universal in-memory results.
 
 ## Reuse and boundaries
 
@@ -41,7 +39,8 @@ an owner and target remain separate rows and objects.
 `candidate_members`, `candidate_containment` and `candidate_references` prove
 exact row membership against the input observation. [Kernel witnesses](../tests/Decode.lean)
 check the two-head bag export and preservation of a missing-owner negative. They assume neither source
-nor target satisfaction. `decodeCandidate` reuses #11's `decode` and therefore
+nor target satisfaction. `decodeCandidate` reuses the
+[structural decoder](structural-correctness.md) and therefore
 its table-shape/root checks and existing representation results. These new
 row theorems do not prove that parsing external JSON is correct. Native Lean/C,
 Python, Java, Analyzer translation, SAT4J and JSON extraction remain external
@@ -63,7 +62,7 @@ The capture must pass the original immutable receipt and M1 admission checks.
 Source, post-analysis IR, effective defaults and same-generation Haskell Alloy
 remain paired. The adapter maps captured UIDs to sequential numeric input IDs,
 including a real synthetic root, and reuses the captured ranks/unused flags.
-This adapter is test infrastructure, not the #19 production JSON/IR CLI.
+This adapter is test infrastructure, not the [production JSON/IR CLI](cli.md).
 
 Each supplied candidate is sent unchanged to the upstream verified checker and
 the Haskell comparison. The native backend compiles the same imported effective
@@ -150,6 +149,7 @@ an extra false fact. Disjointness is implemented by `extends`, so its mutation
 uses subset declarations plus equivalent explicit count bounds; it does not
 pretend there is a disjointness fact to remove. Mutations are opt-in comparison
 experiments, never enabled in production compilation. Their original checker
-candidate is unchanged. Passing finite experiments do not complete #11's missing
-universal preservation obligations. Scope, coverage floors, pins and manual review
+candidate is unchanged. These finite experiments complement the
+[universal preservation proofs](structural-correctness.md#kernel-checked-preservation);
+they do not prove them. Scope, coverage floors, pins and manual review
 remain unchanged; IntentBond exit 4 leaves semantic review pending.

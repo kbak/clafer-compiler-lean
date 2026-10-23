@@ -11,18 +11,22 @@ and acceptance history.
 
 `req~scaffold-boundary~1`
 
-The README and intent explain the selected structural Clafer-to-Alloy direction,
-its relationship to Clafer Semantics and the Haskell comparison compiler, and the
-build bootstrap, admitted structural IR, independent target core, structural
-backend, checked serialization, authored static parser, typed expression API,
-checked source declaration resolution/defaults and accepted M1 preservation
-proofs under explicit finite scope and numeric-range assumptions. The inherited structural extension and its preservation proofs are accepted. Source constraint preservation has explicit finite-observation and representation
-conditions accepted through PR #41; composed source-pipeline assurance is accepted
-through PR #44. Grammar-to-parser correspondence remains unproved.
-Distinguish reviewed decisions, contract candidates and future implementation/proof
-promises. Contract adoption precedes dependent
-manual intake; planning tickets do not start implementation. Keep the repository
-and Project private until the maintainer explicitly requests publication.
+The README and intent explain the selected structural Clafer-to-Alloy language,
+its relationship to Clafer Semantics and the Haskell comparison compiler, and
+its supported interfaces. Describe the implemented frontend, structural and
+expression encodings, checked serialization and preservation proofs with their
+explicit scope, numeric-range and representation assumptions. The
+[constraint-preservation review](https://github.com/kbak/clafer-compiler-lean/pull/41)
+records the finite-observation conditions; the
+[source-pipeline review](https://github.com/kbak/clafer-compiler-lean/pull/44)
+records their composition into full source-model assurance. The current theorem
+contracts are in [constraint encoding](expression-encoding.md) and
+[source pipeline assurance](pipeline.md#composed-assurance).
+Grammar-to-parser correspondence and native/serialized execution remain tested,
+unproved boundaries. Distinguish delivered guarantees from future work. Contract
+adoption precedes dependent manual intake; planning tickets do not start
+implementation. Keep the repository and Project private until the maintainer
+explicitly requests publication.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -150,7 +154,7 @@ inherited fields, primitive integer references and expressions unsupported;
 leaf abstract inheritance remains admitted when its guards hold. Inventory
 structural, set/bag, group, inheritance, reference-cycle, shadowing and numeric
 fixtures with immutable provenance and licenses. Preserve bundled distribution
-notices externally; this task authorizes no packaging or publication.
+notices externally; tool provisioning does not authorize packaging or publication.
 
 Missing tools, modified inputs/tools, unsupported domains, timeouts, resource
 limits, malformed input and errors must remain distinct from agreement or bounded
@@ -187,8 +191,8 @@ IDs. Do not confuse admission with candidate satisfaction or bounded UNSAT.
 Specify the closed versioned `clafer-ir/1` JSON interchange and deterministic
 malformed/unsupported diagnostics, including strict types, duplicate-key rejection
 and explicit effective-only provenance. Implement version/profile selection on
-already decoded data; the selected [native CLI](cli.md) supplies strict file/JSON
-parsing and diagnostic serialization under #19.
+already decoded data; the [native driver](cli.md) supplies strict file/JSON
+parsing and diagnostic serialization.
 Reject unknown profiles and primitives; no static expression or inherited semantics
 are admitted by extension placeholders. Retain tested raw resolution/native behavior
 separately from the proved typed-core boundary and serialized execution.
@@ -209,7 +213,8 @@ fact and run/check satisfaction independently of source semantics and compilatio
 Preserve atom identity, parent inclusion, sibling/top-level disjointness, Alloy's
 abstract-leaf behavior, owner-first field direction and fiber multiplicity.
 Distinguish malformed candidates from well-formed violating candidates.
-Document auxiliary/unused atom policy and the source invariants #10 must generate.
+Document auxiliary/unused atom policy and the source invariants the
+[structural encoder](structural-encoding.md) must generate.
 
 Maintain the construct correspondence and retained source identity against the
 official reference. Kernel-check constructor laws and independent truth tables,
@@ -315,7 +320,7 @@ actual successful compiler output, including live-atom coverage from target
 constraints. Exercise nontrivial bag witnesses, semantic violations, renamed atoms
 and malformed tables. Keep these representation results distinct from the global
 source-soundness, bounded-completeness and compiled-bank composition obligations
-of #11, specified in the [correctness contract](structural-correctness.md).
+specified in the [correctness contract](structural-correctness.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -467,8 +472,8 @@ Define independent source coverage, lookup and elaboration rules and kernel-prov
 that successful elaboration satisfies them and yields the upstream well-formed
 structural core and selected realization domain. Well-formed output alone is
 insufficient. Retain ordinary inherited fields and explicit abstract families;
-keep constraints available for #18. The explicit M1 conversion must reject richer
-features and constraints, and pass the existing exact M1 admission. Compare
+keep constraints available for [expression elaboration](constraints.md). The
+explicit M1 conversion must reject richer features and constraints, and pass the existing exact M1 admission. Compare
 resolved fields with the pinned importer on its common domain, retaining expected
 identity/provenance differences. See the [resolution contract](resolution.md).
 
@@ -602,7 +607,9 @@ body, without assuming final constraint truth or successful singleton extraction
 Compose the finite-observation bridge for arbitrary full-integer extensions and
 show scalar compatibility with target bounded-integer admission. Source-to-target
 expression/attachment preservation is specified below; structural source pipeline
-composition remains an obligation of #20. See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
+composition is specified by the
+[pipeline requirement](#integrated-source-pipeline-and-composed-correctness).
+See [source range proofs](expression-encoding.md#source-range-analysis-proofs).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -693,7 +700,8 @@ Compile every attached body in order, retaining original identity, owner and spa
 including repeats and inherited owners. Prove exact occurrence preservation and
 all-body satisfaction equivalence under the stated representation conditions;
 derive source truth from satisfaction of the generated module. Keep full structural
-source-pipeline composition and source CLI integration in #20.
+source-pipeline composition and source CLI integration in the
+[pipeline requirement](#integrated-source-pipeline-and-composed-correctness).
 
 Extend checked serialization/reconstruction for the emitted scalar and identity
 forms. Run native and actual pinned Analyzer checks covering all constructors,
@@ -731,10 +739,10 @@ conditional equivalence as composed soundness or completeness.
 
 The implicit primitive uses unrestricted multiplicity and is also inserted for
 constraint-bearing source without integer references. This supplies the full
-carrier required by the pinned semantics; authored IDs remain stable. Corrections
-[#42](https://github.com/kbak/clafer-compiler-lean/issues/42) and
-[#43](https://github.com/kbak/clafer-compiler-lean/issues/43) were accepted with this
-requirement through PR #44. No upstream meanings or public M1 guards change.
+carrier required by the pinned semantics; authored IDs remain stable. The
+[full integer carrier](pipeline.md#full-integer-carrier) explains
+why both conditions are necessary. Upstream meanings and public M1 guards remain
+unchanged.
 See the [pipeline proof and reuse inventory](pipeline.md).
 
 Covers:
@@ -779,7 +787,8 @@ Document reproducible usage, supported platforms, trust boundaries and the exist
 dependency-upgrade policy. Preserve the upstream SoSyM snapshot independently;
 neither a semantics branch nor a research tag gates compiler qualification.
 Repository visibility, release/tag publication and distribution remain separate
-decisions under #3. See [qualification](qualification.md).
+decisions in the [readiness review](https://github.com/kbak/clafer-compiler-lean/issues/3).
+See [qualification](qualification.md).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -872,8 +881,6 @@ There are no remaining reserved implementation IDs in the selected roadmap. New
 scope needs its own reviewed requirements and manual intake; this does not imply acceptance
 of the qualification candidate.
 
-The active [oracle contract and artifacts](oracles.md) cover #6; the
-[IR contract and artifacts](ir.md) cover #7 above.
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) owns scheduling.
 Upstream requirement IDs retain their upstream repository namespace; citing a
 theorem or ticket does not import its coverage into this repository.

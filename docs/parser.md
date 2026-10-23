@@ -74,7 +74,8 @@ and apostrophe. Decimal literals contain one or more ASCII digits; spelling,
 including leading zeroes, is retained. This is the pinned generated Alex class,
 not all Unicode letters. Latin-1 names such as `Café` are supported; Greek, CJK,
 combining accents and non-ASCII digits are rejected. `integer`, `int`, `this`,
-`parent`, and other unreserved names stay unresolved for #17/#18. The reserved
+`parent`, and other unreserved names are resolved by the
+[declaration](resolution.md) and [constraint](constraints.md) elaborators. The reserved
 words are exactly the selected keywords and excluded keyword inventory in the
 lexer; in particular `U`, `W`, `F`, `G` and `X` are temporal tokens.
 
@@ -125,7 +126,8 @@ from Boolean `!E`. Collection tests cannot be unparenthesized arithmetic operand
 `[a + some b]` and `[some a + b]` are malformed. Because hard bodies have no
 separator, `[one a - b]` contains two bodies: `one a` and unary `-b`; parentheses
 can instead make a collection test an arithmetic operand for later type checking. Multiple expression bodies inside brackets remain
-separate entries; their eventual conjunction belongs to #18.
+separate entries; [constraint elaboration](constraints.md) preserves each occurrence
+for conjunction by the encoder.
 
 ## Diagnostics and exclusions
 
@@ -168,7 +170,7 @@ The Haskell commit is `15adb2216909421bcb5022174d2d84ef2b42307c`; inspected file
 No Haskell or paper text/code/fixtures are redistributed. New implementation and
 fixtures are original MIT project code. Lean's Apache-2.0 implementation is
 imported through the existing toolchain, not copied. External Haskell notices
-remain in #6's tools bundle.
+remain in the [oracle tools bundle](oracles.md).
 
 [Native tests](../tests/ParserNative.lean) and [Python tests](../tests/test_parser.py)
 reuse the existing unittest runner, native linking pattern, seeded standard-library
@@ -177,7 +179,8 @@ cover every two-operator precedence pairing and layout/braces equivalence for
 depths 1–16 and widths 1–4. Tests also check authored provenance, repeated/shadowed
 names, comments, CRLF, Unicode byte spans, every excluded production family,
 malformed mutations and arbitrary input termination. These are test domains, not
-language limits. The API is not connected to backend code.
+language limits. The parser has no backend dependency; the
+[source pipeline](pipeline.md) connects it to elaboration and compilation.
 
 The reference capture's `unsupported` source audit occurs **after** `C.parse`;
 it can establish reference parse success for M2 expressions even though the M1
@@ -192,8 +195,8 @@ Reviewed profile differences remain explicit: Haskell accepts indentation tabs,
 some inconsistent dedents, multiplication and string references; this project's
 adopted contract rejects them. On `A {`, `[a`, and `A ->`, the pinned Haskell
 parser crashes with EOF; the test records **tool error**, not parse rejection or
-agreement. This parser returns malformed diagnostics. These reproductions belong
-to #16's review; upstream meanings and dependency pins are unchanged.
+agreement. This parser returns malformed diagnostics. The retained oracle evidence
+records these differences without changing upstream meanings or dependency pins.
 
 ## Assurance boundary and handoff
 

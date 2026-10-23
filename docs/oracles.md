@@ -51,7 +51,7 @@ export CLAFER_ORACLE_EVIDENCE=/tmp/clafer-oracle-evidence-UNIQUE
 bash scripts/check.sh
 ```
 
-Provisioning is outside the unchanged 120-second IntentBond check deadline.
+Provisioning is outside the [600-second IntentBond check deadline](build.md).
 Linux x86_64 supports upstream automatic Haskell/Java downloads with hash checks;
 other platforms need explicit compatible tools. `CLAFER_CAPTURE`,
 `CLAFER_CAPTURE_BUILD`, `CLAFER_CAPTURE_CACHE`, `CLAFER_ALLOY_JAR`,
@@ -60,8 +60,8 @@ provisioning. Invalid explicit settings fail. `tools.json` retains their resolve
 paths outside source. Checks require this record, revalidate identities and
 recompile the bridge; they do not silently provision missing tools or skip tests.
 Fresh snapshots reuse dependency packages and external tools, rebuilding project
-outputs. Manually dispatched CI retains setup logs, notices, tool receipts and all
-oracle evidence; automatic hosted runs are deferred during development.
+outputs. CI runs on pull requests, pushes to `main` and manual dispatch. It
+retains setup logs, notices, tool receipts and all oracle evidence.
 Preparation validates the outer and inherited manifest identities, then shares
 missing nested checker dependencies through relative links to the already
 prepared packages. Existing clean nested checkouts are preserved; dirty or wrong
@@ -123,7 +123,7 @@ All 13 sources execute the real exporter and all nine admitted captures reach
 Lean admission. Three exact-candidate comparisons and one replay exercise the
 real solver. This is a reproducible smoke corpus, not exhaustive verification of
 all admitted candidates or the broader M2 semantics. The full upstream search and
-mutation utilities remain available at the pinned revision for #12.
+mutation utilities at the pinned revision support [exact candidate comparison](comparison.md).
 
 ## Inspected licenses and distribution contents
 

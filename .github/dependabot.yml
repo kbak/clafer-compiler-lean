@@ -6,7 +6,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
   - package-ecosystem: pip
-    # requirements.txt includes the pinned IntentBond constraints.
+    # intentbond.txt pins the validation tooling.
     directory: /requirements
     schedule:
       interval: weekly

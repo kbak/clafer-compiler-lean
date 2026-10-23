@@ -1,14 +1,10 @@
 # Static constraint encoding
 
-[Issue #15](https://github.com/kbak/clafer-compiler-lean/issues/15) is selected
-after accepted #9, #10 and #14 (PRs #27, #28 and #32). The starting implementation
-baseline is `b36a9b8478a2ad3e2310c768aac04943369d31ba`. This work extends the
-independent Alloy target and consumes the [typed expression API](expressions.md).
-Target arithmetic and source range proofs were accepted through PRs #34 and #38.
-The constraint-translation continuation starts at accepted main
-`9ef2d6a6bc9a047cb0985033960aa4c92e2c2cb2` and was accepted through PR #41. It supplies
-constructor and attachment preservation under the explicit conditions below.
-Source CLI integration #20 is accepted through PR #44; see [composed assurance](pipeline.md).
+The encoder translates [typed static expressions](expressions.md) into the
+independent Alloy target. Constructor and attachment proofs preserve definedness,
+values and truth under the finite-observation and representation conditions below.
+The [source pipeline](pipeline.md#composed-assurance) derives those conditions
+from actual target data and composes them with structural preservation.
 
 ## Delivered target arithmetic
 
@@ -17,9 +13,8 @@ Source CLI integration #20 is accepted through PR #44; see [composed assurance](
 `Integer.literal`, `count`, `add` and `subtract` build ordered postfix programs
 in the existing [target syntax](../ClaferCompiler/Backend/Alloy/Syntax.lean).
 `Integer.wellTyped` rejects stack underflow, surplus operands and invalid relation
-leaves. This changes the raw `Integer` representation from a two-constructor
-inductive to a `code` record; the original `literal`/`count` builder calls remain
-available. Raw consumers must now inspect `IntegerOp` or use `Integer.fold`.
+leaves. The raw `Integer` representation is a `code` record; consumers can
+inspect `IntegerOp` or use `Integer.fold`.
 
 [Bounds](../ClaferCompiler/Backend/Alloy/Bounds.lean) computes intervals with
 addition `[a.lower+b.lower,a.upper+b.upper]` and subtraction
@@ -219,9 +214,10 @@ membership in the emitted fact list. [Scalar enforcement](../ClaferCompiler/Corr
 obtains interval/injectivity facts from the actual numeric compilation and module
 satisfaction, with explicit scalar-field declaration lookup premises.
 
-These are conditional source-to-target theorems. Constructing the representation
-from arbitrary decoded instances and composing frontend, structural, primitive/root
-and CLI results remain #20; no whole-domain finite structural equivalence is claimed.
+These are conditional source-to-target theorems. The
+[source pipeline](pipeline.md#composed-assurance) constructs the representation
+from decoded instances and composes frontend, structural and primitive/root
+results. No whole-domain finite structural equivalence is claimed.
 
 Covers:
 - `req~compiler-expression-encoding~1`
@@ -255,34 +251,24 @@ Covers:
 - `req~compiler-expression-encoding~1`
 - `req~compiler-alloy-text~1`
 
-## Review and integration boundary
+<a id="review-and-integration-boundary"></a>
 
-Issue #15 remains In Progress until semantic acceptance. The new requirement and
-its implementation/proof/test links are submitted for that review. The resolved-IR
-CLI remains M1-only; source integration and scalar instance JSON decoding belong
-to #20. M1 admission, dependency pins, the trusted scope and its deadline are unchanged.
-The expanded full check initially exceeded the unchanged 120-second deadline.
-The existing unittest/Popen worker is reused to schedule the exact comparison
-suite alongside the other regressions; its source-matched private receipts and
-assertions are unchanged. Existing worker exit/skip/empty-suite guards are retained
-and regression-tested for the added suite. No new test framework or dependency is
-introduced, and every suite, native build, axiom audit and kernel replay is mandatory.
+## Integration boundary
 
-Existing positional `Signature`/`Instance` constructions include the new scalar
-flag/value rows; record callers can use their false/empty defaults.
+The resolved-IR CLI accepts only M1. The [source command](cli.md) integrates
+constraint translation. The [source pipeline](pipeline.md) separately defines
+scalar instance decoding for target observations and their preservation proofs. `Signature.scalar` and `Instance.values` retain
+false/empty defaults for callers that do not use integer observations.
 
 ## Reuse assessment
 
-The source range-proof continuation starts from accepted main at
-`92b21bd7b5ac9e47a39a4fa71428bc8338773e52` (the original checkout was
-`81e57ccb770643252165dd99ac28b318650e7973`). It reuses `ExprBounds.analyzeAt`,
-`Observation.withinBounds`, the existing interpretation and finite-observation
-bridge. The pinned upstream `CollectionMeaning` proves membership in full class
-domains, but that is insufficient for bounded primitive observations: its integer
-domain contains all mathematical integers. The downstream proof must additionally
-track membership in the recorded finite observations, including after identity
-and inclusion widening and lexical binding. This is a compiler budget obligation,
-not a change to the upstream denotation.
+The source range proofs reuse `ExprBounds.analyzeAt`, `Observation.withinBounds`,
+the existing interpretation and finite-observation bridge. The pinned upstream
+`CollectionMeaning` proves membership in full class domains, but its integer
+domain contains all mathematical integers. Bounded primitive observations also
+require membership in the recorded observations after identity/inclusion widening
+and lexical binding. This is a compiler budget obligation, not a change to the
+upstream denotation.
 
 Mathlib's existing `Set.ncard_le_ncard`, `ncard_union_le`, `ncard_image_le` and
 `ncard_prod`, plus the existing structural proof's generic `eraseDups_nodup`,
@@ -306,7 +292,7 @@ license cost and preserve the native/proof import boundary.
 The pinned upstream `Constraints/Denotation.lean`, `Integer.lean`,
 `DenotationInvariance.lean` and the existing expression bridge supply independent
 partial mathematical meaning. They cannot be imported into native target code.
-The source range proof now connects that existing analyzer to the independent
+The source range proof connects that existing analyzer to the independent
 denotation; it does not introduce a source evaluator or target encoding.
 
 The retained official Alloy reference's Integer Expressions section and pinned
@@ -326,22 +312,20 @@ Attachment IDs and occurrences, owner context, inherited restrictions and lexica
 positions must survive translation. Primitive observation and structural
 integration must retain the explicit boundaries in the architecture contract.
 
-## Constraint-translation continuation: reuse and representation
+<a id="constraint-translation-continuation-reuse-and-representation"></a>
 
-The continuation of #15 starts from accepted main
-`9ef2d6a6bc9a047cb0985033960aa4c92e2c2cb2`. The current runtime and proofs were
-inspected before implementation: the postfix Alloy algebras, source checked terms,
-finite observations, source range proofs, inherited layout and source attachment
-records provide the reusable foundations. Pinned upstream `Denotation`,
-`DenotationLaws`, `Integer` and `DenotationInvariance` remain the independent source
-meaning. Pinned Haskell `Generator/Alloy.hs` supplies the integer/navigation and
-operand-order comparison; it is not a production dependency.
+## Scalar representation
 
-Before this continuation, the target had opaque object atoms and bounded numeric
-expressions, but no relation from observed integer objects to scalar values. The selected
-representation keeps those original objects and adds one scalar value field on
-the finite primitive observation signature. Generated domain and injectivity
-facts ensure that observed integer identity agrees with mathematical value.
+The postfix Alloy algebras, source checked terms, finite observations, source
+range proofs, inherited layout and source attachment records provide the reusable
+foundations. Pinned upstream `Denotation`, `DenotationLaws`, `Integer` and
+`DenotationInvariance` supply the independent source meaning. Pinned Haskell
+`Generator/Alloy.hs` supplies integer/navigation and operand-order comparisons.
+
+Opaque object atoms need an explicit relation to scalar values. The representation
+retains the original objects and adds one scalar value field on the finite
+primitive observation signature. Generated domain and injectivity facts ensure
+that observed integer identity agrees with mathematical value.
 The primitive signature is not the complete Alloy or mathematical integer domain.
 The official Alloy reference's integer expressions, field declarations and
 conditional expressions supply the target meaning; the existing parser/printer
@@ -351,7 +335,7 @@ Existing Lean Std list/fold/parser operations and Mathlib finite-set and option
 lemmas supply traversal and proof machinery. No new library, evaluator dependency,
 solver, copied upstream definitions or license cost is needed. Runtime encoding
 stays independent of semantic imports. The constructor and attachment results above discharge the selected conditional
-preservation obligations; their semantic acceptance remains a manual review gate.
+preservation obligations. Changes to these contracts require semantic review.
 
 The [source pipeline](pipeline.md) derives the representation premises from
 actual target data and composes full structural integer completion, query

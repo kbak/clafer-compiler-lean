@@ -23,7 +23,8 @@ Resolution preserves input order and binds by ID, including forward edges.
 Neither reference cycles nor repeated targets trigger recursive traversal or merging.
 `ReferenceOccurrence` separately retains declaration, head-object, owner-object and
 target-object IDs; two bag heads at the same owner/target remain distinct records.
-It supplies no candidate validation or set/bag satisfaction claim; #12 owns those.
+Candidate validation and set/bag satisfaction are checked by the
+[comparison layer](comparison.md), separately from IR admission.
 
 `validate : Core n → Certificate n → Except Diagnostic (Validated n)` is the
 proved admission boundary. The certificate contains parent/super ranks and an
@@ -32,8 +33,8 @@ its rank. Unused flags must identify only abstract declarations and propagate to
 all subtypes; a zero-bound abstract requires that flag. This is the exact upstream
 checked-certificate interface: every supported well-formed core has a suitable
 certificate. Bad auxiliary data is an input failure, never evidence of UNSAT.
-Ranks are explicit in v1; an automatic rank/certificate producer can be added later
-without changing the meaning or weakening these checks.
+Ranks are explicit in the v1 interchange. The [source resolver](resolution.md)
+computes ranks for authored input; its `toM1` conversion applies these guards.
 
 Core guards enforce unique IDs, the unique concrete basic synthetic root, valid
 intervals, rank descent and parentless abstractness. Support guards enforce all
@@ -49,7 +50,7 @@ Effective local/group bounds and abstractness are authoritative at this boundary
 The optional `Authored` record preserves supplied abstract/local/group observations
 as opaque metadata; `none` explicitly means effective-only provenance. No authored
 value is inferred, checked for default agreement, or interpreted into the source
-AST. Keyword provenance and authored elaboration are retained by #17’s separate
+AST. Keyword provenance and authored elaboration are retained by the separate
 [in-memory frontend candidate](resolution.md); the v1 interchange profile is unchanged. The
 effective-core interpretation is sufficient for M1; building
 an AST here would invent missing authored/default information.
@@ -89,7 +90,7 @@ with start ≤ end; no source buffer is available here to check the upper endpoi
 Unicode spelling and CRLF offsets are preserved. `authored: null` is effective-only;
 a supplied record retains the fields shown in the schema without elaborating them.
 Source locations and names never substitute for IDs. Haskell JSON is a separate
-format and requires the receipt-aware adapter owned by #6/#12.
+format and requires the [receipt-aware oracle adapter](oracles.md).
 
 A complete root-only document is:
 
@@ -123,7 +124,7 @@ position and its ID. No source span is invented. No outcome is SAT or UNSAT.
 | `ir.invalid-core-or-ranks` | Malformed | Failed core or supplied rank checks |
 | `ir.unsupported-or-invalid-certificate` | Unsupported | Failed support or unused certificate checks |
 
-The #19 [diagnostic serializer](cli.md) wraps these payloads with the architecture's
+The [diagnostic serializer](cli.md) wraps these payloads with the architecture's
 version, phase (`admission`), human message and related-location fields. Codes and
 category meanings are stable within v1; English rendering is not fixed here.
 
@@ -134,7 +135,7 @@ category meanings are stable within v1; English rendering is not fixed here.
 The runtime file above implements `lookup`, `resolveDeclaration`, `validateRaw`,
 `validateDocument`, `coreChecks`, `supportChecks` and `validate`. Arrays/vectors and
 finite decidable quantifiers terminate. Worst-case scans are quadratic in declaration
-count; this task makes no performance or resource bound claim. The JSON schema and
+count; this API makes no performance or resource bound claim. The JSON schema and
 this document supply the interchange/handoff specification.
 
 Covers:

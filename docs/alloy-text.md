@@ -26,7 +26,8 @@ that parsing those exact bytes reconstructs the entire original module. Invalid
 metadata reports `malformedMetadata`; failed reconstruction reports
 `syntaxCorrespondence`. Neither failure returns a partial output. `serialize`
 is an unchecked implementation helper, not a substitute for this checked API.
-Target admission retains #8's malformed/unsafe-bound distinctions.
+Target admission distinguishes malformed input from unsafe bounds as specified
+by the [target core](alloy-core.md).
 
 All identifiers are `cc` followed by a canonical decimal natural number. The
 number is `4 * identity + tag`: tags 0, 1, 2 and 3 belong to signatures, fields,
@@ -72,6 +73,7 @@ levels, free variables, domain capture and additional commands.
 | Unary/binary empty | `( none )` / `( none -> none )` |
 | Signature, field, bound variable | `( ccN )`, resolved in distinct identity namespaces |
 | Union, intersection, difference | `( a + b )`, `( a & b )`, `( a - b )` |
+| Restricted identity | `( a <: iden )` |
 | Product, join, transpose | `( a -> b )`, `( a . b )`, `( ~ a )` |
 | Integer literal/cardinality | `( -8 )`, `( 7 )`, `( # a )` |
 | Integer arithmetic | `( plus [ a , b ] )`, `( minus [ a , b ] )`; ordered integer operands, distinct from relational `+`/`-` |
@@ -84,17 +86,20 @@ levels, free variables, domain capture and additional commands.
 | Universal/existential | `( all ccN : a \| p )`, `( some ccN : a \| p )` |
 | Signature | Optional `abstract`, optional `lone`/`one`/`some`, `sig ccN`, optional `extends ccM`, field block |
 | Field | `ccN : set/lone/one/some ccM`; owner comes from its signature block |
+| Scalar value field | `ccN : one Int` in the auxiliary namespace |
+| Scalar extraction | Conditional singleton/domain check, then `sum` of the scalar field, else the admitted lower bound; see [scalar encoding](expression-encoding.md#source-constraint-translation) |
 | Fact | `fact { p }`, in original fact order |
 | Command | `run/check { p } for B Int , [exactly] N ccM , ...` |
 
 `set` signature multiplicity emits no keyword. Empty field blocks and a module
 without user signatures are supported. Every signature gets its original exact
 or upper scope; the bitwidth is explicit, with no overall/default scope replacing
-an input bound. There are no new user atoms, fields or facts. Tautological sugar
-and binary `none` introduce neither arithmetic nor extra cardinality obligations.
-No M2 constructor or target admission meaning changes in this task. Future #15
-constructors must extend printing, independent parsing, reference correspondence,
-round-trip checks and Analyzer fixtures together.
+an input bound. Serialization adds no user atoms, fields or facts to the input
+module. Tautological sugar and binary `none` introduce neither arithmetic nor extra cardinality obligations.
+The [constraint encoder](expression-encoding.md) also uses scalar fields and
+restricted identity, listed above. Any new constructor must extend printing,
+independent parsing, reference correspondence, round-trip checks and Analyzer
+fixtures together.
 
 The guide is the [official Alloy reference](https://alloytools.org/spec.html),
 Lexical Issues, Namespaces, Grammar, Precedence and Associativity, Signature/Field
@@ -108,20 +113,19 @@ scope profile. New code and reference fixtures are original MIT project code.
 
 ## Parser reuse assessment
 
-The reconstruction parser consumes the canonical Alloy output of #9. The Clafer
-source-language frontend remains #16. Independence from the printer permits shared
-general parser libraries; it requires independently specified recognition and
+The reconstruction parser consumes canonical Alloy output. The
+[Clafer source parser](parser.md) recognizes a separate language. Independence
+from the printer permits shared general parser libraries; it requires independently specified recognition and
 reconstruction logic, not a parser framework written from scratch.
 
 | Candidate inspected | Fit and remaining tradeoffs |
 | --- | --- |
-| Pinned Lean `Std.Internal.Parsec` ([basic combinators](https://github.com/leanprover/lean4/blob/v4.35.0/src/Std/Internal/Parsec/Basic.lean), [string input](https://github.com/leanprover/lean4/blob/v4.35.0/src/Std/Internal/Parsec/String.lean)) | Used by this candidate for input, sequencing, alternatives, backtracking and repetition, without a new package dependency. Grammar and identity reconstruction remain project code. Its repetition helpers are partial and opaque to kernel computation; the successful-render proof still uses the computed result conditionally. |
+| Pinned Lean `Std.Internal.Parsec` ([basic combinators](https://github.com/leanprover/lean4/blob/v4.35.0/src/Std/Internal/Parsec/Basic.lean), [string input](https://github.com/leanprover/lean4/blob/v4.35.0/src/Std/Internal/Parsec/String.lean)) | Used by the reconstruction parser for input, sequencing, alternatives, backtracking and repetition, without a new package dependency. Grammar and identity reconstruction remain project code. Its repetition helpers are partial and opaque to kernel computation; the successful-render proof still uses the computed result conditionally. |
 | Pinned official Alloy Java parser | Already reused by the external tests for actual Alloy acceptance and normalized AST comparison. It runs outside Lean's kernel and would add Java/Alloy to the compiler runtime if used there; it cannot directly supply the current kernel reconstruction proof. |
 | Pinned Haskell Clafer frontend | Its [build rules](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Makefile) generate a parser with BNFC/Happy and a lexer with Alex from `clafer.cf`. This reuses established tools but recognizes Clafer source rather than Alloy output. The [Cabal file](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/clafer.cabal) also lists Parsec; the main frontend is generated by Happy. |
 | Fold-based custom recognizer | Total list folds support kernel reduction, but require project-owned delimiter stacks and a separate binder scan/resolution pass. Parsec removes that machinery; either implementation needs independent Alloy checks for shared assumptions with the printer. |
 
-This Parsec candidate remains subject to review. Quantifiers parse their domain
-at the outer depth and their body at the extended depth, resolving binder levels
+Quantifiers parse their domain at the outer depth and their body at the extended depth, resolving binder levels
 directly to de Bruijn indices. Every repeated parser consumes input on success.
 Recursive expression parsing uses the line's character count as its nesting budget:
 each nested expression consumes an opening parenthesis, so there is no separately
@@ -157,16 +161,15 @@ reconstructs the output and decidable structural equality is checked before
 success. It is not a structural-induction theorem that `render` always succeeds
 for every checked module. Successful coverage is separately exercised by the
 finite test domain below; malformed metadata and correspondence failure remain
-explicit API errors. Review must assess this successful-render assurance boundary
-against issue #9's round-trip criterion before acceptance, rather than treating
-finite successful examples as a totality proof.
+explicit API errors. Finite successful examples do not establish totality.
 
 The parser combines standard Parsec machinery with its own expression/declaration
 grammar, symbol-table reconstruction and lexical resolution. It does not call `serialize` or inspect
 input targets. Nonetheless it is project code: a proof about it alone does not
 prove Alloy grammar/meaning correspondence. Reflexive `set` sugar and concrete
 syntax correspondence are tested against the Analyzer, not claimed as a proved
-Analyzer semantics theorem. #8's independent model remains the semantic authority
+Analyzer semantics theorem. The [independent target model](alloy-core.md) remains
+the semantic authority
 for compiler proofs. Native Lean/C execution, the external parser,
 Analyzer translation, SAT4J and later external decoding remain trust boundaries.
 
@@ -200,8 +203,8 @@ Twenty-six generated modules additionally receive an independently authored
 four-atom exact-candidate pin. Actual SAT/UNSAT results must equal the independent
 Lean target evaluator's results. Both truth values occur. Valid Alloy mutations
 remove essential difference parentheses or alias a reference; their normalized
-ASTs must differ. These tests supplement #8's independent target comparisons and
-the #6 Haskell/upstream oracle suite; they do not claim source compiler correctness.
+ASTs must differ. These tests supplement the [independent target comparisons](alloy-core.md)
+and the [Haskell/upstream oracle suite](oracles.md); they do not claim source compiler correctness.
 
 The mandatory check retains emitted text/maps, reference and mutated files,
 source copies/hashes, native build/link/run commands, actual JAR/Java identity,

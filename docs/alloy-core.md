@@ -42,19 +42,20 @@ without a cycle certificate. No subset signatures are admitted. Fields have an
 explicit owner, target and range multiplicity; signatures also have explicit
 multiplicity. Facts and command bodies are closed formulas. The supported terms
 are unary/binary empty relations, signature/field/variable references, union,
-intersection, difference, unary product, unary/binary join and transpose; bounded
-integer literals, relation counts and ordered addition/subtraction; relational equality/inclusion, multiplicity,
+intersection, difference, unary product, unary/binary join, transpose and restricted
+identity; bounded integer literals, relation counts, scalar extraction and ordered
+addition/subtraction; relational equality/inclusion, multiplicity,
 integer equality/order, Boolean connectives and singleton `all`/`exists`.
 
 Unary-unary join, nonbinary transpose, mixed-arity operations, dangling IDs,
 unbound variables and invalid field endpoints are rejected. This check does not
 implement the Analyzer's additional disjoint-type/redundancy diagnostics or its
-name resolver. #9 must establish printable forms and exercise the actual parser;
-arity-correct raw terms alone do not promise acceptance of every surface form.
-No temporal operators, multiplication/division/aggregation, higher-arity relations,
+name resolver. The [serializer](alloy-text.md) establishes printable forms and
+exercises the actual parser; arity-correct raw terms alone do not promise acceptance of every surface form.
+No temporal operators, multiplication/division/general aggregation, higher-arity relations,
 closure, comprehension, subset signatures, modules, functions or predicate calls
 are part of this target fragment. M1 obligations can use quantifiers and facts;
-the [selected arithmetic extension](expression-encoding.md) is part of #15.
+the [constraint encoding contract](expression-encoding.md) covers integer arithmetic.
 
 Covers:
 - `req~compiler-alloy-core~1`
@@ -75,7 +76,8 @@ is a well-formed negative candidate, rejected by declaration satisfaction.
 Signatures must obey parent inclusion, top-level/sibling disjointness,
 multiplicity and abstract coverage. Abstract coverage is imposed only when there
 is at least one extending signature. An unextended Alloy abstract signature can
-be nonempty; #10 must emit an explicit emptiness fact when Clafer demands it.
+be nonempty; the structural encoder emits an explicit emptiness fact when Clafer
+demands it.
 
 A binary field tuple is **owner first, target second**. Field multiplicity is
 checked separately for each owner, including owners with no tuples. `set` places
@@ -86,18 +88,25 @@ heads, field tuples and dereferenced targets remain different expressions.
 
 Built-in integer atoms are outside the user carrier. Conceptually the full
 Analyzer universe also includes the signed integer range, tagged separately from
-user atoms; this fragment cannot navigate or quantify over it. `univ`, `iden`,
-integer-valued fields and primitive extents are deliberately unavailable. There
-are no string literals or sequence constructs; the external test profile uses
+user atoms; this fragment cannot navigate or quantify over the entire built-in
+integer domain. `Signature.scalar` permits a `one Int` value field for each
+observed integer object. `Instance.values` supplies its rows, and `Integer.scalar`
+reads a singleton value with an explicit bounded fallback. The
+[constraint encoder](expression-encoding.md#source-constraint-translation) adds
+separate definedness, interval and injectivity facts. Restricted identity
+`Rel.diagonal` is supported; unrestricted `univ`, `iden` and primitive extents are
+unavailable. There are no string literals or sequence constructs; the external test profile uses
 empty `String` and `seq/Int`. Solver Skolem relations witness quantifiers and
 introduce no new user objects. Any future user auxiliary signature must be an
-ordinary declared/scoped signature, with its role specified by #10 and decoder #12.
+ordinary declared/scoped signature, with its role specified by the
+[encoding](structural-encoding.md) and [decoder](comparison.md) contracts.
 
 The target enforces only its declared constraints. Root uniqueness, total
 ownership, reference functionality, set-reference uniqueness, empty abstract
 cover, local intervals and child-union group intervals must be represented by
-the declarations/facts generated in #10. This API neither assumes nor proves
-those source representation obligations. #11 must derive them from target
+the [generated declarations and facts](structural-encoding.md). This API neither
+assumes nor proves those source representation obligations. The
+[structural preservation proofs](structural-correctness.md) derive them from target
 satisfaction and give concrete encode/decode relations.
 
 ## Bounds, integers and outcomes
@@ -107,7 +116,7 @@ bitwidth in 1–16, matching the accepted oracle profile. No bound is inferred.
 The signature-multiplicity restrictions of pinned Alloy also apply: `one`
 requires scope 1, `lone` permits at most 1 and `some` requires at least 1.
 To express a source-requested bound conflicting with a declaration keyword,
-#10/#9 can use a `set` signature plus an explicit multiplicity fact. For example,
+the encoder can use a `set` signature plus an explicit multiplicity fact. For example,
 exact scope zero plus `one A` as a fact is a valid unsatisfiable target; it must
 not turn a valid source request into an unsupported source model. There is no
 silent scope adjustment here. Incompatible parent/child sizes that are otherwise
@@ -206,7 +215,8 @@ through [AlloyCoreBridge](../scripts/oracles/AlloyCoreBridge.java). The positive
 relational cases pin the candidate up to atom renaming; negative declaration
 cases ask for the violating memberships/tuples and must be unsatisfiable.
 This is finite integration evidence, not a text round-trip proof or exhaustive
-semantic equivalence result. #9 owns serialization correspondence.
+semantic equivalence result. [Serialization correspondence](alloy-text.md) has
+its own proof boundary.
 
 Covers:
 - `req~compiler-alloy-core~1`
@@ -223,7 +233,6 @@ requires the source-matched checkout and prepared pinned dependencies. A failed
 process, timeout or absent tool fails the gate; none becomes a Boolean observation.
 The full existing oracle suite still exercises Haskell and upstream Lean.
 
-Acceptance of #8 through PR #26 covers the reference mapping, conservative analysis
-and finite observations. Later changes still require their own review. IntentBond
-exit 4 leaves that review pending; no scope or coverage policy changes are part
-of this task.
+Changes to the target model require review of the reference mapping, conservative
+analysis and independent observations. IntentBond exit 4 leaves semantic review
+pending.

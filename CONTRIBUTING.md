@@ -28,7 +28,7 @@ The intended `main` safeguards are pull requests, the full CI check, resolved
 review conversations, and blocked force pushes/deletion. GitHub currently refuses
 branch protection on this private repository under the owner's plan; the maintainer
 must enforce the review/check workflow manually until an eligible plan is enabled.
-[Readiness issue #3](https://github.com/kbak/clafer-compiler-lean/issues/3) retains the
+[Contributor readiness](https://github.com/kbak/clafer-compiler-lean/issues/3) retains the
 settings review. The single-maintainer workflow does not pretend that self-approval
 is an independent review. CI success and administrator overrides do not grant
 semantic acceptance.
@@ -129,7 +129,9 @@ Record task history and before/after accounts in issues and PRs.
 Write current behavior directly, using short paragraphs and descriptive headings.
 Use backticks for identifiers, paths, filenames, commands, options, literal values
 and traceability IDs; use fenced blocks with a language for examples. Keep prose
-link labels readable. Preserve exact source revisions, theorem assumptions and
+link labels descriptive: name the decision or contract instead of writing only an
+issue or PR number. Link relevant reviews when readers need their rationale; keep
+implementation timelines in those reviews. Preserve exact source revisions, theorem assumptions and
 proof-versus-test distinctions. Use lowercase, hyphen-separated documentation names
 and check local links and examples when editing.
 

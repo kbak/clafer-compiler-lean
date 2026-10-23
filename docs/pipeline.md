@@ -1,9 +1,9 @@
 # Source pipeline integration
 
-Task [#20](https://github.com/kbak/clafer-compiler-lean/issues/20) was accepted through
-merged PR #44 after #13, #15 (PR #41), #18 and #19. Implementation starts at
-`6acfc02474a2a09b2a0e4f856bb467102ee33de4`. This document records the integration
-design, composed proof boundary and validation. The existing M1 API and comparison domain remain available.
+The source pipeline composes the parser, declaration resolver, constraint
+elaborator and Alloy backend. Its proofs connect the generated target to a full
+source model, including mathematical integers, under explicit observation bounds.
+The M1 resolved-IR API and its comparison domain remain available separately.
 
 ## Reuse assessment
 
@@ -60,8 +60,7 @@ would add unnecessary proof and runtime machinery.
    structural maps. Do not assume a correct representation or final source truth.
 4. Extend only the primitive domain and its root containment to mathematical
    integers; preserve finite nonprimitive extents, original reference occurrences
-   and every admitted expression's denotation. The correction is tracked in [#42](https://github.com/kbak/clafer-compiler-lean/issues/42).
-   Synthetic primitive multiplicity
+   and every admitted expression's denotation. Synthetic primitive multiplicity
    must be unrestricted, matching the pinned full model. Primitive containment
    is infinite in the full model. Its finite observation must preserve admitted
    queries such as parent navigation from an observed integer, without claiming
@@ -73,30 +72,28 @@ would add unnecessary proof and runtime machinery.
    focused negative mutations. Any extended candidate evaluator needs its own
    justification; the M1 checker remains guarded.
 
-## Carrier decision exposed by composition
+<a id="carrier-decision-exposed-by-composition"></a>
 
-The accepted frontend produces only the synthetic root for `[0 = 0]`: it adds
-`int` only when an authored reference targets it. The pinned structural `Rooted`
-relation then forces the entire carrier to be a singleton. However the pinned
-constraint `IntegerBinding` requires an injective realization of **all** integers
-in that same carrier, even when a body never navigates to `int`. The kernel theorem
+## Full integer carrier
+
+Every constraint-bearing source document receives an implicit unrestricted integer
+declaration, including documents without integer references. Authored IDs remain
+unchanged; the implicit declaration is appended. Its finite observation scope may
+be zero when unused, while its source domain contains all mathematical integers.
+Source bounds must name this ID and its interval explicitly. Constraint-free
+source resolution adds it only when an integer reference requires it.
+
+This rule is necessary even for `[0 = 0]`. A root-only structural configuration
+has a singleton carrier by `Rooted`, while `IntegerBinding` requires an injective
+realization of all integers in that carrier. The kernel theorem
 `Tests.PipelineLimits.root_only_no_integer_realization` proves the contradiction
-using the distinct values 0 and 1. This is not a solver or overflow limitation.
-The source command compiles this input, and its generated bounded target has a
-model. Therefore a unified source whole-model theorem for the unchanged elaboration
-would be false. Separate structural and expression theorems do not repair it.
+using 0 and 1. Separate structural and expression theorems cannot establish a
+whole-model result without a compatible carrier. Likewise, a restricted synthetic
+primitive multiplicity would conflict with the full integer domain.
 
-The accepted downstream correction introduces the implicit unrestricted
-integer declaration for every constraint-bearing source document, including
-those without integer references. Existing authored IDs stay unchanged; the
-implicit declaration is appended. Its finite observation scope may be zero when
-unused, while the source domain remains all integers. Source bounds must name
-this ID and its interval explicitly. Constraint-free source resolution and the
-M1 IR API remain as before. This correction changes the former elaboration rule
-requiring an integer reference as the reason for insertion, and was accepted
-with #20 through PR #44. It implements the existing full
-mathematical integer contract without changing upstream meanings. The kernel
-counterexample remains as a regression against restoring the incomplete rule.
+The [integer-carrier review](https://github.com/kbak/clafer-compiler-lean/pull/44)
+records this choice. The counterexample remains a regression against incomplete
+elaboration; upstream meanings and the guarded M1 API are unchanged.
 
 ## Composed assurance
 
@@ -140,8 +137,7 @@ inappropriate premise for a source-based completeness claim.
 Parser recognition, strict JSON correspondence, native execution, emitted-text
 interpretation by Alloy, and the solver are tested boundaries. The in-memory
 Lean proofs do not certify those external components. No public M1 checker guard
-is widened. PR #44 records acceptance of this implementation and the #42/#43
-corrections; [qualification](qualification.md) retains these limits.
+is widened. The [qualification inventory](qualification.md) retains these limits.
 
 ## Complete example and exact replay
 
@@ -170,7 +166,8 @@ not a global minimum, arbitrary row minimality, or source-syntax minimality.
 The mandatory source tests run in a separate process alongside the existing M1
 comparison/CLI worker and remaining regressions. The existing unittest/subprocess
 runner supplies process isolation; failure, skipped, missing and empty groups
-remain failures. No gate or 120-second deadline is removed or increased.
+remain failures. The [build contract](build.md) records the full validation scope
+and execution deadline.
 
 ## Traceable implementation and proof artifacts
 
@@ -233,17 +230,10 @@ Covers:
 - `req~compiler-pipeline-correctness~1`
 - `req~compiler-telematics~1`
 
-Validation review also removed unnecessary proof imports: generic atom completion,
-source navigation shape and full support spans do not depend on decoded target
-bounds or final source satisfaction. Lean's existing module scheduler can check
-these independent lemmas concurrently. This preserves every proof and test while
-reducing the clean-build critical path under the unchanged deadline.
+Generic atom completion, source navigation shape and full support spans are
+independent of decoded target bounds and final source satisfaction. Their module
+imports allow Lean to check these lemmas concurrently.
 
-The full replay now uses four workers through the pinned LeanChecker's existing
-`IO.asTask` scheduler, still checking all owned modules and private/generated
-declarations. This bounds concurrent import environments without adding a
-custom verifier or changing the deadline. Concurrent external suites exposed
-`ClassFormatError: Truncated class file`: pinned bridge compilation had overwritten
-a class while another JVM loaded it. `oracle.load_tools` now creates a private
-external bridge build directory per invocation, sharing only the hash-checked
-JAR/JDK and retaining the same compiled-class identity checks.
+External suites use a private Java bridge build directory per invocation, sharing
+only the hash-checked JAR/JDK. This prevents concurrent compilation from replacing
+classes while another JVM loads them. The bridge identity checks remain mandatory.
