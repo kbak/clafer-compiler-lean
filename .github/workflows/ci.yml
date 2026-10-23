@@ -14,11 +14,14 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    name: Lean, native, comparison oracles and IntentBond
+    name: Lean proofs and native CLI
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       LEAN_NUM_THREADS: '2'
+      PYTHONDONTWRITEBYTECODE: '1'
+      LAKE_ARTIFACT_CACHE: 'false'
+      LAKE_RESTORE_ARTIFACTS: 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -27,11 +30,13 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.12'
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+      - if: github.event_name == 'workflow_dispatch'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
           java-version: '17'
       - name: Install pinned IntentBond and verified OFT
+        if: github.event_name == 'workflow_dispatch'
         run: |
           python -m pip install -r requirements/intentbond.txt
           ib install-oft --destination "$RUNNER_TEMP/oft"
@@ -62,6 +67,7 @@ jobs:
           bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
           echo "CLAFER_COMPILER_PACKAGES=$GITHUB_WORKSPACE/.lake/packages" >> "$GITHUB_ENV"
       - name: Prepare pinned comparison tools and retain license inventory
+        if: github.event_name == 'workflow_dispatch'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgmp-dev bubblewrap apparmor
@@ -82,7 +88,8 @@ jobs:
             ${{ runner.temp }}/clafer-capture
             ${{ runner.temp }}/clafer-alloy
           key: ${{ steps.dependencies.outputs.cache-primary-key }}
-      - name: Check build, proofs, native behavior and traceability
+      - name: Check scope against the baseline
+        id: scope
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha }}
           PUSH_BASE: ${{ github.event.before }}
@@ -105,6 +112,32 @@ jobs:
             echo 'Initial scope adoption requires explicit review; validating the new baseline.' >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "Candidate: $candidate; baseline: $baseline" >> "$GITHUB_STEP_SUMMARY"
+          echo "baseline=$baseline" >> "$GITHUB_OUTPUT"
+          echo "candidate=$candidate" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "baseline=$baseline" "candidate=$candidate" > "$RUNNER_TEMP/source-revision.txt"
+      - name: Check Lean proofs and native CLI
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          {
+            python3 scripts/check.py
+            bash -n scripts/check.sh
+            bash -n scripts/prepare_dependencies.sh
+            python3 scripts/project_modules.py --dependencies
+            lake build
+            mapfile -t modules < .lake/validation/modules.txt
+            lake build "${modules[@]/#/+}"
+            python3 scripts/project_modules.py --dependencies
+            lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean
+            lake env leanchecker --verbose ClaferCompiler Main tests
+            lake env python3 -m unittest -v tests.test_cli tests.test_source_cli tests.test_ci_scope
+          } 2>&1 | tee "$RUNNER_TEMP/build-and-cli.log"
+          echo 'Lean build, axiom audit, kernel replay and native CLI tests passed. Full IntentBond qualification runs locally or by manual dispatch.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Run full IntentBond qualification
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          baseline: ${{ steps.scope.outputs.baseline }}
+          candidate: ${{ steps.scope.outputs.candidate }}
+        run: |
           set +e
           ib check --repo "$GITHUB_WORKSPACE" --scope "$RUNNER_TEMP/trusted-scope.json" \
             --base "$baseline" --candidate "$candidate" --out "$RUNNER_TEMP/intentbond-evidence" &
@@ -125,12 +158,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: intentbond-evidence
+          name: ci-evidence
           path: |
             ${{ runner.temp }}/intentbond-evidence/
             ${{ runner.temp }}/trusted-scope.json
             ${{ runner.temp }}/baseline-scope.json
             ${{ runner.temp }}/scope-selection.json
+            ${{ runner.temp }}/source-revision.txt
+            ${{ runner.temp }}/build-and-cli.log
             ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/

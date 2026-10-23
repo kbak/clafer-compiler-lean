@@ -40,9 +40,12 @@ Needs: impl
 Pin IntentBond to an immutable source revision. Keep intent, requirements and
 artifact links together, and run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
-semantic review pending, never approval. Local checks remain mandatory. Hosted CI
-runs on pull requests, pushes to `main` and manual dispatch, preserving evidence
-and exposing the same review distinction. Public CI artifacts retain logs,
+semantic review pending, never approval. The full local check remains mandatory.
+On pull requests and pushes to `main`, hosted CI builds every Lean module, audits
+axioms, replays the kernel, checks scope identity and tests the native source/IR
+CLI. Manual dispatch runs the full IntentBond check, including external comparison
+tools and all regressions. Both retain evidence; routine CI does not establish
+full qualification or semantic acceptance. Public CI artifacts retain logs,
 notices, source identities and replay inputs without compiled test binaries.
 Scope changes require explicit review.
 CI checks scope identity against the baseline, permitting only exact reviewed

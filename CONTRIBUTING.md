@@ -27,7 +27,8 @@ validation evidence. Review scope changes explicitly. Mark tasks Done only after
 their acceptance criteria are met. New compiler features require maintainer
 selection and accepted dependencies.
 
-`main` requires pull requests, the full CI check and resolved review conversations.
+`main` requires pull requests, the Lean proofs and native CLI check, and resolved
+review conversations.
 Force pushes and branch deletion are blocked. Passing CI does not grant semantic
 acceptance; changes to proof contracts require independent review.
 
@@ -103,13 +104,17 @@ project outputs are rebuilt. No private paths or credentials belong in source.
 The scope selects all files and review paths. Its reviewed execution deadline is
 600 seconds; coverage floors, check command and all gates are unchanged.
 Dependency preparation is outside that deadline; CI allows 45 minutes for
-provisioning and the check.
-CI runs on pull requests, pushes to `main` and manual dispatch. Run the full local
-IntentBond check before handoff; use GitHub Actions → CI → Run workflow for an
-additional hosted run. Preparation builds all imported upstream modules, including
-telematics examples, and retains their cache before checking the project.
-CI caches only pinned dependencies and external tools,
-then checks their identities and rebuilds the project in the source snapshot.
+provisioning and validation.
+
+Pull requests and pushes to `main` run the Lean build, axiom audit, kernel replay,
+native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
+check before handoff. GitHub Actions → CI → Run workflow runs the full suite,
+including Haskell/Alloy comparisons and all regressions. A passing routine CI run
+is not full qualification evidence.
+
+CI caches pinned dependencies and external tools, verifies their identities and
+builds project outputs afresh. Full IntentBond runs use an isolated source snapshot.
+Preparation builds all imported upstream modules, including telematics examples.
 The workflow permits only the exact reviewed `120` → `600` deadline migration;
 it retains the original comparison baseline and records both policy hashes.
 Every other scope amendment needs explicit review before selection as trusted policy.
