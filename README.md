@@ -7,8 +7,6 @@ containment, references and inheritance, while constraints restrict valid models
 
 The compiler accepts Clafer source or a guarded resolved-IR format and emits
 static Alloy with explicit bounds. Compilation does not run a solver.
-**The repository and its candidate binaries remain private; publication requires
-[a separate decision](https://github.com/kbak/clafer-compiler-lean/issues/3).**
 
 [Documentation](docs/intent.md#documentation-map) · [Contributing](CONTRIBUTING.md) ·
 [Issues](https://github.com/kbak/clafer-compiler-lean/issues) · [MIT license](LICENSE)
@@ -47,7 +45,7 @@ potential reuse and evidence-based comparison with the Haskell compiler.
 | Boolean logic, sets/relations, navigation, finite quantifiers, cardinality and integer addition/subtraction | [Static expressions](docs/expressions.md) |
 | Source parsing, checked resolution/defaults and typed constraint elaboration | [Source pipeline](docs/pipeline.md) |
 | Native source and resolved-IR commands, diagnostics and explicit bounds | [CLI](docs/cli.md) |
-| Complete supported Appendix 6 telematics model and reproducible validation | [Pipeline evidence](docs/pipeline.md), [private qualification](docs/qualification.md) |
+| Complete supported Appendix 6 telematics model and reproducible validation | [Pipeline evidence](docs/pipeline.md), [qualification](docs/qualification.md) |
 
 [Clafer Semantics](https://github.com/kbak/clafer-semantics) supplies independent
 source meanings and reusable proofs as a commit-pinned Lake dependency. The

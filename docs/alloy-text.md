@@ -213,7 +213,7 @@ an external `CLAFER_ORACLE_EVIDENCE` bundle. Missing tools, timeout, parser fail
 undefined Lean observation, normalization errors or mismatch fail the check.
 Replay the retained commands with the same source and pinned dependencies.
 IntentBond checks and kernel/axiom replay remain mandatory; exit 4 leaves semantic
-review pending. No scope, coverage, dependency pin or publication setting changes.
+review pending.
 
 Covers:
 - `req~compiler-alloy-text~1`

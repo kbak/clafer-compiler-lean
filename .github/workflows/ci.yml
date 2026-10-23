@@ -135,4 +135,15 @@ jobs:
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/
             ${{ runner.temp }}/oracle-evidence/
+            !${{ runner.temp }}/oracle-tools/compiler.tar.gz
+            !${{ runner.temp }}/oracle-evidence/**/api-tests
+            !${{ runner.temp }}/oracle-evidence/**/arithmetic-tests
+            !${{ runner.temp }}/oracle-evidence/**/alloy-text-tests
+            !${{ runner.temp }}/oracle-evidence/**/comparison-native
+            !${{ runner.temp }}/oracle-evidence/**/constraints
+            !${{ runner.temp }}/oracle-evidence/**/expression-tests
+            !${{ runner.temp }}/oracle-evidence/**/parser
+            !${{ runner.temp }}/oracle-evidence/**/resolve
+            !${{ runner.temp }}/oracle-evidence/**/stage-probe
+            !${{ runner.temp }}/oracle-evidence/**/*.class
           retention-days: 30

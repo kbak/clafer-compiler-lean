@@ -34,7 +34,7 @@ scopes, bitwidth, source/IR/output/candidate identities and exact replay command
 outside source. The version label alone does not reproduce a comparison.
 Before copying code or fixtures, inspect the pinned file's notices and retain
 required attribution. The [oracle inventory](oracles.md#inspected-licenses-and-distribution-contents)
-records inspected source/distribution notices; [private qualification](qualification.md)
+records inspected source/distribution notices; [qualification](qualification.md)
 records the packaged runtime dependency inventory and remaining distribution gates.
 A source citation is not a redistribution license.
 
@@ -46,8 +46,8 @@ modeling*, Software & Systems Modeling 15, 811–845 (2016), online 2014,
 The upstream [source map](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/sources.md)
 records the inspected 37-page publisher e-offprint, SHA-256
 `653fc7868637680c44b6176d8ff643ec20149534fe1681ea4fc4ce636db76f2d`.
-Its one-based PDF positions include two cover sheets. The private paper copy is
-not redistributed here. This planning audit follows upstream's recorded paper
+Its one-based PDF positions include two cover sheets. The paper is not
+redistributed here. The source register follows upstream's recorded paper
 locators and checked source declarations; it is not a new independent paper audit.
 
 | Topic | Published locator / e-offprint PDF page |
@@ -117,7 +117,7 @@ compiler-generated Alloy.
 
 No branch name, floating latest release, SoSyM research tag or upstream maintenance
 branch is a substitute for the commit pin or a prerequisite for compiler intake.
-Repository/Project privacy, manual intake and publication approval remain unchanged.
+Dependency changes require manual intake and review.
 
 The [Alloy text contract](alloy-text.md) maps the emitted grammar to S7's lexical,
 namespace, precedence, declaration and command rules. It also uses S6's field
@@ -290,7 +290,9 @@ the inherited/source observation boundary with its own proved checker; it does
 not run the guarded Haskell/M1 comparison outside its accepted domain. See the
 [pipeline inventory](pipeline.md) for exact theorem and external replay limits.
 
-## Private qualification
+<a id="private-qualification"></a>
+
+## Qualification
 
 Runtime optimization reuses the pinned Lean `Vector.ofFn`, array access/equality,
 list folds and `Nat.repeat`, plus its `@[csimp]` equality-rewrite mechanism.
@@ -322,7 +324,7 @@ remain host prerequisites. Retain the full link response, static archive hashes
 and `ldd` output with each candidate. Haskell/Stack/GHC, Java and the multi-license
 Alloy JAR are comparison/build tools and are not packaged. This prepares a local
 review artifact; redistribution obligations for linked components must be resolved
-before external distribution, independently of repository publication.
+before distributing a binary.
 
 ## CI policy selection
 

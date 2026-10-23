@@ -3,7 +3,7 @@
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
 [architecture](docs/architecture.md), [sources](docs/sources.md),
 [contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
-This is a private structural Clafer-to-Alloy compiler. Follow the adopted
+This is a structural Clafer-to-Alloy compiler. Follow the adopted
 contract and manual intake gates. The [documentation map](docs/intent.md#documentation-map)
 and [qualification inventory](docs/qualification.md#feature-and-evidence-inventory)
 identify the delivered APIs, proof assumptions and testing boundaries. The
@@ -12,7 +12,7 @@ record acceptance and dependencies.
 
 Do not implement compiler features until their owning task is selected and its
 dependencies are accepted. Candidate acceptance requires independent review;
-behavioral modeling and publication remain outside this work.
+behavioral modeling remains outside this work.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.
@@ -34,9 +34,10 @@ requirements, source, tests and links together. Run `ib check` and retain extern
 evidence before handoff. Exit 4 leaves semantic review pending. Do not weaken
 scope or coverage to pass. Scope adoption and amendments require explicit review.
 
-Search issues before creating work; use `python3 scripts/tickets.py` and the
-[private Project](https://github.com/users/kbak/projects/3). Keep acceptance criteria
-and status current. Planning tickets do not authorize implementation. In IntentMade,
+Search issues before creating work; use `python3 scripts/tickets.py`. Maintainers
+track status in the [Project](https://github.com/users/kbak/projects/3); contributors
+without Project access can use `--no-project`. Keep acceptance criteria and status
+current. Planning tickets do not authorize implementation. In IntentMade,
 only the coordinator runs credential-bearing ticket operations. Keep credentials,
 private deployment paths and runtime state outside source.
 

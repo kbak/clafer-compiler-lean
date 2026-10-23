@@ -124,6 +124,14 @@ and clean-pin/tool-identity checks still run after restoration; project build
 outputs and successful proof/test results are not restored. There is no alternate
 reduced CI suite or added runtime dependency.
 
+Public CI artifacts retain check logs, source identities, notices, generated text,
+solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`
+action's path exclusions omit compiled test executables, Java classes and the
+downloaded Haskell source archive; no separate packaging tool or dependency is
+needed. Binary hashes and build commands remain in the evidence so reviewers can
+rebuild with the pinned tools. Tests still build and execute every native probe.
+When adding a probe, keep its compiled output out of the public artifact paths.
+
 The [scope selector](../scripts/ci_scope.py) adapts the pinned Clafer Semantics
 `scripts/ci_scope.py` (MIT, copyright 2026 Kacper Bak). IntentBond already accepts
 external trusted policy; plain `cmp` cannot distinguish an approved amendment from

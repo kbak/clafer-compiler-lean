@@ -25,8 +25,8 @@ contracts are in [constraint encoding](expression-encoding.md) and
 Grammar-to-parser correspondence and native/serialized execution remain tested,
 unproved boundaries. Distinguish delivered guarantees from future work. Contract
 adoption precedes dependent manual intake; planning tickets do not start
-implementation. Keep the repository and Project private until the maintainer
-explicitly requests publication.
+implementation. Publish the compiler source under MIT and provide public issue
+and pull-request workflows that do not require access to the maintainer Project.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -42,7 +42,9 @@ artifact links together, and run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. Local checks remain mandatory. Hosted CI
 runs on pull requests, pushes to `main` and manual dispatch, preserving evidence
-and exposing the same review distinction. Scope changes require explicit review.
+and exposing the same review distinction. Public CI artifacts retain logs,
+notices, source identities and replay inputs without compiled test binaries.
+Scope changes require explicit review.
 CI checks scope identity against the baseline, permitting only exact reviewed
 migrations without replacing the Git comparison baseline.
 
@@ -61,8 +63,9 @@ Needs: impl, utest
 
 `req~github-tracking~1`
 
-Use repository issues and a private Project with Todo, In Progress, and Done.
-Tasks describe scope, acceptance criteria, sources/requirements, and dependencies.
+Use public repository issues for contribution and acceptance records. Maintainers
+track Todo, In Progress and Done in the Project; contributors do not need Project
+access. Tasks describe scope, acceptance criteria, sources/requirements and dependencies.
 Planning tickets do not trigger implementation. IntentMade registration uses manual
 intake and draft PR publication; deployment configuration and credentials stay
 outside this repository.
@@ -154,7 +157,7 @@ inherited fields, primitive integer references and expressions unsupported;
 leaf abstract inheritance remains admitted when its guards hold. Inventory
 structural, set/bag, group, inheritance, reference-cycle, shadowing and numeric
 fixtures with immutable provenance and licenses. Preserve bundled distribution
-notices externally; tool provisioning does not authorize packaging or publication.
+notices externally and preserve applicable licenses when packaging tools.
 
 Missing tools, modified inputs/tools, unsupported domains, timeouts, resource
 limits, malformed input and errors must remain distinct from agreement or bounded
@@ -548,7 +551,7 @@ identity and generated source maps in the pure API for dependent integration.
 Run the native binary with only its documented runtime libraries visible, without
 a Lean development toolchain, Haskell, Java or Alloy. Exercise real Analyzer loading
 and solving as external validation. Keep tested JSON/CLI/native behavior distinct
-from existing in-memory proofs. No public release or upload is authorized. The
+from existing in-memory proofs. The
 [CLI contract](cli.md) supplies examples, platform limits and review boundaries.
 
 Covers:
@@ -769,11 +772,13 @@ Covers:
 
 Needs: impl, utest
 
-## Private candidate qualification
+<a id="private-candidate-qualification"></a>
+
+## Candidate qualification
 
 `req~compiler-qualification~1`
 
-Prepare a local private candidate with a closed accounting of the adopted feature
+Prepare a local candidate with a closed accounting of the adopted feature
 matrix: implementation, promised proofs, positive/negative tests and explicit
 rejection of excluded forms. Preserve all existing scope and assurance boundaries;
 material defects prevent acceptance. Retain the exact clean candidate commit,
@@ -786,8 +791,6 @@ measurements. A pending review remains pending in the package manifest.
 Document reproducible usage, supported platforms, trust boundaries and the existing
 dependency-upgrade policy. Preserve the upstream SoSyM snapshot independently;
 neither a semantics branch nor a research tag gates compiler qualification.
-Repository visibility, release/tag publication and distribution remain separate
-decisions in the [readiness review](https://github.com/kbak/clafer-compiler-lean/issues/3).
 See [qualification](qualification.md).
 
 Covers:
