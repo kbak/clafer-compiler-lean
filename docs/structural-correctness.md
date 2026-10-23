@@ -1,13 +1,11 @@
-# Structural representation and preservation work
+<a id="structural-representation-and-preservation-work"></a>
 
-[Issue #11](https://github.com/kbak/clafer-compiler-lean/issues/11) is selected after
-acceptance of the [structural backend](structural-encoding.md) in PR #28. PR #29
-supplied finite representation and decoding but left preservation unfinished.
-This follow-up proves M1 soundness and bounded completeness against the independent
-source and target meanings. The maintainer accepted these proofs through
-PR #33 at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`, authorizing #13.
-The [inherited extension](inherited-realization.md) reuses the proved allocation
-lemmas through `Structural.Layout`; the M1 entry points retain their support guards.
+# Structural representation and preservation
+
+The [structural backend](structural-encoding.md) has M1 soundness and bounded
+completeness proofs against independent source and target meanings. The
+[inherited extension](inherited-realization.md) reuses the allocation lemmas
+through `Structural.Layout`; M1 entry points retain their support guards.
 
 The result covers exactly the admitted M1 effective core. Completeness constructs
 a target for any finite satisfying source whose observation fits the manual scopes
@@ -16,8 +14,9 @@ serialized target correspondence retain their separate boundaries.
 
 ## Reuse assessment
 
-The representation reuses #10's `order`, `signatureId`, `fieldKeys`, `fieldId`,
-`schema` and generation/inventory theorems, and #8's `Instance`, `wellFormed`,
+The representation reuses the structural encoder's `order`, `signatureId`,
+`fieldKeys`, `fieldId`, `schema` and generation/inventory theorems, and the target
+core's `Instance`, `wellFormed`,
 `declarations`, `Satisfies` and evaluators. It introduces no second target evaluator.
 Pinned upstream `Configuration` and `Configuration.rename` supply source data and
 renaming directly. Upstream `Verification.Candidate` and its noncomputable
@@ -37,8 +36,8 @@ of occupied signature paths; it avoids a second custom forest theory.
 Pinned `Configuration.structural_model_iff`, `erasure_correspondence` and
 `SpanModel.normalize_satisfies` provide the bank/erasure/span compositions.
 The compiler-specific gap is the correspondence from the accepted generated target
-layout to those existing source meanings. #9 already owns parsing/printing, so no parser or external decoding package
-is added. All reused dependencies retain their pinned revisions/licenses; this
+layout to those existing source meanings. [Serialization](alloy-text.md) supplies
+parsing/printing separately; no parser or external decoding package is added. All reused dependencies retain their pinned revisions/licenses; this
 stage adds no package or native runtime dependency.
 
 ## Executable finite presentation
@@ -51,7 +50,7 @@ defines `Backend.Alloy.Structural.Observation`, `encode`, `observation`,
 
 An observation records the ordered live object labels, distinguished root label,
 each declaration's extent, and owner/head and head/target tuple lists. These are
-data; no source or target truth is stored. Encoding uses #10's signature and field
+data; no source or target truth is stored. Encoding uses the structural backend's signature and field
 allocation. It introduces no auxiliary atom and does not collapse reference heads.
 Ordinary link identity is its tuple; composite owner/target links retain their
 intermediate head. Two bag occurrences with equal owner and target stay distinct.
@@ -65,10 +64,10 @@ The theorem below derives `Live` from target satisfaction, rather than assuming 
 All unused allocation slots are absent from the carrier. A live but uncovered
 object is retained for eventual source coverage rejection, not silently removed.
 
-This API consumes in-memory target tables. Parsing Analyzer output remains #12;
+This API consumes in-memory target tables. Parsing Analyzer output belongs to the [comparison layer](comparison.md);
 text serialization, IR CLI integration, and external runtime trust retain their
 separate boundaries. The pure encoder does not perform bounds admission. Manual
-bounds remain #10's checked compilation inputs. The completeness theorem below
+bounds remain the structural encoder's checked compilation inputs. The completeness theorem below
 requires the source observation to fit them; it does not infer bounds.
 
 Covers:
@@ -239,12 +238,9 @@ and Haskell/Lean/Alloy comparison gates remain mandatory.
 Covers:
 - `req~compiler-structural-correctness~1`
 
-## Review and dependent handoff
+<a id="review-and-dependent-handoff"></a>
 
-The #11 preservation obligations, including compiled bank/erasure/span composition
-and theorem-level sensitivities, were accepted by the maintainer through PR #33
-at `67b9137cde9e2b486733aecd6eb4f5559b780ea3`. The retained full-check evidence
-and that explicit review, rather than IntentBond exit 4 alone, support the handoff.
+## Related contracts
 
 The [comparison layer](comparison.md) owns generated-text/external instance
 comparison and integration. The inherited extension adds ordinary inherited

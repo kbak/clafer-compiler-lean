@@ -1,6 +1,6 @@
 ## Change
 
-Closes #
+<!-- Link related issues with descriptive labels. Use "Closes #N" only for work completed by this PR. -->
 
 Describe the problem, resulting behavior, and scope. Identify any decisions that
 still need approval; planning alone does not authorize compiler implementation.

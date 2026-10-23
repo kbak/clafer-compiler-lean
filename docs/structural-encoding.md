@@ -103,7 +103,7 @@ signature order or cause recursive traversal.
 ## Complete obligation bank
 
 The emitted schema and facts jointly enforce every conjunct of S1's
-`StructuralSatisfies`; target truth remains independently defined by #8.
+`StructuralSatisfies`; target truth remains independently defined by the [target core](alloy-core.md).
 
 | Upstream obligation | Generated target mechanism |
 | --- | --- |
@@ -123,7 +123,7 @@ an empty extent. Unused zero-bound abstract chains become empty through cover.
 Parentless abstract local slots do not invent parent-fiber predicates.
 
 Group unions use direct children because all supported abstract ancestors are
-childless. S1's direct group inventory is thus exact for M1; #13 owns the richer
+childless. S1's direct group inventory is thus exact for M1; the [inherited backend](inherited-realization.md) handles the richer
 inherited-field case. Reference children contribute their heads, not dereferenced
 values. Empty inventories remain explicit empty relations: zero-containing bounds
 hold, while positive lower bounds fail for an inhabited context. A positive group
@@ -137,7 +137,7 @@ The independent range analysis uses scope inventories (and conservative union
 sums), not facts or successful satisfaction. This may require a larger bitwidth
 even when a particular candidate's count is small. No interval, scope or arithmetic
 policy is weakened to obtain admission. General no-overflow correctness remains
-the existing #8 boundary; runtime representability checks remain active.
+the [target admission boundary](alloy-core.md); runtime representability checks remain active.
 
 ## Proof and test boundary
 
@@ -188,25 +188,26 @@ The [Python runner](../tests/test_structural_alloy.py) executes both checks with
 adding a production CLI command. Native Lean/C execution remains trusted.
 
 The mandatory full check also retains the existing actual Haskell/Lean/Alloy
-oracles and independent target/Analyzer comparisons. This task adds no generated
-Alloy text claim. All checks, dependency pins, module/import/axiom audits and kernel
+oracles and independent target/Analyzer comparisons. These local lemmas do not
+prove generated Alloy text correspondence. All checks, dependency pins, module/import/axiom audits and kernel
 replay remain mandatory. IntentBond exit 4 means semantic review remains pending.
 
 Covers:
 - `req~compiler-structural-encoding~1`
 
-## Handoff to #11 and #12
+<a id="handoff-to-11-and-12"></a>
 
-Prove the concrete object bijection, declaration extent equations and per-role
-tuple equations for this layout. Derive all source obligations from target
-satisfaction, including full-carrier root coverage and disjointness, and construct
-a target from any source configuration fitting the explicit bounds. Discharge
-ancestry/rank ordering and range assumptions independently; do not assume either
-preservation conclusion in a representation hypothesis. Define executable finite
-encode/decode and prove their adequacy. Compose these with S1's actual structural
-and finite-representation theorems with their hypotheses discharged.
+## Global preservation and external boundaries
+
+The [structural representation and preservation proofs](structural-correctness.md)
+establish the concrete object bijection, extent equations, per-role tuple equations
+and encode/decode adequacy. They derive source obligations from target satisfaction
+and construct a target from a finite satisfying source within explicit scopes and
+numeric ranges. Their representation hypotheses contain data equations, not a
+preservation conclusion.
 
 General generation well-typing, global soundness/bounded completeness, totality
 under safe manual bounds, production decoding and text/runtime correspondence are
-not established by the local lemmas or finite tests above. #11 owns the global
-proofs; #9/#12/#19 retain their serialization, external-tool and CLI boundaries.
+not established by the local lemmas or finite tests above. The
+[global preservation proofs](structural-correctness.md), [serializer](alloy-text.md),
+[comparison layer](comparison.md) and [CLI](cli.md) state their own boundaries.

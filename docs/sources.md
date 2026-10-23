@@ -21,14 +21,13 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| Compiler scaffold | `36ef6100a17c7d8d312a9df2916dc3fababe19e0` | Starting documentation/check baseline; repository MIT license |
 | [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/1454e3bd2ce9697923cdcef3863c816651ffc147) | `1454e3bd2ce9697923cdcef3863c816651ffc147` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c) | `15adb2216909421bcb5022174d2d84ef2b42307c` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/LICENSE). External tool, not production runtime dependency. |
-| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for build task #5 |
+| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/scripts/verification/AlloyBridge.java) |
 | IntentBond | `a430efa8d82e2a88ed2607bfe838066bb9d73f3c` | Existing [requirements pin](../requirements/intentbond.txt), unchanged by contract adoption |
 
-The Alloy distribution identity reproduced by #6 is SHA-256
+The [oracle tooling](oracles.md) checks the Alloy distribution SHA-256
 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 Retain actual JAR/tool hashes, Java vendor/build, solver and all effective options,
 scopes, bitwidth, source/IR/output/candidate identities and exact replay commands
@@ -79,8 +78,8 @@ source-register references, not imported requirement IDs.
 | S3 | [Inherited realization](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/inherited-realization.md), [Realization core](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/Clafer/Semantics/Realization.lean): `Core.Selected`, `View`, `Satisfies` | Selected explicit abstracts, ordinary fields, realization ranks, original links and Appendix 6 d01–d26/c01–c12; does not expand M1's finite checker. |
 | S4 | [Typed core](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/Clafer/Constraints/Typing.lean): every `Expr`, `Arithmetic`, `SetOp` constructor; [denotation](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/constraint-denotation.md), [preservation](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/constraint-preservation.md) | Independent partial meanings, finite cardinality operands and exact integer singleton extraction. Mathematical integer realization is not Alloy's bounded Int. |
 | S5 | Haskell [grammar](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/clafer.cf), [desugarer](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Intermediate/Desugarer.hs), [inheritance resolver](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Intermediate/ResolverInheritance.hs) | Constructor/surface inventory and compatibility guide. The architecture's whitelist excludes behavior and wider static extensions. Defaults are selected from S2, with discrepancies retained. |
-| S6 | Haskell [IR](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Intermediate/Intclafer.hs), [static Alloy generator](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Generator/Alloy.hs), [positive fixtures](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c/test/positive), [regressions](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c/test/regression) | Comparison evidence to reproduce in #6/#12. Same-generation JSON/Alloy receipt required by the upstream [import contract](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/resolved-import.md); equal filenames/hashes of source alone do not pair outputs. |
-| S7 | [Official Alloy reference](https://alloytools.org/spec.html), especially Commands, Integer Expressions and signature/field semantics; [pinned A4Options](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/A4Options.java) | Independent target guide. Finite scopes, signed bitwidth and overflow behavior must be modeled explicitly. The live reference is not immutable; #8 records construct-by-construct correspondence and retained source identity against the pinned distribution. |
+| S6 | Haskell [IR](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Intermediate/Intclafer.hs), [static Alloy generator](https://github.com/gsdlab/clafer/blob/15adb2216909421bcb5022174d2d84ef2b42307c/src/Language/Clafer/Generator/Alloy.hs), [positive fixtures](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c/test/positive), [regressions](https://github.com/gsdlab/clafer/tree/15adb2216909421bcb5022174d2d84ef2b42307c/test/regression) | Comparison evidence for the [oracle tooling](oracles.md) and [candidate comparisons](comparison.md). Same-generation JSON/Alloy receipt required by the upstream [import contract](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/resolved-import.md); equal filenames/hashes of source alone do not pair outputs. |
+| S7 | [Official Alloy reference](https://alloytools.org/spec.html), especially Commands, Integer Expressions and signature/field semantics; [pinned A4Options](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/A4Options.java) | Independent target guide. Finite scopes, signed bitwidth and overflow behavior must be modeled explicitly. The live reference is not immutable; the [target contract](alloy-core.md) records construct-by-construct correspondence and retained source identity against the pinned distribution. |
 | S8 | [Bounded comparison](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/bounded-comparison.md), [complete telematics](https://github.com/kbak/clafer-semantics/blob/1454e3bd2ce9697923cdcef3863c816651ffc147/docs/telematics.md) | Exact-candidate/mutation policy and complete model inventory. Haskell Telematics fixtures differ from the printed model and cannot replace its twelve-body/final-selection inventory. |
 
 ## Discrepancies and reviewed upgrades
@@ -106,7 +105,7 @@ and affected tests/links together in a reviewed PR. The build bootstrap supplies
 those dependency files. Admission fixtures and
 compiler/Haskell comparisons remain required for the delivered features.
 The [target core correspondence](alloy-core.md#source-correspondence-and-external-boundary)
-records #8's reference snapshot identity, exact constructor mapping and independent
+records the reference snapshot identity, exact constructor mapping and independent
 Lean/Analyzer observations. Its fixtures and Java adapter are original MIT-licensed
 project code; no reference specification text or Haskell code is redistributed.
 The target core's general range analysis is tested, not claimed as a proved no-overflow theorem.
@@ -120,7 +119,7 @@ No branch name, floating latest release, SoSyM research tag or upstream maintena
 branch is a substitute for the commit pin or a prerequisite for compiler intake.
 Repository/Project privacy, manual intake and publication approval remain unchanged.
 
-The [Alloy text contract](alloy-text.md) maps #9's emitted grammar to S7's lexical,
+The [Alloy text contract](alloy-text.md) maps the emitted grammar to S7's lexical,
 namespace, precedence, declaration and command rules. It also uses S6's field
 naming/ownership examples and S8's exact-candidate profile. Its grammar, printer,
 native tests, reference text and AST adapter are original project code. The
@@ -146,7 +145,7 @@ and `mkCard` in the pinned Haskell `Generator/Alloy.hs` were inspected as supple
 context. The backend retains the adopted empty-group/default distinctions rather
 than silently adopting Haskell's empty-child skip. All new runtime, proof and test
 code is original project code under MIT; no upstream meanings or Haskell code are
-copied. Local source/target finite tests do not replace #12's generated-text oracle.
+copied. Local source/target finite tests do not replace the [generated-text oracle](comparison.md).
 
 The [M1 preservation layer](structural-correctness.md) uses the same S1
 `Configuration` directly, together with pinned `Semantics/Renaming.lean`,
@@ -156,8 +155,8 @@ compiled-bank bridge) and `SpanModel.normalize_satisfies`, retaining their actua
 global hypotheses. DPGraph's `Predicates.inRange_card` connects finite fiber counts
 to its independent multiplicity meaning. Existing Mathlib finite-carrier and
 right-unique reachability lemmas support the concrete representation; no package
-or pin changes. The runtime layout remains the accepted #10 encoding guided by
-S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New proofs and
+or pin changes. The runtime uses the [structural encoding](structural-encoding.md)
+guided by S6; the existing Haskell/Lean/Alloy oracle corpus remains required. New proofs and
 fixtures are original project code; no upstream meanings or Haskell implementation
 are copied or changed.
 
@@ -170,7 +169,7 @@ were inspected to retain the virtual-root, multiplicity and hierarchy difference
 No source meaning, upstream tool, fixture identity or dependency pin is changed.
 The four-byte `A ?` source in `tests/fixtures/comparison` is original project code.
 
-The [authored parser correspondence](parser.md#sources-and-comparison) records #16's
+The [authored parser correspondence](parser.md#sources-and-comparison) records the
 exact grammar, generated Alex character classes and public Haskell parse checks.
 It reuses Lean 4.35.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
 copying parser infrastructure. New Clafer-specific code and fixtures are original
@@ -185,7 +184,7 @@ and `RealizationCompatibility.guarded_compatibility`. S3's `Compile.GroupSemanti
 supplies `Ancestor` and `ChildObjects`; S8 fixes the complete d01–d26 structural
 inventory and distinguishes it from mathematical primitive interpretation and
 c01–c12 constraints. S6's `genGroupConst` hierarchy traversal and parent constraints
-were inspected as supplementary generator evidence. Existing #11 allocation,
+were inspected as supplementary generator evidence. Existing [structural](structural-correctness.md) allocation,
 representation and preservation machinery is reused through a checked layout.
 The finite fixture and extension are original MIT code. No upstream semantics,
 Haskell source, dependency pin, language whitelist or scope policy changes.
@@ -206,8 +205,8 @@ operand-order guide. It reuses the existing target folds, Parsec grammar and
 actual Analyzer adapter; its original implementation and tests retain MIT
 licensing. The retained reference identity and pinned tools are unchanged. The
 width-16 Analyzer translation-capacity failure is retained as an operational
-result, not agreement or bounded UNSAT. The source encoding continuation below
-composes the accepted arithmetic and source range results.
+result, not agreement or bounded UNSAT. The [source encoder](expression-encoding.md#source-constraint-translation)
+composes the arithmetic and source range results.
 
 The [source range proofs](expression-encoding.md#source-range-analysis-proofs)
 connect the existing runtime analyzer to S4's unchanged partial `Expr.denote`.
@@ -279,9 +278,9 @@ dependency pin or trusted scope policy changes.
 The pinned S3 `Realization.Satisfies` and S4 `IntegerBinding` jointly require an
 infinite rooted primitive domain. The complete S8 telematics `Input`,
 `Configuration`, `Satisfaction` and `Compiled` modules supply the independent
-full-domain inventory. Local `PipelineLimits` counterexamples expose the old
-synthetic `1..1`/absent-carrier mismatch; #42/#43 correct downstream elaboration
-without changing the upstream pin. `PipelineCompletion`, `PipelineRestriction`
+full-domain inventory. Local `PipelineLimits` counterexamples establish why
+[unrestricted primitive multiplicity and a full integer carrier](pipeline.md#full-integer-carrier)
+are necessary for constraint-bearing source. `PipelineCompletion`, `PipelineRestriction`
 and query agreement discharge the compiler-specific finite observation bridge.
 Mathlib countable equivalences and finite permutation extension supply allocation
 existence; no new runtime library or semantic definition is vendored.

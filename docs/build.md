@@ -1,15 +1,13 @@
-# Build and assurance bootstrap
+<a id="build-and-assurance-bootstrap"></a>
 
-The build belongs to [issue #5](https://github.com/kbak/clafer-compiler-lean/issues/5).
-The structural contract was adopted through [PR #22](https://github.com/kbak/clafer-compiler-lean/pull/22).
-Build, oracle and IR tasks #5–#7 are accepted through PRs #23–#25. The
-[structural IR and admission bridge](ir.md), accepted independent
-[target core](alloy-core.md), [structural backend](structural-encoding.md), and
-[M1 preservation proofs](structural-correctness.md) have separate boundaries.
-M1 soundness and finite bounded completeness apply to in-memory target instances.
-The accepted [serializer and canonical parser](alloy-text.md) retain their separate
-successful-render assurance boundary; native/serialized preservation is not proved.
-The [typed expression API](expressions.md) has its own #14 proof/test boundary.
+# Build and validation
+
+The build separates native runtime modules from proof dependencies, inventories
+all owned modules, and checks the compiler against its pinned tools and semantics.
+Component contracts state the [structural preservation](structural-correctness.md),
+[expression](expressions.md), [source pipeline](pipeline.md) and
+[serialization](alloy-text.md) proof boundaries. Native execution and external
+Analyzer correspondence are tested separately.
 
 ## Package and module ownership
 
@@ -18,7 +16,7 @@ The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 `1454e3bd2ce9697923cdcef3863c816651ffc147` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
-its [comparison profile](oracles.md) belongs to #6, and it is not a native dependency.
+its [comparison profile](oracles.md) is external to the native runtime.
 
 | Root | Role and owner | Allowed project dependencies |
 | --- | --- | --- |
@@ -36,7 +34,7 @@ Runtime imports are transitively kept outside `SemanticsBridge`, `Correctness`,
 the aggregate and all four upstream roots. Libraries cannot import `Main` or tests.
 The upstream smoke module imports only the independent upstream public roots.
 The exact pinned-toolchain JSON imports `Lean.Data.Json.Parser`
-and `Lean.Data.Json.FromToJson.Basic` are admitted for #19 library reuse; arbitrary
+and `Lean.Data.Json.FromToJson.Basic` are admitted for driver library reuse; arbitrary
 `Lean`/elaborator imports remain rejected. Cycles, missing local imports, symlinked
 sources and unknown roots fail. Within
 `Backend`, only the `Alloy` responsibility is currently selected. Other backends
@@ -51,7 +49,7 @@ Run the setup and check commands in [CONTRIBUTING](../CONTRIBUTING.md#setup-and-
 manifest and builds the independent upstream package. The optional Mathlib binary
 cache saves compilation; failure falls back to source builds. It supplies no new
 compiler proof evidence. The toolchain, pinned dependencies and their build artifacts
-are trusted inputs; this task does not re-audit all upstream declarations.
+are trusted inputs; the audit does not recheck all upstream declarations.
 
 [The full check](../scripts/check.sh) discovers sources before building. Lake's
 recursive globs and explicit targets cover every module and Lean test, including
@@ -87,8 +85,8 @@ The reviewed deadline amendment changes no coverage policy, command or gate.
 Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated
 regression suite run concurrently. Every process is awaited and every exit status
 must succeed. Replay uses two workers to bound the number of
-large imported environments resident at once; the check waits for both results
-and fails if either fails. No module, test or kernel gate is skipped.
+large imported environments resident at once. Failures in the audit, replay or
+regressions fail the check. No module, test or kernel gate is skipped.
 The regression runner partitions the discovered tests into isolated concurrent
 groups; every group must execute without skips and pass. It retains every
 discovered case and propagates each group's failure.
@@ -182,7 +180,7 @@ Covers:
 `utest~compiler-build-gates~1`
 
 [Smoke](../tests/Smoke.lean) checks the pure informational-response equations and
-proof exports; the full command dispatcher is exercised by the #19 CLI tests.
+proof exports; the full command dispatcher is exercised by the [CLI tests](cli.md#implementation-and-test-trace).
 [Upstream](../tests/Upstream.lean) independently imports `DPGraph`, `FormalCD`,
 `Clafer` and checks `DPGraph.Span.red_comp`, `FormalCD.Hom` and
 `Clafer.Verification.check_correct` without re-stating their meanings.

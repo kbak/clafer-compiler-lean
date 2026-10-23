@@ -1,12 +1,9 @@
 # Typed static expressions and finite observation
 
-[Issue #14](https://github.com/kbak/clafer-compiler-lean/issues/14) is accepted
-through merged PR #32 after structural IR #7. It implements the expression API and
-its proof-only upstream interpretation.
-[Expression encoding #15](https://github.com/kbak/clafer-compiler-lean/issues/15)
-and [source elaboration #18](https://github.com/kbak/clafer-compiler-lean/issues/18)
-consume this boundary. The M1 structural admission and `clafer-ir/1` profile still
-reject static constraints; this API does not silently extend either contract.
+The typed expression API supplies executable syntax, admission checks and an
+interpretation into the independent upstream expression semantics.
+[Constraint encoding](expression-encoding.md) translates it to Alloy;
+[source elaboration](constraints.md) constructs it from authored expressions.
 
 ## Runtime representation and admission
 
@@ -102,7 +99,7 @@ check evaluates a constraint or replaces structural candidate satisfaction.
 The standalone `extract` helper implements set singleton extraction: duplicates
 of the same integer object are one value; empty, distinct multiple or off-domain
 objects return `none`. It is proved equal to upstream extraction on every finite
-list. There is **no general finite expression evaluator** in this task.
+list. This API supplies **no general finite expression evaluator**.
 
 Covers:
 - `req~compiler-arithmetic~1`
@@ -143,10 +140,11 @@ and quantifier domains are therefore finite without a finite ambient universe.
 Primitive/root obligations stay explicit: `extend` is an `IntegerBinding`, not a
 full structural configuration or a proof of its root/parent/primitive axioms.
 The caller must supply the actual resolved context and its admissible `this`;
-no primitive parent or synthetic root edge is invented. #13/#20 own composition
-with structural realization. Kernel witnesses show a singleton nonprimitive root
-coexisting with every integer, including values outside the finite observation.
-M2 end-to-end assurance still requires that structural composition and #15.
+no primitive parent or synthetic root edge is invented. The
+[source pipeline](pipeline.md#composed-assurance) supplies structural composition
+and constraint preservation under its additional assumptions. Kernel witnesses
+show a singleton nonprimitive root coexisting with every integer, including values
+outside the finite observation.
 
 Principal checked declarations in `ClaferCompiler.SemanticsBridge.Expr`:
 
@@ -211,5 +209,5 @@ The accepted Alloy target's postfix fold was inspected as a traversal precedent.
 For the source tree, cached structural budgets with erased proofs retain direct
 constructor-to-constructor interpretation while using Std recursion and satisfying
 the declaration audit. A general evaluator would require an additional agreement
-proof and is unnecessary for this task's admission API, so upstream denotation is
+proof and is unnecessary for the admission API, so upstream denotation is
 used directly. No dependency or license cost is added.

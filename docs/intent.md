@@ -25,10 +25,8 @@ representation, scope and observation assumptions. Grammar-to-parser corresponde
 and native/serialized execution remain tested boundaries.
 
 The [qualification inventory](qualification.md#feature-and-evidence-inventory)
-links each supported feature to its contract and evidence. Qualification tooling
-was accepted through [PR #45](https://github.com/kbak/clafer-compiler-lean/pull/45);
-each generated candidate still needs independent review and redistribution
-clearance. The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4)
+links each supported feature to its contract and evidence. Each generated
+qualification candidate needs independent review and redistribution clearance. The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4)
 and linked issues retain delivery and acceptance history.
 
 New compiler features require explicit selection and accepted dependencies.
@@ -88,7 +86,7 @@ semantic acceptance and publication require explicit review; see the
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
 - [Private qualification](qualification.md): feature inventory, benchmarks and candidate review.
-- [Lessons](lessons.md): findings, possible reuse and limits of the Haskell comparison.
+- [Results and reuse](lessons.md): established guarantees, reuse and limits of the Haskell comparison.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
@@ -99,7 +97,7 @@ semantic acceptance and publication require explicit review; see the
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Inherited realization](inherited-realization.md): original objects/links, context views and structural preservation.
-- [Correctness work](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
+- [Structural correctness](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
 - [Source constraints](constraints.md): inference rules, automatic elaboration, attachment and meaning proofs.
 - [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.

@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: 'Cite the repository and exact Git commit when referring to this scaffold.'
+message: 'Cite the repository and exact Git commit when referring to this compiler.'
 type: software
 title: 'Clafer Compiler Lean'
 authors:
@@ -7,7 +7,7 @@ authors:
     given-names: Kacper
 repository-code: 'https://github.com/kbak/clafer-compiler-lean'
 license: MIT
-abstract: 'Scaffolding for a planned Clafer compiler implemented in Lean 4.'
+abstract: 'A structural Clafer-to-Alloy compiler in Lean 4 with machine-checked preservation proofs against independent Clafer semantics, under explicit scope and representation assumptions.'
 keywords:
   - Clafer
   - Lean 4

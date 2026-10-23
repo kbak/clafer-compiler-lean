@@ -1,10 +1,9 @@
 # Private compiler qualification
 
 Qualification links supported features to evidence, measures reproducible build
-and compilation costs, and prepares private candidate bundles. The tooling was
-accepted through [PR #45](https://github.com/kbak/clafer-compiler-lean/pull/45).
-Each candidate still requires independent semantic review and redistribution
-clearance; publication remains a separate decision.
+and compilation costs, and prepares private candidate bundles. Each candidate
+requires independent semantic review and redistribution clearance; publication
+remains a separate decision.
 
 ## Reuse assessment
 
@@ -14,7 +13,7 @@ the supported/rejection corpus and retains exact Analyzer comparisons. Reuse
 these gates and their evidence rather than introduce a second correctness suite.
 The accepted parser, resolution, constraint, expression and pipeline tests supply
 the feature witnesses. The guarded M1 comparison remains guarded; source
-comparisons use #20's independently justified observation bridge.
+comparisons use the [pipeline's observation bridge](pipeline.md#composed-assurance).
 
 Lean 4.35.0 supplies `IO.monoNanosNow`; its existing driver APIs and Lake linker
 response file suffice for an external native stage probe. The probe is test code,
@@ -67,24 +66,9 @@ every Lean module and Python test; links below identify the assertions for revie
 not an assertion that a file link proves coverage. All rows remain subject to
 candidate-specific check results and independent qualification review.
 
-Qualification profiling found that the existing main regression process serialized
-the frontend and target suites after the full project build, exceeding the adopted
-deadline on this host. The [existing runner](../scripts/run_tests.py) now assigns
-those independent suites to two additional bounded worker processes. Each worker
-still fails on an empty, skipped, unimportable or failing suite; the parent waits
-for every worker. [Runner regressions](../tests/test_check_script.py) inject these
-outcomes into every newly scheduled module and test a missing module. No assertion,
-case, kernel module, scope coverage rule or deadline was removed. There is no
-compiler/runtime optimization in this scheduling change.
-
-A further full run passed all 100 Python regressions but reached the deadline
-during kernel replay (97 modules reported). The existing LeanChecker scheduler
-now uses four workers, with the same complete module roots, instead of two.
-This bounds concurrent import environments while completing replay alongside the
-mandatory suites. The runner test checks this explicit worker count and still
-requires replay/axiom failures to propagate. Build experiments retain a separately
-recorded two-worker replay configuration so their timings are not conflated with
-the parallel full gate.
+The [full validation command](build.md) runs every regression group, declaration
+audit and kernel replay. Scheduling and resource limits are part of that build
+contract; benchmark measurements retain their own configuration and source identity.
 
 | Adopted capability | Implementation / promised proof boundary | Positive and negative evidence |
 | --- | --- | --- |
@@ -234,7 +218,7 @@ The [dependency upgrade policy](sources.md#discrepancies-and-reviewed-upgrades)
 continues to require immutable pins, assumption/meaning/license review and all
 applicable proofs/tests/comparisons. Preserve the independent SoSyM snapshot;
 research tag creation is not a compiler gate. Each private candidate requires
-independent acceptance; publication remains a separate decision in #3.
+independent acceptance; publication remains a separate [readiness decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
 ## Retaining and retrieving evidence
 
@@ -261,9 +245,7 @@ sha256sum --check SHA256SUMS
 ```
 
 Draft assets avoid Actions artifact expiration. They can still be deleted, so
-retain a second private backup. The uploaded archive was downloaded and its hashes
-checked against the original; a second copy is retained outside temporary storage.
-GitHub release assets and ordinary SHA-256 tools provide this storage without a
+retain a second private backup. GitHub release assets and ordinary SHA-256 tools provide this storage without a
 new service, package dependency or repository binary. The archive includes source,
 notices, raw measurements, exact comparison replays, source-bound check evidence
 and runtime smoke results.

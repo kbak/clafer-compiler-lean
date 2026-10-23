@@ -7,17 +7,17 @@ and overflow obligations.
 
 ## Reuse assessment
 
-Before implementation, inspected `Frontend.Surface`, `Resolution.Candidate`,
-the source attachment accessor, `IR.Expr.Term`, its checked typing/observation
-API, and `SemanticsBridge.Expr.interpret`. Reuse these representations and checks.
+The elaborator reuses `Frontend.Surface`, `Resolution.Candidate`, the source
+attachment accessor, `IR.Expr.Term`, its checked typing/observation API, and
+`SemanticsBridge.Expr.interpret`.
 The pinned upstream `Constraints.Support`, `Typing`, `DenotationSupport` and
 `Examples.Telematics.Expressions` provide independent typed meanings and the
 manual c01–c12 inventory, but consume resolved expressions and contain no
 executable source elaborator. Their noncomputable semantic interpretation remains
 outside the production import closure.
 
-Inspected the pinned Haskell `ResolverName.hs` and `Desugarer.hs`, including local
-bindings, contextual/inherited navigation and connective expansion. Their broader
+The pinned Haskell `ResolverName.hs` and `Desugarer.hs` provide comparisons for
+local bindings, contextual/inherited navigation and connective expansion. Their broader
 language and Haskell runtime are comparison references, not production dependencies.
 Lean's existing macro elaborator resolves Lean syntax and namespaces; it does not
 implement Clafer's reference heads, inherited field views or partial integers.
@@ -30,28 +30,20 @@ The existing native harness and upstream constructor laws are reused. No depende
 or license changes, copied semantic definitions, or Haskell source redistribution
 are needed; new compiler code remains MIT and existing Lean primitives Apache-2.0.
 
-Fresh-snapshot validation reached the final structural tests at the existing
-deadline. Before changing scheduling, checked the accepted `check.sh` kernel/test
-overlap and the accepted isolated unittest worker. Reuse the same Bash background
-process and `wait` pattern for the whole-project axiom audit: it only reads the
-completed build outputs, as kernel replay does. All three exit statuses remain
-mandatory, and the gate regressions check overlap and failure propagation. This
-adds no runner, dependency, cache of proof results or policy exception.
+<a id="implementation-and-assurance-plan"></a>
 
-## Implementation and assurance plan
+## Elaboration stages
 
-Construct a support table from original declaration/map identities, resolve names
-and insert explicit navigation/coercions, expand the adopted sugar, then check
-typing and finite observation. Successful elaboration must carry an independent
-declarative derivation, including source owner and position. Test all twelve manual
-Appendix 6 expansions, shadowing, ambiguity, wrong endpoints, counts and undefined
-numeric extraction separately from the kernel proofs. Do not claim parser
-correspondence, backend preservation, runtime singleton cardinality or overflow
-freedom from frontend typing.
+The elaborator constructs a support table from original declaration/map identities,
+resolves names, inserts explicit navigation/coercions, expands the adopted sugar,
+and checks typing and finite observation. Successful elaboration carries an
+independent declarative derivation, including source owner and position. Frontend
+typing alone does not prove parser correspondence, backend preservation, runtime
+singleton cardinality or overflow freedom.
 
 ## API and lookup
 
-`Frontend.Constraints.elaborate doc structural` consumes #17's
+`Frontend.Constraints.elaborate doc structural` consumes the resolver's
 `Resolution.Elaborated doc` and returns every original body paired with its
 `Occurrence`. Each occurrence records owner, bracket-group index and body index;
 its expression and spans are accessed from the unchanged source document. Results
@@ -123,9 +115,10 @@ are:
 `IR.Expr`'s existing interpretation supplies every typed constructor and lexical
 binding. Runtime imports remain Std/project-only; the denotation and proofs remain
 in `SemanticsBridge`. Singleton extraction, finite operand realization and target
-ranges are still obligations for #15/#20. No bounded-UNSAT claim, source constraint
-backend preservation, whole-AST construction, grammar/parser correspondence,
-total elaboration or declarative uniqueness theorem is asserted. Standard finite
+ranges are handled by [constraint encoding](expression-encoding.md) and the
+[source pipeline](pipeline.md). These frontend results alone do not establish
+bounded UNSAT, backend preservation or whole-AST construction. Grammar/parser
+correspondence, total elaboration and declarative uniqueness remain unproved. Standard finite
 iteration is bounded by the declaration count; source traversal uses the original
 byte length plus one. Manually built trees exceeding that budget fail explicitly;
 there is no proof that every valid manually built document will succeed.
@@ -187,6 +180,5 @@ projection. [Native tests](../tests/ConstraintsNative.lean) and
 Covers:
 - `req~compiler-constraint-elaboration~1`
 
-The accepted [source pipeline #20](pipeline.md) (PR #44) now retains these derivations
-through encoding and composes their meaning with full source-model preservation.
-Its primitive-carrier corrections and composed assurance were accepted through PR #44.
+The [source pipeline](pipeline.md) retains these derivations through encoding
+and composes their meaning with full source-model preservation.
