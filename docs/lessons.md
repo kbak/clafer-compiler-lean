@@ -67,6 +67,5 @@ shared rendering and early fixed-point termination. These replacements retain
 the existing preservation proofs; native tests and benchmarks still check execution
 and cost. The [build contract](build.md) describes that boundary.
 
-Reuse remains subject to the documented scope and licenses. The repository and
-qualification artifacts remain private; wider sharing requires a separate
-maintainer decision.
+The compiler source is available under MIT. Reuse remains subject to the
+documented scope and dependency licenses.

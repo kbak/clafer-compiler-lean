@@ -41,7 +41,7 @@ fixtures, exact declaration names, source-matched evidence and unresolved limits
 | `Backend/Alloy` syntax/semantics/printer | [Target core](alloy-core.md), [serialization](alloy-text.md) | Independent finite meaning, scopes, hygiene, syntax correspondence |
 | `Backend/Alloy` translation and `Correctness` | [Structural encoding](structural-encoding.md), [preservation](structural-correctness.md), [inherited realization](inherited-realization.md), [constraints](expression-encoding.md) | Concrete model relations, soundness and bounded completeness |
 | `Frontend` parser/resolver/elaborator | [Parser](parser.md), [resolution](resolution.md), [constraints](constraints.md) | Source spans, authored provenance, declarative elaboration relation and success proofs |
-| `Driver`, instance decoder and integration | [Decoding](comparison.md), [CLI](cli.md), [source pipeline](pipeline.md), [qualification](qualification.md) | Stable protocol, actual Alloy integration, complete telematics, private artifacts/benchmarks |
+| `Driver`, instance decoder and integration | [Decoding](comparison.md), [CLI](cli.md), [source pipeline](pipeline.md), [qualification](qualification.md) | Stable protocol, actual Alloy integration, complete telematics, candidate artifacts/benchmarks |
 
 New work follows the roadmap's dependencies and explicit manual selection. Shared
 IR/target changes require coordination and review of the affected contracts.
@@ -272,7 +272,7 @@ A valid exact bound that excludes all source models yields bounded UNSAT, not an
 invalid program. Only malformed/incomplete bound specifications or unsafe encoding
 profiles are rejected before solving. The
 [runtime-only check](cli.md#native-runtime) exercises the binary without
-development tools; no public release is authorized.
+development tools.
 
 ## Arithmetic, definedness and finite observation
 
@@ -442,8 +442,7 @@ A passing automated check or IntentBond exit 4 cannot approve changes. Component
 contracts state the exact proof assumptions, including [M1 correctness](structural-correctness.md),
 [inherited realization](inherited-realization.md) and the [source pipeline](pipeline.md).
 Issues and PRs retain acceptance records. New work requires manual intake and
-independent review. Publication and broader Haskell compatibility require separate
-decisions.
+independent review. Broader Haskell compatibility requires a reviewed scope change.
 
 The [comparison contract](comparison.md) records native decoding and exact
 three-way execution. The in-memory preservation proofs remain distinct from

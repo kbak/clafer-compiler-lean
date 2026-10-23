@@ -6,8 +6,8 @@
 
 Build a structural Clafer-to-Alloy compiler in Lean 4 in this separate repository,
 using Clafer Semantics as its independent mathematical foundation and the Haskell
-Clafer compiler as a compatibility reference. Keep the repository and planning
-board private, with IntentBond traceability and manual task intake.
+Clafer compiler as a compatibility reference. Publish the source under MIT, with
+public issues and pull requests, IntentBond traceability and manual task intake.
 Avoid unnecessary infrastructure by checking reusable implementations before
 writing new ones and recording concrete reasons for custom solutions.
 
@@ -26,7 +26,7 @@ and native/serialized execution remain tested boundaries.
 
 The [qualification inventory](qualification.md#feature-and-evidence-inventory)
 links each supported feature to its contract and evidence. Each generated
-qualification candidate needs independent review and redistribution clearance. The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4)
+qualification candidate needs independent semantic review. The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4)
 and linked issues retain delivery and acceptance history.
 
 New compiler features require explicit selection and accepted dependencies.
@@ -39,8 +39,6 @@ results. This repository owns executable representations, the frontend, Alloy
 backend and compiler-specific proofs. The Lake dependency pins the upstream
 commit; no semantic definitions are vendored here. The [build contract](build.md)
 records executable/proof boundaries. Existing MIT licensing is retained.
-Publication remains a separate
-[decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
 
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
@@ -59,7 +57,7 @@ The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:
   Enums, strings/reals, multiplication/division/aggregations and other wider
   Haskell features are explicitly deferred.
 - **M3:** integrated source-text CLI, complete supported Appendix 6 telematics
-  model, composed assurance and private qualification.
+  model, composed assurance and candidate qualification.
 
 The [architecture contract](architecture.md) specifies the detailed feature matrix,
 interfaces, arithmetic policy, ownership and required theorem shapes. Source and
@@ -74,8 +72,8 @@ roles. A SoSyM research tag or maintenance branch is not a compiler prerequisite
 
 The adopted upstream-core M2 scope fixes the selected surface forms, diagnostics,
 conservative arithmetic admission and finite observation bridge. Exact delivered
-APIs and proof assumptions live in the component contracts below. Scope changes,
-semantic acceptance and publication require explicit review; see the
+APIs and proof assumptions live in the component contracts below. Scope changes
+and semantic acceptance require explicit review; see the
 [review handoff](architecture.md#review-handoff).
 
 ## Documentation map
@@ -85,7 +83,7 @@ semantic acceptance and publication require explicit review; see the
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
-- [Private qualification](qualification.md): feature inventory, benchmarks and candidate review.
+- [Qualification](qualification.md): feature inventory, benchmarks and candidate review.
 - [Results and reuse](lessons.md): established guarantees, reuse and limits of the Haskell comparison.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
@@ -103,4 +101,4 @@ semantic acceptance and publication require explicit review; see the
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.
-- [Security policy](../SECURITY.md): sensitive reports during the private phase.
+- [Security policy](../SECURITY.md): supported versions and private reporting.

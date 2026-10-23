@@ -2,36 +2,35 @@
 
 Start with [intent](docs/intent.md), [requirements](docs/spec.md), the
 [architecture contract](docs/architecture.md) and [source register](docs/sources.md).
-The repository is private. Structural Clafer-to-Alloy development is the selected
-direction; contract review and explicit manual intake of each task precede
-implementation. A Todo ticket or this documentation does not start compiler work.
+Discuss proposed compiler features in an issue before implementing them so their
+scope, semantic contract and dependencies can be reviewed. Bug reports,
+documentation improvements and focused fixes are welcome.
 See the [documentation map](docs/intent.md#documentation-map) for component contracts
 and the [qualification inventory](docs/qualification.md#feature-and-evidence-inventory)
 for supported features and their evidence.
 
 ## Issues and pull requests
 
-Search existing issues first. Describe outcome, scope, acceptance criteria,
-validation, affected requirement IDs, source references, and dependencies. Use the
-[private board](https://github.com/users/kbak/projects/3) to track Todo, In Progress,
-and Done. `python3 scripts/tickets.py --help` lists issue and board operations;
-GitHub CLI authentication needs repository and Project access. Use `--no-project`
-when Project access is unavailable and leave reconciliation to a maintainer.
+Search [existing issues](https://github.com/kbak/clafer-compiler-lean/issues) first.
+For bugs, include the compiler revision, input, expected result and actual result.
+For proposed features, describe scope, acceptance criteria, validation, affected
+requirements, source references and dependencies.
 
-Use a focused branch, link PRs with `Closes #N`, and describe the behavior and
+Fork the repository and open a pull request from a focused branch. Contributors
+can use GitHub directly; access to the maintainer
+[Project](https://github.com/users/kbak/projects/3) is not required.
+`python3 scripts/tickets.py --help` lists optional issue and board operations; use
+`--no-project` when Project access is unavailable.
+
+Link pull requests to their issue with `Closes #N` and describe the behavior and
 validation evidence. Review scope changes explicitly. Mark tasks Done only after
-their acceptance criteria are met. Planning issues are not implementation approval.
-IntentMade uses manual intake and draft PRs. Only its credential-bearing coordinator
-may run ticket operations; workers return proposed updates without credentials.
+their acceptance criteria are met. New compiler features require maintainer
+selection and accepted dependencies.
 
-The intended `main` safeguards are pull requests, the full CI check, resolved
-review conversations, and blocked force pushes/deletion. GitHub currently refuses
-branch protection on this private repository under the owner's plan; the maintainer
-must enforce the review/check workflow manually until an eligible plan is enabled.
-[Contributor readiness](https://github.com/kbak/clafer-compiler-lean/issues/3) retains the
-settings review. The single-maintainer workflow does not pretend that self-approval
-is an independent review. CI success and administrator overrides do not grant
-semantic acceptance.
+`main` requires pull requests, the Lean proofs and native CLI check, and resolved
+review conversations.
+Force pushes and branch deletion are blocked. Passing CI does not grant semantic
+acceptance; changes to proof contracts require independent review.
 
 ## Reuse before implementation
 
@@ -105,13 +104,17 @@ project outputs are rebuilt. No private paths or credentials belong in source.
 The scope selects all files and review paths. Its reviewed execution deadline is
 600 seconds; coverage floors, check command and all gates are unchanged.
 Dependency preparation is outside that deadline; CI allows 45 minutes for
-provisioning and the check.
-CI runs on pull requests, pushes to `main` and manual dispatch. Run the full local
-IntentBond check before handoff; use GitHub Actions → CI → Run workflow for an
-additional hosted run. Preparation builds all imported upstream modules, including
-telematics examples, and retains their cache before checking the project.
-CI caches only pinned dependencies and external tools,
-then checks their identities and rebuilds the project in the source snapshot.
+provisioning and validation.
+
+Pull requests and pushes to `main` run the Lean build, axiom audit, kernel replay,
+native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
+check before handoff. GitHub Actions → CI → Run workflow runs the full suite,
+including Haskell/Alloy comparisons and all regressions. A passing routine CI run
+is not full qualification evidence.
+
+CI caches pinned dependencies and external tools, verifies their identities and
+builds project outputs afresh. Full IntentBond runs use an isolated source snapshot.
+Preparation builds all imported upstream modules, including telematics examples.
 The workflow permits only the exact reviewed `120` → `600` deadline migration;
 it retains the original comparison baseline and records both policy hashes.
 Every other scope amendment needs explicit review before selection as trusted policy.

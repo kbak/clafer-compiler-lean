@@ -1,9 +1,10 @@
-# Private compiler qualification
+# Compiler qualification
+
+<a id="private-compiler-qualification"></a>
 
 Qualification links supported features to evidence, measures reproducible build
-and compilation costs, and prepares private candidate bundles. Each candidate
-requires independent semantic review and redistribution clearance; publication
-remains a separate decision.
+and compilation costs, and prepares candidate bundles for independent semantic
+review. Bundles record their exact source revision, toolchain and review status.
 
 ## Reuse assessment
 
@@ -54,7 +55,7 @@ measurements, binaries, machine details and receipts outside
 source. No dependency pin, language scope or trusted coverage policy changes.
 
 For each candidate, run the full check, commit and verify the source, measure
-clean/warm builds and compiler runtime, then prepare a source-bound private bundle.
+clean/warm builds and compiler runtime, then prepare a source-bound candidate bundle.
 Retain unresolved limits for independent review.
 
 ## Feature and evidence inventory
@@ -196,7 +197,7 @@ substitute self-review or exit 4 for acceptance. Then:
 python3 scripts/qualification.py package --candidate CANDIDATE --base BASE_COMMIT \
   --ib /path/to/pinned/bin/ib --evidence /tmp/check/evidence.json \
   --runtime /tmp/qualification-runtime --builds /tmp/qualification-builds \
-  --oracles /tmp/oracle-evidence --review /tmp/review.json --out /tmp/private-candidate
+  --oracles /tmp/oracle-evidence --review /tmp/review.json --out /tmp/compiler-candidate
 ```
 
 The bundle binds the clean source, checked evidence, measurements and clean-built
@@ -217,44 +218,28 @@ their own licenses; the local bundle is not a general distribution clearance.
 The [dependency upgrade policy](sources.md#discrepancies-and-reviewed-upgrades)
 continues to require immutable pins, assumption/meaning/license review and all
 applicable proofs/tests/comparisons. Preserve the independent SoSyM snapshot;
-research tag creation is not a compiler gate. Each private candidate requires
-independent acceptance; publication remains a separate [readiness decision](https://github.com/kbak/clafer-compiler-lean/issues/3).
+research tag creation is not a compiler gate. Each candidate requires independent
+acceptance.
 
 ## Retaining and retrieving evidence
 
-The accepted M0–M3 candidate has a
-[private draft archive](https://github.com/kbak/clafer-compiler-lean/releases)
-identified by `qualification-m0-m3-e816480`. It retains the original
-`candidate-e816480.tar.gz`, the later `acceptance-2026-10-21.json`, and
-`SHA256SUMS`. The candidate is `e8164804d1917d7b01f8111e1f269bd6c7ffdb4b`;
-the archive's SHA-256 is
-`42880b55068fd3cabdac775c7d532240d578ab11340ea8024dd2c9913e9821a0`.
-Its original pending-review record is historical; the separate acceptance record
-does not rewrite it. Neither record attests to later source revisions.
-The additional `validation-history-20261022.tar.gz` asset retains earlier failed
-qualification runs and the cleanup checks, including the standalone success and
-snapshot timeouts. Its separate `.sha256` file verifies that archive.
+The [CI workflow](https://github.com/kbak/clafer-compiler-lean/actions/workflows/ci.yml)
+retains check logs and comparison evidence for 30 days. Use the run associated
+with the exact commit under review; a passing run for an earlier revision does
+not qualify later changes. Public artifacts omit compiled probes and preserve
+their build commands and hashes; see the [build contract](build.md#build-implementation).
 
-Authenticated maintainers with access to drafts can retrieve and verify it:
+For accepted candidates, retain the full evidence bundle beyond CI expiration,
+including source identity, notices, raw measurements, comparison replays, runtime
+smoke results and independent review disposition. Store a SHA-256 checksum with
+each archive and keep a second backup. Verify the checksum when retrieving it.
+Keep failed checks and their source identities alongside successful evidence.
+Acceptance records belong in the linked issue or pull request and must identify
+the candidate they accept.
 
-```sh
-gh release download qualification-m0-m3-e816480 --repo kbak/clafer-compiler-lean \
-  --dir /tmp/qualification-retrieval
-cd /tmp/qualification-retrieval
-sha256sum --check SHA256SUMS
-```
-
-Draft assets avoid Actions artifact expiration. They can still be deleted, so
-retain a second private backup. GitHub release assets and ordinary SHA-256 tools provide this storage without a
-new service, package dependency or repository binary. The archive includes source,
-notices, raw measurements, exact comparison replays, source-bound check evidence
-and runtime smoke results.
-
-Keep evidence drafts private and review their contents before any future visibility
-change: logs can contain machine paths and internal context. A draft archive is
-not binary redistribution clearance. CI's 30-day artifacts support current review;
-accepted candidates need a separately retained archive. Preserve failed checks and
-their source identities alongside successful evidence rather than replacing them.
+Review evidence for credentials and private machine information before sharing it.
+Binary distribution must also satisfy the linked runtime's license obligations
+described above.
 
 ## Traceability
 

@@ -152,7 +152,7 @@ crash durability is not promised. Source names and paths never enter Alloy synta
 ## Native runtime
 
 Build with the pinned Lean/Lake toolchain as described in [build](build.md), then
-copy `.lake/build/bin/clafer-compiler` into a private Linux/glibc runtime. The
+copy `.lake/build/bin/clafer-compiler` into a Linux/glibc runtime. The
 tested platform is x86-64 Linux. The binary links Lean and its compiler support
 statically; no `.olean`, Lake, Elan, source checkout, Haskell, Java or Alloy is
 needed to compile developer IR or supported source text. The ELF loader and glibc libraries remain system
@@ -172,10 +172,9 @@ tools only. Validation needs working unprivileged user/mount/PID namespaces;
 network isolation is not required for this runtime dependency check.
 
 System glibc components retain their LGPL licenses and Lean's statically linked
-components retain their upstream notices. This private execution check uses host
-libraries without copying them into source or publishing a distribution. Packaging
-license qualification is recorded in [private qualification](qualification.md).
-No public binary release is authorized.
+components retain their upstream notices. The runtime check uses host libraries
+without copying them into source. Binary packaging and license obligations are
+recorded in [qualification](qualification.md).
 
 ## Assurance and handoff
 

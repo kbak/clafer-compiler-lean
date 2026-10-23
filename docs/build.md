@@ -56,7 +56,8 @@ recursive globs and explicit targets cover every module and Lean test, including
 unimported helpers. It then checks clean Git identities for every dependency,
 generates an `import all` audit, exercises native/Python regressions and invokes
 `leanchecker --verbose ClaferCompiler Main tests`. Kernel replay and axiom audit
-run on every check even when Lake reuses unchanged compiled artifacts.
+run on every full check and routine CI run, even when Lake reuses unchanged
+compiled artifacts.
 
 [The axiom audit](../scripts/axiom_audit.lean) selects declarations by originating
 module, including private names and generated declarations. It rejects project
@@ -95,7 +96,7 @@ and compilation. It compares candidate scope bytes with the baseline and permits
 only the exact reviewed deadline migration described below. IntentBond exit 4
 always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
-are verified and compiler outputs are not restored. No check has a skip mode.
+are verified and compiler outputs are not restored. The full check has no skip mode.
 
 The header parser, audit and audit-fixture runner adapt
 `scripts/project_modules.py`, `tests/axiom_audit.lean` and `tests/test_axiom_audit.py`
@@ -114,15 +115,34 @@ package files above make these a native executable.
 [Module discovery](../scripts/project_modules.py) implements
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
-[CI](../.github/workflows/ci.yml) runs the same check through pinned IntentBond on
-pull requests, pushes to `main` and manual dispatch. The full local check remains
-mandatory before handoff. GitHub's cache action, already used by pinned Clafer
-Semantics, reuses dependency packages and external comparison tools under keys
-derived from the toolchain, dependency manifest, oracle profile and preparation
-scripts. Preparation
-and clean-pin/tool-identity checks still run after restoration; project build
-outputs and successful proof/test results are not restored. There is no alternate
-reduced CI suite or added runtime dependency.
+[CI](../.github/workflows/ci.yml) uses two validation paths:
+
+| Trigger | Checks |
+| --- | --- |
+| Pull request or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
+| Manual dispatch | Full pinned IntentBond check, including Haskell/Alloy comparisons, runtime isolation and all Python/native regressions |
+
+The full local IntentBond check remains mandatory before handoff. Routine CI is
+build/proof/CLI evidence, not full qualification evidence. Both paths check scope
+identity against the original baseline and retain logs. The full-check command,
+coverage policy, test cases and time limits are unchanged.
+
+Both paths reuse the existing module inventory, Lake build targets, axiom audit,
+LeanChecker and Python `unittest` tests; no separate test framework or compiler
+runtime dependency is added. The workflow selects the smaller hosted suite;
+`scripts/check.sh` always runs every gate. GitHub's cache action reuses pinned
+dependency packages and external comparison tools. Preparation and clean-pin/tool
+identity checks still run for the tools each path uses; project build outputs
+and successful proof/test results are not restored.
+
+Public CI artifacts retain check logs, source identities, notices, generated text,
+solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`
+action's path exclusions omit compiled test executables, Java classes and the
+downloaded Haskell source archive; no separate packaging tool or dependency is
+needed. Binary hashes and build commands remain in the evidence so reviewers can
+rebuild with the pinned tools. Full qualification still builds and executes every
+native probe.
+When adding a probe, keep its compiled output out of the public artifact paths.
 
 The [scope selector](../scripts/ci_scope.py) adapts the pinned Clafer Semantics
 `scripts/ci_scope.py` (MIT, copyright 2026 Kacper Bak). IntentBond already accepts
@@ -142,16 +162,16 @@ standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
 concurrent groups by CPU availability, with at most four groups. Every discovered
 case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if
-later project verification fails. This adds no compiler dependency and removes or
-relaxes no semantic assertion, input case, per-command limit or trusted check deadline.
+later project verification fails. The full check retains every semantic assertion,
+input case, per-command limit and trusted check deadline.
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 
-CI sets `LEAN_NUM_THREADS=2` for its two-CPU runner; kernel replay also uses two
-workers. This bounds Lean's own parallelism as well as regression groups.
+CI sets `LEAN_NUM_THREADS=2`; kernel replay also uses two workers. Regression
+groups use at most four workers, bounded by the runner's available CPUs.
 Ubuntu's [AppArmor namespace policy](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
-requires explicit permission for the runtime-isolation test. CI installs a
-dedicated copy of the distribution's Bubblewrap executable and attaches the
+requires explicit permission for the runtime-isolation test. The manually
+dispatched full CI run installs a dedicated copy of the distribution's Bubblewrap executable and attaches the
 [namespace profile](../.github/ci/bwrap.apparmor) to that path. It loads the profile
 and probes namespace creation before validation; the real empty-root native test
 remains mandatory. This is ephemeral runner provisioning, with no application
