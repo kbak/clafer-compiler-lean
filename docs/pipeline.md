@@ -220,7 +220,10 @@ Covers:
 [Source CLI tests](../tests/test_source_cli.py) check bounds, spans, deterministic
 output and fail-before-write behavior. [Runtime isolation](../tests/test_cli_external.py)
 executes the linked source command without development tools. The
-[exact candidate suite](../tests/test_source_pipeline.py) uses the
+[exact candidate suite](../tests/test_source_pipeline.py) checks numeric `1..1`
+groups with two unannotated children: either choice satisfies native evaluation,
+the independent structural checker and generated Alloy, while zero/both violate
+them under matching exact scopes. The suite uses the
 [Lean harness](../tests/PipelineNative.lean), all twelve original attachments,
 independent inherited checks and actual pinned Analyzer replay. The
 [kernel counterexamples](../tests/PipelineLimits.lean) preserve the reason finite
@@ -229,6 +232,7 @@ or root-only carriers cannot stand for a full integer realization.
 Covers:
 - `req~compiler-pipeline-correctness~1`
 - `req~compiler-telematics~1`
+- `req~compiler-defaults~1`
 
 Generic atom completion, source navigation shape and full support spans are
 independent of decoded target bounds and final source satisfaction. Their module

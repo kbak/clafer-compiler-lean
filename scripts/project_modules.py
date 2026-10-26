@@ -22,7 +22,7 @@ UPSTREAM = {"Clafer", "FormalCD", "DPGraph", "Mathlib"}
 # Pinned toolchain JSON representation/escaping and parser primitives used by #19.
 # Keep this exact: importing the elaborator or arbitrary Lean modules is not admitted.
 RUNTIME_JSON = {'Lean.Data.Json.Parser', 'Lean.Data.Json.FromToJson.Basic'}
-PIN = "d677260305076f98d5699542a81a1dceab8c2da6"
+PIN = "f25c5e4c01443614d4458a51878a3705f160694a"
 TOOLCHAIN = "leanprover/lean4:v4.35.0"
 
 def uncomment(source):

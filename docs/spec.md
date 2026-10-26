@@ -495,11 +495,16 @@ Needs: impl, proof, utest
 Retain omitted versus authored multiplicity, group keyword versus numeric
 provenance, explicit abstractness and effective inherited abstractness. An omitted
 group inherits the superclass's complete effective group, otherwise unrestricted.
-An omitted parented local bound is optional under a keyword group and one under
-a numeric group; authored bounds override it. Effective abstractness is the
-explicit flag or the parent's effective flag. Kernel-prove agreement with pinned
-`Clafer.Defaults`; retain the documented numeric-group difference from Haskell
-and check agreement on keyword defaults, including `opt`, against Haskell 0.5.4.
+An omitted parented local bound is `0..1` under a keyword group or a numeric
+group other than exactly `0..*`; numeric `0..*` gives `1..1`. Authored bounds
+override it. Preserve this distinction through inheritance, including `opt`
+versus numeric `0..*`. Effective abstractness is the explicit flag or the parent's
+effective flag. Kernel-prove agreement with pinned `Clafer.Defaults` and test
+child-default agreement with Haskell 0.5.4 on the common domain, including
+finite/unbounded numeric groups, the unrestricted exception and overrides.
+This is the adopted language evolution from Appendix 3, not a paper correction.
+Require actual source/native/Alloy witnesses in which a numeric `1..1` group
+admits either of two unannotated children and rejects zero or both children.
 Do not fabricate parent fibers for parentless abstracts. An explicit M1 projection
 may normalize that unused local slot to unrestricted while retaining authored metadata; it must preserve every other declaration field.
 

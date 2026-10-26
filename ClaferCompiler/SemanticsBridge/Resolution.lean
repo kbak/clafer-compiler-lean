@@ -18,7 +18,9 @@ def group : Group → Clafer.GroupCard
 
 @[simp] theorem group_default (g : Group) :
     (group g).childDefault = Structural.bounds g.childDefault := by
-  cases g <;> rfl
+  cases g with
+  | bounds r => cases r with | mk l u => cases l <;> cases u <;> rfl
+  | xor | or | mux | opt => rfl
 
 /-- Interpretation uses original authored flags, never reconstructs them from
 an erased effective abstractness bit. -/
