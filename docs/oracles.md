@@ -10,7 +10,7 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
 [source register](sources.md) pin Haskell `6750e6f591b2131549122c13dee94d3d2257eaea`,
-semantics `f25c5e4c01443614d4458a51878a3705f160694a`, Lean 4.35.0 and Alloy 6.2.0
+semantics `f78d7facb1f5e2cdb841b6162d293dff46a6fd30`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.6.7, `lts-22.44`, and its pinned
 `json-builder` and `StringMap` Git dependencies. The upstream builder checks the
