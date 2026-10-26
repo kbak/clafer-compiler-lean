@@ -22,7 +22,11 @@ typed constraint elaboration, inherited realization and expression encoding.
 Its assurance includes M1 soundness and finite bounded completeness, expression
 preservation, and full integer source-model composition under the stated
 representation, scope and observation assumptions. Grammar-to-parser correspondence
-and native/serialized execution remain tested boundaries.
+and native/serialized execution remain tested boundaries. Source defaults follow
+the adopted upstream [child-default policy](resolution.md#declarative-lookup-and-defaults):
+numeric groups other than `0..*` make unannotated children optional. This practical
+language evolution from SoSyM Appendix 3 preserves the paper-era convention in
+the upstream historical checkpoint.
 
 The [qualification inventory](qualification.md#feature-and-evidence-inventory)
 links each supported feature to its contract and evidence. Each generated

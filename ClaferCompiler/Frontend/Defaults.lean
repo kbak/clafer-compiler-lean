@@ -15,8 +15,10 @@ def Group.range : Group → Bounds
   | .bounds r => r | .xor => ⟨1, .finite 1⟩ | .or => ⟨1, .unbounded⟩
   | .mux => ⟨0, .finite 1⟩ | .opt => {}
 
+/-- Adopted upstream default policy: numeric 0..* is the sole mandatory case. -/
 def Group.childDefault : Group → Bounds
-  | .bounds _ => ⟨1, .finite 1⟩ | _ => ⟨0, .finite 1⟩
+  | .bounds ⟨0, .unbounded⟩ => ⟨1, .finite 1⟩
+  | _ => ⟨0, .finite 1⟩
 
 def cardBounds (c : Cardinality) : Bounds :=
   ⟨c.lower, c.upper.map Upper.finite |>.getD .unbounded⟩

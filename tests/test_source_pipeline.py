@@ -112,6 +112,7 @@ def bounds(counts, objects, integer=None, width=5):
 
 # [utest->req~compiler-pipeline-correctness~1]
 # [utest->req~compiler-telematics~1]
+# [utest->req~compiler-defaults~1]
 class SourcePipelineTests(unittest.TestCase):
     def test_exact_candidates_and_mutation_replays(self):
         api = oracle.adapters()
@@ -137,6 +138,8 @@ class SourcePipelineTests(unittest.TestCase):
             dest.write_bytes(p.read_bytes())
         oracle.write(output / 'source.json', {str(p.relative_to(ROOT)): oracle.digest(p) for p in sources})
         oracle.write(output / 'runtime.json', runtime['identity'])
+        executable = ROOT / '.lake/build/bin/clafer-compiler'
+        oracle.write(output / 'binary.json', oracle.digest(executable))
         env = api['alloy_runtime'].java_env()
 
         def run(name, command, cwd=output):
@@ -258,6 +261,40 @@ class SourcePipelineTests(unittest.TestCase):
             results.append(dict(name=name, original=expected, mutated=not expected,
                                 replay=True, objects=len(c['signatures'][0]),
                                 reduction='standalone source removes unrelated Appendix 6 declarations'))
+        # A numeric exactly-one group must admit either unannotated child,
+        # and reject neither/both with matching exact scopes. Compare the native
+        # target evaluator, independent structural checker and actual Alloy.
+        source = '1..1 Owner\n  a\n  b\n'
+        for a, b in [(0, 0), (1, 0), (0, 1), (1, 1)]:
+            label = f'numeric-choice-{a}-{b}'
+            limits = bounds([1, 1, a, b], 2 + a + b)
+            prep = native(label + '-prepare', source, limits)
+            spec = schema(prep)
+            mapping = {d: (s, h-1, r-1) for d,s,h,r in rows(prep / 'mapping.rows')}
+            self.assertEqual(set(mapping), {0, 1, 2, 3})
+            heads = [[0], [1], [2] if a else [], [2 + a] if b else []]
+            c = dict(signatures=[[] for _ in spec['signatures']],
+                     fields=[[] for _ in spec['fields']],
+                     values=[[] for _ in spec['signatures']])
+            for d, atoms in enumerate(heads):
+                sig, field, _ = mapping[d]
+                while sig is not None:
+                    c['signatures'][sig] = sorted(set(c['signatures'][sig] + atoms))
+                    sig = spec['signatures'][sig]['parent']
+                if d:
+                    c['fields'][field] = [[0 if d == 1 else 1, x] for x in atoms]
+            evaluated = native(label, source, limits, c)
+            expected = a + b == 1
+            self.assertEqual(evaluated.joinpath('evaluation.rows').read_text().splitlines(),
+                             ['target ' + str(expected).lower(),
+                              'inherited ' + str(expected).lower(), 'numeric true'])
+            checks.append((evaluated.joinpath('generated.als').read_text() + pin(c, spec), expected))
+            cli_text = evaluated / 'cli.als'
+            run(label + '-cli', [executable, 'compile-source', evaluated / 'model.cfr',
+                                 '--bounds', evaluated / 'bounds.json', '--output', cli_text])
+            checks.append((cli_text.read_text() + pin(c, spec), expected))
+            results.append(dict(name=label, accepted=expected, exact_counts=[1, 1, a, b],
+                                native_cli=True))
         solve('exact-analyzer', checks)
         oracle.write(output / 'results.json', results)
         oracle.write(output / 'evidence-index.json', {str(p.relative_to(output)): oracle.digest(p)

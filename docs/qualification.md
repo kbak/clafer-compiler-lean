@@ -36,7 +36,7 @@ public static `Generator.Alloy.genModule` to supply explicit original-UID scopes
 `generate` with `scope_strategy = None` would otherwise supply no scopes.
 Reuse the original compiler library without changing its semantics or source.
 Haskell has a virtual root and
-different defaulting; only identical explicit source/bounds in the common domain
+remaining abstractness/defaulting distinctions despite the adopted numeric policy; only identical explicit source/bounds in the common domain
 support direct performance comparison. Complete telematics remains a separate
 Lean qualification input where compatibility differs.
 
@@ -124,7 +124,7 @@ No new proof of parser grammar recognition, arbitrary-carrier normalization,
 total successful rendering, JSON/native correctness, Analyzer translation or SAT
 solving is claimed. Completeness requires the concrete finite observation witness
 and `Fits`; mathematical `Int` remains infinite. Bounded UNSAT is not unbounded
-UNSAT. Known Haskell default differences and width-16 Analyzer capacity failures
+UNSAT. Remaining Haskell abstractness/group differences and width-16 Analyzer capacity failures
 remain recorded in [sources](sources.md) and [expression encoding](expression-encoding.md).
 Neither is silently reclassified as agreement. A newly discovered material defect
 must block acceptance and receive an issue before any semantic correction.

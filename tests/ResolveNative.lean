@@ -67,6 +67,21 @@ def mutationChecks : IO Unit := do
     unless decide (coreChecks wrongTarget.core wrongTarget.certificate) do
       throw (IO.userError "wrong-target witness must remain structurally well-formed")
   else throw (IO.userError "mutation inventory incomplete")
+  let .ok numericDoc := Frontend.parse "numeric.cfr" "1..1 Owner\n  child\n"
+    | throw (IO.userError "numeric mutation parser failed")
+  let .ok numeric := elaborate numericDoc
+    | throw (IO.userError "numeric mutation elaboration failed")
+  if h : 2 < numeric.count then
+    let c := numeric.candidate
+    let child : Fin numeric.count := ⟨2, h⟩
+    let oldDefault := { c with core := { c.core with
+      declarations := c.core.declarations.set child
+        { c.core.get child with localBounds := ⟨1, .finite 1⟩ } } }
+    unless decide (coreChecks oldDefault.core oldDefault.certificate) do
+      throw (IO.userError "old numeric default witness must remain structurally well-formed")
+    if decide (Elaboration numericDoc oldDefault) then
+      throw (IO.userError "source validator accepted the old numeric default")
+  else throw (IO.userError "numeric mutation inventory incomplete")
 
 def run (args : List String) : IO Unit := do
   mutationChecks

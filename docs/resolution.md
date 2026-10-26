@@ -18,9 +18,10 @@ traversals also do not meet the production import boundary.
 
 The pinned Haskell `ResolverInheritance.hs`, `ResolverName.hs`, `Desugarer.hs`
 and `Intclafer.hs` supply comparison behavior, not a production
-runtime or authority for changing the adopted default rules. Numeric groups retain
-the documented default difference; keyword defaults, including `opt`, agree with
-the 0.5.4 reference. General Haskell expression
+runtime or authority for silently changing the adopted default rules. The explicit
+upstream numeric-group evolution is recorded in the [source register](sources.md).
+The adopted keyword and numeric child defaults agree with the 0.5.4 reference on
+the tested common domain. General Haskell expression
 navigation, nested explicit abstracts and relocation exceed this source profile.
 
 Lean 4.35.0 `List`, `Array`, `Vector`, `Option`, `Except`, finite decisions and
@@ -90,7 +91,11 @@ every declaration at arbitrary finite nesting depth.
 
 Groups preserve `bounds`, `xor`, `or`, `mux` and `opt`. Omitted groups inherit the
 super's complete effective value, else numeric `0..*`. Omitted local bounds use
-the parent's keyword/numeric default, else `1..1`. Explicit bounds override these.
+`0..1` under a keyword group or any numeric group other than `0..*`. Numeric
+`0..*`, or no parent group, gives `1..1`. Explicit bounds override these defaults.
+Thus `opt` retains a different child default from numeric `0..*` despite equal
+group ranges, including when inherited. This is the adopted upstream evolution
+of Appendix 3; the historical checkpoint retains the paper-era numeric default.
 Effective abstractness is authored abstractness or the parent's effective flag.
 Parentless abstract local slots are recorded as specified by `Clafer.Defaults`,
 without inventing any containment predicate.
@@ -163,17 +168,22 @@ provenance; independent source mutations; references, shadowing, shorthand,
 primitive aliases and constraints; deterministic byte diagnostics; and generated
 containment/super chains of lengths 1–16. These finite properties use the existing
 unittest/standard-library generation workflow and are not completeness proofs.
-Wrong-target mutation remains structurally well-formed but fails source
-correspondence, demonstrating why well-formedness alone is insufficient.
+Wrong-target and old numeric-default mutations remain structurally well-formed
+but fail source correspondence, demonstrating why well-formedness alone is
+insufficient. The source pipeline also checks all four choices of two unannotated
+children under a numeric `1..1` group through native evaluation, the independent
+structural checker and actual generated Alloy: either child succeeds, zero/both fail.
 
 Pinned importer comparisons use original fixtures and same-generation captures.
 Normalize preorder IDs, synthetic root representation and parentless abstract
 local slots; compare names, parent/super/target identities, set/bag mode,
 abstractness and effective bounds field by field. The importer admits only its
 constraint-free M1 domain. Integer/inherited source tests are independent native
-checks, not M2 importer agreement. Numeric-group child defaults retain the
-adopted semantic difference. The `opt` regression requires both implementations
-to produce `0..1`; this agrees with the independently specified upstream Defaults.
+checks, not M2 importer agreement. Live keyword and numeric-group comparisons
+require both implementations to produce the independently specified child bounds,
+including `0..1` for `opt` and restricted numeric groups, `1..1` for numeric
+`0..*`/absent groups, and explicit overrides. Inherited abstract-body cases are
+native provenance tests, outside this common M1 comparison domain.
 Evidence and tool/source hashes remain outside the repository.
 
 ## Trace links

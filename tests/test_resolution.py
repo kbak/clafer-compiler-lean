@@ -100,7 +100,9 @@ class ResolutionTests(unittest.TestCase):
     def test_default_matrix_overrides_and_inherited_provenance(self):
         groups = [('xor', '1..1', '0..1'), ('or', '1..*', '0..1'),
                   ('mux', '0..1', '0..1'), ('opt', '0..*', '0..1'),
-                  ('1..1', '1..1', '1..1'), ('0..1', '0..1', '1..1'),
+                  ('1..1', '1..1', '0..1'), ('0..1', '0..1', '0..1'),
+                  ('0..0', '0..0', '0..1'), ('2..3', '2..3', '0..1'),
+                  ('1..*', '1..*', '0..1'), ('2..*', '2..*', '0..1'),
                   ('0..*', '0..*', '1..1'), ('', '0..*', '1..1')]
         for spelling, bound, child in groups:
             with self.subTest(group=spelling):
@@ -152,28 +154,31 @@ class ResolutionTests(unittest.TestCase):
         out = self.resolve_many(['A\n  Field\nB\n  Field\nr -> Field'])[0].split('|')
         self.assertEqual(out[-1], '2')
 
-    def test_haskell_keyword_agreement_and_numeric_difference(self):
+    def test_haskell_keyword_and_numeric_default_agreement(self):
         api = oracle.adapters()
         tools = os.environ.get('CLAFER_ORACLE_TOOLS')
         if not tools:
             raise RuntimeError('CLAFER_ORACLE_TOOLS is required')
         exporter, build, _ = oracle.load_tools(tools, api)
         observations = []
-        for index, (source, ours_card, theirs_card, disposition) in enumerate([
-                ('opt Owner\n  child\n', '0..1', [0, 1], 'agreement on keyword default'),
-                ('1..1 Owner\n  child\n', '1..1', [0, 1], 'retained numeric-group difference')]):
+        cases = [(f'{group} Owner\n  child\n'.lstrip(), [0, 1])
+                 for group in ('xor', 'or', 'mux', 'opt', '0..0', '0..1', '1..1', '1..*')]
+        cases += [('0..* Owner\n  child\n', [1, 1]), ('Owner\n  child\n', [1, 1]),
+                  ('1..1 Owner\n  child 1\n', [1, 1]),
+                  ('0..* Owner\n  child ?\n', [0, 1])]
+        for index, (source, expected) in enumerate(cases):
             rows = self.rows(source, True)
-            path = self.output / f'default-difference-{index}.cfr'
+            path = self.output / f'default-agreement-{index}.cfr'
             path.write_text(source)
             raw = json.loads(self.command([str(exporter), str(path)]).stdout)
             self.assertEqual(raw['status'], 'captured')
             nodes, _ = api['protocol'].decode_ir(json.loads(raw['json']))
             core, metadata = api['capture'].capture(path, exporter, build,
-                {'root': 1, **{n['uid']: 4 for n in nodes}}, self.output / f'difference-{index}')
-            self.assertEqual(rows[2][8], ours_card)
-            self.assertEqual(core['declarations'][1]['card'], theirs_card)
+                {'root': 1, **{n['uid']: 4 for n in nodes}}, self.output / f'agreement-{index}')
+            self.assertEqual(rows[2][8], f'{expected[0]}..{expected[1]}')
+            self.assertEqual(core['declarations'][1]['card'], expected)
             observations.append({'source': source, 'ours': rows, 'reference': core,
-                'metadata': metadata, 'disposition': disposition})
+                'metadata': metadata, 'disposition': 'agreement on child default or override'})
         oracle.write(self.output / 'default-comparisons.json', observations)
 
     def test_generated_depth_and_super_chains(self):

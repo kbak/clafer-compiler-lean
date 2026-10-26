@@ -161,10 +161,11 @@ recognized for rejection even where the reference lexer treats them as comments.
 
 Defaulting follows S2's `Defaults`: omitted group inherits the super's effective
 group including keyword provenance, else `0..*`; omitted parented local bound is
-`0..1` under any keyword group, else `1..1`; authored bounds override defaults;
-effective abstractness is authored abstractness or the parent's effective flag.
-Parentless abstracts have no invented local parent-fiber predicate. This deliberately
-preserves the documented Haskell numeric-group and `opt` default disagreements.
+`0..1` under any keyword or numeric group except numeric `0..*`, else `1..1`;
+authored bounds override defaults. Effective abstractness is authored abstractness
+or the parent's effective flag. Parentless abstracts have no invented local
+parent-fiber predicate. The [adopted numeric policy](sources.md) deliberately evolves
+Appendix 3; `opt` and numeric `0..*` retain distinct provenance and child defaults.
 M1 imports only effective values and never reconstructs authored provenance.
 
 M2 inherited admission uses S3's `Realization.Core.Selected`: explicit abstracts
