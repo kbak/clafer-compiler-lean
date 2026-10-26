@@ -152,16 +152,16 @@ class ResolutionTests(unittest.TestCase):
         out = self.resolve_many(['A\n  Field\nB\n  Field\nr -> Field'])[0].split('|')
         self.assertEqual(out[-1], '2')
 
-    def test_retained_haskell_default_disagreements(self):
+    def test_haskell_keyword_agreement_and_numeric_difference(self):
         api = oracle.adapters()
         tools = os.environ.get('CLAFER_ORACLE_TOOLS')
         if not tools:
             raise RuntimeError('CLAFER_ORACLE_TOOLS is required')
         exporter, build, _ = oracle.load_tools(tools, api)
         observations = []
-        for index, (source, ours_card, theirs_card) in enumerate([
-                ('opt Owner\n  child\n', '0..1', [1, 1]),
-                ('1..1 Owner\n  child\n', '1..1', [0, 1])]):
+        for index, (source, ours_card, theirs_card, disposition) in enumerate([
+                ('opt Owner\n  child\n', '0..1', [0, 1], 'agreement on keyword default'),
+                ('1..1 Owner\n  child\n', '1..1', [0, 1], 'retained numeric-group difference')]):
             rows = self.rows(source, True)
             path = self.output / f'default-difference-{index}.cfr'
             path.write_text(source)
@@ -173,8 +173,8 @@ class ResolutionTests(unittest.TestCase):
             self.assertEqual(rows[2][8], ours_card)
             self.assertEqual(core['declarations'][1]['card'], theirs_card)
             observations.append({'source': source, 'ours': rows, 'reference': core,
-                'metadata': metadata, 'disposition': 'adopted upstream Defaults; expected disagreement'})
-        oracle.write(self.output / 'default-disagreements.json', observations)
+                'metadata': metadata, 'disposition': disposition})
+        oracle.write(self.output / 'default-comparisons.json', observations)
 
     def test_generated_depth_and_super_chains(self):
         for depth in range(1, 17):

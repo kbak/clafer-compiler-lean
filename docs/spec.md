@@ -498,10 +498,10 @@ group inherits the superclass's complete effective group, otherwise unrestricted
 An omitted parented local bound is optional under a keyword group and one under
 a numeric group; authored bounds override it. Effective abstractness is the
 explicit flag or the parent's effective flag. Kernel-prove agreement with pinned
-`Clafer.Defaults`; keep the documented numeric-group and `opt` differences from
-Haskell. Do not fabricate parent fibers for parentless abstracts. An explicit
-M1 projection may normalize that unused local slot to unrestricted while retaining
-authored metadata; it must preserve every other declaration field.
+`Clafer.Defaults`; retain the documented numeric-group difference from Haskell
+and check agreement on keyword defaults, including `opt`, against Haskell 0.5.4.
+Do not fabricate parent fibers for parentless abstracts. An explicit M1 projection
+may normalize that unused local slot to unrestricted while retaining authored metadata; it must preserve every other declaration field.
 
 Covers:
 - `intent~compiler-foundation~1`

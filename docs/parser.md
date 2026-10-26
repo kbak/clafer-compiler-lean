@@ -159,13 +159,13 @@ does not count as evidence for an otherwise unsupported complete construct.
 
 The [source register](sources.md) pins the paper's Appendix 3/Figure 27 and
 Appendix 4/Figure 28, upstream `Syntax`/`Typing` (S2/S4), and Haskell grammar (S5).
-The Haskell commit is `15adb2216909421bcb5022174d2d84ef2b42307c`; inspected files:
+The Haskell commit is `6750e6f591b2131549122c13dee94d3d2257eaea`; inspected files:
 
 | File | SHA-256 | Correspondence |
 | --- | --- | --- |
 | `src/clafer.cf` | `14176e1c241d7d44d368535ff1664b75da39a054ee32f880456a4b7291921a2f` | retained Module/Element/Clafer/Card/GCard/Exp productions, tokens, precedence |
 | `src/Language/Clafer/Front/LexClafer.x` | `d888bfe16746efd3ef02f21e8929e044974f3ee6ff9f8c5473b74d73bef83b7e` | actual Latin-1 character classes and longest-match tokens |
-| `src/Language/Clafer.hs` | `9bd535b275e1d6a1603db04e117c16d07158a36208131f48afac21c766f84293` | public parse/layout boundary and same-line sibling guard |
+| `src/Language/Clafer.hs` | `54fd365648eb38f44e9ceb5d4e3f35bcfdcc3f315314d2a7bc9978d9f4954b4b` | public parse/layout boundary and same-line sibling guard |
 
 No Haskell or paper text/code/fixtures are redistributed. New implementation and
 fixtures are original MIT project code. Lean's Apache-2.0 implementation is

@@ -9,8 +9,8 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 ## Tools and profile
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
-[source register](sources.md) pin Haskell `15adb2216909421bcb5022174d2d84ef2b42307c`,
-semantics `1454e3bd2ce9697923cdcef3863c816651ffc147`, Lean 4.35.0 and Alloy 6.2.0
+[source register](sources.md) pin Haskell `6750e6f591b2131549122c13dee94d3d2257eaea`,
+semantics `d677260305076f98d5699542a81a1dceab8c2da6`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.6.7, `lts-22.44`, and its pinned
 `json-builder` and `StringMap` Git dependencies. The upstream builder checks the
@@ -169,7 +169,7 @@ language-version difference or harness error. Search existing issues with
 `python3 scripts/tickets.py list` and repository search; link an existing issue or
 create a scoped issue before any semantic change. Upstream owns reusable semantic
 fixes. No automatic discrepancy posting or changing expected outcomes to match a
-new tool is allowed. Known empty-group and keyword/numeric-default differences
+new tool is allowed. Known empty-group and numeric-default differences
 remain in the [source register](sources.md); effective-value admission does not
 prove authored-source default agreement.
 
