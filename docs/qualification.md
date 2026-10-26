@@ -146,7 +146,7 @@ directories; measurement output is never checked into Git:
 
 ```sh
 python3 scripts/qualification.py runtime --out /tmp/qualification-runtime \
-  --haskell-work /tmp/qualification-haskell/15adb2216909421bcb5022174d2d84ef2b42307c \
+  --haskell-work /tmp/qualification-haskell/6750e6f591b2131549122c13dee94d3d2257eaea \
   --warmup 1 --samples 5
 python3 scripts/qualification.py builds --candidate HEAD --out /tmp/qualification-builds
 ```

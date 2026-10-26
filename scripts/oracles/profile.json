@@ -1,8 +1,8 @@
 {
   "schema": "clafer-oracle-profile/1",
-  "semantics_commit": "1454e3bd2ce9697923cdcef3863c816651ffc147",
-  "haskell_commit": "15adb2216909421bcb5022174d2d84ef2b42307c",
-  "haskell_version": "0.5.3",
+  "semantics_commit": "d677260305076f98d5699542a81a1dceab8c2da6",
+  "haskell_commit": "6750e6f591b2131549122c13dee94d3d2257eaea",
+  "haskell_version": "0.5.4",
   "stack": "3.11.1",
   "ghc": "9.6.7",
   "resolver": "lts-22.44",

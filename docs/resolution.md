@@ -18,8 +18,9 @@ traversals also do not meet the production import boundary.
 
 The pinned Haskell `ResolverInheritance.hs`, `ResolverName.hs`, `Desugarer.hs`
 and `Intclafer.hs` supply comparison behavior, not a production
-runtime or authority for changing the adopted default rules. In particular numeric
-groups and `opt` have documented default differences. General Haskell expression
+runtime or authority for changing the adopted default rules. Numeric groups retain
+the documented default difference; keyword defaults, including `opt`, agree with
+the 0.5.4 reference. General Haskell expression
 navigation, nested explicit abstracts and relocation exceed this source profile.
 
 Lean 4.35.0 `List`, `Array`, `Vector`, `Option`, `Except`, finite decisions and
@@ -170,8 +171,9 @@ Normalize preorder IDs, synthetic root representation and parentless abstract
 local slots; compare names, parent/super/target identities, set/bag mode,
 abstractness and effective bounds field by field. The importer admits only its
 constraint-free M1 domain. Integer/inherited source tests are independent native
-checks, not M2 importer agreement. Numeric-group and `opt` child-default
-differences remain adopted semantic distinctions, not reference-driven changes.
+checks, not M2 importer agreement. Numeric-group child defaults retain the
+adopted semantic difference. The `opt` regression requires both implementations
+to produce `0..1`; this agrees with the independently specified upstream Defaults.
 Evidence and tool/source hashes remain outside the repository.
 
 ## Trace links
