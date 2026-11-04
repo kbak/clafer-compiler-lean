@@ -186,6 +186,54 @@ class ConstraintTests(unittest.TestCase):
         self.assertIn('head4', self.shape(source)[0])
         self.assertNotIn('super', self.shape(source)[0])
 
+    def test_ancestor_precedes_context_reference_target(self):
+        source = ('abstract Person\n  age -> integer\n  childs -> Person *\n'
+                  '    [this.age < age]\n')
+        shape = self.shape(source)[0]
+        self.assertEqual(shape, self.shape(source.replace('< age', '< parent.age'))[0])
+        self.assertIn('lt(int(image(image(image(this,dref3),head2),dref2)),', shape)
+        self.assertIn('int(image(image(image(this,parent3),head2),dref2)))', shape)
+        self.assertNotEqual(shape, self.shape(source.replace('< age', '< this.age'))[0])
+        # The reference head's own field still precedes both parent and target.
+        own = source.replace('    [', '    age -> integer\n    [')
+        self.assertEqual(self.shape(own), self.shape(own.replace('< age', '< this.age')))
+        # Binding retains precedence over every declaration scope.
+        bound = source.replace('[this.age < age]', '[all age : Person | age = age]')
+        self.assertIn('eq(var0,var0)', self.shape(bound)[0])
+
+    def test_target_fallback_and_explicit_navigation(self):
+        source = ('abstract Base\n  field\nTarget : Base\nOther\n  field\n'
+                  'Owner\n  ref -> Target\n    [field]\n')
+        shape = self.shape(source)[0]
+        self.assertEqual([shape], self.shape(source.replace('[field]', '[this.field]')))
+        self.assertEqual([shape], self.shape(source.replace('[field]', '[this.dref.field]')))
+        self.assertIn('image(super3(image(this,dref7)),head2)', shape)
+        # An enclosing inherited field wins even when the context has a target field.
+        inherited = ('abstract Base\n  field\nTarget\n  field\nOwner : Base\n'
+                     '  ref -> Target\n    [field]\n')
+        self.assertEqual(self.shape(inherited),
+                         self.shape(inherited.replace('[field]', '[parent.field]')))
+        self.assertNotEqual(self.shape(inherited),
+                            self.shape(inherited.replace('[field]', '[this.field]')))
+
+    def test_bare_target_search_starts_at_original_context(self):
+        # Duplicate global names ensure a missed contextual lookup cannot silently
+        # pass through global fallback; qualified chains still retain their maps.
+        chain = 'Target\n  leaf\nOther\n  leaf\nr2 -> Target\nr1 -> r2\n  [leaf]\n'
+        shape = self.shape(chain)[0]
+        explicit = self.shape(chain.replace('[leaf]', '[this.leaf]'))[0]
+        self.assertEqual(shape, explicit)
+        self.assertIn('image(image(image(this,dref6),dref5),head2)', explicit)
+        enclosing = 'Target\n  leaf\nOther\n  leaf\nouter -> Target\n  inner\n    [leaf]\n'
+        self.assertIn('constraint.ambiguous-name', self.compile(enclosing))
+        self.assertIn('dref5', self.shape(enclosing.replace('[leaf]', '[parent.leaf]'))[0])
+        descendant = 'Target\n  leaf\nOther\n  leaf\nOwner\n  ref -> Target\n  [leaf]\n'
+        self.assertIn('constraint.ambiguous-name', self.compile(descendant))
+        # Bare lookup does not recursively chase a reference cycle.
+        cyclic = 'a -> b\nb -> a\n  [missing]\n'
+        self.assertIn('constraint.missing-name', self.compile(cyclic))
+        self.assertIn('constraint.reference-cycle', self.compile(cyclic.replace('[missing]', '[this.missing]')))
+
     def test_generated_alpha_renaming_and_parentheses(self):
         for depth in range(1, 13):
             binders = ''.join(f'all x{i} : A | ' for i in range(depth))

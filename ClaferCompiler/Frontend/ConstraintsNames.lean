@@ -86,15 +86,26 @@ def absoluteName (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local 
       for p in scopes s do
         if hp : p.vertex ≠ c.root then
           if hc : NoContext c s.context name p.depth then
-            if decide (ReachableName c p.vertex name) then
+            if hf : HasField c p.vertex name then
               let b ← navigateAt c s (n + 1) p.vertex p.term name
-              return ⟨_, b.term, .contextual hl hn.1 hn.2.1 hn.2.2 hp hc p.derivation b.derivation⟩
+              return ⟨_, b.term, .contextual hl hn.1 hn.2.1 hn.2.2 hp hc p.derivation hf b.derivation⟩
       if hc : NoContext c s.context name (n + 1) then
-        for y in List.finRange n do
-          if hg : Global c name y then
-            return ⟨_, .extent y, .global hl hn.1 hn.2.1 hn.2.2 hc hg⟩
-        let candidates := (List.finRange n).filter fun y => (c.get y).name == name
-        if candidates.length > 1 then throw "constraint.ambiguous-name"
+        if ht : HasTargetName c s.context name then
+          for e in List.finRange m do
+            if he : s.maps[e].kind = .dereference ∧ s.maps[e].source = s.context ∧
+                (c.get s.context).reference.target = some s.maps[e].target then
+              if hf : ReachableName c s.maps[e].target name then
+                let b ← navigateAt c s (n + 1) s.maps[e].target
+                  (.image s.context s.maps[e].target .this (.map e)) name
+                return ⟨_, b.term, .target hl hn.1 hn.2.1 hn.2.2 hc he.2.2 hf
+                  he.1 he.2.1 rfl b.derivation⟩
+          throw "constraint.missing-navigation"
+        else
+          for y in List.finRange n do
+            if hg : Global c name y then
+              return ⟨_, .extent y, .global hl hn.1 hn.2.1 hn.2.2 hc ht hg⟩
+          let candidates := (List.finRange n).filter fun y => (c.get y).name == name
+          if candidates.length > 1 then throw "constraint.ambiguous-name"
   if Resolution.integerName name then throw "constraint.infinite-primitive-extent"
   throw "constraint.missing-name"
 

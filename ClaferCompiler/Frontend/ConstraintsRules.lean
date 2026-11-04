@@ -71,6 +71,16 @@ instance (c : IR.Structural.Core n) (x : Fin n) (name : String) : Decidable (Rea
   unfold ReachableName
   infer_instance
 
+/-- Bare-name target fallback starts only at the original context's reference.
+It retains finite reference-chain navigation, but does not inspect enclosing targets. -/
+def HasTargetName (c : IR.Structural.Core n) (x : Fin n) (name : String) : Prop :=
+  ∃ y : Fin n, (c.get x).reference.target = some y ∧ ReachableName c y name
+
+instance (c : IR.Structural.Core n) (x : Fin n) (name : String) :
+    Decidable (HasTargetName c x name) := by
+  unfold HasTargetName
+  infer_instance
+
 inductive ScopePath (s : Support n m) : Fin n → Syntax n m → Nat → Fin n → Syntax n m → Prop where
   | here {x a} : ScopePath s x a 0 x a
   | parent {x a k p b e} : ScopePath s x a k p b →
@@ -90,12 +100,12 @@ instance (c : IR.Structural.Core n) (name : String) (y : Fin n) : Decidable (Glo
 def NoContext (c : IR.Structural.Core n) (x : Fin n) (name : String) (depth : Nat) : Prop :=
   ∀ k : Fin depth, match ancestor c false x k.val with
     | none => True
-    | some p => p ≠ c.root → ¬ ReachableName c p name
+    | some p => p ≠ c.root → ¬ HasField c p name
 instance (c : IR.Structural.Core n) (x : Fin n) (name : String) (depth : Nat) :
     Decidable (NoContext c x name depth) := by
   letI : DecidablePred (fun k : Fin depth => match ancestor c false x k.val with
     | none => True
-    | some p => p ≠ c.root → ¬ ReachableName c p name) := fun _ => by dsimp only; split <;> infer_instance
+    | some p => p ≠ c.root → ¬ HasField c p name) := fun _ => by dsimp only; split <;> infer_instance
   unfold NoContext
   infer_instance
 
@@ -113,9 +123,16 @@ inductive NameRule (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Loca
   | contextual {name k x a y b} : NoLocal Γ name → name ≠ "this" →
       name ≠ "parent" → name ≠ "dref" → x ≠ c.root →
       NoContext c s.context name k → ScopePath s s.context .this k x a →
-      Navigate c s x a name y b → NameRule c s Γ none name (.collection (.objects y)) b
+      HasField c x name → Navigate c s x a name y b →
+      NameRule c s Γ none name (.collection (.objects y)) b
+  | target {name e x y b} : NoLocal Γ name → name ≠ "this" →
+      name ≠ "parent" → name ≠ "dref" → NoContext c s.context name (n + 1) →
+      (c.get s.context).reference.target = some x → ReachableName c x name →
+      s.maps[e].kind = .dereference → s.maps[e].source = s.context → s.maps[e].target = x →
+      Navigate c s x (.image s.context x .this (.map e)) name y b →
+      NameRule c s Γ none name (.collection (.objects y)) b
   | global {name y} : NoLocal Γ name → name ≠ "this" → name ≠ "parent" → name ≠ "dref" →
-      NoContext c s.context name (n + 1) → Global c name y →
+      NoContext c s.context name (n + 1) → ¬ HasTargetName c s.context name → Global c name y →
       NameRule c s Γ none name (.collection (.objects y)) (.extent y)
   | relative {x a name y b} : Navigate c s x a name y b →
       NameRule c s Γ (some (x, a)) name (.collection (.objects y)) b

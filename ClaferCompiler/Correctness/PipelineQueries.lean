@@ -49,7 +49,9 @@ theorem name_navigation {c : IR.Structural.Core n} {s : Support n m}
   | «local» => trivial
   | global => trivial
   | special _ h => exact navigate_navigation h trivial
-  | contextual _ _ _ _ _ _ path h => exact navigate_navigation h (scope_navigation path trivial)
+  | contextual _ _ _ _ _ _ path _ h => exact navigate_navigation h (scope_navigation path trivial)
+  | target _ _ _ _ _ _ _ kind _ _ h =>
+    exact navigate_navigation h ⟨trivial,by intro he; have h := kind.symm.trans he; cases h⟩
   | relative h => exact navigate_navigation h hc
 
 theorem coercion_navigation {c : IR.Structural.Core n} {s : Support n m}
