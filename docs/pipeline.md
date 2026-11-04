@@ -203,9 +203,12 @@ derive the accepted constructor/attachment theorem premises from target data.
 [full structural completion](../ClaferCompiler/Correctness/PipelineCompletion.lean),
 [restriction](../ClaferCompiler/Correctness/PipelineRestriction.lean),
 [full binding](../ClaferCompiler/Correctness/PipelineFullBinding.lean),
-[navigation](../ClaferCompiler/Correctness/PipelineNavigation.lean) and
+[navigation](../ClaferCompiler/Correctness/PipelineNavigation.lean),
+[source query shape](../ClaferCompiler/Correctness/PipelineQueries.lean) and
 [query agreement](../ClaferCompiler/Correctness/PipelineQueryAgreement.lean)
-connect that observation to one full source model.
+connect that observation to one full source model. `name_navigation` and
+`elaborated_navigation` establish navigation-only syntax for every name-resolution rule,
+including the separate target fallback.
 [Source satisfaction](../ClaferCompiler/Correctness/PipelineSourceSatisfaction.lean),
 [completeness](../ClaferCompiler/Correctness/PipelineCompleteness.lean) and
 [the no-primitive branch](../ClaferCompiler/Correctness/PipelinePresence.lean)

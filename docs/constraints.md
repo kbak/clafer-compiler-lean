@@ -66,13 +66,30 @@ They do not call candidate construction. A field selects the unique declaration
 at the nearest super level; direct fields shadow inherited fields. Navigation
 checks a reference head's fields before following its target, preserving
 `cache.size.fixed`. Explicit `parent` and `dref` retain their map roles.
-Unqualified names select the nearest lexical binder, then contextual fields
-(including inherited fields and reference-target navigation), then enclosing
-parent scopes, and finally a unique global user declaration. `this`, `parent`
-and `dref` are special names; reserved spellings cannot bind local variables.
-Root-context names use global extents. Dotted right operands use the selected
-left collection as their navigation context; parentheses and collection operations
-can group relative paths. Missing or ambiguous choices are errors.
+Unqualified names select the nearest lexical binder, then the context's own or
+inherited field, then fields in enclosing parent scopes from nearest to farthest,
+then a field of the original context's reference target, and finally a unique
+global user declaration. The target fallback includes inherited fields and
+finite reference chains starting from that target. It does not inspect reference
+targets of ancestors or descendant fields.
+This [adopted precedence](sources.md#constraint-name-lookup-policy) follows the
+Haskell compiler's ancestor-before-target order, deliberately differing from
+SoSyM Appendix 4's Targets-before-Ancestors order.
+
+`this`, `parent` and `dref` are special names; reserved spellings cannot bind local
+variables. Root-context names use global extents. Dotted right operands use the
+selected left collection as their navigation context; `this.field` can therefore
+select a target field even when an enclosing scope has that name. Explicit
+`this.dref.field` starts from the dereferenced target, while `parent.field` starts
+from the parent. Qualified navigation retains the existing finite reference-chain
+traversal and cycle diagnostic. Parentheses and collection operations can group
+relative paths. Missing or ambiguous choices are errors.
+
+The selected field lookup checks immediate children at the nearest super level.
+It does not implement Haskell's general breadth-first descendant search or all
+of its global lookup/ambiguity rules. The precedence agreement is bounded by this
+existing frontend contract; the exact nested-abstract example in the upstream
+issue is also outside the selected declaration domain.
 
 Raw synthesis and context-directed adaptation are distinct judgments. Counts and
 `some`/`no`/`one`/`lone` consume raw collections, so numeric reference heads are
@@ -143,11 +160,12 @@ locations and identity widenings. Resolved IDs, map roles, super paths, operator
 operand order and head counts remain in the comparison. The original fixture
 reconstructs the selected declaration/body inventory; no Haskell source is copied.
 
-Nine regression groups cover all twelve bodies and attachment positions, changed
+Regression groups cover all twelve bodies and attachment positions, changed
 server/comparison/count/fixed operands, head versus target counts, large integer
 and zero/many extraction obligations, binders and shadowing, all accepted operators,
-wrong joins and ambiguity, CRLF/UTF-8 diagnostics, reference chains, inherited
-common types, empty/multiple bodies, and generated inheritance/alpha-renaming/
+wrong joins and ambiguity, CRLF/UTF-8 diagnostics, reference chains,
+ancestor/target precedence, original-context target fallback, inherited common
+types, empty/multiple bodies, and generated inheritance/alpha-renaming/
 parenthesis cases at depths 1–12. These are finite native searches, not completeness
 proofs. Tool/source hashes, inputs, native output and comparison receipts are
 retained outside source by the existing harness workflow. The unchanged full check

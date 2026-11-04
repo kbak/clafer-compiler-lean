@@ -76,6 +76,38 @@ at `8a300bff11af2f458af70d56394f1899815455e9` preserves the paper-era numeric
 are [upstream default evolution](https://github.com/kbak/clafer-semantics/issues/118)
 and [compiler adoption](https://github.com/kbak/clafer-compiler-lean/issues/61).
 
+## Constraint name lookup policy
+
+The [constraint frontend](constraints.md#api-and-lookup) adopts ancestor-before-target
+precedence for bare names. SoSyM Appendix 4, Name resolution rules (legacy D.2,
+e-offprint PDF pp.32–33), instead lists Descendants, Targets, then Ancestors.
+This is a deliberate compiler-language choice, not a claim that the published
+order is erroneous. The decision is tracked in
+[compiler lookup alignment](https://github.com/kbak/clafer-compiler-lean/issues/67),
+following the [source-policy discussion](https://github.com/kbak/clafer-semantics/issues/121).
+The upstream `sosym` checkpoint remains frozen. Both that checkpoint and the
+current upstream semantics consume resolved expressions and implement neither
+textual name-resolution order; no semantics dependency update is needed here.
+
+The pinned Haskell `6750e6f591b2131549122c13dee94d3d2257eaea`
+[`ResolverName.resolveName`](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/ResolverName.hs)
+tries `resolveDescendants`, `resolveAncestor`, `resolveTargetChild`, then
+`resolveTopLevel`. `resolveImmName` handles qualified navigation separately.
+The later [S9 discussion](https://github.com/gsdlab/clafer/blob/2d857da/doc/static-semantics-errata.md#s9-name-resolution-beyond-the-papers-rules-clarification)
+is supplementary context, not a new runtime/compiler pin.
+
+The adopted bare target fallback starts only from the original context's target
+and retains inherited fields and finite reference chains. Targets of enclosing
+scopes or descendant references do not start additional searches. The pinned
+Haskell `Common.findHierarchy`/`getSuperAndReference` traverses reference chains;
+a direct `r1 -> r2`, `r2 -> Target` lookup confirms two dereference steps before
+`Target.leaf`. Qualified navigation retains its existing reference-chain behavior.
+Immediate-field lookup, nearest inherited-field shadowing and unique global lookup remain this compiler's selected
+policy; no complete correspondence with Haskell's broader descendant or ambiguity
+rules is asserted. Reuse of `Field`, `HasField`, `Navigate` and `ScopePath` keeps
+the change in the frontend and its independent source judgments. No backend or
+upstream semantic definitions, new library, or third-party code are needed.
+
 ## Published source and locators
 
 Primary language reference: Bąk et al., *Clafer: unifying class and feature
