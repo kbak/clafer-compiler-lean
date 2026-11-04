@@ -634,7 +634,13 @@ Needs: impl, proof, utest
 Elaborate the accepted static source expressions over checked declaration tables.
 Resolve lexical positions, this, parent, contextual/inherited fields, global
 extents and explicit/implicit dereferencing with deterministic missing/ambiguous
-name and type diagnostics. Preserve original declaration/map identities, attachment
+name and type diagnostics. Bare names search own/inherited fields and enclosing
+parent scopes before the original context's reference target, then use global
+lookup. Target fallback retains finite reference chains from that context only;
+explicit dotted navigation retains its separate traversal rules.
+This adopts compiler precedence rather than Appendix 4's Targets-before-Ancestors
+order within the [selected lookup boundary](constraints.md#api-and-lookup).
+Preserve original declaration/map identities, attachment
 owner, body position and UTF-8 spans. Use actual inclusion paths for common-type
 widening; keep reference-head counts distinct from dereferenced target counts.
 
