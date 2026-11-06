@@ -13,6 +13,11 @@ owners; it is not evidence of implemented behavioral support. Behavioral C10
 requires all rows, source-matched full checks and independent review. The first
 vertical slice cannot substitute for that completion gate.
 
+The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
+the delivered `behavioral-core/1` API, exact interpretation theorems and
+[fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
+source command, target encoding or full-profile qualification claim.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

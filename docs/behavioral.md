@@ -3,7 +3,8 @@
 `impl~compiler-behavioral-profile-contract~1`
 
 This contract specifies the selected downstream work on `behavioral`, under the
-[behavioral roadmap][roadmap]. It does not describe delivered compiler support.
+[behavioral roadmap][roadmap]. The [behavioral IR](behavioral-ir.md) delivers the
+explicit first-slice representation and interpretation; other rows remain planned.
 The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
@@ -12,8 +13,9 @@ The completion profile is `behavioral-0.5.7-candidate/v1`. Its independent sourc
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
-source truth. The existing Lake and static oracle pins remain unchanged here.
-Importing behavioral APIs requires a separately reviewed accepted-SHA repin.
+source truth. The installed [source pin](sources.md#immutable-baselines) supplies
+accepted S2/S3 for the first slice. The full-profile documentation pin below is
+distinct; the static Haskell/Alloy profile and fixture bytes remain unchanged.
 
 Covers:
 - `req~compiler-behavioral-profile~1`
@@ -26,8 +28,9 @@ and partial-atom bridges, and lasso checking. Downstream owns executable syntax,
 frontend judgments, independent Alloy temporal meaning, encoding, decoding and
 compiler proofs. No generic temporal graph package is required.
 
-The module families below are planned responsibility boundaries within the existing
-Lake package, not delivered declarations. Public API names and exact theorem
+The module families below are responsibility boundaries within the existing
+Lake package. The [C4 API handoff](behavioral-ir.md) records delivered first-slice
+declarations; the remaining names are planned roles. Public API names and exact theorem
 assumptions must accompany each accepted implementation. Runtime modules must
 remain independent of noncomputable upstream definitions and proof-only imports.
 
