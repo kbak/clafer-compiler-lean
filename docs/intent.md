@@ -93,6 +93,7 @@ and semantic acceptance require explicit review; see the
 
 - [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
+- [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
 - [Behavioral integration](behavioral.md): complete planned profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.

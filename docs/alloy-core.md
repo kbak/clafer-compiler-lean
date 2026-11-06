@@ -182,7 +182,7 @@ The [pinned Alloy 6.2.0 distribution](sources.md) is tested separately.
 The pinned Haskell generator's `claferDecl`, `genRelations`, `genParentConst`,
 `genGroupConst` and `mkCard` were inspected as compatibility context (S6). They
 motivate field, quantifier and count coverage but do not define target truth.
-The pinned upstream [bounded comparison contract](https://github.com/kbak/clafer-semantics/blob/27a5bbe86657edab00980da57b2f86221f92a5f1/docs/bounded-comparison.md)
+The pinned upstream [bounded comparison contract](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/bounded-comparison.md)
 supplies the external profile and documents declaration-scope restrictions.
 The remaining Haskell/default discrepancies are recorded in the source register.
 No third-party source is copied into the target modules or new fixtures.

@@ -1,0 +1,9 @@
+abstract xor Choice
+  inherited ?
+chosen : Choice
+  extra ?
+opt flexible : Choice
+  defaultOptional
+0..* mandatory : Choice
+  defaultMandatory
+xor Empty ?

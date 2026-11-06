@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`27a5bbe86657edab00980da57b2f86221f92a5f1` and its inherited Mathlib/dependency commits.
+`6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -83,10 +83,11 @@ the code generator or C toolchain. Native regressions and the
 
 `scope.json` includes all source and review paths, with a 600-second check deadline.
 The reviewed deadline amendment changes no coverage policy, command or gate.
-Provision dependencies before checking. After the build, the axiom audit, kernel replay and the isolated
-regression suite run concurrently. Every process is awaited and every exit status
-must succeed. Replay uses two workers to bound the number of
-large imported environments resident at once. Failures in the audit, replay or
+Provision dependencies before checking. After the build, the axiom audit,
+isolated regression suite and kernel replay run in sequence. This keeps expensive
+replay environments out of each regression's CPU and memory budget. Every gate
+runs even if another validation gate failed; every exit status must succeed.
+Replay uses two workers to bound large imported environments resident at once. Failures in the audit, replay or
 regressions fail the check. No module, test or kernel gate is skipped.
 The regression runner partitions the discovered tests into isolated concurrent
 groups; every group must execute without skips and pass. It retains every
@@ -96,7 +97,12 @@ and compilation. It compares candidate scope bytes with the baseline and permits
 only the exact reviewed deadline migration described below. IntentBond exit 4
 always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
-are verified and compiler outputs are not restored. The full check has no skip mode.
+are verified. An opt-in native Lake artifact cache can also restore unchanged
+compiler outputs using source/options/import traces; it never restores validation
+results. Lake does not cache the native linker's response file. The check relinks
+the executable from the restored objects with artifact reuse disabled for that
+command, so an old local response file cannot stand in for current link inputs. Native probes and qualification retain the real
+local link inputs. The full check has no skip mode.
 
 The header parser, audit and audit-fixture runner adapt
 `scripts/project_modules.py`, `tests/axiom_audit.lean` and `tests/test_axiom_audit.py`
@@ -132,9 +138,10 @@ LeanChecker and Python `unittest` tests; no separate test framework or compiler
 runtime dependency is added. The workflow selects the full suite for behavioral
 integration, including contract-only changes, and the smaller routine suite elsewhere;
 `scripts/check.sh` always runs every gate. GitHub's cache action reuses pinned
-dependency packages and external comparison tools. Preparation and clean-pin/tool
-identity checks still run for the tools each path uses; project build outputs
-and successful proof/test results are not restored.
+dependency packages, native Lake artifacts and external comparison tools.
+Preparation and clean-pin/tool identity checks still run for the tools each path
+uses. Kernel replay and axiom inspection run on the restored local artifacts;
+successful proof/test results are never restored.
 
 Public CI artifacts retain check logs, source identities, notices, generated text,
 solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`
@@ -157,10 +164,11 @@ This is unverified Python review tooling, with no added dependency or runtime co
 
 Dependency preparation reuses the module inventory and import parser to build all
 upstream modules imported by project sources, including the telematics examples
-outside the upstream root module. These are pinned dependency outputs; project
-outputs are still rebuilt in the check. The regression runner reuses Python's
+outside the upstream root module. These are pinned dependency outputs; Lake also
+checks every project build target in the fresh check snapshot. The regression runner reuses Python's
 standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
-concurrent groups by CPU availability, with at most four groups. Every discovered
+concurrent groups by CPU availability. The default is two workers, with an
+explicit `CLAFER_TEST_JOBS` limit from one to four. Every discovered
 case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if
 later project verification fails. The full check retains every semantic assertion,
@@ -168,8 +176,28 @@ input case, per-command limit and trusted check deadline.
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 
-CI sets `LEAN_NUM_THREADS=2`; kernel replay also uses two workers. Regression
-groups use at most four workers, bounded by the runner's available CPUs.
+CI sets `LEAN_NUM_THREADS=2` and `CLAFER_TEST_JOBS=2`; kernel replay also uses two
+workers, after all regression groups finish.
+The cache layout reuses the pinned semantics repository's native Lake cache,
+verified-exporter receipt checks, independent download caches and timing wrapper.
+Lake 4.35's `enableArtifactCache` and `restoreAllArtifacts` provide source/options/
+import invalidation and local artifacts for the audit; a custom build-result cache
+would duplicate that machinery. Package sources remain checked against the exact
+manifest. Separate exporter keys hash their builder/adapter sources rather than
+the semantics manifest, and existing receipt validators reject changed binaries.
+Temporal reuse additionally checks every archived source file. Static and temporal
+cold builds share one pinned Stack/GHC store while retaining separate compiler
+source trees. Compact exporter caches exclude GHC and Stack build directories;
+there is no new dependency or license obligation. These caches are trusted build
+inputs, not proof evidence. The Lean kernel, native code generator and C toolchain
+boundaries described above are unchanged.
+
+Preparation caches are saved before validation, so a later failed regression does
+not discard working tools. The previous combined cache can seed the new layout;
+subsequent runs restore the independent entries. All timing output uses Bash's
+`SECONDS` and Python's monotonic clock, following the existing semantics workflow.
+The workflow retains the exact check scope and all command time limits.
+
 Ubuntu's [AppArmor namespace policy](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/)
 requires explicit permission for the runtime-isolation test. The manually
 dispatched full CI run installs a dedicated copy of the distribution's Bubblewrap executable and attaches the

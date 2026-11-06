@@ -149,7 +149,11 @@ missing prerequisites, empty/skipped tests and unowned modules.
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared
 dependency packages, export `CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"` before
 `ib check`. The snapshot copies them and verifies their clean, pinned Git identities;
-project outputs are rebuilt. No private paths or credentials belong in source.
+project outputs are rebuilt unless Lake's native artifact cache is explicitly
+selected with `LAKE_ARTIFACT_CACHE=true` and an external `LAKE_CACHE_DIR`.
+Lake checks source/options/import traces and restores artifacts locally for the
+mandatory axiom audit and kernel replay. No proof/test result is reused.
+No private paths or credentials belong in source.
 
 The scope selects all files and review paths. Its reviewed execution deadline is
 600 seconds; coverage floors, check command and all gates are unchanged.
@@ -163,8 +167,15 @@ GitHub Actions → CI → Run workflow run the full suite,
 including Haskell/Alloy comparisons and all regressions. A passing routine CI run
 is not full qualification evidence.
 
-CI caches pinned dependencies and external tools, verifies their identities and
-builds project outputs afresh. Full IntentBond runs use an isolated source snapshot.
+CI separately caches pinned dependency packages, native Lake artifacts, Mathlib
+downloads, verified static/temporal exporters, Alloy and OFT. A semantics repin does
+not invalidate unchanged Haskell tools. Exporter recipes and binary/source receipts
+are verified on reuse; cold exporters share the pinned Stack/GHC package store.
+Full IntentBond runs use an isolated source snapshot and run every validation gate.
+The axiom audit, regression suite and kernel replay run in sequence to avoid CPU
+and memory contention. Regression groups default to two workers; set
+`CLAFER_TEST_JOBS=1..4` to select a limit, still bounded by CPU availability.
+CI summaries and retained logs report gate and regression-group durations.
 Preparation builds all imported upstream modules, including telematics examples.
 The workflow permits only the exact reviewed `120` → `600` deadline migration;
 it retains the original comparison baseline and records both policy hashes.

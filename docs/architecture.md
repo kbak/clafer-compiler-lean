@@ -454,3 +454,8 @@ independent review. Broader Haskell compatibility requires a reviewed scope chan
 The [comparison contract](comparison.md) records native decoding and exact
 three-way execution. The in-memory preservation proofs remain distinct from
 finite native/serialized comparisons.
+
+The separate [behavioral structural handoff](behavioral-structure.md) supplies
+explicit-profile library APIs for richer declarations, inherited references and
+finite integer observations. It preserves the static entry points and separates
+full behavioral parsing and temporal target preservation into their owning tasks.

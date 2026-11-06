@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 import unittest
 
 
@@ -55,15 +56,24 @@ if any(present) and not all(present):
     raise SystemExit('All isolated modules are required')
 if all(present):
     cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
-    worker_count = max(1, min(4, cpus))
+    requested = int(os.environ.get('CLAFER_TEST_JOBS', '2'))
+    if requested < 1 or requested > 4:
+        raise SystemExit('CLAFER_TEST_JOBS must be between 1 and 4')
+    worker_count = max(1, min(requested, cpus))
     print(f'Regression groups: {len(ISOLATED_GROUPS) + 1}; workers: {worker_count}', flush=True)
+    def timed(label, action, *args):
+        started = time.monotonic()
+        result = action(*args)
+        print(f'[check] Regression {label}: exit {0 if result else 1}, '
+              f'{time.monotonic() - started:.1f}s', flush=True)
+        return result
     def isolated(flag):
         return subprocess.run([sys.executable, str(Path(__file__).resolve()), flag]).returncode == 0
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
-        futures = [pool.submit(isolated, flag) for flag in ISOLATED_GROUPS]
+        futures = [pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS]
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        futures.append(pool.submit(run, remaining))
+        futures.append(pool.submit(timed, 'remaining', run, remaining))
         results = [future.result() for future in futures]
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)

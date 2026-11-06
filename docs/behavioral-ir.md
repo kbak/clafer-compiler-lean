@@ -23,7 +23,7 @@ signed temporal operators; its partial numeric meaning is outside this slice.
 No container, graph, parser or model-checking dependency is added.
 
 Upstream `Clafer.Behavioral` at accepted commit
-`27a5bbe86657edab00980da57b2f86221f92a5f1` supplies source meaning. Its
+`6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` supplies source meaning. Its
 `Formula.normalize` is noncomputable and observations use mathematical sets;
 runtime modules cannot import these definitions. Executable syntax and signed
 normalization therefore have a proof-only constructor interpretation and an
@@ -33,9 +33,9 @@ temporal satisfaction definition is introduced downstream. The Haskell candidate
 `AlloyLtl.pushNegations` is a comparison guide, including the raw `one`/`lone`
 counting barrier. Negation precedes parent-lifetime lowering.
 
-The dependency update adds accepted S2/S3 and source comments: all 138 changed
-pre-existing static Lean modules have identical code after comment/whitespace
-removal. The toolchain, transitive packages, static Haskell/Alloy identities,
+The installed dependency includes accepted S2/S3 and the structural handoff.
+The [dependency delta](sources.md#behavioral-dependency-delta) records static
+source compatibility. The toolchain, transitive packages, static Haskell/Alloy identities,
 fixtures and comparison algorithms are unchanged. Oracle receipts retain their
 original identities; new runs identify the updated semantics pin. Existing MIT
 and Lean Apache-2.0 licenses apply. No Haskell implementation is copied.
@@ -135,7 +135,7 @@ The proof-only namespace `ClaferCompiler.SemanticsBridge.Behavioral` contains
 [syntax/admission](../ClaferCompiler/SemanticsBridge/Behavioral/Syntax.lean),
 [trace/observations](../ClaferCompiler/SemanticsBridge/Behavioral/Trace.lean) and
 [attachment](../ClaferCompiler/SemanticsBridge/Behavioral/Attachment.lean) bridges.
-They import source APIs at `27a5bbe86657edab00980da57b2f86221f92a5f1`.
+They import source APIs at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`.
 
 | Declaration | Exact conclusion and hypotheses |
 | --- | --- |
