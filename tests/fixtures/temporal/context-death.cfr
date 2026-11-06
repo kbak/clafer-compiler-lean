@@ -1,0 +1,8 @@
+// Original MIT fixture: context death alone cannot cancel an eventual obligation.
+final machine
+  ctx ?
+    error ?
+    [ F error ]
+[ no machine.ctx.error ]
+[ initially machine.ctx ]
+[ initially (X no machine.ctx) ]

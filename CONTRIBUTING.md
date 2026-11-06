@@ -101,6 +101,10 @@ check currently targets Linux/glibc; ordinary compilation needs only the
 bash scripts/prepare_dependencies.sh
 python3 scripts/oracles/oracle.py prepare /tmp/clafer-oracle-tools-UNIQUE
 export CLAFER_ORACLE_TOOLS=/tmp/clafer-oracle-tools-UNIQUE/tools.json
+python3 scripts/oracles/temporal.py prepare \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-temporal-build-UNIQUE /tmp/clafer-temporal-tools-UNIQUE
+export CLAFER_TEMPORAL_TOOLS=/tmp/clafer-temporal-tools-UNIQUE/tools.json
 ```
 
 This fetches source and an optional Mathlib cache, builds the upstream dependency,

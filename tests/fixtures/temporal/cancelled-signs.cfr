@@ -1,0 +1,8 @@
+// Original MIT fixture: both source signs lapse at the first parent absence.
+machine ?
+  ctx
+    error ?
+    [ F error && !(F error) ]
+[ no machine.ctx.error ]
+[ initially machine ]
+[ initially (X no machine) ]
