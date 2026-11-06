@@ -52,6 +52,7 @@ jobs:
       - name: Select external tool caches
         run: |
           echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
+          echo "CLAFER_TEMPORAL_CACHE=$RUNNER_TEMP/clafer-temporal" >> "$GITHUB_ENV"
           echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       - name: Restore pinned dependency builds and external tools
         id: dependencies
@@ -61,7 +62,8 @@ jobs:
             .lake/packages
             ${{ runner.temp }}/clafer-capture
             ${{ runner.temp }}/clafer-alloy
-          key: compiler-dependencies-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'scripts/oracles/profile.json', 'scripts/prepare_dependencies.sh', 'scripts/project_modules.py') }}
+            ${{ runner.temp }}/clafer-temporal
+          key: compiler-dependencies-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'scripts/oracles/profile.json', 'scripts/oracles/temporal-profile.json', 'scripts/oracles/temporal_build.py', 'scripts/oracles/TemporalExport.hs', 'scripts/prepare_dependencies.sh', 'scripts/project_modules.py') }}
       - name: Prepare pinned dependency sources and build artifacts
         run: |
           bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
@@ -79,6 +81,9 @@ jobs:
           python3 scripts/oracles/oracle.py prepare "$RUNNER_TEMP/oracle-tools" 2>&1 | tee "$RUNNER_TEMP/oracle-setup.log"
           echo "CLAFER_ORACLE_TOOLS=$RUNNER_TEMP/oracle-tools/tools.json" >> "$GITHUB_ENV"
           echo "CLAFER_ORACLE_EVIDENCE=$RUNNER_TEMP/oracle-evidence" >> "$GITHUB_ENV"
+          python3 scripts/oracles/temporal.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_TEMPORAL_CACHE" "$RUNNER_TEMP/temporal-tools" 2>&1 | tee "$RUNNER_TEMP/temporal-setup.log"
+          echo "CLAFER_TEMPORAL_TOOLS=$RUNNER_TEMP/temporal-tools/tools.json" >> "$GITHUB_ENV"
       - name: Save successfully prepared dependencies and tools
         if: steps.dependencies.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -87,6 +92,7 @@ jobs:
             .lake/packages
             ${{ runner.temp }}/clafer-capture
             ${{ runner.temp }}/clafer-alloy
+            ${{ runner.temp }}/clafer-temporal
           key: ${{ steps.dependencies.outputs.cache-primary-key }}
       - name: Check scope against the baseline
         id: scope
@@ -169,6 +175,11 @@ jobs:
             ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/
+            ${{ runner.temp }}/temporal-tools/
+            ${{ runner.temp }}/temporal-setup.log
+            ${{ runner.temp }}/clafer-temporal/build.json
+            ${{ runner.temp }}/clafer-temporal/build.log
+            ${{ runner.temp }}/clafer-temporal/source-files.json
             ${{ runner.temp }}/oracle-evidence/
             !${{ runner.temp }}/oracle-tools/compiler.tar.gz
             !${{ runner.temp }}/oracle-evidence/**/api-tests

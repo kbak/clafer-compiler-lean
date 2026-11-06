@@ -477,6 +477,22 @@ checkout; acquisition copies with added newlines are not substitutes.
 | `LICENSE` | `c630ca360518868845360498ff7b2ba02c6bd39cc718ff403e5eef4d875667be` | MIT; retain notices if copying source/material |
 
 The accepted profile's decision register links the public D1–D5 dispositions.
+The [temporal oracle](oracles.md#temporal-provisioning-execution-and-replay)
+reproduces the Haskell candidate separately from the static profile. Its source
+archive SHA-256 is `07eb00dfa1fd13bf2ff4f546b83ae2df6714e1a5fa9f2ae45964f6f746a19899`;
+the canonical file/digest inventory hash is
+`2b6306253edcbd6c39021c8aacf760f8bf501294619f1434e477bfd7d51420f0`.
+The unchanged `stack.yaml.lock` is 1410 bytes with SHA-256
+`2bed95387bc9ad79df4f70de77a9c7e468125c10a09a68a42da233434b59acff`.
+The [profile](../scripts/oracles/temporal-profile.json) and
+[fixture inventory](../tests/fixtures/temporal/inventory.json) retain exact build,
+query and source identities. Six upstream MIT fixtures are read from the external
+archive with its `LICENSE`; eight additional fixtures and adapters are original MIT
+code. The [reuse assessment](oracles.md#temporal-oracle-reuse-and-boundary) records
+tool/library choices and the [release comparison process](oracles.md#comparing-the-final-057-release)
+requires explicit review of any later source bytes. The source register does not
+claim all behavioral rows or known comparison gaps are qualified by this corpus.
+
 Notable comparison gaps are corrected response-between and first-opener
 precedence-after, the distinction between per-head `finalref` and target-image
 `finaltarget`, shared inherited-reference assignments, concrete supers, and

@@ -52,6 +52,9 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
+The separate [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
+reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
+they do not implement behavioral compilation or prove source preservation.
 
 ## Delivery and selected language scope
 

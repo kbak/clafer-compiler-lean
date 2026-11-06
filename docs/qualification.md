@@ -12,6 +12,10 @@ every planned row to frontend, IR, encoding, proof, runtime and qualification
 owners; it is not evidence of implemented behavioral support. Behavioral C10
 requires all rows, source-matched full checks and independent review. The first
 vertical slice cannot substitute for that completion gate.
+The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
+provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
+Haskell/Alloy queries and retains complete traces; it does not qualify downstream
+behavioral compilation, exact source-candidate replay or any new Lean theorem.
 
 ## Reuse assessment
 

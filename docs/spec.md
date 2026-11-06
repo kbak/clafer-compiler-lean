@@ -232,6 +232,39 @@ Covers:
 
 Needs: impl, utest
 
+## Reproducible temporal comparison oracles
+
+`req~compiler-temporal-oracles~1`
+
+Select `behavioral-0.5.7-candidate/v1` explicitly for the pinned Haskell 0.5.7
+candidate and Alloy 6.2.0. Build and execute the unchanged Haskell library;
+retain paired source/JSON/Alloy/options, source-tree and exporter build hashes,
+actual Java identity, JAR identity and every effective solver option. Reuse
+existing provisioning without changing static oracle pins or temporal rejection.
+
+Run the registered positive/negative corpus for stable and replaced machines,
+both source signs under parent cancellation, persistent parents, identity scope
+one versus two, fixed parents across lifetimes and inherited final references.
+Pair assertion checks with satisfiable model runs at identical identity, integer
+and step budgets. Retain complete lasso frames, one shared atom inventory and the
+loop index; distinguish identity capacity, per-state population and trace length.
+Keep SAT, bounded UNSAT, malformed/unsupported input, tool/resource failure and
+timeout separate. Missing GMP/exporter prerequisites fail explicitly; no skipped
+Haskell gates. Inventory fixture hashes/licenses before execution and preserve
+hand-checked witnesses and known comparison gaps separately from source truth.
+
+Replay verifies retained artifacts and reruns the same compiler and bounded query.
+Exact source-candidate decoding/replay and semantic preservation remain C9's
+obligations. These bounded tool tests establish no new kernel theorem or blanket
+Haskell equivalence. Adoption of final 0.5.7 release bytes requires an immutable
+delta review, repeated corpus execution and explicit acceptance; preserve the
+candidate and static receipts.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Executable structural IR and admission
 
 `req~compiler-ir~1`

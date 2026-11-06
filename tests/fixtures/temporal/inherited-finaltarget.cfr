@@ -1,0 +1,8 @@
+// Original MIT fixture: a subtype inherits its reference from Link.
+abstract Target
+left : Target
+right : Target
+abstract Link -> Target
+final owner
+  finaltarget head : Link
+[ initially (owner.head = left && X owner.head = right) ]
