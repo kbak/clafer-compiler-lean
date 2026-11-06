@@ -3,7 +3,9 @@
 `impl~compiler-behavioral-profile-contract~1`
 
 This contract specifies the selected downstream work on `behavioral`, under the
-[behavioral roadmap][roadmap]. It does not describe delivered compiler support.
+[behavioral roadmap][roadmap]. The [structural handoff](behavioral-structure.md)
+records implemented library APIs and their proof boundaries; the matrix below
+retains the full completion obligations.
 The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
@@ -12,8 +14,10 @@ The completion profile is `behavioral-0.5.7-candidate/v1`. Its independent sourc
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
-source truth. The existing Lake and static oracle pins remain unchanged here.
-Importing behavioral APIs requires a separately reviewed accepted-SHA repin.
+source truth. The Lake dependency now imports that accepted revision for the
+[structural handoff](behavioral-structure.md). Its
+[source delta](sources.md#behavioral-dependency-delta) retains the static Haskell/Alloy
+comparison pins and regression corpus; repin acceptance requires independent review.
 
 Covers:
 - `req~compiler-behavioral-profile~1`
@@ -26,9 +30,10 @@ and partial-atom bridges, and lasso checking. Downstream owns executable syntax,
 frontend judgments, independent Alloy temporal meaning, encoding, decoding and
 compiler proofs. No generic temporal graph package is required.
 
-The module families below are planned responsibility boundaries within the existing
-Lake package, not delivered declarations. Public API names and exact theorem
-assumptions must accompany each accepted implementation. Runtime modules must
+The module families below are responsibility boundaries within the existing
+Lake package. Implemented C6 declarations are inventoried in the
+[structural handoff](behavioral-structure.md); other rows retain their own delivery
+gates. Public API names and exact theorem assumptions must accompany each accepted implementation. Runtime modules must
 remain independent of noncomputable upstream definitions and proof-only imports.
 
 | Owner | Module family / planned interface | Required handoff |
@@ -37,7 +42,7 @@ remain independent of noncomputable upstream definitions and proof-only imports.
 | [C3: temporal target][C3] | `Backend/Alloy/Temporal`: syntax, meaning, bounds, text | Independent target admission/evaluation, checked serialization and actual Analyzer correspondence tests |
 | [C4: behavioral IR][C4] | `IR/Behavioral`, `SemanticsBridge/Behavioral` | Executable declarations, signed formulas/capture, interpretation and admission agreement |
 | [C5: first encoding][C5] | `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | Generated lifetime/identity facts, concrete trace representation and first-slice preservation |
-| [C6: structural prerequisites][C6] | Behavioral parts of `Frontend`, `IR` and `SemanticsBridge` | Richer inheritance/reference admission, defaults, typed atoms and finite integer observations |
+| [C6: structural prerequisites][C6] | [Structural library APIs and proofs](behavioral-structure.md) in `Frontend`, `IR` and `SemanticsBridge` | Richer inheritance/reference admission, defaults, typed atoms and finite integer observations |
 | [C7: full frontend][C7] | `Frontend/Behavioral` | Parsing, source spans, resolution, elaboration and preservation of every surface row below |
 | [C8: full encoding][C8] | Behavioral backend and correctness families | All source reductions, definedness, arithmetic and full-profile trace preservation |
 | [C9: resolved CLI/comparison][C9] | Behavioral parts of `Driver`, decoder and oracle adapter | Closed versioned IR/bounds/trace formats, exact trace replay and typed outcomes |

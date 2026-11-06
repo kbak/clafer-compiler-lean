@@ -9,7 +9,9 @@ review. Bundles record their exact source revision, toolchain and review status.
 The inventory below covers delivered static support. The separately selected
 [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) assigns
 every planned row to frontend, IR, encoding, proof, runtime and qualification
-owners; it is not evidence of implemented behavioral support. Behavioral C10
+owners. The separate [structural handoff](behavioral-structure.md) inventories
+implemented C6 library APIs, proved domains and native/kernel witnesses; it is
+not full behavioral qualification. Behavioral C10
 requires all rows, source-matched full checks and independent review. The first
 vertical slice cannot substitute for that completion gate.
 

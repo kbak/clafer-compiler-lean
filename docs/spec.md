@@ -151,6 +151,33 @@ Covers:
 
 Needs: impl
 
+## Behavioral structural handoff
+
+`req~compiler-behavioral-structural-bridge~1`
+
+Under explicit `behavioral-0.5.7-candidate/v1` selection, provide resolved structural
+admission, authored identity/default correspondence and typed observation APIs
+for the complete structural prerequisites in B01/B04–B08/B18–B19/B31–B32.
+Use accepted S4 meaning for nested abstracts, refined parents, concrete supers,
+ordinary inherited children, nearest inherited/refined references and effective
+group unions. Keep names, IDs, head occurrences and targets distinct. Preserve
+actual-parent navigation, one-step coercion, group/default provenance and strict
+partial integer operations, with explicit finite observation and conservative
+range conditions. Diagnose unsupported domains and `:=`; supply enum/finality and
+constant-initializer sugar to the full frontend without enabling static temporal
+syntax. Expose original source fixtures and proved APIs for dependent features.
+Document exact successful-admission, source-coverage, role, observation and range
+theorems and their premises, distinguishing them from native/parser tests and
+future target composition. Preserve static behavior and comparison fixtures;
+review an immutable accepted-SHA repin and retain its source delta and full checks.
+The [component contract](behavioral-structure.md) records delivered APIs and C7/C8
+handoff obligations; no required row is deferred out of full qualification.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Trace assurance planning contract
 
 `req~compiler-trace-assurance~1`
