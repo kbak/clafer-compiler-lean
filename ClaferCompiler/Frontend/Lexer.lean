@@ -59,7 +59,7 @@ def excludedSymbols : List String :=
 
 def reservedWords : List String :=
   excludedWords ++ ["abstract", "xor", "or", "mux", "opt", "all", "some", "no",
-    "not", "one", "lone", "in", "none"]
+    "not", "one", "lone", "in", "noclafer"]
 
 def isName (t : Token) : Bool :=
   t.text.toList.head?.any isLetter && !reservedWords.contains t.text

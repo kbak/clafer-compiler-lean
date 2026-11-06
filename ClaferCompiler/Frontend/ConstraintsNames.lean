@@ -112,7 +112,7 @@ def absoluteName (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local 
 def nameAt (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n))
     (cursor : Option (Fin n × Term n m)) (name : String) :
     Except String (BoundName c s Γ (cursor.map fun (x, a) => (x, a.raw)) name) :=
-  if hn : name = "none" then
+  if hn : name = "noclafer" then
     .ok ⟨.collection (.objects s.context), .empty (.objects s.context), by subst name; exact .empty⟩
   else match cursor with
   | none => absoluteName c s Γ name

@@ -111,14 +111,17 @@ extent observation. Distinct lexical positions survive shadowing.
 
 ## Empty collection literal
 
-`none` is reserved and denotes a defined empty unary collection. Its bottom
+The reserved spelling `noclafer` avoids taking `none`, which remains available
+for existing declaration and binder names. Alloy output uses its native `none`.
+
+`noclafer` is reserved and denotes a defined empty unary collection. Its bottom
 element type is instantiated at the other collection operand before ordinary
-reference/value adaptation. Thus `a = none` tests the collection of reference
+reference/value adaptation. Thus `a = noclafer` tests the collection of reference
 heads for emptiness, even when `a` refers to integers; it does not extract an
-integer. Explicit `a.dref = none` tests the target collection. Unrelated element
+integer. Explicit `a.dref = noclafer` tests the target collection. Unrelated element
 classes need no invented common superclass to combine with this literal.
 
-Standalone `#none`, `no none`, `none = none` and empty quantifier domains use an
+Standalone `#noclafer`, `no noclafer`, `noclafer = noclafer` and empty quantifier domains use an
 arbitrary context element annotation with no extent observation. The resolved
 core remains monomorphic: `Syntax.EmptyUnary` recognizes the literal through
 source locations; computed collections keep their resolved types and strict
@@ -126,7 +129,7 @@ definedness. This is contextual instantiation, not a general polymorphic type
 inference system. Integer extraction from an empty integer collection remains
 undefined; a bare literal is not adapted to a scalar or binary relation.
 
-For `none.field`, the elaborator tries the right operand in each supported
+For `noclafer.field`, the elaborator tries the right operand in each supported
 element context with an empty receiver. Exactly one successful context is
 required. Missing and ambiguous navigation remain errors. Existing set operations,
 counts, multiplicities and quantifiers then use their ordinary meanings, including

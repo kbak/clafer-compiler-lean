@@ -75,29 +75,35 @@ class ConstraintTests(unittest.TestCase):
         return [row[5] for row in self.rows(source)]
 
     def test_empty_literals_and_contextual_element_types(self):
-        self.rows('[#none = 0]\n[no none]\n[none = none]\n[all x : none | no none]\n')
-        expressions = ["#none = 0", "no none", "lone none", "!some none", "!one none",
-                       "a ++ none = a", "none ++ a = a", "a -- none = a",
-                       "a ** none = none", "none -- a = none", "none in a",
-                       "none = none", "(none) = a -- a", "all x : none | no none"]
+        self.rows('[#noclafer = 0]\n[no noclafer]\n[noclafer = noclafer]\n[all x : noclafer | no noclafer]\n')
+        expressions = ["#noclafer = 0", "no noclafer", "lone noclafer", "!some noclafer", "!one noclafer",
+                       "a ++ noclafer = a", "noclafer ++ a = a", "a -- noclafer = a",
+                       "a ** noclafer = noclafer", "noclafer -- a = noclafer", "noclafer in a",
+                       "noclafer = noclafer", "(noclafer) = a -- a", "all x : noclafer | no noclafer"]
         for expr in expressions:
             with self.subTest(expr=expr):
                 self.rows('a *\nb *\n[' + expr + ']\n')
-        self.rows('a *\nb *\n[none ++ b = b]\n[b -- none = b]\n[none in b]\n')
-        shapes = self.shape('a -> int ?\n[a = none]\n[none = a]\n[a != none]\n')
-        self.assertTrue(all('none' in x and 'int(' not in x for x in shapes), shapes)
+        self.rows('a *\nb *\n[noclafer ++ b = b]\n[b -- noclafer = b]\n[noclafer in b]\n')
+        shapes = self.shape('a -> int ?\n[a = noclafer]\n[noclafer = a]\n[a != noclafer]\n')
+        self.assertTrue(all('noclafer' in x and 'int(' not in x for x in shapes), shapes)
         # This receiver has no declared class: its uniquely resolvable field
         # supplies the endpoint, and name errors still fail before translation.
-        self.rows('a\n  x *\n[no none.x]\n')
+        self.rows('a\n  x *\n[no noclafer.x]\n')
         for source, code in [
-            ('a\n[no none.missing]\n', 'constraint.missing-navigation'),
-            ('a\n  x *\nb\n  x *\n[no none.x]\n', 'constraint.ambiguous-navigation'),
-            ('a -> int\n  [none + 1 = 0]\n', 'constraint.empty-arity-or-scalar'),
-            ('a\n[none = 0]\n', 'constraint.empty-arity-or-scalar'),
-            ('none\n', 'parser.name'),
-            ('a\n[all none : a | no a]\n', 'parser.name')]:
+            ('a\n[no noclafer.missing]\n', 'constraint.missing-navigation'),
+            ('a\n  x *\nb\n  x *\n[no noclafer.x]\n', 'constraint.ambiguous-navigation'),
+            ('a -> int\n  [noclafer + 1 = 0]\n', 'constraint.empty-arity-or-scalar'),
+            ('a\n[noclafer = 0]\n', 'constraint.empty-arity-or-scalar'),
+            ('noclafer\n', 'parser.name'),
+            ('a\n[all noclafer : a | no a]\n', 'parser.name')]:
             with self.subTest(source=source):
                 self.assertIn('error|' + code + '|', self.compile(source))
+
+    def test_none_remains_a_model_and_binder_name(self):
+        shapes = self.shape('none\n[some none]\n[none != noclafer]\n')
+        self.assertNotIn('noclafer', shapes[0])
+        self.assertIn('noclafer', shapes[1])
+        self.rows('a *\n[all none : a | none in a]\n')
 
     def test_all_twelve_manual_bodies_and_attachment_positions(self):
         projection = self.output / 'Manual.lean'

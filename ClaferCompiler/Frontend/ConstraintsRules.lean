@@ -113,7 +113,7 @@ abbrev Cursor (n m : Nat) := Option (Fin n × Syntax n m)
 
 inductive NameRule (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n)) :
     Cursor n m → String → Ty n → Syntax n m → Prop where
-  | empty {cursor x} : NameRule c s Γ cursor "none" (.collection (.objects x)) (.empty (.objects x))
+  | empty {cursor x} : NameRule c s Γ cursor "noclafer" (.collection (.objects x)) (.empty (.objects x))
   | this : NameRule c s Γ none "this" (.collection (.objects s.context)) .this
   | local {name i b} : Γ[i]? = some b → b.name = name →
       (∀ k : Fin i, ∀ a, Γ[k.val]? = some a → a.name ≠ name) →

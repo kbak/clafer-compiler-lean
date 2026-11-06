@@ -655,8 +655,9 @@ relation, checked typing and finite-observation admission. Interpret its typed
 syntax through the pinned partial denotation, retaining undefined as distinct
 from false. Type checking must not assert singleton extraction, numeric bounds,
 source satisfaction, or backend preservation. Literal-only bodies need no maps.
-Reserve `none` as a unary empty literal with contextually instantiated bottom
-element type. Adapt it before reference/scalar coercions, preserving collection
+Reserve `noclafer` as a unary empty literal with contextually instantiated bottom
+element type; keep `none` available for user declarations and binders. Adapt
+the literal before reference/scalar coercions, preserving collection
 equality with numeric reference heads. Support standalone cardinality, presence,
 empty quantifiers and uniquely resolved navigation from emptiness. Keep missing
 or ambiguous names and scalar/arity mismatches diagnostic, with no invented class
