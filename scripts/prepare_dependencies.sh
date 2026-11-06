@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONDONTWRITEBYTECODE=1
-export LAKE_ARTIFACT_CACHE=false
+export LAKE_ARTIFACT_CACHE="${LAKE_ARTIFACT_CACHE:-false}"
 export LAKE_RESTORE_ARTIFACTS=true
 export LEAN_NUM_THREADS="${LEAN_NUM_THREADS:-4}"
 

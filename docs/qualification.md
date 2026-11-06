@@ -14,6 +14,15 @@ implemented C6 library APIs, proved domains and native/kernel witnesses; it is
 not full behavioral qualification. Behavioral C10
 requires all rows, source-matched full checks and independent review. The first
 vertical slice cannot substitute for that completion gate.
+The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
+provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
+Haskell/Alloy queries and retains complete traces; it does not qualify downstream
+behavioral compilation, exact source-candidate replay or any new Lean theorem.
+
+The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
+the delivered `behavioral-core/1` API, exact interpretation theorems and
+[fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
+source command, target encoding or full-profile qualification claim.
 
 ## Reuse assessment
 

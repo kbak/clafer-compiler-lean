@@ -1,0 +1,7 @@
+// Original MIT fixture: exercise a transition while the final parent survives.
+trigger
+final xor machine
+  initial waiting
+    [ trigger --> done ]
+  done
+assert [ machine.waiting => X machine.done ]

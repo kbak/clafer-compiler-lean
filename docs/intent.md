@@ -52,6 +52,9 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
+The separate [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
+reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
+they do not implement behavioral compilation or prove source preservation.
 
 ## Delivery and selected language scope
 
@@ -101,6 +104,7 @@ and semantic acceptance require explicit review; see the
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
+- [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.

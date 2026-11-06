@@ -201,6 +201,47 @@ Covers:
 
 Needs: impl
 
+## Behavioral resolved IR
+
+`req~compiler-behavioral-ir~1`
+
+Provide explicit first-slice version/profile admission over the guarded structural
+core, retaining resolved declaration IDs, authored/effective metadata, source
+spans and unique attachment occurrences. Represent both source signs,
+X/F/G/U/W, initial/final anchors, Boolean connectives, captured sets and lexical
+quantifiers, including the raw `one`/`lone` counting barrier. Reject unsupported
+profiles, requested constructors and attachment forms without changing static
+admission. Retain one finite identity inventory, fixed direct types/parents,
+changing presence and distinct reference heads. Check representation invariants
+and separate identity, step and reference-observation bounds. Structural state
+satisfaction remains an explicit upstream obligation, not a result of these
+representation checks. See the [first-slice contract](behavioral-ir.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral interpretation
+
+`req~compiler-behavioral-interpretation~1`
+
+Interpret the executable first slice into accepted immutable upstream S2/S3
+definitions. Prove structural admission, signed normalization and finite set/atom
+evaluation agreement, including captures, current navigation and attachment
+ownership. Define one identity correspondence for the entire trace independently
+of satisfaction. Preserve first-parent-absence cancellation and reappearance,
+with checked contrasting lifetime witnesses on an admitted source trace. Keep
+classical target negation distinct from source negation. This slice does not
+provide partial atoms, a finite temporal satisfaction evaluator, target
+preservation or the complete behavioral profile. Its
+[interpretation handoff](behavioral-ir.md#proof-handoff) states exact boundaries.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Reproducible build and assurance bootstrap
 
 `req~compiler-build~1`
@@ -219,7 +260,12 @@ module origins, including private/generated declarations. Reject project axioms,
 `propext`, `Classical.choice` and `Quot.sound`. Check the executable import closure
 excludes upstream semantics and proof-only modules. Document native IO/tooling
 trust. Fail on absent tools, failed gates, empty/skipped regressions and unknown
-module ownership. Retain source-bound IntentBond evidence before handoff.
+module ownership. Retain source-bound IntentBond evidence before handoff. Cached compiled artifacts
+may be reused only through Lake's source/options/import validation, with local
+restoration for fresh axiom inspection and kernel replay. Separate comparison-tool
+caches must still pass their pinned source/recipe/binary identity checks. Never
+reuse a previous proof/test result as current evidence. Report validation timings
+and bound concurrent regressions without dropping cases or relaxing time limits.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -253,6 +299,39 @@ minimized evidence, independent expected semantics and an issue before semantic
 changes. Haskell is supplementary evidence. This base oracle establishes neither
 compiler correctness nor a new proof; the [three-way comparison](comparison.md)
 adds downstream compiler Alloy to the comparison.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Reproducible temporal comparison oracles
+
+`req~compiler-temporal-oracles~1`
+
+Select `behavioral-0.5.7-candidate/v1` explicitly for the pinned Haskell 0.5.7
+candidate and Alloy 6.2.0. Build and execute the unchanged Haskell library;
+retain paired source/JSON/Alloy/options, source-tree and exporter build hashes,
+actual Java identity, JAR identity and every effective solver option. Reuse
+existing provisioning without changing static oracle pins or temporal rejection.
+
+Run the registered positive/negative corpus for stable and replaced machines,
+both source signs under parent cancellation, persistent parents, identity scope
+one versus two, fixed parents across lifetimes and inherited final references.
+Pair assertion checks with satisfiable model runs at identical identity, integer
+and step budgets. Retain complete lasso frames, one shared atom inventory and the
+loop index; distinguish identity capacity, per-state population and trace length.
+Keep SAT, bounded UNSAT, malformed/unsupported input, tool/resource failure and
+timeout separate. Missing GMP/exporter prerequisites fail explicitly; no skipped
+Haskell gates. Inventory fixture hashes/licenses before execution and preserve
+hand-checked witnesses and known comparison gaps separately from source truth.
+
+Replay verifies retained artifacts and reruns the same compiler and bounded query.
+Exact source-candidate decoding/replay and semantic preservation remain C9's
+obligations. These bounded tool tests establish no new kernel theorem or blanket
+Haskell equivalence. Adoption of final 0.5.7 release bytes requires an immutable
+delta review, repeated corpus execution and explicit acceptance; preserve the
+candidate and static receipts.
 
 Covers:
 - `intent~compiler-foundation~1`

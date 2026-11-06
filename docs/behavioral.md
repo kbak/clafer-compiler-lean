@@ -3,9 +3,9 @@
 `impl~compiler-behavioral-profile-contract~1`
 
 This contract specifies the selected downstream work on `behavioral`, under the
-[behavioral roadmap][roadmap]. The [structural handoff](behavioral-structure.md)
-records implemented library APIs and their proof boundaries; the matrix below
-retains the full completion obligations.
+[behavioral roadmap][roadmap]. The [behavioral IR](behavioral-ir.md) and
+[structural handoff](behavioral-structure.md) record implemented library APIs and
+their proof boundaries; the matrix below retains the full completion obligations.
 The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
@@ -31,8 +31,9 @@ frontend judgments, independent Alloy temporal meaning, encoding, decoding and
 compiler proofs. No generic temporal graph package is required.
 
 The module families below are responsibility boundaries within the existing
-Lake package. Implemented C6 declarations are inventoried in the
-[structural handoff](behavioral-structure.md); other rows retain their own delivery
+Lake package. Delivered first-slice and C6 declarations are inventoried in the
+[behavioral IR](behavioral-ir.md) and [structural handoff](behavioral-structure.md);
+other rows retain their own delivery
 gates. Public API names and exact theorem assumptions must accompany each accepted implementation. Runtime modules must
 remain independent of noncomputable upstream definitions and proof-only imports.
 

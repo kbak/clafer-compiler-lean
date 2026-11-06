@@ -174,7 +174,174 @@ adopted numeric-default evolution, remain in the [source register](sources.md);
 effective-value admission does not
 prove authored-source default agreement.
 
+## Temporal oracle reuse and boundary
+
+The separate `behavioral-0.5.7-candidate/v1` comparison profile uses the
+[behavioral source pin](sources.md#behavioral-sources). The existing static
+capture, admission, receipts and replay retain their original pins and rules.
+
+Reuse assessment: the pinned semantics `runtime.download`, archive/tree receipts,
+`alloy_runtime.prepare` and Java environment filtering already provide the tool
+acquisition and identity checks. Python's standard library supplies JSON, hashing,
+process deadlines and archive handling. Alloy 6.2's public `Command`, `A4Solution`
+and tuple APIs supply bounded temporal solving and all lasso frames; no temporal
+solver, parser or graph library is reimplemented. The static exporter audits out
+temporal syntax and its bridge requires static trace bounds, so separate small
+Haskell/Java adapters are necessary. The temporal exporter calls the unchanged
+Haskell library once to obtain paired JSON/Alloy and effective options. The new
+builder reuses the pinned Stack/GHC/dependency recipe without changing either
+compiler's library sources. These are external, unproved test adapters, with no
+new Lean or production runtime dependencies.
+
+License decision: reuse upstream positive `.cfr` fixtures by immutable path/hash
+inside the externally retained candidate source archive, with its MIT GSD/ISD
+Labs notice. Do not copy generated `.als.reg` outputs into execution evidence as
+compiler runs. Additional sources and hand-checked witnesses are original MIT
+fixtures. The Haskell library remains external; new adapters use its public API.
+Alloy's existing multi-license inventory and SAT4J selection apply unchanged.
+No new dependency license or binary distribution is adopted.
+
+## Temporal provisioning, execution and replay
+
+The [temporal profile](../scripts/oracles/temporal-profile.json) pins candidate
+`af858ec0fe3ce2ceacb7fd120947c058233086d6`, Stack `3.11.1`, GHC `9.6.7`,
+`lts-22.44`, the unchanged lockfile and source archive/tree hashes. It shares the
+static Alloy `6.2.0` JAR and Java `17` provisioning receipt. Prepare both outside
+the validation deadline:
+
+```sh
+python3 scripts/oracles/temporal.py prepare \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-temporal-build-UNIQUE /tmp/clafer-temporal-tools-UNIQUE
+export CLAFER_TEMPORAL_TOOLS=/tmp/clafer-temporal-tools-UNIQUE/tools.json
+python3 scripts/oracles/temporal.py suite --tools "$CLAFER_TEMPORAL_TOOLS" \
+  /tmp/clafer-temporal-suite-UNIQUE
+python3 scripts/oracles/temporal.py run --tools "$CLAFER_TEMPORAL_TOOLS" \
+  identity-scope-2 /tmp/clafer-temporal-run-UNIQUE
+python3 scripts/oracles/temporal.py replay --tools "$CLAFER_TEMPORAL_TOOLS" \
+  /tmp/clafer-temporal-run-UNIQUE /tmp/clafer-temporal-replay-UNIQUE
+```
+
+The builder can reuse an explicit external `STACK_ROOT`; otherwise it creates one
+inside the build cache. It requires GMP development headers/library (`libgmp-dev`)
+and retains failed build logs with an actionable diagnostic. Invalid or changed
+exporter/source/build receipts require rebuilding; validation never provisions
+missing tools or skips their tests. CI prepares both profiles and retains temporal
+setup/build logs, notices, tool receipts and execution evidence.
+
+`TemporalExport.hs` calls the unchanged library's `generate` once with JSON, Alloy
+and explicit AlloyLtl modes, no scope inference, and a logical `input.cfr` filename.
+The receipt retains the full effective `ClaferArgs`, post-analysis IR, original
+JSON/Alloy and backend `tmp.als`. The Python capture binds their bytes, the input,
+exporter and build receipt. These unsigned hashes provide content identity, not
+producer authentication. Source imports and backend escapes are not exposed by
+this fixture-only command interface. This is not a general behavioral compiler
+admission API.
+
+`AlloyTemporalBridge.java` parses the fresh output with the pinned Analyzer and
+selects a recorded command index. It retains the original command, then constructs
+a command with the same assertion/run formula and explicit budgets through Alloy's
+public AST API. Assertions retain the Analyzer's classical counterexample formula.
+It checks the complete signature inventory and rejects silent `one`/`lone` scope
+adjustments. The registered requests supply upper identity scopes for every
+signature, including root `1`, signed bitwidth `8`, sequence scope `0`, and
+`3..6 steps`. SAT4J, one worker, overflow prevention, no decomposition and every
+public `A4Options` field are recorded and checked. Each query has a 30-second wall
+limit, 512 MiB heap and 2560 MiB address-space limit. A timeout or incomplete
+witness remains unsuccessful even when a prior SAT observation was retained.
+
+An Alloy trace of `n` stored states has `n` transitions including its loop edge;
+`steps` bounds that count. A result records all frames, `0 <= loop < n`, static
+signature inventories, mutable/immutable field declarations and tuples, plus the
+raw Analyzer XML. The adapter checks trace-wide capacities, immutable tuples and
+loop bounds. Signature slots can include inactive objects; mutable containment
+fields determine live population. Inherited signature extents can overlap, so the
+inventory is their union, not the sum of their sizes. Root counts once. No auxiliary
+object signatures are omitted. This fixture corpus uses object references and
+small multiplicity counts, with no primitive arithmetic; its fixed bitwidth is
+not a general arithmetic admission argument.
+
+Success means the completed bounded query has the registered expected outcome.
+SAT, `bounded_unsat`, malformed/unsupported capture, resource/tool failure and
+timeout remain distinct. Replay validates the entire artifact index, reruns the
+actual exporter, checks byte-identical generation/build receipts and reruns the
+same query/bounds. It does **not** pin a previously found trace or require a solver
+to choose the same witness. Exact source-candidate transport, decoding and lasso
+replay belong to [C9](behavioral.md#ownership-and-interfaces). Static exact replay
+retains its existing implementation and tests.
+
+### Temporal fixture and witness inventory
+
+The [inventory](../tests/fixtures/temporal/inventory.json) records 29 commands,
+source hashes, licenses and complete budgets. Six upstream sources remain in the
+external source archive; eight original sources live in
+[`tests/fixtures/temporal`](../tests/fixtures/temporal). Every assertion query has
+a satisfiable model run with identical budgets. Outcomes are bounded integration
+results; no Lean behavioral checker or new theorem is claimed.
+
+These witnesses are hand-checked from T1–T3/T7–T8/T11/T13 and the accepted profile.
+Letters denote persistent identities, not names regenerated per frame. The tests
+also inspect actual solver witnesses for these distinguishing properties, without
+requiring a particular atom naming or choice of lasso presentation.
+
+| Case | Hand-checked trace / required negative result |
+| --- | --- |
+| Stable triggered machine | The same machine `m` starts in `waiting`, then reaches `done` with its parent still present; a counterexample to the transition is bounded UNSAT. The trigger is mandatory, avoiding a vacuous idle witness. |
+| Replaced machine | `m0.a, m1.a, m0.a`, loop to frame 1, with `go` at frame 2: the looping edge replaces the machine and cancels the old obligation. The global assertion has a counterexample at scope 2, while its identity-aware version has none; scope 1 forbids replacement. |
+| Both source signs | A machine/context present at frame 0 and absent thereafter, no error, loop on an absent state: both `F error` and its source negation lapse. A persistent parent makes their conjunction impossible; context death alone cannot cancel `F error`. |
+| Identity versus population | Live items `i0, i1, i0`, loop to frame 1: one item per state needs two identities. Scope 1 is bounded UNSAT at the same step budget. |
+| Fixed parent through absence | `b0.item=i`, then no item, then the same `i` under `b0`, loop to the absent frame. Two boxes exist throughout; changing `i`'s parent is forbidden. |
+| Inherited final reference | A fixed head points to `left` then `right` under a persistent owner. It is possible without a modifier, bounded UNSAT with inherited `final`, `finalref` or `finaltarget`; the upstream positive model remains satisfiable for all three checks. |
+
+The inventory separately classifies the accepted response-between and
+first-opener precedence-after corrections, `finaltarget` image stability versus
+Haskell's stronger per-head equality, and richer structural/arithmetic gaps.
+Their immutable dispositions are in the [behavioral contract](behavioral.md#pattern-and-errata-completeness).
+The 29 queries do not qualify those broader domains. In particular, the one-head
+finality examples do not establish agreement for multi-head image-preserving swaps.
+
+### Comparing the final 0.5.7 release
+
+Keep this candidate and static profile intact. Before adopting release bytes:
+
+1. Record the final immutable commit/tag resolution, archive/tree/lockfile hashes
+   and licenses. Compare it against the candidate, especially grammar, desugaring,
+   `AlloyLtl.hs`, reference inheritance, errata and build dependencies.
+2. Build a separate exporter/cache/profile with the same options. Recompile all
+   registered sources, retain both paired receipts and compare generated commands,
+   bounds and completed outcomes, inspecting full traces where behavior differs.
+3. Reassess the known comparison gaps against accepted independent semantics;
+   neither changed output nor test agreement silently changes source meaning.
+   Retain both discrepancy directions and unresolved failures with their evidence.
+4. Obtain explicit source/profile delta review before changing the pin. Rerun
+   the complete static and temporal qualification after an accepted update;
+   preserve historical receipts for the old candidate.
+
 ## Implementation and test links
+
+`impl~compiler-temporal-oracle-tools~1`
+
+The [temporal driver](../scripts/oracles/temporal.py),
+[builder](../scripts/oracles/temporal_build.py),
+[exporter](../scripts/oracles/TemporalExport.hs),
+[Analyzer adapter](../scripts/oracles/AlloyTemporalBridge.java), profile and
+inventory implement the distinct bounded comparison protocol described above.
+
+Covers:
+- `req~compiler-temporal-oracles~1`
+
+`utest~compiler-temporal-oracle-regressions~1`
+
+[Temporal tests](../tests/test_temporal_oracles.py) execute every registered query,
+inspect independent distinguishing witnesses, validate matched run/check budgets,
+rerun capture/query replay, mutate receipt artifacts and traces, and test missing
+or changed exporters, invalid scopes, missing output and real process deadlines.
+Controlled substitutes exercise process/build failures; these are not claimed
+SAT4J timeouts or semantic counterexamples. Existing static rejection/replay tests
+remain mandatory alongside this suite.
+
+Covers:
+- `req~compiler-temporal-oracles~1`
 
 `impl~compiler-oracle-tools~1`
 

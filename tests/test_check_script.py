@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # [utest->req~compiler-build~1]
 class CheckScriptTest(unittest.TestCase):
-    def run_check(self, fail='', missing_lake=False, args=()):
+    def run_check(self, fail='', missing_lake=False, args=(), artifact_cache='false'):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'scripts').mkdir()
@@ -22,17 +22,21 @@ class CheckScriptTest(unittest.TestCase):
             binary.mkdir()
             # Only the tools needed by the shell/stubs are on PATH, so a missing
             # lake cannot accidentally resolve to a developer's installation.
-            for name in ['bash', 'mkdir', 'dirname', 'sleep']:
+            for name in ['bash', 'mkdir', 'dirname', 'env', 'rm']:
                 (binary / name).symlink_to(shutil.which(name))
             stub = '''#!/usr/bin/env bash
 echo "${0##*/} $*" >> "$CALLS"
+if [[ "$*" == 'build clafer-compiler' ]]; then
+  echo "native link cache=$LAKE_ARTIFACT_CACHE" >> "$CALLS"
+  mkdir -p .lake/build/bin
+  echo 'fixture link inputs' > .lake/build/bin/clafer-compiler.rsp
+fi
 if [[ "$*" == *axiom_audit.lean* ]]; then
-  while [[ ! -f "$CALLS.regression" ]]; do sleep 0.01; done
   echo 'audit completed' >> "$CALLS"
 fi
 if [[ "$*" == *leanchecker* ]]; then
   echo "kernel threads=$LEAN_NUM_THREADS" >> "$CALLS"
-  while [[ ! -f "$CALLS.regression" ]]; do sleep 0.01; done
+  echo "cache=$LAKE_ARTIFACT_CACHE restore=$LAKE_RESTORE_ARTIFACTS" >> "$CALLS"
   echo 'kernel completed' >> "$CALLS"
 fi
 if [[ "$*" == *scripts/run_tests.py* ]]; then : > "$CALLS.regression"; fi
@@ -47,7 +51,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 path.write_text(stub)
                 path.chmod(0o755)
             env = dict(os.environ, PATH=str(binary), CALLS=str(root / 'calls'),
-                       FAIL_STEP=fail, CLAFER_COMPILER_PACKAGES='')
+                       FAIL_STEP=fail, CLAFER_COMPILER_PACKAGES='',
+                       LAKE_ARTIFACT_CACHE=artifact_cache)
             result = subprocess.run(['bash', str(root / 'scripts/check.sh'), *args],
                                     env=env, capture_output=True, text=True, timeout=10)
             calls = root / 'calls'
@@ -63,12 +68,22 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('kernel threads=2', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
-        self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
-                        calls.index('audit completed'))
+        self.assertLess(calls.index('audit completed'),
+                        calls.index('lake env python3 scripts/run_tests.py'))
+
+    def test_artifact_cache_preserves_every_validation_gate(self):
+        result, calls = self.run_check(artifact_cache='true')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('cache=true restore=true', calls)
+        self.assertIn('native link cache=false', calls)
+        self.assertIn('audit completed', calls)
+        self.assertIn('kernel completed', calls)
+        self.assertIn('lake env python3 scripts/run_tests.py', calls)
+        self.assertIn('[check] Kernel replay: exit 0,', result.stdout)
 
     def test_required_failures_stop_the_check(self):
         for failure in ['scripts/check.py', 'scripts/project_modules.py', '--dependencies',
-                        'build', 'axiom_audit.lean', 'scripts/run_tests.py', 'leanchecker']:
+                        'build', 'build clafer-compiler', 'axiom_audit.lean', 'scripts/run_tests.py', 'leanchecker']:
             with self.subTest(failure=failure):
                 result, calls = self.run_check(fail=failure)
                 self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
@@ -172,6 +187,16 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             fixtures = list((root/'tests').glob('test_*.py'))
             for fixture in fixtures:
                 fixture.write_text(locked)
+            result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
+                cwd=root, capture_output=True, text=True,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', CLAFER_TEST_JOBS='1'))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.stderr.count('test_serial ('), len(fixtures))
+            for invalid in ('0', '5', 'invalid'):
+                result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
+                    cwd=root, capture_output=True, text=True,
+                    env=dict(os.environ, CLAFER_TEST_JOBS=invalid))
+                self.assertNotEqual(result.returncode, 0, 'Invalid worker limit must fail')
             wrapper = ('import runpy, sys; from unittest.mock import patch; '
                        'script=sys.argv[1]; sys.argv=[script]\n'
                        'with patch("os.sched_getaffinity", return_value={0}):\n'

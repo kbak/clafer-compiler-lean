@@ -1,0 +1,5 @@
+// Original MIT fixture: a permanent parent cannot cancel contradictory obligations.
+final machine
+  ctx
+    error ?
+    [ F error && !(F error) ]

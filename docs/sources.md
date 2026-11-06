@@ -427,9 +427,27 @@ The deadline selector adapts `scripts/ci_scope.py` from the pinned S1 repository
 (MIT, copyright 2026 Kacper Bak). Python's standard JSON and SHA-256 libraries
 preserve the exact reviewed policy transition; IntentBond consumes the external
 selected policy. The [build contract](build.md) records the reuse assessment and
-tests. This adds no compiler meaning, proof assumption or runtime dependency.
+tests. The same pinned source's CI, native Lake cache, `runtime.cached_runtime`
+and timing wrapper supply the [cache/replay design](build.md#build-implementation).
+Lake 4.35's own `Lake/Config/PackageConfig.lean` documents artifact reuse and local
+restoration; no custom build-cache protocol is introduced. This adds no compiler
+meaning, proof assumption or runtime dependency.
 
 ## Behavioral sources
+
+The executable [first-slice IR](behavioral-ir.md) uses accepted S2/S3 commit
+`27a5bbe86657edab00980da57b2f86221f92a5f1`, the installed Lake dependency above.
+Its inspected `Trace`, `Environment`, `Formula`, `Normalization`, `Denotation`
+and `Lowering` modules supply shared identities, current set observations,
+signed truth and lifetime lowering. `Examples.cycling` supplies the independent
+admissible trace reconstructed by compiler fixtures. Relative to the preceding
+static pin `26f884d3f630bd74a88cfe43d6f31118e9025bbf`, all 138 changed pre-existing
+static Lean modules differ only in comments/whitespace; toolchain, transitive
+dependencies, static checker algorithms and fixture bytes are unchanged.
+The executable normalizer adapts the MIT upstream constructor equations with
+their source meaning retained only upstream. Its
+[reuse and proof boundaries](behavioral-ir.md#reuse-assessment) distinguish
+native algorithms, interpretation proofs and future full-profile work.
 
 The [behavioral compiler contract](behavioral.md) uses accepted upstream semantics
 at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`, the
@@ -480,6 +498,22 @@ checkout; acquisition copies with added newlines are not substitutes.
 | `LICENSE` | `c630ca360518868845360498ff7b2ba02c6bd39cc718ff403e5eef4d875667be` | MIT; retain notices if copying source/material |
 
 The accepted profile's decision register links the public D1–D5 dispositions.
+The [temporal oracle](oracles.md#temporal-provisioning-execution-and-replay)
+reproduces the Haskell candidate separately from the static profile. Its source
+archive SHA-256 is `07eb00dfa1fd13bf2ff4f546b83ae2df6714e1a5fa9f2ae45964f6f746a19899`;
+the canonical file/digest inventory hash is
+`2b6306253edcbd6c39021c8aacf760f8bf501294619f1434e477bfd7d51420f0`.
+The unchanged `stack.yaml.lock` is 1410 bytes with SHA-256
+`2bed95387bc9ad79df4f70de77a9c7e468125c10a09a68a42da233434b59acff`.
+The [profile](../scripts/oracles/temporal-profile.json) and
+[fixture inventory](../tests/fixtures/temporal/inventory.json) retain exact build,
+query and source identities. Six upstream MIT fixtures are read from the external
+archive with its `LICENSE`; eight additional fixtures and adapters are original MIT
+code. The [reuse assessment](oracles.md#temporal-oracle-reuse-and-boundary) records
+tool/library choices and the [release comparison process](oracles.md#comparing-the-final-057-release)
+requires explicit review of any later source bytes. The source register does not
+claim all behavioral rows or known comparison gaps are qualified by this corpus.
+
 Notable comparison gaps are corrected response-between and first-opener
 precedence-after, the distinction between per-head `finalref` and target-image
 `finaltarget`, shared inherited-reference assignments, concrete supers, and
