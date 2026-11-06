@@ -4,6 +4,10 @@ import all Clafer.Constraints.Typing
 import all Init.Data.Int.Repr
 import all Init.Data.Repr
 
+/-!
+[utest->req~compiler-constraint-elaboration~1]
+-/
+
 @[expose] public section
 
 namespace ClaferCompiler.Tests.ConstraintInventory

@@ -25,7 +25,7 @@ no Haskell code or fixtures are redistributed.
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea) | `6750e6f591b2131549122c13dee94d3d2257eaea` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/26f884d3f630bd74a88cfe43d6f31118e9025bbf/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/26f884d3f630bd74a88cfe43d6f31118e9025bbf/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/26f884d3f630bd74a88cfe43d6f31118e9025bbf/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/26f884d3f630bd74a88cfe43d6f31118e9025bbf/scripts/verification/AlloyBridge.java) |
-| IntentBond | `a430efa8d82e2a88ed2607bfe838066bb9d73f3c` | Existing [requirements pin](../requirements/intentbond.txt), unchanged by contract adoption |
+| IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
 
 The [oracle tooling](oracles.md) checks the Alloy distribution SHA-256
 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.

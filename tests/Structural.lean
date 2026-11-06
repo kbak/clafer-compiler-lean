@@ -3,6 +3,10 @@ module
 public import ClaferCompiler.SemanticsBridge.Structural
 public import tests.StructuralNative
 
+/-!
+[utest->req~compiler-ir~1]
+-/
+
 public section
 namespace ClaferCompiler.Tests.Structural
 open IR.Structural SemanticsBridge.Structural

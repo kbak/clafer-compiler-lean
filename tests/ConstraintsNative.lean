@@ -3,6 +3,10 @@ module
 public import ClaferCompiler.Frontend.Parser
 public import ClaferCompiler.Frontend.Constraints
 
+/-!
+[utest->req~compiler-constraint-elaboration~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.Tests.Constraints
 open Frontend IR.Expr

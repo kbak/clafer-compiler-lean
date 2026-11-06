@@ -2,6 +2,10 @@ module
 
 public import tests.AlloyText
 
+/-!
+[utest->req~compiler-alloy-text~1]
+-/
+
 @[expose] public section
 
 open ClaferCompiler.Backend.Alloy ClaferCompiler.Backend.Alloy.Text

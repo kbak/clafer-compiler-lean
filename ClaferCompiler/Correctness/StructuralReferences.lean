@@ -2,6 +2,10 @@ module
 
 public import ClaferCompiler.Correctness.StructuralCardinality
 
+/-!
+[proof->req~compiler-structural-correctness~1]
+-/
+
 public section
 
 namespace ClaferCompiler.Correctness.Structural

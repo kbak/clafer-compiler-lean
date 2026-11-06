@@ -9,6 +9,10 @@ public import ClaferCompiler.Correctness.ExprIntermediateRanges
 public import ClaferCompiler.Correctness.ExpressionScalarFacts
 public import ClaferCompiler.Correctness.PipelinePresence
 
+/-!
+[proof->req~compiler-build~1]
+-/
+
 public section
 
 /-! Bootstrap equations, concrete representations and M1/inherited preservation.

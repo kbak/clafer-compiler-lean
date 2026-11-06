@@ -2,6 +2,11 @@ module
 
 public import ClaferCompiler.Frontend.Parser
 
+/-!
+[utest->req~compiler-diagnostics~1]
+[utest->req~compiler-parser~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.Tests.Parser
 open Frontend

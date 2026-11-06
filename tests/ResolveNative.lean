@@ -3,6 +3,11 @@ module
 public import ClaferCompiler.Frontend.Parser
 public import ClaferCompiler.Frontend.Resolve
 
+/-!
+[utest->req~compiler-defaults~1]
+[utest->req~compiler-resolution~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.Tests.Resolve
 open Frontend Frontend.Resolution IR.Structural

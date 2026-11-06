@@ -2,6 +2,11 @@ module
 
 public import ClaferCompiler.Driver
 
+/-!
+[impl->req~compiler-build~1]
+[impl->req~compiler-cli~1]
+-/
+
 public section
 
 /-! IO boundary: Lean's native code generator, C toolchain, runtime and OS are

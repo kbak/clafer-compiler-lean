@@ -38,7 +38,9 @@ Needs: impl
 `req~intentbond-workflow~1`
 
 Pin IntentBond to an immutable source revision. Keep intent, requirements and
-artifact links together, and run the repository check through IntentBond before
+artifact links together, including imported Lean comment tags with original
+source paths and lines. Keep the source-import regression to detect a checker
+that silently drops those tags. Run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. The full local check remains mandatory.
 On pull requests and pushes to `main`, hosted CI builds every Lean module, audits

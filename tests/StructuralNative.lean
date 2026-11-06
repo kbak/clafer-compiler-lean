@@ -2,6 +2,10 @@ module
 
 public import ClaferCompiler.IR.Structural
 
+/-!
+[utest->req~compiler-ir~1]
+-/
+
 @[expose] public section
 open ClaferCompiler.IR.Structural
 namespace ClaferCompiler.Tests.Structural

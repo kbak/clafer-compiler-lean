@@ -27,7 +27,7 @@ An independence requirement alone does not justify rebuilding library machinery.
 Use IntentBond for planning, implementation and review. Read the development skill
 and applicable references from the revision pinned in
 [requirements/intentbond.txt](requirements/intentbond.txt):
-[IntentBond skill](https://github.com/kbak/intentbond/blob/a430efa8d82e2a88ed2607bfe838066bb9d73f3c/intentbond/skills/intentbond/SKILL.md).
+[IntentBond skill](https://github.com/kbak/intentbond/blob/f9b4f9e40722dc6a83067ac9e62480159322dd09/intentbond/skills/intentbond/SKILL.md).
 Reuse matching installed tooling; follow `CONTRIBUTING.md` if missing.
 Capture the starting Git commit before editing. Maintain affected intent,
 requirements, source, tests and links together. Run `ib check` and retain external
@@ -40,6 +40,11 @@ without Project access can use `--no-project`. Keep acceptance criteria and stat
 current. Planning tickets do not authorize implementation. In IntentMade,
 only the coordinator runs credential-bearing ticket operations. Keep credentials,
 private deployment paths and runtime state outside source.
+
+Use OFT tags in actual Lean comments beside implementations, proofs and tests;
+the pinned IntentBond preserves their source paths and lines. Keep component
+contracts as explanations of the linked declarations and assumptions. A `proof`
+tag does not replace kernel checking or independent review.
 
 When Lean work is authorized, do not present `sorry`, `admit`, or unchecked axioms
 as completed proofs. Keep tested behavior distinct from proved properties.

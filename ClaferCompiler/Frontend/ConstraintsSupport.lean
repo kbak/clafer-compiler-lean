@@ -3,6 +3,11 @@ module
 public import ClaferCompiler.Frontend.Surface
 public import ClaferCompiler.IR.Expr
 
+/-!
+[impl->req~compiler-constraint-elaboration~1]
+[impl->req~compiler-diagnostics~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.Frontend.Constraints
 open IR.Expr

@@ -4,6 +4,11 @@ public import ClaferCompiler.Frontend.Resolve
 public import ClaferCompiler.SemanticsBridge.Structural
 public import Clafer.Semantics.Realization
 
+/-!
+[proof->req~compiler-defaults~1]
+[proof->req~compiler-resolution~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.SemanticsBridge.Resolution
 open Frontend Frontend.Resolution IR.Structural

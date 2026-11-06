@@ -2,6 +2,10 @@ module
 
 public import ClaferCompiler.Correctness.StructuralReferences
 
+/-!
+[proof->req~compiler-structural-correctness~1]
+-/
+
 @[expose] public section
 
 namespace ClaferCompiler.Correctness.Structural

@@ -2,6 +2,10 @@ module
 
 public import ClaferCompiler.Frontend.Lexer
 
+/-!
+[impl->req~compiler-parser~1]
+-/
+
 @[expose] public section
 namespace ClaferCompiler.Frontend
 

@@ -3,6 +3,10 @@ module
 public import ClaferCompiler.Correctness.StructuralRelations
 public import DPGraph.Predicates.Finite
 
+/-!
+[proof->req~compiler-structural-correctness~1]
+-/
+
 @[expose] public section
 
 namespace ClaferCompiler.Correctness.Structural

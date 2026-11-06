@@ -5,6 +5,10 @@ public meta import Lean.Elab.Command
 public meta import Lean.Util.CollectAxioms
 
 /-!
+[utest->req~compiler-build~1]
+-/
+
+/-!
 Audit every declaration originating in the project, including generated/private
 ones. Reject new axioms, unsafe/partial declarations and transitive dependencies
 outside Lean's standard logical axioms. The shared check retains this output.

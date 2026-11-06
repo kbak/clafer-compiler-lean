@@ -2,6 +2,11 @@ module
 
 public import ClaferCompiler
 
+/-!
+[utest->req~compiler-boundaries~1]
+[utest->req~compiler-build~1]
+-/
+
 public section
 
 namespace ClaferCompiler.Tests
