@@ -2,9 +2,7 @@ module
 
 public import ClaferCompiler.Correctness.StructuralDecoding
 
-/-!
-[proof->req~compiler-structural-correctness~1]
--/
+-- [proof->req~compiler-structural-correctness~1]
 
 public section
 

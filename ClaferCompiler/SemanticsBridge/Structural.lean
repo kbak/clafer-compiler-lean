@@ -3,9 +3,7 @@ module
 public import ClaferCompiler.IR.Structural
 public import Clafer.Verification.Admission
 
-/-!
-[proof->req~compiler-ir~1]
--/
+-- [proof->req~compiler-ir~1]
 
 @[expose] public section
 namespace ClaferCompiler.SemanticsBridge.Structural

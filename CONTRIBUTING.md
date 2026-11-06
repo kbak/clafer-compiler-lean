@@ -126,8 +126,9 @@ with `--scope` to both `ib check` and `ib verify`.
 The pinned IntentBond imports OFT tags from Lean line, nested block and
 documentation comments, retaining original `.lean` paths and physical lines.
 Keep `impl`, `proof` and `utest` tags beside their definitions, actual theorems and
-assertions. A module comment can group a jointly implemented contract; pure
-import aggregators need no arbitrary tags. Preserve the named Markdown artifacts
+assertions. Use a line comment for a single tag; reserve block comments for groups
+of tags. A module comment can group a jointly implemented contract; pure import
+aggregators need no arbitrary tags. Preserve the named Markdown artifacts
 in component contracts as explanations of source correspondence and assumptions.
 
 Strings and escaped identifiers do not supply coverage. The source-import

@@ -3,9 +3,7 @@ module
 public import tests.AlloyCore
 public meta import tests.AlloyCore
 
-/-!
-[utest->req~compiler-alloy-core~1]
--/
+-- [utest->req~compiler-alloy-core~1]
 
 public section
 

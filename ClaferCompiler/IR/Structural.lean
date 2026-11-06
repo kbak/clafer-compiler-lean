@@ -2,9 +2,7 @@ module
 
 public import Std
 
-/-!
-[impl->req~compiler-ir~1]
--/
+-- [impl->req~compiler-ir~1]
 
 @[expose] public section
 namespace ClaferCompiler.IR.Structural

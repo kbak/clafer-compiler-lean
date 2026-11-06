@@ -4,9 +4,7 @@ module
 public meta import Lean.Elab.Command
 public meta import Lean.Util.CollectAxioms
 
-/-!
-[utest->req~compiler-build~1]
--/
+-- [utest->req~compiler-build~1]
 
 /-!
 Audit every declaration originating in the project, including generated/private

@@ -2,9 +2,7 @@ module
 
 public import ClaferCompiler.Correctness.StructuralReferences
 
-/-!
-[proof->req~compiler-structural-correctness~1]
--/
+-- [proof->req~compiler-structural-correctness~1]
 
 @[expose] public section
 

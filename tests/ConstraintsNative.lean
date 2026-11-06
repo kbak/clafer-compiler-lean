@@ -3,9 +3,7 @@ module
 public import ClaferCompiler.Frontend.Parser
 public import ClaferCompiler.Frontend.Constraints
 
-/-!
-[utest->req~compiler-constraint-elaboration~1]
--/
+-- [utest->req~compiler-constraint-elaboration~1]
 
 @[expose] public section
 namespace ClaferCompiler.Tests.Constraints

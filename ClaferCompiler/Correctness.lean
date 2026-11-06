@@ -9,9 +9,7 @@ public import ClaferCompiler.Correctness.ExprIntermediateRanges
 public import ClaferCompiler.Correctness.ExpressionScalarFacts
 public import ClaferCompiler.Correctness.PipelinePresence
 
-/-!
-[proof->req~compiler-build~1]
--/
+-- [proof->req~compiler-build~1]
 
 public section
 

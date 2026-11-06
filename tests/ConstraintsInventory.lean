@@ -4,9 +4,7 @@ import all Clafer.Constraints.Typing
 import all Init.Data.Int.Repr
 import all Init.Data.Repr
 
-/-!
-[utest->req~compiler-constraint-elaboration~1]
--/
+-- [utest->req~compiler-constraint-elaboration~1]
 
 @[expose] public section
 

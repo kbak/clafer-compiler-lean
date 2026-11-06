@@ -4,9 +4,7 @@ public import ClaferCompiler.Frontend.Surface
 public import Std.Internal.Parsec.String
 public import Init.Data.String.Search
 
-/-!
-[impl->req~compiler-parser~1]
--/
+-- [impl->req~compiler-parser~1]
 
 @[expose] public section
 namespace ClaferCompiler.Frontend

@@ -3,9 +3,7 @@ module
 public import ClaferCompiler.Frontend.Constraints
 public import ClaferCompiler.SemanticsBridge.Expr
 
-/-!
-[proof->req~compiler-constraint-elaboration~1]
--/
+-- [proof->req~compiler-constraint-elaboration~1]
 
 @[expose] public section
 namespace ClaferCompiler.SemanticsBridge.Constraints
