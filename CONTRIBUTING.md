@@ -32,6 +32,52 @@ review conversations.
 Force pushes and branch deletion are blocked. Passing CI does not grant semantic
 acceptance; changes to proof contracts require independent review.
 
+### Ticket readiness
+
+Use **Todo → Ready → In Progress → Done**. Todo covers queued work with unmet
+prerequisites or unresolved scope. Ready is limited to actionable tickets whose
+hard dependencies are completed and accepted, including dependencies in the other
+repository. Roadmap containers stay out of Ready. Ready makes a task available
+for selection; manual intake is still required. Mark In Progress when selected
+work actually starts, and Done only after acceptance and required review.
+
+```sh
+python3 scripts/tickets.py track NUMBER --status ready
+python3 scripts/tickets.py track NUMBER --status in-progress
+```
+
+After accepted closure, reopening, dependency edits or scope changes, manually
+reconcile affected unstarted tickets in both repositories' Projects. Promote
+eligible Todo tickets to Ready; return newly blocked Ready tickets to Todo.
+Closed as not planned is not accepted completion. Native blocked-by links record
+hard dependencies; parent/sub-issue membership groups scope. Coordinate changes
+to active work with its owner. The helper sets the requested status; it neither
+checks dependencies nor installs automatic readiness synchronization.
+
+### Behavioral integration
+
+Behavioral feature branches use `codex/behavioral-...` and PRs target `behavioral`.
+The [behavioral contract](docs/behavioral.md) owns the full feature and assurance
+matrix, explicit static-profile separation and final two-repository gates.
+Keep `Closes #N` in feature PRs, then explicitly close the issue and mark Done
+after the accepted merge: GitHub may not auto-close issues on a non-default base.
+Keep the accepted commit, actual APIs/theorems/assumptions, fixtures and matching
+evidence with the handoff. Update readiness after acceptance; publication and
+passing automation alone do not complete an issue.
+
+Pin accepted upstream semantics by immutable SHA, never a moving `behavioral`
+branch or unaccepted PR head. S7 semantic qualification precedes C10 compiler
+qualification; upstream S8 main integration requires both. Downstream C11 then
+repins the actual merged upstream-main SHA and repeats full qualification before
+its own reviewed main merge. Main merges and releases require concrete authorization.
+
+Behavioral integration requires the same check/review controls: up-to-date required
+`Lean proofs and native CLI`, PR review, resolved conversations, administrator
+enforcement, and no force pushes or deletion. Review minimums may retain the
+single-maintainer zero-minimum policy without waiving independent semantic review.
+Inspect hosted protection/rulesets separately and retain readback outside source;
+report missing controls rather than treating a workflow file as proof of protection.
+
 ## Reuse before implementation
 
 Check existing repository code, pinned upstream sources, standard libraries and
@@ -106,9 +152,10 @@ The scope selects all files and review paths. Its reviewed execution deadline is
 Dependency preparation is outside that deadline; CI allows 45 minutes for
 provisioning and validation.
 
-Pull requests and pushes to `main` run the Lean build, axiom audit, kernel replay,
+PRs outside `behavioral` and pushes to `main` run the Lean build, axiom audit, kernel replay,
 native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
-check before handoff. GitHub Actions → CI → Run workflow runs the full suite,
+check before handoff. PRs targeting `behavioral`, pushes to `behavioral`, and
+GitHub Actions → CI → Run workflow run the full suite,
 including Haskell/Alloy comparisons and all regressions. A passing routine CI run
 is not full qualification evidence.
 

@@ -3,7 +3,8 @@
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
 [architecture](docs/architecture.md), [sources](docs/sources.md),
 [contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
-This is a structural Clafer-to-Alloy compiler. Follow the adopted
+This is a structural Clafer-to-Alloy compiler with a selected
+[behavioral integration contract](docs/behavioral.md). Follow the adopted
 contract and manual intake gates. The [documentation map](docs/intent.md#documentation-map)
 and [qualification inventory](docs/qualification.md#feature-and-evidence-inventory)
 identify the delivered APIs, proof assumptions and testing boundaries. The
@@ -12,7 +13,8 @@ record acceptance and dependencies.
 
 Do not implement compiler features until their owning task is selected and its
 dependencies are accepted. Candidate acceptance requires independent review;
-behavioral modeling remains outside this work.
+behavioral implementation requires its own selected task and explicit profile.
+Behavioral feature PRs target `behavioral`; preserve the static regression baseline.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.

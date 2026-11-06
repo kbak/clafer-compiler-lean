@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, behavioral]
   pull_request:
   workflow_dispatch:
 permissions:
@@ -30,13 +30,13 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
-      - if: github.event_name == 'workflow_dispatch'
+      - if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
           java-version: '17'
       - name: Install pinned IntentBond and verified OFT
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
         run: |
           python -m pip install -r requirements/intentbond.txt
           ib install-oft --destination "$RUNNER_TEMP/oft"
@@ -67,7 +67,7 @@ jobs:
           bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
           echo "CLAFER_COMPILER_PACKAGES=$GITHUB_WORKSPACE/.lake/packages" >> "$GITHUB_ENV"
       - name: Prepare pinned comparison tools and retain license inventory
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgmp-dev bubblewrap apparmor
@@ -116,7 +116,7 @@ jobs:
           echo "candidate=$candidate" >> "$GITHUB_OUTPUT"
           printf '%s\n' "baseline=$baseline" "candidate=$candidate" > "$RUNNER_TEMP/source-revision.txt"
       - name: Check Lean proofs and native CLI
-        if: github.event_name != 'workflow_dispatch'
+        if: github.event_name != 'workflow_dispatch' && github.base_ref != 'behavioral' && github.ref != 'refs/heads/behavioral'
         run: |
           {
             python3 scripts/check.py
@@ -133,7 +133,7 @@ jobs:
           } 2>&1 | tee "$RUNNER_TEMP/build-and-cli.log"
           echo 'Lean build, axiom audit, kernel replay and native CLI tests passed. Full IntentBond qualification runs locally or by manual dispatch.' >> "$GITHUB_STEP_SUMMARY"
       - name: Run full IntentBond qualification
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
         env:
           baseline: ${{ steps.scope.outputs.baseline }}
           candidate: ${{ steps.scope.outputs.candidate }}

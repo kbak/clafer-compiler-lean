@@ -6,6 +6,13 @@ Qualification links supported features to evidence, measures reproducible build
 and compilation costs, and prepares candidate bundles for independent semantic
 review. Bundles record their exact source revision, toolchain and review status.
 
+The inventory below covers delivered static support. The separately selected
+[behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) assigns
+every planned row to frontend, IR, encoding, proof, runtime and qualification
+owners; it is not evidence of implemented behavioral support. Behavioral C10
+requires all rows, source-matched full checks and independent review. The first
+vertical slice cannot substitute for that completion gate.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

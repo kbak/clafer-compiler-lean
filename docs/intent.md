@@ -10,6 +10,9 @@ Clafer compiler as a compatibility reference. Publish the source under MIT, with
 public issues and pull requests, IntentBond traceability and manual task intake.
 Avoid unnecessary infrastructure by checking reusable implementations before
 writing new ones and recording concrete reasons for custom solutions.
+Extend this foundation through a separately reviewed behavioral profile, preserving
+the structural compiler and its evidence while developing temporal support on the
+integration branch. Keep the full behavioral completion scope distinct from a first slice.
 
 Needs: req
 
@@ -34,8 +37,10 @@ qualification candidate needs independent semantic review. The [roadmap](https:/
 and linked issues retain delivery and acceptance history.
 
 New compiler features require explicit selection and accepted dependencies.
-Approval of a roadmap does not start its implementation tickets. Behavioral and
-temporal modeling remain outside the project.
+Approval of a roadmap does not start its implementation tickets. The selected
+[behavioral contract](behavioral.md) plans a separate explicit temporal profile on
+`behavioral`, retaining the delivered structural compiler as its regression baseline.
+Contract adoption does not implement that profile or authorize final main integration.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
@@ -85,6 +90,7 @@ and semantic acceptance require explicit review; see the
 
 - [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
+- [Behavioral integration](behavioral.md): complete planned profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
