@@ -17,6 +17,11 @@ provides separate bounded tool evidence for the 0.5.7 candidate. It executes fre
 Haskell/Alloy queries and retains complete traces; it does not qualify downstream
 behavioral compilation, exact source-candidate replay or any new Lean theorem.
 
+The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
+the delivered `behavioral-core/1` API, exact interpretation theorems and
+[fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
+source command, target encoding or full-profile qualification claim.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

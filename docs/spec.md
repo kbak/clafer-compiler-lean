@@ -174,6 +174,47 @@ Covers:
 
 Needs: impl
 
+## Behavioral resolved IR
+
+`req~compiler-behavioral-ir~1`
+
+Provide explicit first-slice version/profile admission over the guarded structural
+core, retaining resolved declaration IDs, authored/effective metadata, source
+spans and unique attachment occurrences. Represent both source signs,
+X/F/G/U/W, initial/final anchors, Boolean connectives, captured sets and lexical
+quantifiers, including the raw `one`/`lone` counting barrier. Reject unsupported
+profiles, requested constructors and attachment forms without changing static
+admission. Retain one finite identity inventory, fixed direct types/parents,
+changing presence and distinct reference heads. Check representation invariants
+and separate identity, step and reference-observation bounds. Structural state
+satisfaction remains an explicit upstream obligation, not a result of these
+representation checks. See the [first-slice contract](behavioral-ir.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral interpretation
+
+`req~compiler-behavioral-interpretation~1`
+
+Interpret the executable first slice into accepted immutable upstream S2/S3
+definitions. Prove structural admission, signed normalization and finite set/atom
+evaluation agreement, including captures, current navigation and attachment
+ownership. Define one identity correspondence for the entire trace independently
+of satisfaction. Preserve first-parent-absence cancellation and reappearance,
+with checked contrasting lifetime witnesses on an admitted source trace. Keep
+classical target negation distinct from source negation. This slice does not
+provide partial atoms, a finite temporal satisfaction evaluator, target
+preservation or the complete behavioral profile. Its
+[interpretation handoff](behavioral-ir.md#proof-handoff) states exact boundaries.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Reproducible build and assurance bootstrap
 
 `req~compiler-build~1`
