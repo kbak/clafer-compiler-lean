@@ -15,4 +15,4 @@ class ExpressionsTest(unittest.TestCase):
                             'ClaferCompiler.Tests.Expressions.run')
         self.assertEqual(result.stderr, '')
         self.assertEqual(result.stdout.strip(),
-                         '41 expression cases; 882 arithmetic boundaries; 360 extraction interval boundaries; extraction and observations passed')
+                         '47 expression cases; 882 arithmetic boundaries; 360 extraction interval boundaries; extraction and observations passed')

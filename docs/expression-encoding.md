@@ -150,6 +150,8 @@ integer or relation value. Lexical variables use their original positions;
 `this` occupies the position outside all lexical binders. Operations preserve
 ordered operands and explicit widening. Universal definedness requires every
 actual domain member's body to be defined; an empty domain is vacuously defined.
+Typed empty collections emit true definedness and `Rel.empty` at their retained
+arity. They require no extent/map observation and have collection budget zero.
 Conservative admission still checks every syntactic branch and body for overflow.
 
 Observed integer objects retain their original identity. `Signature.scalar`

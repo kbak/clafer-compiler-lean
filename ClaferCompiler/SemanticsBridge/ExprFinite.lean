@@ -19,6 +19,7 @@ theorem finite_result {s : Clafer.Constraints.Support}
     (hm : ∀ f ∈ e.maps, (ambientRelation (model.model.map (s.arrow f))).Finite)
     (ρ : Clafer.Constraints.Environment s Atom Γ) : FiniteResult t (e.denote model ρ) := by
   induction e with
+  | empty k => exact ⟨∅, rfl, Set.finite_empty⟩
   | this => exact ⟨_, rfl, Set.finite_singleton _⟩
   | var v => exact ⟨_, rfl, Set.finite_singleton _⟩
   | extent x => exact ⟨_, rfl, hv x (Set.mem_singleton x)⟩

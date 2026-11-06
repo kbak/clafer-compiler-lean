@@ -194,6 +194,15 @@ class SourcePipelineTests(unittest.TestCase):
             ('parent', 'abstract Node\n  child -> Node\n    [this = parent]\nleft : Node\nright : Node\n',
              bounds([1,2,2,1,1,0],5,5), 'none'),
             ('omitted', 'a -> int\n[a = 0]\n', bounds([1,1,1],2,2), 'none'),
+            ('empty-only', '[no none]\n[#none = 0]\n[all x : none | no none]\n',
+             bounds([1,0],1,1), 'none'),
+            ('empty', 'a ?\nb ?\n[no none]\n[#none = 0]\n'
+             '[a ++ none = a]\n[none ++ b = b]\n[none in a]\n'
+             '[all x : none | no none]\n', bounds([1,1,0,0],2,3), 'none'),
+            ('empty-reference', 'a -> int ?\n[a = none]\n',
+             bounds([1,0,0],1,2), 'none'),
+            ('empty-navigation', 'a\n  x *\n[no none.x]\n',
+             bounds([1,1,1,0],3,3), 'none'),
             ('inherited', 'abstract Base\n  xor choice\n    a\n    b\nitem : Base\n',
              bounds([1,1,1,0,0,1],3), 'drop-inherited-group')]
         prepared = [native('seed-'+name, source, limits, mutation=mutation)
@@ -233,6 +242,9 @@ class SourcePipelineTests(unittest.TestCase):
             if name == 'display': changed_source = source.replace('= 2', '= 1')
             if name == 'parent': changed_source = source.replace('= parent', '= left')
             if name == 'omitted': mutation = 'drop-constraint:0'
+            if name in ('empty', 'empty-only'): changed_source = source.replace('no none', 'some none', 1)
+            if name == 'empty-reference': changed_source = source.replace('a = none', 'a != none')
+            if name == 'empty-navigation': changed_source = source.replace('no none.x', 'some none.x')
             if name == 'inherited': mutation = 'drop-inherited-group'
             changed = native(name+'-mutated', changed_source, limits, c, mutation)
             self.assertEqual(changed.joinpath('evaluation.rows').read_text().splitlines()[0],

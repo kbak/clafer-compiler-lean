@@ -65,6 +65,7 @@ theorem analyzeAt_all_numbers_fit (hv : ObservationValid s o) (hb : o.withinBoun
     | integer z =>
       subst t
       exact analyzed_integer_fits hv hb _ _ hf rfl ho he ρ hρ ⟨z⟩ rfl
+    | empty k => subst t; trivial
     | this => subst t; trivial
     | extent x => subst t; trivial
     | map e => subst t; trivial

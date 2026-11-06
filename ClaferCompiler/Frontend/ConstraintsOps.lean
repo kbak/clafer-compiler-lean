@@ -76,6 +76,22 @@ def binary (op : Token) (span : SourceSpan) (left : Synth c s Γ cursor l)
   let pair ← align left right (["=", "!="].contains op.text)
   let a := pair.left
   let b := pair.right
+  let _ : Decidable a.term.raw.EmptyUnary := emptyUnaryAt a.term.budget a.term.raw a.term.bound
+  let _ : Decidable b.term.raw.EmptyUnary := emptyUnaryAt b.term.budget b.term.raw b.term.bound
+  if he : a.term.raw.EmptyUnary ∨ b.term.raw.EmptyUnary then
+    match ht : pair.type with
+    | .collection (.objects x) =>
+      have ha : Elaborates c s Γ cursor true l (.collection (.objects x)) a.term.raw := by
+        rw [← ht]; exact a.derivation
+      have hb : Elaborates c s Γ cursor true r (.collection (.objects x)) b.term.raw := by
+        rw [← ht]; exact b.derivation
+      if ho : op.text = "=" then
+        return ⟨.boolean, .located span (.equal (.collection (.objects x)) a.term b.term),
+          .binary ha hb (by rw [ho]; exact .equalEmpty he)⟩
+      if ho : op.text = "!=" then
+        return ⟨.boolean, .located span (.not (.equal (.collection (.objects x)) a.term b.term)),
+          .binary ha hb (by rw [ho]; exact .unequalEmpty he)⟩
+    | _ => pure ()
   if ho : op.text = "=" then
     if he : ValueType s pair.type then
       return ⟨.boolean, .located span (.equal pair.type a.term b.term), .binary a.derivation b.derivation (by rw [ho]; exact .equal he)⟩

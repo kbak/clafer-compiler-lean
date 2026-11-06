@@ -34,6 +34,13 @@ noncomputable abbrev meaning (t : Ty 3) (e : Term 3 3) (h : e.Typed s [] t) :=
 [utest->req~compiler-expressions~1]
 [utest->req~compiler-arithmetic~1]
 -/
+theorem empty_primitive_defined :
+    meaning (.collection (.objects 2)) (.empty (.objects 2)) (by decide) = some ∅ := rfl
+
+theorem empty_extraction_undefined :
+    meaning .integer (.integerOf 2 (.empty (.objects 2))) (by decide) = none := by
+  simp [meaning, interpret, Clafer.Constraints.Expr.denote]
+
 theorem heads_meaning : meaning (.collection (.objects 1)) heads (by decide) =
     some ({.object 1, .object 2} : Set Atom) := by
   simp only [meaning, heads, interpret, Clafer.Constraints.Expr.denote,

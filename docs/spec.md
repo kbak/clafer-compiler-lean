@@ -577,6 +577,9 @@ explicit identity/inclusion widening and original byte spans. Preserve `this`,
 global extents, repeated map occurrences and operand order. Reject malformed
 annotations and direct observations of the complete primitive integer extent.
 Return the original tree with checked typing and observation evidence.
+Include defined empty collections at both core arities, with no extent/map reads
+and budget zero. Keep unary/binary, Boolean and scalar sorts distinct; primitive
+empty collections are finite and singleton extraction from them is undefined.
 
 Interpret successful typed trees into the pinned independent typed core, using
 its existing partial denotation. Prove exact admission, footprint preservation
@@ -652,6 +655,13 @@ relation, checked typing and finite-observation admission. Interpret its typed
 syntax through the pinned partial denotation, retaining undefined as distinct
 from false. Type checking must not assert singleton extraction, numeric bounds,
 source satisfaction, or backend preservation. Literal-only bodies need no maps.
+Reserve `none` as a unary empty literal with contextually instantiated bottom
+element type. Adapt it before reference/scalar coercions, preserving collection
+equality with numeric reference heads. Support standalone cardinality, presence,
+empty quantifiers and uniquely resolved navigation from emptiness. Keep missing
+or ambiguous names and scalar/arity mismatches diagnostic, with no invented class
+or inclusion edge. Computed collections retain the resolved typing and strict
+partiality described in the [empty literal contract](constraints.md#empty-collection-literal).
 
 Enumerate every original body and prove source occurrence/order preservation;
 retain empty bracket groups in the source document without inventing bodies.
@@ -703,6 +713,8 @@ ordered operands, explicit identity/inclusion widening and finite primitive
 observations. Generate separate definedness and value/truth; undefined extraction
 must remain distinguishable from false under negation and quantification.
 Conservatively reject all unsafe numeric intermediates, including vacuous bodies.
+Encode typed empty collections with true definedness and arity-correct target
+emptiness, retaining the existing singleton-extraction failure behavior.
 
 Represent observed integer objects with typed, total scalar fields and emit
 interval and injectivity facts. Prove the corresponding enforcement from target

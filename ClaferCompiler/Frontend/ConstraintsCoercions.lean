@@ -20,6 +20,8 @@ def convertAt (s : Support n m) : Nat → (t : Ty n) → (a : Term n m) → (u :
     | .collection k, .boolean =>
       return ⟨.less (.integer 0) (.cardinality k a), by simp only [ht, hu]; exact .some⟩
     | .collection (.objects x), .integer =>
+      let _ : Decidable a.raw.EmptyUnary := emptyUnaryAt a.budget a.raw a.bound
+      if a.raw.EmptyUnary then throw "constraint.empty-arity-or-scalar"
       if hi : s.integer[x] = true then return ⟨.integerOf x a, by simp only [ht, hu]; exact .integer hi⟩
       for e in List.finRange m do
         if he : s.maps[e].kind = .dereference ∧ s.maps[e].source = x then
@@ -28,6 +30,9 @@ def convertAt (s : Support n m) : Nat → (t : Ty n) → (a : Term n m) → (u :
           return ⟨b.term, by simpa only [ht, hu] using (Coerces.trans (.dereference (a := a.raw) he.1 he.2) b.derivation (by intro h; cases h))⟩
       throw "constraint.expected-integer"
     | .collection (.objects x), .collection (.objects y) =>
+      let _ : Decidable a.raw.EmptyUnary := emptyUnaryAt a.budget a.raw a.bound
+      if he : a.raw.EmptyUnary then
+        return ⟨.empty (.objects y), by simp only [ht, hu]; exact .emptyObjects he⟩
       for (z, p) in superPaths s x do
         if z = y then
           if hp : ValidWiden s x y p then return ⟨.widenObjects x y p a, by simp only [ht, hu]; exact .widen hp⟩
@@ -109,6 +114,18 @@ def alignValues (l : (t : Ty n) × At c s Γ cursor a t)
 
 def align (left : Synth c s Γ cursor a) (right : Synth c s Γ cursor b)
     (values : Bool) : Except String (Pair c s Γ cursor a b) := do
+  -- Infer the bottom literal before reference/scalar adaptation. Comparing to
+  -- emptiness is a collection test, including integer-reference collections.
+  let _ : Decidable left.term.raw.EmptyUnary := emptyUnaryAt left.term.budget left.term.raw left.term.bound
+  let _ : Decidable right.term.raw.EmptyUnary := emptyUnaryAt right.term.budget right.term.raw right.term.bound
+  if left.term.raw.EmptyUnary then
+    match right.type with
+    | .collection (.objects _) => return ⟨right.type, ← expect left right.type, ← expect right right.type⟩
+    | _ => throw "constraint.empty-arity-or-scalar"
+  if right.term.raw.EmptyUnary then
+    match left.type with
+    | .collection (.objects _) => return ⟨left.type, ← expect left left.type, ← expect right left.type⟩
+    | _ => throw "constraint.empty-arity-or-scalar"
   if !values then
     let direct := alignValues ⟨left.type, ← expect left left.type⟩ ⟨right.type, ← expect right right.type⟩
     if let .ok pair := direct then return pair

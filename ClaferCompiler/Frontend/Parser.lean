@@ -176,7 +176,7 @@ def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
         let body ← previous.expression 20
         pure (Expr.unary t body (extent t.span body.span))
     else if let some n := t.text.toNat? then pure (Expr.integer t n)
-    else if isName t then pure (Expr.name t)
+    else if isName t || t.text == "none" then pure (Expr.name t)
     else reject t "parser.expression" "expected a static expression"
   previous.expressionTail minimum left
 

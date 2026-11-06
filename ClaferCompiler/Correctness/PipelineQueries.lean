@@ -45,6 +45,7 @@ theorem name_navigation {c : IR.Structural.Core n} {s : Support n m}
     (h : NameRule c s Γ cursor name t a) (hc : CursorNavigation c s cursor) :
     NavigationOnly c s a := by
   cases h with
+  | empty => trivial
   | this => trivial
   | «local» => trivial
   | global => trivial
@@ -57,6 +58,7 @@ theorem name_navigation {c : IR.Structural.Core n} {s : Support n m}
 theorem coercion_navigation {c : IR.Structural.Core n} {s : Support n m}
     (h : Coerces s t a u b) (ha : NavigationOnly c s a) : NavigationOnly c s b := by
   induction h with
+  | emptyObjects => trivial
   | same => exact ha
   | some => exact ⟨trivial,ha⟩
   | integer => exact ha
@@ -90,6 +92,7 @@ theorem elaborated_navigation {c : IR.Structural.Core n} {s : Support n m}
   | unary _ h ih => simpa only [NavigationOnly] using (unary_navigation h (ih hc))
   | binary _ _ h iha ihb => simpa only [NavigationOnly] using (binary_navigation h (iha hc) (ihb hc))
   | dot _ _ _ iha ihb => exact ihb (iha hc)
+  | dotEmpty _ _ _ _ _ ihb => exact ihb trivial
   | quantified _ _ _ _ h ihd iha => simpa only [NavigationOnly] using (quantified_navigation h (ihd hc) (iha trivial))
   | coerce _ h ih => exact coercion_navigation h (ih hc)
 

@@ -18,6 +18,7 @@ termination_by structural p => p
 the frontend or its normalizer. It retains every constructor and resolved ID. -/
 noncomputable def shape {s : Support} {Γ t} : Expr s Γ t → String
   | .boolean b => toString b | .integer i => toString i | .this => "this"
+  | .empty _ => "none"
   | .extent x => s!"extent{(s.classId x).value}" | .var i => s!"var{i.index}"
   | .map e => (match (s.mapRef e).kind with
       | .head => "head" | .parent => "parent" | .dereference => "dref"

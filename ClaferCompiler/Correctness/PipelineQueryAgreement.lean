@@ -43,6 +43,7 @@ theorem query_agreement {c : IR.Structural.Core n} {s : Support n m}
     (hρ : RecordedEnvironment o ρ) :
     (interpret s e ht).denote model ρ = (interpret s e ht).denote (extend s o hv) ρ := by
   induction e generalizing Γ t with
+  | empty k => subst t; rfl
   | boolean b => subst t; rfl
   | integer z => subst t; rfl
   | this => subst t; rfl

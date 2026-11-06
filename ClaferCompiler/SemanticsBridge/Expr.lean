@@ -65,6 +65,7 @@ noncomputable def interpret (s : Support n m) : (e : Syntax n m) →
     Clafer.Constraints.Expr (support s) (Γ.map (binder s)) (type s t)
   | .boolean b, Γ, t, h => by subst t; exact .boolean b
   | .integer i, Γ, t, h => by subst t; exact .integer i
+  | .empty k, Γ, t, h => by subst t; exact .empty (collection s k)
   | .this, Γ, t, h => by subst t; exact .this
   | .extent x, Γ, t, h => by subst t; exact @Clafer.Constraints.Expr.extent (support s) _ x
   | .var i, Γ, t, h => match hi : Γ[i]? with
@@ -146,6 +147,9 @@ theorem interpret_footprint (s : Support n m) (e : Syntax n m) {Γ t}
     subst t
     simp_all [interpret, Syntax.extents, Syntax.maps, Clafer.Constraints.Expr.extents,
       Clafer.Constraints.Expr.maps]
+  | empty k =>
+    subst t
+    simp [interpret, Syntax.extents, Syntax.maps, Clafer.Constraints.Expr.extents, Clafer.Constraints.Expr.maps]
   | this =>
     subst t
     simp_all [interpret, Syntax.extents, Syntax.maps, Clafer.Constraints.Expr.extents,

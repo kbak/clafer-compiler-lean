@@ -43,6 +43,7 @@ def encodeAt (s : Support n m) (l : Layout n m) (b : IR.Expr.Bounds n) :
       cases e with
       | boolean v => subst t; exact ⟨.truth, if v then .truth else .falsity⟩
       | integer v => subst t; exact ⟨.truth, .literal v⟩
+      | empty k => subst t; exact ⟨.truth, .empty (match k with | .objects _ => .unary | .relation _ _ => .binary)⟩
       | this => subst t; exact ⟨.truth, .var Γ.length⟩
       | extent x => subst t; exact ⟨.truth, l.extents[x]⟩
       | map e => subst t; exact ⟨.truth, l.maps[e]⟩

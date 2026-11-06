@@ -57,7 +57,8 @@ The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:
   a resolved-IR API and native IR-to-Alloy CLI with explicit bounds.
 - **M2:** the upstream typed static core, selected inherited realization and text
   frontend: Boolean logic, sets/relations, navigation, finite quantifiers,
-  cardinality, singleton integer extraction and integer addition/subtraction.
+  cardinality, the `none` empty collection literal, singleton integer extraction
+  and integer addition/subtraction.
   Enums, strings/reals, multiplication/division/aggregations and other wider
   Haskell features are explicitly deferred.
 - **M3:** integrated source-text CLI, complete supported Appendix 6 telematics

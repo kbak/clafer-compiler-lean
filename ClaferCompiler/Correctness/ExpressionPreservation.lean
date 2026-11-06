@@ -47,6 +47,12 @@ theorem encodeAt_agrees {s : Support n m} {l : Layout n m} {b : IR.Expr.Bounds n
       intro v hvz
       cases Option.some.inj hvz
       exact source_range_target_int hw hfit
+    | empty k =>
+      subst t
+      refine ⟨rfl, ?_⟩
+      intro S hS
+      cases Option.some.inj hS
+      cases k <;> simp [ValueAgrees, Represents, encodeAt]
     | this =>
       subst t
       refine ⟨rfl, ?_⟩

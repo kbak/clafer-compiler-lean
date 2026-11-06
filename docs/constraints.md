@@ -109,6 +109,32 @@ original `this`. Single-object universal, existential and no/not binders are
 accepted; the existing finite-observation checker rejects infinite primitive
 extent observation. Distinct lexical positions survive shadowing.
 
+## Empty collection literal
+
+`none` is reserved and denotes a defined empty unary collection. Its bottom
+element type is instantiated at the other collection operand before ordinary
+reference/value adaptation. Thus `a = none` tests the collection of reference
+heads for emptiness, even when `a` refers to integers; it does not extract an
+integer. Explicit `a.dref = none` tests the target collection. Unrelated element
+classes need no invented common superclass to combine with this literal.
+
+Standalone `#none`, `no none`, `none = none` and empty quantifier domains use an
+arbitrary context element annotation with no extent observation. The resolved
+core remains monomorphic: `Syntax.EmptyUnary` recognizes the literal through
+source locations; computed collections keep their resolved types and strict
+definedness. This is contextual instantiation, not a general polymorphic type
+inference system. Integer extraction from an empty integer collection remains
+undefined; a bare literal is not adapted to a scalar or binary relation.
+
+For `none.field`, the elaborator tries the right operand in each supported
+element context with an empty receiver. Exactly one successful context is
+required. Missing and ambiguous navigation remain errors. Existing set operations,
+counts, multiplicities and quantifiers then use their ordinary meanings, including
+vacuous universal truth. General conditionals and the full Haskell ResolverRoot
+transformation remain outside the selected source language. See the
+[source decision](sources.md#empty-collection-extension) and
+[typed representation](expressions.md#empty-collection-typing-and-preservation).
+
 ## Meaning and proof boundary
 
 `SemanticsBridge.Constraints.Meaning` is a relational source denotation: an

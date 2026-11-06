@@ -37,6 +37,18 @@ def synthAt (doc : Document) (c : IR.Structural.Core n) (s : Support n m) : Nat 
         if ho : op.text = "." then
           match ht : a.type with
           | .collection (.objects x) =>
+            let _ : Decidable a.term.raw.EmptyUnary := emptyUnaryAt a.term.budget a.term.raw a.term.bound
+            if he : a.term.raw.EmptyUnary then
+              let mut choices : List ((y : Fin n) × Synth c s Γ (some (y, (.empty (.objects y) : Syntax n m))) right) := []
+              for y in List.finRange n do
+                match next Γ (some (y, .empty (.objects y))) right with
+                | .ok b => choices := choices ++ [⟨y, b⟩]
+                | .error _ => pure ()
+              match choices with
+              | [⟨y, b⟩] => return ⟨b.type, .located span b.term,
+                  .dotEmpty (x := x) (y := y) ho (by rw [← ht]; exact a.derivation) he b.derivation⟩
+              | [] => throw ((failure doc e) "constraint.missing-navigation")
+              | _ => throw ((failure doc e) "constraint.ambiguous-navigation")
             let b ← next Γ (some (x, a.term)) right
             return ⟨b.type, .located span b.term,
               .dot ho (by rw [← ht]; exact a.derivation) b.derivation⟩

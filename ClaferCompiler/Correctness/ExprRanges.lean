@@ -61,6 +61,11 @@ theorem analyzeAt_sound (hv : ObservationValid s o) (hb : o.withinBounds s b = t
       have : z = ⟨v⟩ := (Option.some.inj hz).symm
       subst z
       exact ⟨le_refl _, le_refl _⟩
+    | empty k =>
+      subst t
+      have : est = .collection 0 := by simpa [analyzeAt] using he.symm
+      subst est
+      exact ⟨∅, rfl, Set.finite_empty, by simp⟩
     | this =>
       subst t
       have : est = .collection 1 := by simpa [analyzeAt] using he.symm

@@ -74,6 +74,31 @@ class ConstraintTests(unittest.TestCase):
     def shape(self, source):
         return [row[5] for row in self.rows(source)]
 
+    def test_empty_literals_and_contextual_element_types(self):
+        self.rows('[#none = 0]\n[no none]\n[none = none]\n[all x : none | no none]\n')
+        expressions = ["#none = 0", "no none", "lone none", "!some none", "!one none",
+                       "a ++ none = a", "none ++ a = a", "a -- none = a",
+                       "a ** none = none", "none -- a = none", "none in a",
+                       "none = none", "(none) = a -- a", "all x : none | no none"]
+        for expr in expressions:
+            with self.subTest(expr=expr):
+                self.rows('a *\nb *\n[' + expr + ']\n')
+        self.rows('a *\nb *\n[none ++ b = b]\n[b -- none = b]\n[none in b]\n')
+        shapes = self.shape('a -> int ?\n[a = none]\n[none = a]\n[a != none]\n')
+        self.assertTrue(all('none' in x and 'int(' not in x for x in shapes), shapes)
+        # This receiver has no declared class: its uniquely resolvable field
+        # supplies the endpoint, and name errors still fail before translation.
+        self.rows('a\n  x *\n[no none.x]\n')
+        for source, code in [
+            ('a\n[no none.missing]\n', 'constraint.missing-navigation'),
+            ('a\n  x *\nb\n  x *\n[no none.x]\n', 'constraint.ambiguous-navigation'),
+            ('a -> int\n  [none + 1 = 0]\n', 'constraint.empty-arity-or-scalar'),
+            ('a\n[none = 0]\n', 'constraint.empty-arity-or-scalar'),
+            ('none\n', 'parser.name'),
+            ('a\n[all none : a | no a]\n', 'parser.name')]:
+            with self.subTest(source=source):
+                self.assertIn('error|' + code + '|', self.compile(source))
+
     def test_all_twelve_manual_bodies_and_attachment_positions(self):
         projection = self.output / 'Manual.lean'
         projection.write_text('import tests.ConstraintsInventory\n'

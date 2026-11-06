@@ -154,6 +154,9 @@ theorem recorded_result (hv : ObservationValid s o) (hb : o.withinBounds s b = t
     (ρ : Clafer.Constraints.Environment (support s) Atom Γ)
     (hρ : RecordedEnvironment o ρ) : RecordedResult o t (e.denote (extend s o hv) ρ) := by
   induction e with
+  | empty k =>
+    refine ⟨∅, rfl, ?_⟩
+    cases k <;> simp [RecordedCollection]
   | this => exact ⟨_, rfl, by simpa [RecordedCollection] using hρ.1⟩
   | var v => exact ⟨_, rfl, by simpa [RecordedCollection] using hρ.2 _ v⟩
   | extent x =>
