@@ -24,6 +24,7 @@ def shapeAt (s : Support n m) : Nat → Syntax n m → String :=
     let two := fun op a b => op ++ "(" ++ next a ++ "," ++ next b ++ ")"
     match e with
     | .boolean b => toString b | .integer i => toString i | .this => "this"
+    | .empty _ => "noclafer"
     | .extent x => s!"extent{s.classes[x]}" | .var i => s!"var{i}"
     | .map e => s!"{kind s.maps[e].kind}{s.maps[e].owner}"
     | .and a b => two "and" a b | .not a => one "not" a

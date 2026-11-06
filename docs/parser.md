@@ -63,7 +63,7 @@ card        = "?" | "+" | "*" | decimal | interval
 interval    = decimal ".." (decimal | "*")
 body        = "{" { element } "}" | indented-elements
 constraint  = "[" { expression } "]"
-atom        = name | decimal | "(" expression ")"
+atom        = name | "noclafer" | decimal | "(" expression ")"
 quantifier  = "some" | "no" | "not" | "one" | "lone"
 binder      = ("all" | "some" | "no" | "not") name ":" E21 "|" E1
 ```
@@ -78,6 +78,9 @@ combining accents and non-ASCII digits are rejected. `integer`, `int`, `this`,
 [declaration](resolution.md) and [constraint](constraints.md) elaborators. The reserved
 words are exactly the selected keywords and excluded keyword inventory in the
 lexer; in particular `U`, `W`, `F`, `G` and `X` are temporal tokens.
+`noclafer` is an expression keyword and cannot name a declaration or binder;
+conflicts produce `parser.name`.
+`none` remains an ordinary name, including in declarations and binders.
 
 Space, tab, LF and CR are whitespace; CRLF counts as one newline without changing
 original offsets. Tabs before the first token of a line are malformed. `//` runs

@@ -62,7 +62,7 @@ def Candidate.header (c : Candidate n) (doc : Document) (i : Fin n) : Option Hea
 
 def reserved (s : String) : Bool :=
   ["Sing", "root", "this", "parent", "dref", "int", "integer", "string", "real",
-    "double", "bool", "boolean"].contains s
+    "double", "bool", "boolean", "noclafer"].contains s
 
 def integerName (s : String) : Bool := s == "int" || s == "integer"
 

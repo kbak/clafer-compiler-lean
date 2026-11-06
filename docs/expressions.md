@@ -73,7 +73,7 @@ Every literal, extraction interval and arithmetic intermediate must fit the
 signed width. All Boolean branches and binder bodies are inspected independently
 of their truth, even with an empty domain.
 
-Collection budgets are conservative upper bounds: singleton 1, declared extent
+Collection budgets are conservative upper bounds: empty collection 0, singleton 1, declared extent
 budget, map endpoint product, union sum, difference left budget, intersection
 minimum, image relation budget and join product. Cardinality checks `[0,budget]`.
 A large budget alone is not an integer expression; it is checked when observed by
@@ -103,6 +103,52 @@ list. This API supplies **no general finite expression evaluator**.
 
 Covers:
 - `req~compiler-arithmetic~1`
+
+## Empty collection typing and preservation
+
+`impl~compiler-empty-collections~1`
+
+`Syntax.empty` and `Term.empty` retain either a unary element annotation or two
+binary endpoint annotations. They read no extents or maps, including at primitive
+types. Admission retains arity: an empty unary collection is not a Boolean,
+scalar integer or binary relation. The source frontend contextually instantiates
+the unary literal through `Coerces.emptyObjects`, without an inheritance edge.
+The [empty source contract](constraints.md#empty-collection-literal) specifies
+the selected inference boundary.
+
+The [bridge](../ClaferCompiler/SemanticsBridge/Expr.lean) maps the constructor to
+upstream `Expr.empty`, with meaning `Option.some ∅`. Bounds assign zero and
+[encoding](../ClaferCompiler/Backend/Alloy/Expressions.lean) emits true definedness
+and target `Rel.empty` of the same arity (`none` or `none -> none`). Existing
+serialization already supports both target shapes.
+
+Covers:
+- `req~compiler-expressions~1`
+- `req~compiler-arithmetic~1`
+- `req~compiler-constraint-elaboration~1`
+- `req~compiler-expression-encoding~1`
+
+`proof~compiler-empty-collections~1`
+
+The empty cases of `Expr.finite_result`, `recorded_result`, `analyzeAt_sound`,
+`encodeAt_built`, `encodeAt_agrees`, and the pipeline query/observation proofs
+retain finite observation, range soundness and source/target preservation.
+See [finite meaning](../ClaferCompiler/SemanticsBridge/ExprFinite.lean),
+[ranges](../ClaferCompiler/Correctness/ExprRanges.lean),
+[construction](../ClaferCompiler/Correctness/ExpressionConstruction.lean),
+[preservation](../ClaferCompiler/Correctness/ExpressionPreservation.lean), and
+[pipeline query safety](../ClaferCompiler/Correctness/PipelineQueries.lean).
+[Kernel examples](../tests/Expr.lean) distinguish defined primitive emptiness
+from undefined singleton extraction. [Native typing tests](../tests/ExprNative.lean)
+reject arity/scalar mismatches; [source tests](../tests/test_constraints.py) cover
+typing and diagnostics. [Pipeline replays](../tests/test_source_pipeline.py)
+compare exact witnesses and falsifying mutations with the pinned Alloy Analyzer.
+
+Covers:
+- `req~compiler-expressions~1`
+- `req~compiler-arithmetic~1`
+- `req~compiler-constraint-elaboration~1`
+- `req~compiler-expression-encoding~1`
 
 ## Independent meaning and proofs
 

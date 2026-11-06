@@ -38,6 +38,7 @@ theorem encodeAt_built (s : Support n m) (l : Layout n m) (b : IR.Expr.Bounds n)
     cases e with
     | boolean v => subst t; cases v <;> exact ⟨.truth, by constructor⟩
     | integer v => subst t; exact ⟨.truth, .literal _⟩
+    | empty k => subst t; exact ⟨.truth, .empty _⟩
     | this => subst t; exact ⟨.truth, .var _⟩
     | extent x => subst t; exact ⟨.truth, hl.1 x⟩
     | map e => subst t; exact ⟨.truth, hl.2 e⟩

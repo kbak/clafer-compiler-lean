@@ -87,6 +87,7 @@ annotations do not assert typing until checked. Spans retain original UTF-8 byte
 inductive Syntax (n m : Nat) where
   | boolean (value : Bool)
   | integer (value : Int)
+  | empty (shape : Collection n)
   | this
   | extent (vertex : Fin n)
   | var (position : Nat)
@@ -120,6 +121,7 @@ noncomputable def Syntax.depth : Syntax n m → Nat
 noncomputable def Syntax.Typed (s : Support n m) (Γ : List (Local n)) (t : Ty n) : Syntax n m → Prop
   | .boolean _ => t = .boolean
   | .integer _ => t = .integer
+  | .empty k => t = .collection k
   | .this => t = .collection (.objects s.context)
   | .extent x => t = .collection (.objects x)
   | .var i => match Γ[i]? with | none => False | some b => t = .collection (.objects b.element)
@@ -147,6 +149,23 @@ noncomputable def Syntax.Typed (s : Support n m) (Γ : List (Local n)) (t : Ty n
 
 termination_by structural e => e
 
+/-- A bottom literal can be instantiated at another unary element type.
+Locations are transparent; computed collections are never erased by this test. -/
+noncomputable def Syntax.EmptyUnary : Syntax n m → Prop
+  | .empty (.objects _) => True
+  | .located _ a => a.EmptyUnary
+  | _ => False
+termination_by structural e => e
+
+def emptyUnaryAt : (fuel : Nat) → (e : Syntax n m) → e.depth < fuel → Decidable e.EmptyUnary :=
+  Nat.rec (motive := fun fuel => (e : Syntax n m) → e.depth < fuel → Decidable e.EmptyUnary)
+    (fun _ h => False.elim (Nat.not_lt_zero _ h))
+    (fun _ next e h => by
+      cases e with
+      | empty k => cases k <;> unfold Syntax.EmptyUnary <;> infer_instance
+      | located p a => exact next a (by simp only [Syntax.depth] at h; omega)
+      | _ => exact isFalse (by intro h; cases h))
+
 /-- Standard-library natural recursion avoids generated project recursion helpers.
 The fuel proof is structural size, not a user supplied limit or a skipped check. -/
 def typedAt (s : Support n m) : (fuel : Nat) → (e : Syntax n m) → e.depth < fuel →
@@ -159,6 +178,8 @@ def typedAt (s : Support n m) : (fuel : Nat) → (e : Syntax n m) → e.depth < 
       | boolean b =>
         unfold Syntax.Typed; infer_instance
       | integer i =>
+        unfold Syntax.Typed; infer_instance
+      | empty k =>
         unfold Syntax.Typed; infer_instance
       | this =>
         unfold Syntax.Typed; infer_instance
@@ -260,6 +281,7 @@ def observedAt (s : Support n m) : (fuel : Nat) → (e : Syntax n m) →
     (fun _ next e h => by
       cases e with
       | boolean b => exact isTrue (by simp [Syntax.Observed, Syntax.extents])
+      | empty _ => exact isTrue (by simp [Syntax.Observed, Syntax.extents])
       | integer i => exact isTrue (by simp [Syntax.Observed, Syntax.extents])
       | this => exact isTrue (by simp [Syntax.Observed, Syntax.extents])
       | var i => exact isTrue (by simp [Syntax.Observed, Syntax.extents])
@@ -350,6 +372,9 @@ abbrev boolean (b : Bool) : Term n m :=
 
 abbrev integer (i : Int) : Term n m :=
   ⟨.integer i, 2, by simp [Syntax.depth]⟩
+
+abbrev empty (k : Collection n) : Term n m :=
+  ⟨.empty k, 2, by simp [Syntax.depth]⟩
 
 abbrev this  : Term n m :=
   ⟨.this, 2, by simp [Syntax.depth]⟩

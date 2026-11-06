@@ -57,6 +57,8 @@ def analyzeAt (s : Support n m) (b : Bounds n) : (fuel : Nat) → (e : Syntax n 
 
       | integer i => exact number b ⟨i, i⟩
 
+      | empty _ => exact .ok (.collection 0)
+
       | this => exact .ok (.collection 1)
 
       | var _ => exact .ok (.collection 1)

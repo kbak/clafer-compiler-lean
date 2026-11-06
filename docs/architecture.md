@@ -108,6 +108,7 @@ positive and rejecting/violating examples, including undefined cases where relev
 | Accepted constructor(s) | Meaning and boundary | Surface route |
 | --- | --- | --- |
 | `boolean`, `integer` | Boolean values; mathematical integer constants | IR Booleans; decimal integer literal and unary minus. No new Boolean keyword syntax is implied. |
+| `empty` | Defined empty collection at an explicit unary/binary shape; no extent observation | Unary `noclafer` with contextual bottom element instantiation; binary empties remain an IR facility |
 | `this`, `extent`, `var` | Context singleton, resolved global extent, lexical-position singleton | `this`, resolved name, binder name; parentless abstract extents are global, never fake root children |
 | `map`, `image`, `join` | Resolved binary map, unary image, binary composition | Typed paths and `.`; parent/child/dereference steps resolved explicitly; internal binary map terms need no new surface keyword |
 | `and`, `not` | Strict partial Boolean conjunction/negation | `&&`, `!`; selected derived connectives below |

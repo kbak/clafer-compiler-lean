@@ -113,6 +113,7 @@ abbrev Cursor (n m : Nat) := Option (Fin n × Syntax n m)
 
 inductive NameRule (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n)) :
     Cursor n m → String → Ty n → Syntax n m → Prop where
+  | empty {cursor x} : NameRule c s Γ cursor "noclafer" (.collection (.objects x)) (.empty (.objects x))
   | this : NameRule c s Γ none "this" (.collection (.objects s.context)) .this
   | local {name i b} : Γ[i]? = some b → b.name = name →
       (∀ k : Fin i, ∀ a, Γ[k.val]? = some a → a.name ≠ name) →
@@ -140,6 +141,8 @@ inductive NameRule (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Loca
 /-- Context-directed conversions are explicit syntax, never an assertion that a
 collection has one element or that bounded target arithmetic is safe. -/
 inductive Coerces (s : Support n m) : Ty n → Syntax n m → Ty n → Syntax n m → Prop where
+  | emptyObjects {x y a} : a.EmptyUnary →
+      Coerces s (.collection (.objects x)) a (.collection (.objects y)) (.empty (.objects y))
   | same {t a} : Coerces s t a t a
   | some {k a} : Coerces s (.collection k) a .boolean (.less (.integer 0) (.cardinality k a))
   | integer {x a} : s.integer[x] = true →
@@ -177,6 +180,10 @@ inductive BinaryRule (s : Support n m) : String → Ty n → Syntax n m → Synt
   | xor {a b} : BinaryRule s "xor" .boolean a b .boolean (.and (disjunction a b) (.not (.and a b)))
   | implies {a b} : BinaryRule s "=>" .boolean a b .boolean (implication a b)
   | iff {a b} : BinaryRule s "<=>" .boolean a b .boolean (.and (implication a b) (implication b a))
+  | equalEmpty {x a b} : a.EmptyUnary ∨ b.EmptyUnary →
+      BinaryRule s "=" (.collection (.objects x)) a b .boolean (.equal (.collection (.objects x)) a b)
+  | unequalEmpty {x a b} : a.EmptyUnary ∨ b.EmptyUnary →
+      BinaryRule s "!=" (.collection (.objects x)) a b .boolean (.not (.equal (.collection (.objects x)) a b))
   | equal {t a b} : ValueType s t → BinaryRule s "=" t a b .boolean (.equal t a b)
   | unequal {t a b} : ValueType s t → BinaryRule s "!=" t a b .boolean (.not (.equal t a b))
   | less {a b} : BinaryRule s "<" .integer a b .boolean (.less a b)
@@ -214,6 +221,10 @@ inductive Elaborates (c : IR.Structural.Core n) (s : Support n m) :
       Elaborates c s Γ cursor true left t a → Elaborates c s Γ cursor true right t b →
       BinaryRule s op.text t a b u d →
       Elaborates c s Γ cursor false (.binary op left right span) u (.located span d)
+  | dotEmpty {Γ cursor op left right span x y a t b} : op.text = "." →
+      Elaborates c s Γ cursor false left (.collection (.objects x)) a → a.EmptyUnary →
+      Elaborates c s Γ (some (y, .empty (.objects y))) false right t b →
+      Elaborates c s Γ cursor false (.binary op left right span) t (.located span b)
   | dot {Γ cursor op left right span x a t b} : op.text = "." →
       Elaborates c s Γ cursor false left (.collection (.objects x)) a →
       Elaborates c s Γ (some (x, a)) false right t b →
