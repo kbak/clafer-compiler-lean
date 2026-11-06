@@ -119,8 +119,8 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 
 | Trigger | Checks |
 | --- | --- |
-| Pull request or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
-| Manual dispatch | Full pinned IntentBond check, including Haskell/Alloy comparisons, runtime isolation and all Python/native regressions |
+| PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
+| PR targeting `behavioral`, push to `behavioral`, or manual dispatch | Full pinned IntentBond check, including Haskell/Alloy comparisons, runtime isolation and all Python/native regressions |
 
 The full local IntentBond check remains mandatory before handoff. Routine CI is
 build/proof/CLI evidence, not full qualification evidence. Both paths check scope
@@ -129,7 +129,8 @@ coverage policy, test cases and time limits are unchanged.
 
 Both paths reuse the existing module inventory, Lake build targets, axiom audit,
 LeanChecker and Python `unittest` tests; no separate test framework or compiler
-runtime dependency is added. The workflow selects the smaller hosted suite;
+runtime dependency is added. The workflow selects the full suite for behavioral
+integration, including contract-only changes, and the smaller routine suite elsewhere;
 `scripts/check.sh` always runs every gate. GitHub's cache action reuses pinned
 dependency packages and external comparison tools. Preparation and clean-pin/tool
 identity checks still run for the tools each path uses; project build outputs

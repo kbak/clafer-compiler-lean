@@ -10,7 +10,7 @@ import sys
 CONFIG = json.loads(
     (Path(__file__).resolve().parents[1] / ".github/project.json").read_text()
 )
-STATUSES = {"todo": "Todo", "in-progress": "In Progress", "done": "Done"}
+STATUSES = {"todo": "Todo", "ready": "Ready", "in-progress": "In Progress", "done": "Done"}
 
 
 def gh(*args, structured=False):

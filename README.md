@@ -60,6 +60,9 @@ fragment. Temporal behavior, enums, runtime strings/reals, multiplication/divisi
 general aggregation and automatic scope inference are outside it. Full Haskell
 compatibility is not promised.
 
+The [behavioral profile](docs/behavioral.md) is planned on the `behavioral`
+integration branch. It is not yet supported by the compiler.
+
 ## Build and compile
 
 Install Elan, Git, Python 3.11+, Bash and a C toolchain. The repository pins

@@ -40,6 +40,9 @@ A source citation is not a redistribution license.
 
 ## Current comparison dependency
 
+The behavioral planning sources are registered [separately below](#behavioral-sources).
+They do not change these installed structural/0.5.4 pins.
+
 The pinned Haskell reference is 0.5.4. Its apostrophe UID escaping and `opt`
 default fix are adopted through the upstream capture adapter, whose strict
 position/option schemas remain outside the proof boundary. The single-file
@@ -423,3 +426,72 @@ The deadline selector adapts `scripts/ci_scope.py` from the pinned S1 repository
 preserve the exact reviewed policy transition; IntentBond consumes the external
 selected policy. The [build contract](build.md) records the reuse assessment and
 tests. This adds no compiler meaning, proof assumption or runtime dependency.
+
+## Behavioral sources
+
+The [behavioral compiler contract](behavioral.md) uses accepted upstream semantics
+at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`, the
+[accepted surface integration](https://github.com/kbak/clafer-semantics/pull/147).
+The original [profile adoption](https://github.com/kbak/clafer-semantics/pull/131)
+was accepted at `a260e69e0ce44d47220dc629f5526ab8bce28d8a`. The newer contract
+revision contains the accepted trace, signed-formula, structural/partial-atom,
+surface and finite-verification work. This is a documentation source pin, not a
+Lake repin or a claim of full upstream qualification.
+
+| Accepted upstream interface at the documentation pin | Downstream use and limit |
+| --- | --- |
+| [Profile and B01–B32](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-profile.md) | Completion inventory, source locators, D1–D5 and two-repository gates |
+| [Trace/snapshot foundation](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-traces.md) | Shared identities, fixed parents, live projection and actual common-fragment assumptions |
+| [Signed formulas/environments](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-formulas.md) | Parent cancellation, capture/current navigation, normalization/lowering; mathematical translations are not a production executable normalizer |
+| [Structural/partial atoms](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-structure.md) | Richer inheritance/references, groups, integer observations, strict temporal definedness and initializer disposition |
+| [Surface reductions](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-surface.md) | Modifiers, transitions, thirty pattern cells, assertions/scenarios; parsing and target preservation remain downstream |
+| [Finite verification](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-verification.md) | Lasso unfolding, history and exact checking; generic observation agreement still requires concrete adapter proofs |
+
+Behavioral primary reference: Juodisius et al., *Clafer: Lightweight Modeling of
+Structure, Behaviour, and Variability*, Programming 3(1), article 2 (2019),
+[arXiv v1](https://arxiv.org/abs/1807.08576v1),
+[DOI](https://doi.org/10.22152/programming-journal.org/2019/3/2).
+The accepted upstream ledger records PDF SHA-256
+`b5c03f295e490e7c97878cdb3b9f2ec6aa3f6b667de19988a48c59faba76bb06`
+and CC BY 4.0. This downstream contract follows that source audit, not a new
+independent PDF audit. Locators use printed pages: §5 Definitions 1–5 and expression
+equations pp. 2:23–28; §6.1 defaults/sugar pp. 2:29–32; §6.2 implementation p. 2:32.
+Sections 8–9 provide context. The historical Alloy 4.2 encoding is not the selected
+Alloy 6 meaning; the structural SoSyM baseline remains separate.
+
+The behavioral Haskell candidate is
+[`af858ec0fe3ce2ceacb7fd120947c058233086d6`](https://github.com/gsdlab/clafer/tree/af858ec0fe3ce2ceacb7fd120947c058233086d6),
+from [release review](https://github.com/gsdlab/clafer/pull/113). Adoption of later
+release bytes requires a recorded delta review. All paths and hashes below refer
+to exact Git-blob bytes at this SHA, independently checked against its clean
+checkout; acquisition copies with added newlines are not substitutes.
+
+| Source path at the candidate | SHA-256 | Use |
+| --- | --- | --- |
+| `doc/temporal-semantics-errata.md` | `d42a6f72ddfc70e3ef628e7d7ad2c3ae99e468185fdb5a7056fe80d38e861d4d` | T1–T13, including deliberate departures |
+| `doc/static-semantics-errata.md` | `0e3aa5c138c70773709fd13f210301100d7116f091482518ab2f5fe0a4080d8c` | S1–S12 and structural prerequisites |
+| `doc/CheatSheet.md` | `d8de22fc45850ca87dc080121fcf1a1421db86c4951ea9f56ec5e9ba6f14ee5e` | Temporal modifiers, operators, transitions, patterns and aliases |
+| `src/clafer.cf` | `14176e1c241d7d44d368535ff1664b75da39a054ee32f880456a4b7291921a2f` | Grammar inventory and source precedence for the frontend handoff |
+| `src/Language/Clafer/Generator/AlloyLtl.hs` | `68423e38d8002f6875bc72ebe267959cc5f44b2d0a5077446e304ae6e1a5057a` | Signed translation, current navigation, finality and comparison gaps |
+| `src/Language/Clafer/Intermediate/Desugarer.hs` | `8fbe866a70521a25dfe75ad191dc0737887376877ccfb37921c26a4901e68ad7` | Transition chains, pattern expansions and initializers |
+| `LICENSE` | `c630ca360518868845360498ff7b2ba02c6bd39cc718ff403e5eef4d875667be` | MIT; retain notices if copying source/material |
+
+The accepted profile's decision register links the public D1–D5 dispositions.
+Notable comparison gaps are corrected response-between and first-opener
+precedence-after, the distinction between per-head `finalref` and target-image
+`finaltarget`, shared inherited-reference assignments, concrete supers, and
+mathematical arithmetic/definedness versus bounded backend behavior. C2/C9 must
+retain them in the comparison domain; no blanket 0.5.7 equivalence is asserted.
+
+The [official Alloy 6 reference](https://alloytools.org/alloy6.html) supplies the
+independent temporal construct guide: mutable signatures/fields, ordinary temporal
+operators, lasso instances and explicit `steps`. Reuse the existing Alloy 6.2.0
+source/JAR identities above. C2/C3 must retain source-matched runtime options,
+temporal reference correspondence and actual Analyzer evidence; visiting the live
+reference is not a new immutable source pin or solver proof.
+
+Workflow changes reuse the accepted upstream MIT `scripts/tickets.py` Ready mapping
+and live Project-ID test pattern, Python's standard library and existing Actions
+conditions. The [reuse assessment](behavioral.md#static-separation-and-reuse)
+records remaining compiler/proof gaps. No dependency, runtime, static oracle or
+license pin changes; no upstream semantic definitions or Haskell code are vendored.

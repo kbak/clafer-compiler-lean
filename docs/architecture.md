@@ -5,6 +5,11 @@ meanings and assurance obligations. The
 [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains
 delivery dependencies and acceptance history.
 
+The [behavioral integration contract](behavioral.md) defines the separately
+selected temporal profile and its implementation gates. Exclusions in this
+document remain binding for the existing static APIs and commands; they are not
+omissions from the behavioral completion matrix.
+
 The [source pipeline](pipeline.md) implements the integrated source command;
 the [qualification inventory](qualification.md#feature-and-evidence-inventory)
 links supported features to their contracts and evidence. The theorem shapes

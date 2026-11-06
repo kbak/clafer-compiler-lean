@@ -5,7 +5,8 @@ workflow. The [architecture](architecture.md) defines the selected structural
 fragment. Component contracts in the [documentation map](intent.md#documentation-map)
 record exact delivered APIs, proof assumptions and testing limits; the
 [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains task dependencies
-and acceptance history.
+and acceptance history. The [behavioral contract](behavioral.md) specifies the
+selected integration work and future profile separately from delivered static support.
 
 ## Honest project boundary
 
@@ -43,9 +44,10 @@ source paths and lines. Keep the source-import regression to detect a checker
 that silently drops those tags. Run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. The full local check remains mandatory.
-On pull requests and pushes to `main`, hosted CI builds every Lean module, audits
+On PRs outside `behavioral` and pushes to `main`, hosted CI builds every Lean module, audits
 axioms, replays the kernel, checks scope identity and tests the native source/IR
-CLI. Manual dispatch runs the full IntentBond check, including external comparison
+CLI. PRs targeting `behavioral`, pushes to `behavioral` and manual dispatch run
+the full IntentBond check, including external comparison
 tools and all regressions. Both retain evidence; routine CI does not establish
 full qualification or semantic acceptance. Public CI artifacts retain logs,
 notices, source identities and replay inputs without compiled test binaries.
@@ -69,16 +71,25 @@ Needs: impl, utest
 `req~github-tracking~1`
 
 Use public repository issues for contribution and acceptance records. Maintainers
-track Todo, In Progress and Done in the Project; contributors do not need Project
+track Todo, Ready, In Progress and Done in the Project; contributors do not need Project
 access. Tasks describe scope, acceptance criteria, sources/requirements and dependencies.
 Planning tickets do not trigger implementation. IntentMade registration uses manual
 intake and draft PR publication; deployment configuration and credentials stay
 outside this repository.
+Ready is limited to actionable work with accepted hard dependencies across both
+repositories and does not start implementation. Reconcile affected unstarted
+statuses manually after accepted closure, reopening, dependency or scope changes;
+not-planned closure is not acceptance. Parent/sub-issue membership groups scope,
+not readiness. The helper accepts `track --status ready` and uses live Project
+field/option IDs without claiming dependency automation. Behavioral feature PRs
+target `behavioral`; close their issues explicitly only after accepted integration
+and refresh affected statuses. Preserve the main controls and report behavioral
+protection gaps separately from CI results.
 
 Covers:
 - `intent~compiler-foundation~1`
 
-Needs: impl
+Needs: impl, utest
 
 ## Feature and interface planning contract
 
@@ -109,8 +120,8 @@ relations, soundness, bounded completeness, frontend elaboration and serialized
 text/runtime trust boundaries explicit. Bounds/representation assumptions must
 not assume the preservation conclusion. Pin semantic and Haskell
 baselines, retain source locators/licenses and define reviewed upgrades. No
-research tag is required. Reserve future behavioral requirement IDs without
-inventing implementation/proof coverage; acceptance review precedes dependent
+research tag is required. Adopt behavioral planning requirements with real contract
+artifacts without inventing implementation/proof coverage; acceptance review precedes dependent
 manual intake. The build enforces module ownership/import boundaries and exercises
 independent upstream imports. Keep required theorem shapes distinct from actual
 proved declarations and their explicit assumptions.
@@ -119,6 +130,49 @@ Covers:
 - `intent~compiler-foundation~1`
 
 Needs: impl, utest
+
+## Behavioral profile planning contract
+
+`req~compiler-behavioral-profile~1`
+
+Maintain the complete versioned behavioral feature matrix against accepted upstream
+source commits, paper §§5–6 and errata T1–T13. Map every feature and required
+structural prerequisite to frontend, IR, encoding, proof, runtime and qualification
+owners, with positive/negative fixtures and known compiler discrepancies. Distinguish
+the first smaller slice from completion; omissions and broader exclusions require
+explicit review. Preserve existing static modes, schema admission, source/oracle
+pins and temporal-rejection checks outside explicit behavioral profile selection.
+Document non-default integration, manual intake, immutable accepted-SHA repins,
+source delta review and the ordered upstream-first final merge/revalidation gates.
+This is a contract obligation; it does not assert implemented behavioral support.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl
+
+## Trace assurance planning contract
+
+`req~compiler-trace-assurance~1`
+
+Specify independently defined infinite source and Alloy temporal meanings, a
+concrete shared identity correspondence over the whole trace, finite observation
+and integer conditions, and separate lasso unfolding. State soundness, bounded
+completeness, frontend and decode/encode theorem boundaries without assuming
+source satisfaction in soundness or target truth in representation/Fits premises.
+Preserve strict partial-domain obligations and signed parent-lifetime meaning.
+Assertions use classical failure of the interpreted property, not source negation.
+Separate identity budgets, trace-step/loop limits and integer bitwidth/ranges;
+retain typed malformed/unsupported diagnostics and distinct SAT, bounded UNSAT,
+unknown, timeout, violating and undefined outcomes. Require fixtures exposing
+replacement, reappearance, loop-edge history, occurrences, signs and range failures.
+Identify parser/text/native/solver trust separately. These are required theorem
+shapes and review obligations, not claims of completed proofs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl
 
 ## Reproducible build and assurance bootstrap
 
@@ -909,8 +963,9 @@ Covers:
 ## Reserved implementation requirements
 
 `compiler-qualification` and `compiler-performance` are active requirements above.
-There are no remaining reserved implementation IDs in the selected roadmap. New
-scope needs its own reviewed requirements and manual intake; this does not imply acceptance
+The behavioral profile/trace planning IDs are active contract requirements above;
+later behavioral implementation requirements belong to their selected owners.
+New scope needs its own reviewed requirements and manual intake; this does not imply acceptance
 of the qualification candidate.
 
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) owns scheduling.
