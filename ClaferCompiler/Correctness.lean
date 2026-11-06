@@ -9,8 +9,6 @@ public import ClaferCompiler.Correctness.ExprIntermediateRanges
 public import ClaferCompiler.Correctness.ExpressionScalarFacts
 public import ClaferCompiler.Correctness.PipelinePresence
 
--- [proof->req~compiler-build~1]
-
 public section
 
 /-! Bootstrap equations, concrete representations and M1/inherited preservation.
@@ -20,6 +18,7 @@ full integer source soundness and data-bounded completeness. -/
 
 namespace ClaferCompiler.Correctness
 
+-- [proof->req~compiler-build~1]
 theorem version_response :
     Driver.response ["--version"] = some Driver.version := by rfl
 

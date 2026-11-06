@@ -125,11 +125,18 @@ with `--scope` to both `ib check` and `ib verify`.
 
 The pinned IntentBond imports OFT tags from Lean line, nested block and
 documentation comments, retaining original `.lean` paths and physical lines.
-Keep `impl`, `proof` and `utest` tags beside their definitions, actual theorems and
-assertions. Use a line comment for a single tag; reserve block comments for groups
-of tags. A module comment can group a jointly implemented contract; pure import
-aggregators need no arbitrary tags. Preserve the named Markdown artifacts
-in component contracts as explanations of source correspondence and assumptions.
+Place `impl`, `proof` and `utest` tags immediately before the relevant definitions,
+actual theorems and assertions or test entry points. Use ordinary `--` line comments,
+including when one declaration supports several requirements. Put tags before an
+existing declaration doc comment to preserve its attachment. Do not collect a
+file's links in its module header. One tag can introduce a contiguous group for
+the same requirement; repeat it for a separate group only when that gives a useful
+source location. Helpers and pure import aggregators need no arbitrary tags.
+
+Only link declarations that supply evidence for the contract. A Markdown artifact
+may discuss several requirements and modules together, so its file list does not
+justify copying all its links onto each file. Preserve those named artifacts as
+explanations of source correspondence and assumptions.
 
 Strings and escaped identifiers do not supply coverage. The source-import
 regression checks a real module through the installed checker and fails if a

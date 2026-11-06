@@ -4,8 +4,6 @@ import all Clafer.Constraints.Typing
 import all Init.Data.Int.Repr
 import all Init.Data.Repr
 
--- [utest->req~compiler-constraint-elaboration~1]
-
 @[expose] public section
 
 namespace ClaferCompiler.Tests.ConstraintInventory
@@ -63,6 +61,7 @@ def expected : List String :=
 
 set_option maxRecDepth 10000 in
 set_option maxHeartbeats 2000000 in
+-- [utest->req~compiler-constraint-elaboration~1]
 /-- All twelve expected trees are kernel-checked against the existing upstream
 manual inventory, independently of the native compiler comparison. -/
 theorem expected_is_manual :

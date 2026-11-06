@@ -3,11 +3,6 @@ module
 public import ClaferCompiler.Frontend.Surface
 public import ClaferCompiler.IR.Expr
 
-/-!
-[impl->req~compiler-constraint-elaboration~1]
-[impl->req~compiler-diagnostics~1]
--/
-
 @[expose] public section
 namespace ClaferCompiler.Frontend.Constraints
 open IR.Expr
@@ -46,6 +41,7 @@ structure Layout (c : IR.Structural.Core n) (owner : Fin n) where
   resolved : Resolved c support
   context : support.context = owner
 
+-- [impl->req~compiler-constraint-elaboration~1]
 def layout (c : IR.Structural.Core n) (owner : Fin n) : Except String (Layout c owner) := do
   let maps := (List.finRange n).flatMap fun i =>
     let d := c.get i
@@ -71,6 +67,7 @@ def superPaths (s : Support n m) (x : Fin n) : List (Fin n × Widen n m) :=
       | none => paths
       | some e => paths ++ [(s.maps[e].target, .trans y p (.inclusion e))]) [(x, .same)]
 
+-- [impl->req~compiler-diagnostics~1]
 def errorAt (doc : Document) (span : SourceSpan) (code message : String)
     (category : Category := .malformed) (related : Array SourceSpan := #[]) : Diagnostic :=
   let before := String.fromUTF8! (doc.source.toUTF8.extract 0 span.startByte)

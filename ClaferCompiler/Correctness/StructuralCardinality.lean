@@ -3,8 +3,6 @@ module
 public import ClaferCompiler.Correctness.StructuralRelations
 public import DPGraph.Predicates.Finite
 
--- [proof->req~compiler-structural-correctness~1]
-
 @[expose] public section
 
 namespace ClaferCompiler.Correctness.Structural
@@ -69,6 +67,7 @@ theorem represented_parents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (Subtype.val_injective.comp r.objects.injective) _
     (represented_parent_fiber v s i r d c hc x)).mp (beq_iff_eq.mp (Option.some.inj hu))
 
+-- [proof->req~compiler-structural-correctness~1]
 theorem represented_multiplicities {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)

@@ -3,11 +3,6 @@ module
 public import ClaferCompiler.Frontend.Parser
 public import ClaferCompiler.Frontend.Resolve
 
-/-!
-[utest->req~compiler-defaults~1]
-[utest->req~compiler-resolution~1]
--/
-
 @[expose] public section
 namespace ClaferCompiler.Tests.Resolve
 open Frontend Frontend.Resolution IR.Structural
@@ -41,6 +36,8 @@ def render (file source : String) : String :=
           (d.authored.bind (·.localBounds) |>.map boundText).getD "_"]]
       return String.intercalate "\n" lines
 
+-- [utest->req~compiler-defaults~1]
+-- [utest->req~compiler-resolution~1]
 /-- Deliberate mutations exercise the independent source validator, including
 well-formed tables whose target/defaults no longer correspond to the source. -/
 def mutationChecks : IO Unit := do

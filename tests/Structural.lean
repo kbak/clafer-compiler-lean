@@ -3,8 +3,6 @@ module
 public import ClaferCompiler.SemanticsBridge.Structural
 public import tests.StructuralNative
 
--- [utest->req~compiler-ir~1]
-
 public section
 namespace ClaferCompiler.Tests.Structural
 open IR.Structural SemanticsBridge.Structural
@@ -27,6 +25,7 @@ theorem cycle_upstream_domain : (interpret cycleCore).WellFormed ∧ (interpret 
   obtain ⟨v, hv⟩ := (validate_success_iff cycleCore cycleCert).mpr reference_cycle_checked
   exact (admission_iff cycleCore).mp ⟨cycleCert, v, hv⟩
 
+-- [utest->req~compiler-ir~1]
 theorem duplicate_id_rejected :
     outcome (raw #[root, child 100] #[0, 1] #[0, 0] #[false, false]) =
       "ir.duplicate-id" := by decide

@@ -2,8 +2,6 @@ module
 
 public import ClaferCompiler.Correctness.StructuralCardinality
 
--- [proof->req~compiler-structural-correctness~1]
-
 public section
 
 namespace ClaferCompiler.Correctness.Structural
@@ -133,6 +131,7 @@ theorem represented_sound {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     represented_groups v s i r scopes w h, represented_disjoint v s i r
       ((Bool.and_eq_true_iff.mp (Bool.and_eq_true_iff.mp h.1).1).1) h.2.2.2.1⟩
 
+-- [proof->req~compiler-structural-correctness~1]
 /-- Soundness constructs decoding, representation and source satisfaction. No
 source truth, successful decoding or arbitrary preservation bridge is assumed. -/
 theorem compiled_sound (v : IR.Structural.Validated n) (b : Structural.Bounds)

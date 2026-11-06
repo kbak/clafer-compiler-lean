@@ -2,11 +2,6 @@ module
 
 public import ClaferCompiler.Frontend.ConstraintsSupport
 
-/-!
-[impl->req~compiler-constraint-elaboration~1]
-[impl->req~compiler-diagnostics~1]
--/
-
 @[expose] public section
 namespace ClaferCompiler.Frontend.Constraints
 open IR.Expr
@@ -208,6 +203,7 @@ inductive QuantifierRule (b : Local n) (domain body : Syntax n m) : String → S
   | some : QuantifierRule b domain body "some" (.not (.all b domain (.not body)))
   | no {op} : op = "no" ∨ op = "not" → QuantifierRule b domain body op (.all b domain (.not body))
 
+-- [impl->req~compiler-constraint-elaboration~1]
 /-- Source inference rules, independent of the executable elaborator. Location,
 lexical environment, navigation context and every sugar equation are explicit. -/
 inductive Elaborates (c : IR.Structural.Core n) (s : Support n m) :

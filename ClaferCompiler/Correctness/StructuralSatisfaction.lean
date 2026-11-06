@@ -2,8 +2,6 @@ module
 
 public import ClaferCompiler.Correctness.StructuralHierarchy
 
--- [proof->req~compiler-structural-correctness~1]
-
 public section
 
 namespace ClaferCompiler.Correctness.Structural
@@ -20,6 +18,7 @@ theorem field_typed (s : Schema) (i : Instance)
   have ht := List.all_eq_true.mp (Bool.and_eq_true_iff.mp hf).1 [a, b] ht
   simpa only [Bool.and_eq_true, List.contains_iff_mem] using ht
 
+-- [proof->req~compiler-structural-correctness~1]
 /-- Typed endpoints follow from target field declarations and concrete tuple
 equations, without a source well-typedness premise. -/
 theorem represented_typed {U : Type} (v : IR.Structural.Layout n)

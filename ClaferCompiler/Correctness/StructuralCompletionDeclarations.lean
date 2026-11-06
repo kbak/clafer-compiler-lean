@@ -2,8 +2,6 @@ module
 
 public import ClaferCompiler.Correctness.StructuralCompletionFacts
 
--- [proof->req~compiler-structural-correctness~1]
-
 public section
 
 namespace ClaferCompiler.Correctness.Structural
@@ -283,6 +281,7 @@ theorem source_reference_one {U : Type} (v : IR.Structural.Layout n)
   rw [← List.toFinset_card_of_nodup hn, he]
   simp
 
+-- [proof->req~compiler-structural-correctness~1]
 theorem source_declarations {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s) :

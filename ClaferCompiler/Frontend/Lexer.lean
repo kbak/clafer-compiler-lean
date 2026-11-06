@@ -4,8 +4,6 @@ public import ClaferCompiler.Frontend.Surface
 public import Std.Internal.Parsec.String
 public import Init.Data.String.Search
 
--- [impl->req~compiler-parser~1]
-
 @[expose] public section
 namespace ClaferCompiler.Frontend
 open Std.Internal Parsec Parsec.String
@@ -137,6 +135,7 @@ def lexStep (file : String) (state : LexerState) : Except Diagnostic LexerState 
     let (l, c, b) := advance line col false text
     return ⟨next, l, c, b, indent, out.push ⟨text, ⟨file, start, stop⟩, line, col, indent + 1⟩, false⟩
 
+-- [impl->req~compiler-parser~1]
 def lex (file source : String) : Except Diagnostic (Array Token) := do
   let mut state : LexerState := { cursor := ⟨source, source.startPos⟩ }
   for _ in [:source.utf8ByteSize + 1] do

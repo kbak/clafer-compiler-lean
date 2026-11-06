@@ -2,8 +2,6 @@ module
 
 public import ClaferCompiler.IR.Structural
 
--- [impl->req~compiler-parser~1]
-
 @[expose] public section
 namespace ClaferCompiler.Frontend
 
@@ -35,6 +33,7 @@ structure Token where
 /-- Authored spelling and location; no lookup, defaults or coercions. -/
 abbrev Name := Token
 
+-- [impl->req~compiler-parser~1]
 inductive Expr where
   | name (token : Name)
   | integer (token : Token) (value : Nat)

@@ -3,8 +3,6 @@ module
 public import tests.AlloyCore
 public meta import tests.AlloyCore
 
--- [utest->req~compiler-alloy-core~1]
-
 public section
 
 namespace ClaferCompiler.Tests.AlloyOracle
@@ -17,6 +15,7 @@ def printObservations : IO Unit := do
     | none => throw (IO.userError s!"Target observation failed: {name}")
     | some b => IO.println s!"{name} {b}"
 
+-- [utest->req~compiler-alloy-core~1]
 #eval printObservations
 
 end ClaferCompiler.Tests.AlloyOracle

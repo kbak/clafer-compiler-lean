@@ -4,8 +4,6 @@ module
 public meta import Lean.Elab.Command
 public meta import Lean.Util.CollectAxioms
 
--- [utest->req~compiler-build~1]
-
 /-!
 Audit every declaration originating in the project, including generated/private
 ones. Reject new axioms, unsafe/partial declarations and transitive dependencies
@@ -18,6 +16,7 @@ audit guard. Module origins, not declaration namespaces, select declarations.
 -/
 
 open Lean in
+-- [utest->req~compiler-build~1]
 run_cmd do
   let env ← getEnv
   let moduleNames := env.header.moduleNames

@@ -3,8 +3,6 @@ module
 public import ClaferCompiler.Correctness.StructuralReferences
 public import Mathlib.Data.Fintype.Prod
 
--- [impl->req~compiler-structural-correctness~1]
-
 @[expose] public section
 
 namespace ClaferCompiler.Correctness.Structural
@@ -15,6 +13,7 @@ noncomputable def sourceLabel {U : Type} [Fintype U] (x : U) : Nat := (Fintype.e
 theorem sourceLabel_injective {U : Type} [Fintype U] : Function.Injective (@sourceLabel U _) :=
   Fin.val_injective.comp (Fintype.equivFin U).injective
 
+-- [impl->req~compiler-structural-correctness~1]
 /-- Canonical finite presentation of a source configuration. This is an existence
 construction in the proof layer; production encoding still consumes executable
 observations. No constraint truth is used to enumerate objects or relations. -/
