@@ -33,6 +33,7 @@ structure Token where
 /-- Authored spelling and location; no lookup, defaults or coercions. -/
 abbrev Name := Token
 
+-- [impl->req~compiler-parser~1]
 inductive Expr where
   | name (token : Name)
   | integer (token : Token) (value : Nat)

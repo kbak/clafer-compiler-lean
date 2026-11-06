@@ -92,6 +92,7 @@ theorem field_atom_live (i : Instance) (hl : Live i) (k a b : Nat)
     exact ⟨hl.2 ts (List.mem_of_getElem? hk) [a, b] ht' a (by simp),
       hl.2 ts (List.mem_of_getElem? hk) [a, b] ht' b (by simp)⟩
 
+-- [proof->req~compiler-structural-correctness~1]
 theorem represented_contains_fiber {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (d c : Fin n) (hp : (v.core.get d).parent = some c)

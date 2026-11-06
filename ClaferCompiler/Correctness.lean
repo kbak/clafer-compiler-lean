@@ -18,6 +18,7 @@ full integer source soundness and data-bounded completeness. -/
 
 namespace ClaferCompiler.Correctness
 
+-- [proof->req~compiler-build~1]
 theorem version_response :
     Driver.response ["--version"] = some Driver.version := by rfl
 

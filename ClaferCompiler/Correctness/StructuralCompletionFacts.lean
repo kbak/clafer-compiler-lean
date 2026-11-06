@@ -190,6 +190,7 @@ theorem source_set_key {U : Type} (v : IR.Structural.Layout n)
   apply (equal_eval_true _ _ _ _ _).mpr
   simp
 
+-- [proof->req~compiler-structural-correctness~1]
 theorem source_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s)

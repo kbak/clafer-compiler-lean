@@ -53,6 +53,7 @@ def render (file source : String) : String :=
         s!"{o.owner.val}|{o.group.val}|{o.position.val}|{o.expression.span.startByte}|{o.expression.span.endByte}|" ++
           shapeAt a.layout.support term.budget term.raw)
 
+-- [utest->req~compiler-constraint-elaboration~1]
 def run (files : List String) : IO Unit := do
   for file in files do
     IO.println (render file (← IO.FS.readFile file) ++ "\nEND")

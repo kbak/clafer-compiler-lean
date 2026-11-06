@@ -62,6 +62,7 @@ def render (source : String) (initial : List Task) : Option (String × Bool) := 
   return none
 
 -- Requirement: compiler-parser; trace artifacts are in docs/parser.md.
+-- [utest->req~compiler-parser~1]
 def authoredChecks : IO Unit := do
   let .ok d := parse "authored.cfr" "abstract xor Type 02..*\n  r ->> integer ?\n"
     | throw (IO.userError "authored fixture rejected")
@@ -78,6 +79,7 @@ def authoredChecks : IO Unit := do
 
 -- Requirement: compiler-parser; trace artifacts are in docs/parser.md.
 -- Requirement: compiler-diagnostics; trace artifacts are in docs/parser.md.
+-- [utest->req~compiler-diagnostics~1]
 def observe (source : String) : IO String := do
   let result := parse "fixture.cfr" source
   match result with

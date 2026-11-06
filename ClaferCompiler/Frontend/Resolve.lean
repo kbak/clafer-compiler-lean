@@ -6,6 +6,7 @@ public import ClaferCompiler.Frontend.Defaults
 namespace ClaferCompiler.Frontend.Resolution
 open IR.Structural
 
+-- [impl->req~compiler-diagnostics~1]
 def errorAt (t : Token) (code message : String)
     (category : Category := .malformed) (related : Array SourceSpan := #[]) : Diagnostic :=
   { code, message, category, related, phase := "resolve", primary := t.span,
@@ -107,6 +108,7 @@ def realizationRanksStable (rows : Array (Declaration Nat)) : Array Nat :=
   funext rows
   exact (repeatStable_eq _ _ _).symm
 
+-- [impl->req~compiler-defaults~1]
 def prepare (doc : Document) : Except Diagnostic
     (Raw × Array (Option Path) × Array Group × Array Nat) := do
   let paths ← inventory doc
@@ -204,6 +206,7 @@ def bindCandidate (r : Raw) (paths : Array (Option Path)) (groups : Array Group)
                 ⟨paths, hx⟩, ⟨groups, hg⟩, ⟨realized, hr⟩⟩
   throw ⟨.malformed, "resolve.table-shape", "", none⟩
 
+-- [impl->req~compiler-resolution~1]
 /-- Successful results carry a proof of independently stated source elaboration. -/
 def elaborate (doc : Document) : Except Diagnostic (Elaborated doc) := do
   let (raw, paths, groups, realized) ← prepare doc

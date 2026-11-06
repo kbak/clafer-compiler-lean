@@ -31,6 +31,7 @@ theorem denote_sound (body : Body c s e) {U : Type}
     Meaning c s e model env (Expr.denote body.checked model env) :=
   ⟨body.checked.term.raw, body.checked.typed, body.derivation, rfl⟩
 
+-- [proof->req~compiler-constraint-elaboration~1]
 theorem success (doc : Document) (c : IR.Structural.Core n) (s : Support n m)
     (e : Frontend.Expr) (body : Body c s e) (_h : elaborateBody doc c s e = .ok body) :
     Elaborates c s [] none true e .boolean body.checked.term.raw ∧

@@ -16,6 +16,7 @@ audit guard. Module origins, not declaration namespaces, select declarations.
 -/
 
 open Lean in
+-- [utest->req~compiler-build~1]
 run_cmd do
   let env ← getEnv
   let moduleNames := env.header.moduleNames

@@ -12,6 +12,7 @@ structure Conversion (s : Support n m) (t : Ty n) (a : Syntax n m) (u : Ty n) wh
   term : Term n m
   derivation : Coerces s t a u term.raw
 
+-- [impl->req~compiler-constraint-elaboration~1]
 def convertAt (s : Support n m) : Nat → (t : Ty n) → (a : Term n m) → (u : Ty n) →
     Except String (Conversion s t a.raw u) :=
   Nat.rec (fun _ _ _ => .error "constraint.coercion-cycle") (fun _ next t a u => do
@@ -60,6 +61,7 @@ structure At (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n))
 theorem At.derivation (a : At c s Γ cursor e t) : Elaborates c s Γ cursor true e t a.term.raw :=
   .coerce a.source a.conversion
 
+-- [impl->req~compiler-diagnostics~1]
 def expect (a : Synth c s Γ cursor e) (t : Ty n) : Except String (At c s Γ cursor e t) := do
   let b ← convertAt s (n + 2) a.type a.term t
   return ⟨b.term, a.type, a.term, a.derivation, b.derivation⟩

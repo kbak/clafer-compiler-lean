@@ -11,6 +11,7 @@ open IR.Expr
 abbrev cursorSyntax (cursor : Option (Fin n × Term n m)) : Cursor n m :=
   cursor.map fun (x, a) => (x, a.raw)
 
+-- [impl->req~compiler-diagnostics~1]
 def failure (doc : Document) (e : Frontend.Expr) (code : String) : Diagnostic :=
   errorAt doc e.span code "Cannot elaborate this static expression."
     (if code.startsWith "constraint.unsupported" || code == "constraint.infinite-primitive-extent"
@@ -113,6 +114,7 @@ def elaborateOccurrence (doc : Document) (c : Resolution.Candidate n) (o : Occur
   let b ← elaborateBody doc c.core l.support o.expression
   return ⟨l, b⟩
 
+-- [impl->req~compiler-constraint-elaboration~1]
 /-- Every authored body is returned in owner/group/body order; no inherited
 copies are invented. The dependent pair retains its original occurrence. -/
 def elaborate (doc : Document) (e : Resolution.Elaborated doc) :

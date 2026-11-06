@@ -70,7 +70,7 @@ python3 -m venv ../clafer-compiler-tools
 ```
 
 Before editing, capture `git rev-parse HEAD` as `BASE_COMMIT`. Read the
-[development skill at the pinned revision](https://github.com/kbak/intentbond/blob/a430efa8d82e2a88ed2607bfe838066bb9d73f3c/intentbond/skills/intentbond/SKILL.md)
+[development skill at the pinned revision](https://github.com/kbak/intentbond/blob/f9b4f9e40722dc6a83067ac9e62480159322dd09/intentbond/skills/intentbond/SKILL.md)
 and applicable references. Maintain intent, requirements, implementation and links
 together, then run:
 
@@ -120,6 +120,29 @@ it retains the original comparison baseline and records both policy hashes.
 Every other scope amendment needs explicit review before selection as trusted policy.
 When checking across this migration locally, supply the reviewed scope explicitly
 with `--scope` to both `ib check` and `ib verify`.
+
+## Lean trace annotations
+
+The pinned IntentBond imports OFT tags from Lean line, nested block and
+documentation comments, retaining original `.lean` paths and physical lines.
+Place `impl`, `proof` and `utest` tags immediately before the relevant definitions,
+actual theorems and assertions or test entry points. Use ordinary `--` line comments,
+including when one declaration supports several requirements. Put tags before an
+existing declaration doc comment to preserve its attachment. Do not collect a
+file's links in its module header. One tag can introduce a contiguous group for
+the same requirement; repeat it for a separate group only when that gives a useful
+source location. Helpers and pure import aggregators need no arbitrary tags.
+
+Only link declarations that supply evidence for the contract. A Markdown artifact
+may discuss several requirements and modules together, so its file list does not
+justify copying all its links onto each file. Preserve those named artifacts as
+explanations of source correspondence and assumptions.
+
+Strings and escaped identifiers do not supply coverage. The source-import
+regression checks a real module through the installed checker and fails if a
+future pin silently drops Lean artifacts. OFT validates declared relationships;
+the build/kernel checks establish theorem checking, and review assesses whether
+the statements and assertions satisfy the linked requirements.
 
 ## Documentation and conduct
 

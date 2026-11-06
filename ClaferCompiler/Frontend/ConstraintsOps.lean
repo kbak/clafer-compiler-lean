@@ -8,6 +8,7 @@ open IR.Expr
 variable {n m : Nat} {c : IR.Structural.Core n} {s : Support n m}
   {Γ : List (Local n)} {cursor : Cursor n m} {e l r domain body : Frontend.Expr}
 
+-- [impl->req~compiler-constraint-elaboration~1]
 def unary (op : Token) (span : SourceSpan) (input : Synth c s Γ cursor e) :
     Except String (Synth c s Γ cursor (.unary op e span)) := do
   if ho : op.text = "!" then
@@ -41,6 +42,7 @@ def unary (op : Token) (span : SourceSpan) (input : Synth c s Γ cursor e) :
 abbrev orTerm (a b : Term n m) := Term.not (.and (.not a) (.not b))
 abbrev impliesTerm (a b : Term n m) := Term.not (.and a (.not b))
 
+-- [impl->req~compiler-diagnostics~1]
 def binary (op : Token) (span : SourceSpan) (left : Synth c s Γ cursor l)
     (right : Synth c s Γ cursor r) : Except String (Synth c s Γ cursor (.binary op l r span)) := do
   if ["&&", "||", "xor", "=>", "<=>"].contains op.text then

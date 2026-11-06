@@ -68,6 +68,7 @@ structure BoundName (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Loc
   term : Term n m
   derivation : NameRule c s Γ cursor name type term.raw
 
+-- [impl->req~compiler-diagnostics~1]
 def absoluteName (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n))
     (name : String) : Except String (BoundName c s Γ none name) := do
   if hn : name = "this" then return ⟨.collection (.objects s.context), .this, by subst name; exact .this⟩
@@ -109,6 +110,7 @@ def absoluteName (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local 
   if Resolution.integerName name then throw "constraint.infinite-primitive-extent"
   throw "constraint.missing-name"
 
+-- [impl->req~compiler-constraint-elaboration~1]
 def nameAt (c : IR.Structural.Core n) (s : Support n m) (Γ : List (Local n))
     (cursor : Option (Fin n × Term n m)) (name : String) :
     Except String (BoundName c s Γ (cursor.map fun (x, a) => (x, a.raw)) name) :=

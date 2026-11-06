@@ -15,6 +15,7 @@ def Group.range : Group → Bounds
   | .bounds r => r | .xor => ⟨1, .finite 1⟩ | .or => ⟨1, .unbounded⟩
   | .mux => ⟨0, .finite 1⟩ | .opt => {}
 
+-- [impl->req~compiler-defaults~1]
 /-- Adopted upstream default policy: numeric 0..* is the sole mandatory case. -/
 def Group.childDefault : Group → Bounds
   | .bounds ⟨0, .unbounded⟩ => ⟨1, .finite 1⟩
@@ -79,6 +80,7 @@ def eligible (doc : Document) (c : Candidate n) (super : Bool)
 instance (doc : Document) (c : Candidate n) (s : Bool) (name : String) (j : Fin n) :
     Decidable (eligible doc c s name j) := by unfold eligible; split <;> infer_instance
 
+-- [impl->req~compiler-resolution~1]
 /-- A unique best visible declaration. This relation does not call the resolver. -/
 def Resolves (doc : Document) (c : Candidate n) (context : Path) (super : Bool)
     (name : String) (j : Fin n) : Prop :=

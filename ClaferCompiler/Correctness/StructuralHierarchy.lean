@@ -98,6 +98,7 @@ theorem occupied_source_path (v : IR.Structural.Layout n) (i : Instance) (x : Na
       Relation.ReflTransGen.single ((signature_parent v f e).mp hp)
     exact ⟨f, rfl, hf.trans he⟩
 
+-- [proof->req~compiler-structural-correctness~1]
 /-- Sibling disjointness plus the actual finite extends forest derives global
 source declaration comparability, including cousins at different depths. -/
 theorem represented_disjoint {U : Type} (v : IR.Structural.Layout n)

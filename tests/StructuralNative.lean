@@ -59,6 +59,7 @@ def cases : List (String × Raw × String) := [
   ("invalid byte span", { two with declarations := #[root, { child 200 with source := some ⟨"μ.cfr", 4, 2⟩ }] }, "ir.invalid-span")
 ]
 
+-- [utest->req~compiler-ir~1]
 /-- Executed by a separately linked native test program, never a production command. -/
 def run : IO Unit := do
   for (label, input, expected) in cases do

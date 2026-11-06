@@ -238,6 +238,7 @@ def parserStep (previous : Parsers) : Parsers :=
   ⟨expressionStep previous, expressionTailStep previous, bodiesStep previous,
     elementStep previous, elementsStep previous⟩
 
+-- [impl->req~compiler-parser~1]
 /-- Parsing is independent of name resolution, typing, defaulting and compilation.
 The original source and authored tokens are retained verbatim. -/
 def parse (file source : String) : Except Diagnostic Document := do

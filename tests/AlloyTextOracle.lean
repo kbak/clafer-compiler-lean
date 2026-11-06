@@ -9,6 +9,7 @@ open ClaferCompiler.Tests.AlloyText
 
 namespace ClaferCompiler.Tests.AlloyTextOracle
 
+-- [utest->req~compiler-alloy-text~1]
 /-- Exercise successful API behavior and determinism, never discard rejected
 members of the finite property domain. External Python checks the resulting
 source-map slices and sends every output through the real Analyzer parser. -/

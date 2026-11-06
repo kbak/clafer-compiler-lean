@@ -112,6 +112,7 @@ theorem admission_complete (m : Core n)
   have b : supportChecks m ck := (supportChecks_iff m ck).mpr (by simpa [he] using hk)
   exact ⟨ck, (validate_success_iff m ck).mpr ⟨a, b⟩⟩
 
+-- [proof->req~compiler-ir~1]
 /-- The admitted domain is exactly the independently defined upstream domain. -/
 theorem admission_iff (m : Core n) :
     (∃ k v, validate m k = .ok v) ↔

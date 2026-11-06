@@ -70,6 +70,7 @@ structure Certificate (n : Nat) where
   unused : Vector Bool n
   deriving DecidableEq, Repr
 
+-- [impl->req~compiler-ir~1]
 structure Core (n : Nat) where
   declarations : Vector (Declaration (Fin n)) n
   root : Fin n

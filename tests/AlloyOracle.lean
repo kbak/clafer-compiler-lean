@@ -15,6 +15,7 @@ def printObservations : IO Unit := do
     | none => throw (IO.userError s!"Target observation failed: {name}")
     | some b => IO.println s!"{name} {b}"
 
+-- [utest->req~compiler-alloy-core~1]
 #eval printObservations
 
 end ClaferCompiler.Tests.AlloyOracle

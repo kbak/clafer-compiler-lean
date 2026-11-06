@@ -93,6 +93,7 @@ def declaration (doc : Document) (c : Candidate n) (i : Fin n) : Clafer.Declarat
     Structural.bounds (c.core.get i).localBounds⟩
   group := ⟨((c.header doc i).bind (·.group)).map (group ∘ authoredGroup), group c.groups[i]⟩
 
+-- [proof->req~compiler-defaults~1]
 theorem defaults (doc : Document) (e : Elaborated doc) (i : Fin e.count)
     (hu : (e.candidate.core.get i).origin = .user) :
     Clafer.Defaults (declaration doc e.candidate i)
@@ -119,6 +120,7 @@ theorem defaults (doc : Document) (e : Elaborated doc) (i : Fin e.count)
 theorem structural_checks (doc : Document) (e : Elaborated doc) :
     StructuralChecks doc e.candidate := e.correspondence.2.2.2.2.2.2.2.2.2
 
+-- [proof->req~compiler-resolution~1]
 theorem resolves_unique (doc : Document) (e : Elaborated doc) (context : Path)
     (super : Bool) (name : String) (i j : Fin e.count)
     (hi : Resolves doc e.candidate context super name i)
