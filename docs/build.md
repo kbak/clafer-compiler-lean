@@ -176,7 +176,7 @@ input case, per-command limit and trusted check deadline.
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 
-CI sets `LEAN_NUM_THREADS=2` and `CLAFER_TEST_JOBS=2`; kernel replay also uses two
+CI sets `LEAN_NUM_THREADS=2` and `CLAFER_TEST_JOBS=3`; kernel replay also uses two
 workers, after all regression groups finish.
 The cache layout reuses the pinned semantics repository's native Lake cache,
 verified-exporter receipt checks, independent download caches and timing wrapper.
