@@ -35,8 +35,8 @@ certificate is supplied. Admission preserves the entire input table and its
 certificate. This prevents validation from silently repairing a declaration or
 changing an identity. Admission does not require that the model be satisfiable.
 
-In `ClaferCompiler.SemanticsBridge.Structural`, the proofs are
-[`admission_iff`][admission] and [`validate_preserves`][admission-preserves].
+Lean: [`ClaferCompiler.SemanticsBridge.Structural.admission_iff`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Structural.lean#L117) and
+[`ClaferCompiler.SemanticsBridge.Structural.validate_preserves`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Structural.lean#L90).
 The equivalence quantifies over certificates: incorrect supplied hierarchy ranks
 can still fail. It covers the effective M1 core, not unrestricted source syntax,
 JSON decoding, or authored defaulting. See the [IR contract](ir.md#proof-trace-and-assumptions).
@@ -50,10 +50,10 @@ position, and gives the returned expression an independent source meaning,
 including undefined results. This connects the backend's input to the model the
 author wrote and prevents a repeated attachment from being silently dropped.
 
-In `ClaferCompiler.SemanticsBridge.Resolution`, see
-[`elaborate_correspondence`][resolution] and [`defaults`][defaults]; in
-`ClaferCompiler.SemanticsBridge.Constraints`, see
-[`denote_sound`][constraint-meaning] and [`attachments_preserved`][attachments].
+Lean: [`ClaferCompiler.SemanticsBridge.Resolution.elaborate_correspondence`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Resolution.lean#L32) and
+[`ClaferCompiler.SemanticsBridge.Resolution.defaults`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Resolution.lean#L97);
+[`ClaferCompiler.SemanticsBridge.Constraints.denote_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Constraints.lean#L28) and
+[`ClaferCompiler.SemanticsBridge.Constraints.attachments_preserved`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Constraints.lean#L80).
 These are success guarantees within the [selected static language](architecture.md#feature-matrix).
 They neither prove that every valid document elaborates nor that every possible
 declarative derivation has the same meaning. Typing does not make integer
@@ -71,8 +71,8 @@ capacities has a satisfying target produced by the concrete encoder. Objects,
 containment and reference occurrences correspond: two bag-reference heads with
 the same target remain two heads.
 
-In `ClaferCompiler.Correctness.Structural`, the proofs are
-[`compiled_sound`][structural-sound] and [`compiled_complete`][structural-complete].
+Lean: [`ClaferCompiler.Correctness.Structural.compiled_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/StructuralReferences.lean#L151) and
+[`ClaferCompiler.Correctness.Structural.compiled_complete`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/StructuralCorrectness.lean#L65).
 Completeness requires a finite source carrier, successful compilation,
 `ObservationScopesFit` for the exact/upper target scopes, and `SourceCountFits`
 for the actual counts and emitted bounds at the selected signed bitwidth.
@@ -90,8 +90,8 @@ An attached constraint holds exactly when its source body is defined and true
 at every original owner. This matters for empty or multiple integer-reference
 targets, quantifiers and inherited attachments, where truth alone is insufficient.
 
-In `ClaferCompiler.Correctness.ExpressionMeaning`, see
-[`admitted_full_agrees`][expressions] and [`encoded_body_iff`][body].
+Lean: [`ClaferCompiler.Correctness.ExpressionMeaning.admitted_full_agrees`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/ExpressionPreservation.lean#L271) and
+[`ClaferCompiler.Correctness.ExpressionMeaning.encoded_body_iff`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/ExpressionAttachments.lean#L196).
 The premises include valid finite observations within the requested budgets,
 the concrete object/map/scalar layout correspondence, related lexical environments
 and an integer realization extending those observations. Successful source range
@@ -111,10 +111,10 @@ the finite Alloy observations are not substituted for the whole integer domain.
 The converse constructs a satisfying target from a fitting full source model.
 This closes the gap between separate structural and expression proofs.
 
-In `ClaferCompiler.Correctness.Pipeline`, see
-[`source_sound`][source-sound], [`all_source_sound`][all-source-sound],
-[`source_complete`][source-complete] and
-[`constraint_free_complete`][constraint-free]. The theorems consume the actual
+Lean: [`ClaferCompiler.Correctness.Pipeline.source_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelineSourceSatisfaction.lean#L49),
+[`ClaferCompiler.Correctness.Pipeline.all_source_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelinePresence.lean#L53),
+[`ClaferCompiler.Correctness.Pipeline.source_complete`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelineCompleteness.lean#L42) and
+[`ClaferCompiler.Correctness.Pipeline.constraint_free_complete`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelinePresence.lean#L73). The theorems consume the actual
 in-memory compiled `Driver.Source.Product`. Integer completeness requires
 `SourceSat`, the concrete `Observes` equations and data-only `Fits`: original
 nonprimitive heads/maps, finite injective labels, scalar identities and ranges,
@@ -132,10 +132,9 @@ expressions, normalized truth is paired with the original formula's strict
 definedness: normalization cannot discard an undefined operand just because a
 Boolean truth calculation would not need it.
 
-The first-slice theorem is
-[`ClaferCompiler.SemanticsBridge.Behavioral.normalize_lower_agrees`][normalization].
+Lean: [`ClaferCompiler.SemanticsBridge.Behavioral.normalize_lower_agrees`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Syntax.lean#L94).
 For arbitrary partial observations, see
-[`ClaferCompiler.SemanticsBridge.Behavioral.Generic.satisfies_iff_normalized`][partial-normalization].
+[`ClaferCompiler.SemanticsBridge.Behavioral.Generic.satisfies_iff_normalized`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Formula.lean#L52).
 Both require the stated traversal-size witness and retain the trace, environment,
 time and source sign. The first uses the total set-observation fragment; the
 second states original definedness explicitly. See
@@ -143,10 +142,11 @@ second states original definedness explicitly. See
 [partial primitives](behavioral-frontend.md#partial-primitives-and-grouped-counting).
 
 Resolved pattern, transition and modifier expansions also agree with their
-accepted source meanings. In
-`ClaferCompiler.SemanticsBridge.Behavioral.Surface`, see
-[`Patterns.expand_agrees`][patterns], [`Transitions.expand_agrees`][transitions]
-and [`Modifiers.expand_agrees`][modifiers]. The first covers the six patterns
+accepted source meanings.
+
+Lean: [`ClaferCompiler.SemanticsBridge.Behavioral.Surface.Patterns.expand_agrees`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L39),
+[`ClaferCompiler.SemanticsBridge.Behavioral.Surface.Transitions.expand_agrees`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L109)
+and [`ClaferCompiler.SemanticsBridge.Behavioral.Surface.Modifiers.expand_agrees`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L151). The first covers the six patterns
 in all five scopes; the second retains chain entry/continuation conditions.
 Modifier agreement additionally requires upstream `Structural.Valid`, including
 the inherited reference view. These are resolved reductions, not parser proofs;
@@ -162,8 +162,8 @@ parents, live objects, reference heads, frames and loop; an object cannot be
 renamed independently in each state. The concrete encoder also realizes fitting
 valid source lassos as satisfying targets.
 
-In `ClaferCompiler.Correctness.Behavioral`, see
-[`compiled_sound`][trace-sound] and [`compiled_complete`][trace-complete].
+Lean: [`ClaferCompiler.Correctness.Behavioral.compiled_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Correctness.lean#L36) and
+[`ClaferCompiler.Correctness.Behavioral.compiled_complete`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Completion.lean#L17).
 Completeness requires successful compilation, sufficient formula fuel, unique
 identity labels, duplicate-free reference rows, identity-pool/declaration scopes,
 step limits, per-frame `SourceCountFits`, source validity and attachment truth.
@@ -179,8 +179,7 @@ including grouped counting, captures, arithmetic and conditional branches.
 This keeps an undefined source result distinct from a default target value and
 preserves the meaning used by temporal constraints and property commands.
 
-The proof is
-[`ClaferCompiler.Correctness.Behavioral.Full.Expressions.lower_preserves`][full-lowering].
+Lean: [`ClaferCompiler.Correctness.Behavioral.Full.Expressions.lower_preserves`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/ExpressionsCorrectness.lean#L64).
 Its premises are successful checked lowering, sufficient fuel, `ModelRows`
 for primitive observations and finite identity/range bounds, and `LexicalRows`
 for the related captured environments. The successful range pass supplies
@@ -198,14 +197,14 @@ to the selected whole property. Assertion failure is classical negation of that
 property, so undefinedness can be a counterexample; it is not strict source
 negation.
 
-In `ClaferCompiler.Correctness.Behavioral.Full`, see
-[`compiled_sound`][full-sound] and [`sourceResult_request`][request].
+Lean: [`ClaferCompiler.Correctness.Behavioral.Full.compiled_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/CompilerCorrectness.lean#L122) and
+[`ClaferCompiler.Correctness.Behavioral.Full.sourceResult_request`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/CompilerMeaning.lean#L46).
 The direct IR theorem requires the built-in integer declaration and its origin
-proof. [`frontend_sound`][frontend-sound] composes successful authored-AST
+proof. [`ClaferCompiler.Correctness.Behavioral.Full.frontend_sound`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendCorrectness.lean#L14) composes successful authored-AST
 elaboration and compilation, deriving primitive existence for a request whose
-model equals the elaborated model. [`elaborate_source`][elaborate-source]
-retains authored/header derivations; [`check_source`][check-source] and
-[`run_source`][run-source] connect successful request construction to the
+model equals the elaborated model. [`ClaferCompiler.Correctness.Behavioral.Full.elaborate_source`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L46)
+retains authored/header derivations; [`ClaferCompiler.Correctness.Behavioral.Full.check_source`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L88) and
+[`ClaferCompiler.Correctness.Behavioral.Full.run_source`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L129) connect successful request construction to the
 assertion index and ordered scenario bodies, owners and spans.
 
 These results cover the explicit full behavioral profile with admitted bounds
@@ -224,8 +223,7 @@ it preserves all live observations while allowing unused identities outside the
 finite inventory. Thus the theorem can start with the original source carrier,
 without replacing infinite integers with Alloy's finite integer universe.
 
-The composed theorem is
-[`ClaferCompiler.Correctness.Behavioral.Full.frontend_complete_observed`][frontend-complete].
+Lean: [`ClaferCompiler.Correctness.Behavioral.Full.frontend_complete_observed`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendCorrectness.lean#L54).
 It requires successful elaboration and compilation, the same elaborated request
 model, primitive origin, source `SourceResult`, `ObservesCompletion` equations
 and `Fits`. The latter bounds identity labels/capacity, scalar observations,
@@ -240,9 +238,9 @@ not imply unbounded completeness or unbounded UNSAT. See
 Successful static and temporal rendering produces text that the repository's
 reconstruction parser reads back as the same checked target module. This checks
 that serialization has retained facts, identities, binders, command and scopes.
-The proofs are
-[`ClaferCompiler.Backend.Alloy.Text.render_reconstructs`][static-text] and
-[`ClaferCompiler.Backend.Alloy.Temporal.Text.render_reconstructs`][temporal-text].
+
+Lean: [`ClaferCompiler.Backend.Alloy.Text.render_reconstructs`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Backend/Alloy/Print.lean#L164) and
+[`ClaferCompiler.Backend.Alloy.Temporal.Text.render_reconstructs`](https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Backend/Alloy/Temporal/Print.lean#L122).
 They assume a successful rendering call; total successful renderability and
 correspondence of that parser with the external Alloy grammar/meaning are not
 proved. See [static text](alloy-text.md#proved-boundary-and-review-obligation)
@@ -254,8 +252,8 @@ The declarations above are compiler-specific Lean theorems. Clafer Semantics
 owns the independent source meanings and reusable semantic lemmas, including
 structural admission, model correspondence and signed temporal laws. Those
 upstream results do not themselves establish correctness of this Alloy compiler.
-The [companion semantics guide task](https://github.com/kbak/clafer-semantics/issues/152)
-tracks its curated list; until that guide is accepted, use the pinned
+The [companion semantics guide](https://github.com/kbak/clafer-semantics/blob/c183c1c2e4cc22cc9f41ea78733a20fc3610b50b/docs/proved-properties.md)
+explains those results, with their focused contracts in the pinned
 [semantic architecture](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/architecture.md)
 and [behavioral qualification](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/behavioral-qualification.md).
 Here, as upstream, *soundness* preserves satisfaction, *bounded completeness*
@@ -338,35 +336,3 @@ and cost. The [build contract](build.md) describes that boundary.
 
 The compiler source is available under MIT. Reuse remains subject to the
 documented scope and dependency licenses.
-
-[admission]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Structural.lean#L117
-[admission-preserves]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Structural.lean#L90
-[resolution]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Resolution.lean#L32
-[defaults]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Resolution.lean#L97
-[constraint-meaning]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Constraints.lean#L28
-[attachments]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Constraints.lean#L80
-[structural-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/StructuralReferences.lean#L151
-[structural-complete]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/StructuralCorrectness.lean#L65
-[expressions]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/ExpressionPreservation.lean#L271
-[body]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/ExpressionAttachments.lean#L196
-[source-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelineSourceSatisfaction.lean#L49
-[all-source-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelinePresence.lean#L53
-[source-complete]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelineCompleteness.lean#L42
-[constraint-free]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/PipelinePresence.lean#L73
-[normalization]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Syntax.lean#L94
-[partial-normalization]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Formula.lean#L52
-[patterns]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L39
-[transitions]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L109
-[modifiers]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/SemanticsBridge/Behavioral/Surface.lean#L151
-[trace-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Correctness.lean#L36
-[trace-complete]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Completion.lean#L17
-[full-lowering]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/ExpressionsCorrectness.lean#L64
-[full-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/CompilerCorrectness.lean#L122
-[request]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/CompilerMeaning.lean#L46
-[frontend-sound]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendCorrectness.lean#L14
-[elaborate-source]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L46
-[check-source]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L88
-[run-source]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendElaboration.lean#L129
-[frontend-complete]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Correctness/Behavioral/Full/FrontendCorrectness.lean#L54
-[static-text]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Backend/Alloy/Print.lean#L164
-[temporal-text]: https://github.com/kbak/clafer-compiler-lean/blob/e8d0d3a48ff073a0fe587cdd196b3159929f4063/ClaferCompiler/Backend/Alloy/Temporal/Print.lean#L122
