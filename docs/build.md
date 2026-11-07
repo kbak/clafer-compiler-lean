@@ -213,8 +213,8 @@ selector supplies that rule. No new dependency or license is introduced. The
 selector is tooling within the existing Python/Git/CI trust boundary, not a compiler
 proof. [Regression tests](../tests/test_ci_profile.py) exercise actual Git changes,
 missing baselines, scope preservation, complete test partitioning and gate failures.
-The daily schedule targets `behavioral`; GitHub activates schedules from the
-default branch, so manual qualification dispatch remains necessary until integration there.
+The daily schedule checks `main`. Manual dispatch runs full qualification on the
+selected candidate branch.
 
 Public CI artifacts retain check logs, source identities, notices, generated text,
 solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`

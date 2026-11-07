@@ -56,11 +56,10 @@ checks dependencies nor installs automatic readiness synchronization.
 
 ### Behavioral integration
 
-Behavioral feature branches use `codex/behavioral-...` and PRs target `behavioral`.
+Behavioral feature branches use `codex/behavioral-...` and PRs target `main`.
 The [behavioral contract](docs/behavioral.md) owns the full feature and assurance
 matrix, explicit static-profile separation and final two-repository gates.
-Keep `Closes #N` in feature PRs, then explicitly close the issue and mark Done
-after the accepted merge: GitHub may not auto-close issues on a non-default base.
+Keep `Closes #N` in feature PRs and mark Done only after the accepted merge.
 Keep the accepted commit, actual APIs/theorems/assumptions, fixtures and matching
 evidence with the handoff. Update readiness after acceptance; publication and
 passing automation alone do not complete an issue.
@@ -185,8 +184,8 @@ The final `behavioral` → `main` PR requires all three jobs on every update,
 including while draft; ordinary main PRs retain the routine checks.
 Marking a behavioral PR ready for review, pushing to `behavioral`, scheduled runs,
 and GitHub Actions → CI → Run workflow run the full suite. GitHub activates the
-daily schedule on the default branch; it checks `main`. Before final integration,
-dispatch full runs against `behavioral` manually. The existing required check
+daily schedule on the default branch; it checks `main`. Dispatch full runs against
+the candidate branch when fresh hosted qualification is required. The existing required check
 waits for every selected job. See [profile selection](docs/build.md#ci-profiles)
 for the exact boundary. Routine or compiler-only CI is not full qualification evidence.
 

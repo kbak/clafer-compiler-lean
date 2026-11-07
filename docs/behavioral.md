@@ -349,7 +349,7 @@ license assessment. External tools and retained evidence remain outside source.
 
 ## Intake, review and final integration
 
-Feature PRs target `behavioral` and include `Closes #N`; branches use
+Feature PRs target `main` and include `Closes #N`; branches use
 `codex/behavioral-...`. Follow the [ticket-readiness workflow](../CONTRIBUTING.md#ticket-readiness).
 Hard dependencies, including those in the other repository, require accepted
 completion. Parent/sub-issue links group scope and are not extra dependencies.
@@ -361,11 +361,11 @@ an accepted upstream SHA in Lake and its manifest; never pin a moving branch or
 an unaccepted PR head. Review deltas against both prior source and static pins.
 Semantic gaps require a public disposition before dependent interpretation.
 
-Behavioral PRs run the compiler and source qualification jobs even for docs;
-reference-input changes, acceptance events and integration pushes also run the
-complete reference corpora. The final `behavioral` → `main` PR requires all three
-jobs on every update. Scheduled full qualification checks `main`. The
-[CI profile contract](build.md#ci-profiles) preserves routine main PR checks,
+Current feature PRs use routine main checks; the full local IntentBond check
+remains mandatory before handoff. Scheduled and manually dispatched full
+qualification run all three jobs, including the complete reference corpora.
+Scheduled full qualification checks `main`. The
+[CI profile contract](build.md#ci-profiles) also retains the final-integration event rules,
 separate solver jobs and existing deadlines. The required check remains
 `Lean proofs and native CLI`; main's protections are preserved. Hosted protection
 must separately require that
@@ -375,8 +375,7 @@ remain zero; it does not remove the independent semantic-review obligation.
 Inspect live protection/rulesets and retain readback externally. Missing protection
 is a reported settings gap, not something CI or this document can attest is enabled.
 
-After an accepted feature PR lands on the non-default branch, explicitly close
-its issue and mark it Done; `Closes` alone is insufficient. Do not close on draft
+After an accepted feature PR lands, reconcile its issue and mark it Done. Do not close on draft
 publication or passing CI. Reconcile affected unstarted tickets in both Projects
 after closure, reopening, dependency or scope changes. This is manual reconciliation.
 
