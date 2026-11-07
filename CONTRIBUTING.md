@@ -147,7 +147,8 @@ The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
 CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another, alongside the remaining tests. It rejects
+share another. The PR113 corpus uses a separate group scheduled first through
+the same bounded executor, so its queries overlap the other regressions. It rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared
@@ -177,8 +178,9 @@ not invalidate unchanged Haskell tools. Exporter recipes and binary/source recei
 are verified on reuse; cold exporters share the pinned Stack/GHC package store.
 Full IntentBond runs use an isolated source snapshot and run every validation gate.
 The axiom audit, regression suite and kernel replay run in sequence to avoid CPU
-and memory contention. Regression groups default to two workers; set
-`CLAFER_TEST_JOBS=1..4` to select a limit, still bounded by CPU availability.
+and memory contention. Regression groups default to two workers; CI selects three
+to overlap the PR113 corpus with the other suites. Set `CLAFER_TEST_JOBS=1..4`
+to select a limit, still bounded by CPU availability.
 CI summaries and retained logs report gate and regression-group durations.
 Preparation builds all imported upstream modules, including telematics examples.
 The workflow permits only the exact reviewed `120` → `600` deadline migration;

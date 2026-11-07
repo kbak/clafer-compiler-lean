@@ -567,6 +567,19 @@ source/JAR identities above. C2/C3 must retain source-matched runtime options,
 temporal reference correspondence and actual Analyzer evidence; visiting the live
 reference is not a new immutable source pin or solver proof.
 
+The [temporal target correspondence](alloy-temporal.md#source-correspondence-and-reuse)
+uses the same immutable Alloy source revision. Inspected
+[`ScopeComputer`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/ScopeComputer.java),
+[`BoundsComputer`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/BoundsComputer.java)
+and [`TranslateAlloyToKodkod`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/TranslateAlloyToKodkod.java)
+for trace-wide identity capacity/disjointness, mutable multiplicities, temporal
+operators and current `iden`. The live reference is explanatory; source locators
+and actual pinned runtime observations retain the correspondence boundary.
+Upstream `Behavioral/Lasso.lean` supplies the source-side history distinction,
+and candidate `AlloyLtl.hs` `initialConsts`/`appearsNow` supplies birth-guard context.
+No source truth is imported into target truth. Existing standard-library instruction-list folds, Parsec, bounds, names,
+source-map and oracle machinery are reused; no dependency or license pin changes.
+
 Workflow changes reuse the accepted upstream MIT `scripts/tickets.py` Ready mapping
 and live Project-ID test pattern, Python's standard library and existing Actions
 conditions. The [reuse assessment](behavioral.md#static-separation-and-reuse)

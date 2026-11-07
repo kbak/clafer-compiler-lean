@@ -22,7 +22,7 @@ its [comparison profile](oracles.md) is external to the native runtime.
 | --- | --- | --- |
 | `ClaferCompiler.Frontend` | Authored parser, checked declaration resolution and constraint elaboration | Runtime modules |
 | `ClaferCompiler.IR` | Executable structural/inherited tables, admission and typed expressions | Runtime modules |
-| `ClaferCompiler.Backend.Alloy` | Independent static syntax, bounded semantics, encoding and serialization | Runtime modules |
+| `ClaferCompiler.Backend.Alloy` | Independent static/temporal syntax, bounded semantics, encoding and serialization | Runtime modules |
 | `ClaferCompiler.Driver` | Native source/IR commands, strict JSON, bounds and diagnostics | Runtime modules |
 | `ClaferCompiler.SemanticsBridge` | Structural/inherited interpretation, admission, expressions and source elaboration proofs | Runtime/proof modules and upstream |
 | `ClaferCompiler.Correctness` | Response, generation, preservation, arithmetic and full source-model proofs | Runtime/proof modules and upstream |

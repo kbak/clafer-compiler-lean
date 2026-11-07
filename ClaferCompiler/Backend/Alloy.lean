@@ -2,6 +2,7 @@ module
 
 public import ClaferCompiler.Backend.Alloy.InheritedViews
 
+public import ClaferCompiler.Backend.Alloy.Temporal
 public import ClaferCompiler.Backend.Alloy.Semantics
 public import ClaferCompiler.Backend.Alloy.Print
 public import ClaferCompiler.Backend.Alloy.Structural

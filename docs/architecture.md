@@ -43,7 +43,7 @@ fixtures, exact declaration names, source-matched evidence and unresolved limits
 | Lake, root module, check/CI and proof audit | [Build](build.md) | Native smoke run, module inventory, kernel/axiom audit, reviewed check scope |
 | External comparison tooling and corpus | [Oracles](oracles.md), [comparison](comparison.md) | Pins, same-generation Haskell receipt, exact-candidate replay and mutation sensitivity |
 | `ClaferCompiler/IR`, `SemanticsBridge` | [Structural IR](ir.md), [expressions](expressions.md) | Validated executable data, upstream interpretation, admission/denotation agreement |
-| `Backend/Alloy` syntax/semantics/printer | [Target core](alloy-core.md), [serialization](alloy-text.md) | Independent finite meaning, scopes, hygiene, syntax correspondence |
+| `Backend/Alloy` syntax/semantics/printer | [Target core](alloy-core.md), [serialization](alloy-text.md), [temporal target](alloy-temporal.md) | Independent finite meaning, scopes, hygiene, syntax correspondence |
 | `Backend/Alloy` translation and `Correctness` | [Structural encoding](structural-encoding.md), [preservation](structural-correctness.md), [inherited realization](inherited-realization.md), [constraints](expression-encoding.md) | Concrete model relations, soundness and bounded completeness |
 | `Frontend` parser/resolver/elaborator | [Parser](parser.md), [resolution](resolution.md), [constraints](constraints.md) | Source spans, authored provenance, declarative elaboration relation and success proofs |
 | `Driver`, instance decoder and integration | [Decoding](comparison.md), [CLI](cli.md), [source pipeline](pipeline.md), [qualification](qualification.md) | Stable protocol, actual Alloy integration, complete telematics, candidate artifacts/benchmarks |

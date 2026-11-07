@@ -21,7 +21,7 @@ jobs:
       LEAN_NUM_THREADS: '2'
       PYTHONDONTWRITEBYTECODE: '1'
       LAKE_ARTIFACT_CACHE: 'true'
-      CLAFER_TEST_JOBS: '2'
+      CLAFER_TEST_JOBS: '3'
       LAKE_RESTORE_ARTIFACTS: 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -242,8 +242,10 @@ admission API.
 selects a recorded command index. It retains the original command, then constructs
 a command with the same assertion/run formula and explicit budgets through Alloy's
 public AST API. Assertions retain the Analyzer's classical counterexample formula.
-It checks the complete signature inventory and rejects silent `one`/`lone` scope
-adjustments. The registered requests supply upper identity scopes for every
+It checks the complete signature inventory and rejects incompatible static
+`one`/`lone` scopes. Mutable `one`/`lone` signatures may use larger identity
+budgets because their singleton population can be replaced across time; mutable
+`one` and any `some` signature still require positive capacity. The registered requests supply upper identity scopes for every
 signature, including root `1`, signed bitwidth `8`, sequence scope `0`, and
 `3..6 steps`. SAT4J, one worker, overflow prevention, no decomposition and every
 public `A4Options` field are recorded and checked. Each query has a 30-second wall

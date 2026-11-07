@@ -31,6 +31,12 @@ the delivered `behavioral-core/1` API, exact interpretation theorems and
 [fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
 source command, target encoding or full-profile qualification claim.
 
+The [temporal target](alloy-temporal.md) has separate admission, natural-time
+meaning and checked serialization. Its kernel laws and
+[Analyzer regressions](../tests/test_alloy_temporal.py) cover target constructs;
+source-to-target preservation and full behavioral qualification remain dependent
+work. This does not change the static feature inventory below.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

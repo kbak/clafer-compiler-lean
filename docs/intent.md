@@ -58,6 +58,8 @@ they do not implement behavioral compilation or prove source preservation.
 The separate [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate)
 qualifies later Haskell naming, modifiers, patterns and explicit output through
 fresh bounded comparisons while preserving both historical profiles.
+The separate [temporal target](alloy-temporal.md) supplies independent target
+meaning and checked serialization for the behavioral encoder.
 
 ## Delivery and selected language scope
 
@@ -111,6 +113,7 @@ and semantic acceptance require explicit review; see the
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
+- [Alloy temporal target](alloy-temporal.md): independent trace meaning, bounds, history and checked temporal serialization.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Inherited realization](inherited-realization.md): original objects/links, context views and structural preservation.
