@@ -14,10 +14,10 @@ import unittest
 
 
 ISOLATED_GROUPS = {
-    # Start the longest corpus immediately, alongside the existing groups.
+    # This corpus runs exclusively, preserving its per-query solver budgets.
     '--pr113-worker': {'test_pr113_oracles'},
-    '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
+    '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--frontend-worker': {'test_constraints', 'test_parser', 'test_resolution', 'test_qualification'},
     '--target-worker': {'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
         'test_expressions', 'test_inherited', 'test_integer_arithmetic',
@@ -71,11 +71,17 @@ if all(present):
         return result
     def isolated(flag):
         return subprocess.run([sys.executable, str(Path(__file__).resolve()), flag]).returncode == 0
+    # Do not make bounded solver queries compete with Lean compilation/checkers.
+    # Still run every other group if this mandatory phase fails.
+    results = [timed('--pr113-worker', isolated, '--pr113-worker')]
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
-        futures = [pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS]
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        futures.append(pool.submit(timed, 'remaining', run, remaining))
-        results = [future.result() for future in futures]
+        # The general group includes the temporal target and native behavioral
+        # suites. Queue it early within the remaining work.
+        futures = [pool.submit(timed, 'remaining', run, remaining)]
+        futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS
+                       if flag != '--pr113-worker')
+        results.extend(future.result() for future in futures)
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)

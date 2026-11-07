@@ -31,6 +31,13 @@ the delivered `behavioral-core/1` API, exact interpretation theorems and
 [fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
 source command, target encoding or full-profile qualification claim.
 
+The [behavioral frontend inventory](behavioral-frontend.md) separately records
+authored parsing, declaration/modifier/header binding, resolved reductions, partial
+normalization, grouped binder plans/counting and source model/check/run requests.
+The implemented expression fragment has native integration tests; full expression
+coverage, independent authored-elaboration correctness, range composition and C7
+acceptance remain outstanding.
+
 The [temporal target](alloy-temporal.md) has separate admission, natural-time
 meaning and checked serialization. Its kernel laws and
 [Analyzer regressions](../tests/test_alloy_temporal.py) cover target constructs;

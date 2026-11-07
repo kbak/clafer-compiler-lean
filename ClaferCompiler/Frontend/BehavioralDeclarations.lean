@@ -11,6 +11,14 @@ structure EnumExpansion where
   elements : List Element
   finalLiterals : List Name
 
+def enumFamily (name : Name) (span : SourceSpan) : Element :=
+  .declaration { name, abstractToken := some { name with text := "abstract" } } [] span
+
+def enumLiteral (name literal : Name) : Element :=
+  .declaration
+    { name := literal, super := some name,
+      cardinality := some ⟨#[], 1, some 1⟩ } [] literal.span
+
 -- [impl->req~compiler-behavioral-structural-bridge~1]
 def expandEnum (selectedProfile : String) (name : Name) (literals : List Name)
     (span : SourceSpan) : Except Diagnostic EnumExpansion := do
@@ -18,12 +26,7 @@ def expandEnum (selectedProfile : String) (name : Name) (literals : List Name)
     throw (Resolution.errorAt name "behavioral.profile" "unsupported behavioral profile" .unsupported)
   if literals.isEmpty then
     throw (Resolution.errorAt name "behavioral.enum-empty" "an enum requires a literal")
-  let abstractToken := { name with text := "abstract" }
-  let family := Element.declaration { name, abstractToken := some abstractToken } [] span
-  let values := literals.map fun literal => Element.declaration
-    { name := literal, super := some name,
-      cardinality := some ⟨#[], 1, some 1⟩ } [] literal.span
-  return ⟨family :: values, literals⟩
+  return ⟨enumFamily name span :: literals.map (enumLiteral name), literals⟩
 
 /-- `=` becomes a strict presence-guarded equation in the enclosing attachment.
 Both views are supplied by the expression resolver; no extra dref is inserted. -/

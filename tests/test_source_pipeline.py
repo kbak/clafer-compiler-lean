@@ -152,26 +152,39 @@ class SourcePipelineTests(unittest.TestCase):
 
         run('build', ['lake', 'build', '+tests.PipelineNative'], ROOT)
         harness = output / 'Harness.lean'
-        harness.write_text('import tests.PipelineNative\ndef main (args : List String) : IO Unit := '
-                           'ClaferCompiler.Tests.PipelineNative.run args\n')
+        harness.write_text('''import tests.PipelineNative
+def main : List String → IO Unit
+  | [] => pure ()
+  | source :: bounds :: directory :: table :: mutation :: rest => do
+    ClaferCompiler.Tests.PipelineNative.run [source, bounds, directory, table, mutation]
+    main rest
+  | _ => throw (IO.userError "arguments")
+''')
         classpath = os.pathsep.join(map(str, [output, runtime['classes'], runtime['jar']]))
         run('javac', [runtime['java'].with_name('javac'), '--release', '17', '-cp', classpath,
                       '-d', output, ROOT / 'scripts/oracles/AlloyTextBridge.java',
                       ROOT / 'scripts/oracles/AlloyArithmeticBridge.java'])
 
-        def native(label, source, limits, candidate=None, mutation='none'):
-            folder = output / label
-            folder.mkdir()
-            (folder / 'model.cfr').write_text(source)
-            oracle.write(folder / 'bounds.json', limits)
-            table = '-'
-            if candidate is not None:
-                table = folder / 'tables.rows'
-                table.write_text(tables(candidate))
-                oracle.write(folder / 'candidate.json', candidate)
-            run(label, ['lake', 'env', 'lean', '--run', harness, folder / 'model.cfr',
-                        folder / 'bounds.json', folder, table, mutation], ROOT)
-            return folder
+        def native_many(calls):
+            # Share only Lean startup/imports. Every call independently compiles
+            # its source and evaluates its candidate into a fresh output folder.
+            self.assertTrue(calls)
+            folders, arguments = [], []
+            for label, source, limits, candidate, mutation in calls:
+                folder = output / label
+                folder.mkdir()
+                (folder / 'model.cfr').write_text(source)
+                oracle.write(folder / 'bounds.json', limits)
+                table = '-'
+                if candidate is not None:
+                    table = folder / 'tables.rows'
+                    table.write_text(tables(candidate))
+                    oracle.write(folder / 'candidate.json', candidate)
+                folders.append(folder)
+                arguments.extend([folder / 'model.cfr', folder / 'bounds.json',
+                                  folder, table, mutation])
+            run(calls[0][0] + '-batch', ['lake', 'env', 'lean', '--run', harness, *arguments], ROOT)
+            return folders
 
         def solve(label, items):
             folder = output / label
@@ -207,10 +220,10 @@ class SourcePipelineTests(unittest.TestCase):
              bounds([1,1,1,0],3,3), 'none'),
             ('inherited', 'abstract Base\n  xor choice\n    a\n    b\nitem : Base\n',
              bounds([1,1,1,0,0,1],3), 'drop-inherited-group')]
-        prepared = [native('seed-'+name, source, limits, mutation=mutation)
-                    for name, source, limits, mutation in definitions]
+        prepared = native_many([('seed-'+name, source, limits, None, mutation)
+                                for name, source, limits, mutation in definitions])
         seed = solve('seed-analyzer', [(p.joinpath('generated.als').read_text(), True) for p in prepared])
-        checks, results = [], []
+        checks, results, evaluations, calls = [], [], [], []
         for index, ((name, source, limits, _), prep) in enumerate(zip(definitions, prepared)):
             spec = schema(prep)
             c = witness(seed / f'case_{index}.xml', spec)
@@ -224,7 +237,24 @@ class SourcePipelineTests(unittest.TestCase):
             if name == 'omitted':
                 scalar = mapping[2][0]
                 c['values'][scalar][0][1] = 1
-            original = native(name+'-original', source, limits, c)
+            changed_source, mutation = source, 'none'
+            if name == 'version': changed_source = source.replace('>=', '<=')
+            if name == 'display': changed_source = source.replace('= 2', '= 1')
+            if name == 'parent': changed_source = source.replace('= parent', '= left')
+            if name == 'omitted': mutation = 'drop-constraint:0'
+            if name in ('empty', 'empty-only'): changed_source = source.replace('no noclafer', 'some noclafer', 1)
+            if name == 'legacy-none-name': changed_source = source.replace('some none', 'no none')
+            if name == 'empty-reference': changed_source = source.replace('a = noclafer', 'a != noclafer')
+            if name == 'empty-navigation': changed_source = source.replace('no noclafer.x', 'some noclafer.x')
+            if name == 'inherited': mutation = 'drop-inherited-group'
+            calls.append((name+'-original', source, limits, c, 'none'))
+            if name != 'telematics':
+                calls.extend([(name+'-mutated', changed_source, limits, c, mutation),
+                              (name+'-replay', changed_source, limits, copy.deepcopy(c), mutation)])
+            evaluations.append((name, limits, spec, c, mapping))
+        native_many(calls)
+        for name, limits, spec, c, mapping in evaluations:
+            original = output / (name+'-original')
             observed = original.joinpath('evaluation.rows').read_text().splitlines()
             expected = name not in ('omitted', 'inherited')
             self.assertEqual(observed[0], 'target '+str(expected).lower())
@@ -239,23 +269,12 @@ class SourcePipelineTests(unittest.TestCase):
             if name == 'telematics':
                 results.append(dict(name=name, original=expected, bodies=12))
                 continue
-            changed_source, mutation = source, 'none'
-            if name == 'version': changed_source = source.replace('>=', '<=')
-            if name == 'display': changed_source = source.replace('= 2', '= 1')
-            if name == 'parent': changed_source = source.replace('= parent', '= left')
-            if name == 'omitted': mutation = 'drop-constraint:0'
-            if name in ('empty', 'empty-only'): changed_source = source.replace('no noclafer', 'some noclafer', 1)
-            if name == 'legacy-none-name': changed_source = source.replace('some none', 'no none')
-            if name == 'empty-reference': changed_source = source.replace('a = noclafer', 'a != noclafer')
-            if name == 'empty-navigation': changed_source = source.replace('no noclafer.x', 'some noclafer.x')
-            if name == 'inherited': mutation = 'drop-inherited-group'
-            changed = native(name+'-mutated', changed_source, limits, c, mutation)
+            changed, replay = output / (name+'-mutated'), output / (name+'-replay')
             self.assertEqual(changed.joinpath('evaluation.rows').read_text().splitlines()[0],
                              'target '+str(not expected).lower())
             changed_text = changed.joinpath('generated.als').read_text() + pin(c, spec)
             checks.append((changed_text, not expected))
             # Exact replay retains source, bounds, all tuples and scalar payloads.
-            replay = native(name+'-replay', changed_source, limits, copy.deepcopy(c), mutation)
             self.assertEqual(replay.joinpath('generated.als').read_bytes(), changed.joinpath('generated.als').read_bytes())
             self.assertEqual(replay.joinpath('evaluation.rows').read_bytes(), changed.joinpath('evaluation.rows').read_bytes())
             checks.append((replay.joinpath('generated.als').read_text()+pin(c,spec), not expected))
@@ -280,10 +299,13 @@ class SourcePipelineTests(unittest.TestCase):
         # and reject neither/both with matching exact scopes. Compare the native
         # target evaluator, independent structural checker and actual Alloy.
         source = '1..1 Owner\n  a\n  b\n'
-        for a, b in [(0, 0), (1, 0), (0, 1), (1, 1)]:
+        counts = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        preparations = native_many([(f'numeric-choice-{a}-{b}-prepare', source,
+            bounds([1, 1, a, b], 2 + a + b), None, 'none') for a, b in counts])
+        calls, candidates = [], []
+        for (a, b), prep in zip(counts, preparations):
             label = f'numeric-choice-{a}-{b}'
             limits = bounds([1, 1, a, b], 2 + a + b)
-            prep = native(label + '-prepare', source, limits)
             spec = schema(prep)
             mapping = {d: (s, h-1, r-1) for d,s,h,r in rows(prep / 'mapping.rows')}
             self.assertEqual(set(mapping), {0, 1, 2, 3})
@@ -298,7 +320,10 @@ class SourcePipelineTests(unittest.TestCase):
                     sig = spec['signatures'][sig]['parent']
                 if d:
                     c['fields'][field] = [[0 if d == 1 else 1, x] for x in atoms]
-            evaluated = native(label, source, limits, c)
+            calls.append((label, source, limits, c, 'none'))
+            candidates.append((a, b, c, spec))
+        for (a, b, c, spec), evaluated in zip(candidates, native_many(calls)):
+            label = f'numeric-choice-{a}-{b}'
             expected = a + b == 1
             self.assertEqual(evaluated.joinpath('evaluation.rows').read_text().splitlines(),
                              ['target ' + str(expected).lower(),

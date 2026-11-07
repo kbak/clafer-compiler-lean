@@ -170,6 +170,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                         cwd=root,capture_output=True,text=True,
                         env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'))
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                    if module == 'test_pr113_oracles':
+                        self.assertIn('[check] Regression remaining:', result.stdout)
                 (root/'tests'/f'{module}.py').write_text(good)
             (root/'tests/test_qualification.py').unlink()
             result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
@@ -192,6 +194,19 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', CLAFER_TEST_JOBS='1'))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(result.stderr.count('test_serial ('), len(fixtures))
+            # PR113 must not overlap any other group, even with several workers.
+            # Shared locks permit the ordinary groups to run concurrently.
+            shared = locked.replace('fcntl.LOCK_EX', 'fcntl.LOCK_SH')
+            for fixture in fixtures:
+                fixture.write_text(locked.replace('time.sleep(0.03)', 'time.sleep(0.3)')
+                                   if fixture.stem == 'test_pr113_oracles' else shared)
+            result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
+                cwd=root, capture_output=True, text=True,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', CLAFER_TEST_JOBS='3'))
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.stderr.count('test_serial ('), len(fixtures))
+            for fixture in fixtures:
+                fixture.write_text(locked)
             for invalid in ('0', '5', 'invalid'):
                 result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
                     cwd=root, capture_output=True, text=True,

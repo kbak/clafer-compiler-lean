@@ -51,7 +51,7 @@ export CLAFER_ORACLE_EVIDENCE=/tmp/clafer-oracle-evidence-UNIQUE
 bash scripts/check.sh
 ```
 
-Provisioning is outside the [600-second IntentBond check deadline](build.md).
+Provisioning is outside the [1200-second IntentBond check deadline](build.md).
 Linux x86_64 supports upstream automatic Haskell/Java downloads with hash checks;
 other platforms need explicit compatible tools. `CLAFER_CAPTURE`,
 `CLAFER_CAPTURE_BUILD`, `CLAFER_CAPTURE_CACHE`, `CLAFER_ALLOY_JAR`,

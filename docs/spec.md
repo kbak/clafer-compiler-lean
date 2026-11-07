@@ -178,6 +178,51 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Behavioral authored frontend
+
+`req~compiler-behavioral-frontend~1`
+
+Under explicit `behavioral-0.5.7-candidate/v1` selection, parse every accepted
+behavioral modifier, temporal operator/alias, transition/guard/chain, lifetime
+anchor, pattern/scope, assertion and scenario source form. Preserve layout,
+precedence, original spans, syntactic polarity, lexical binders and attachment
+ownership. Retain all repeated/combined reference modifiers in either order on
+direct and inherited references. Keep model/scenario selection and assertions
+distinct; reject unsupported objectives, escapes, domains and default initializers
+explicitly. Preserve static-profile temporal rejection. Record an independent
+grammar and distinguish tested recognition from proved elaboration. The
+[frontend inventory](behavioral-frontend.md) states current APIs and remaining
+composition obligations; parsing is not semantic admission.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral source elaboration
+
+`req~compiler-behavioral-elaboration~1`
+
+Resolve and elaborate the complete accepted behavioral source into the independent
+upstream source rules. Preserve authored/effective metadata, context/parent lifetime
+selection, time-spanning captures, strict definedness and attachment identity.
+Implement initial/final/inherited-reference expansions, enum finality, constant
+initializers, all thirty pattern cells and required transition chains. Preserve
+response-between and first-opener precedence-after corrections and the distinct
+finalref/finaltarget meanings. Compose whole-expression range obligations without
+assuming constraint truth. Prove executable normalization and source elaboration
+agreement, beyond well-formed output; distinguish universal assertions, classical
+counterexample failure and existential scenarios. Grammar recognition, native
+execution and reference-tool outcomes remain separately tested boundaries.
+The [reduction inventory](behavioral-frontend.md#executable-reductions-and-proved-boundary)
+records supplied local theorems and the outstanding full source composition; local
+coverage does not establish completion of the full requirement.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Trace assurance planning contract
 
 `req~compiler-trace-assurance~1`
@@ -265,7 +310,8 @@ may be reused only through Lake's source/options/import validation, with local
 restoration for fresh axiom inspection and kernel replay. Separate comparison-tool
 caches must still pass their pinned source/recipe/binary identity checks. Never
 reuse a previous proof/test result as current evidence. Report validation timings
-and bound concurrent regressions without dropping cases or relaxing time limits.
+and bound concurrent regressions without dropping cases or relaxing per-command
+time limits. Amendments to the overall check deadline require explicit scope review.
 
 Covers:
 - `intent~compiler-foundation~1`
