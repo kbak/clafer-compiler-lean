@@ -1,0 +1,444 @@
+{
+  "base": "af858ec0fe3ce2ceacb7fd120947c058233086d6",
+  "candidate": "9a0f16ed18bdfb5277bedcc6577731f4b422be77",
+  "changed_file_count": 951,
+  "commits": [
+    "5151ac7c061941458769a90a4462e19969dd98d9",
+    "2b08bbb886f98b38ce6d1430c61ddc7ab6215603",
+    "412f610981724bd6a53451189eb8cb98b466a6da",
+    "06897b331805f7715da41e235a06421ec9e1e65a",
+    "b6c38617b203c17f57b994546172801ddaaf88c2",
+    "8d0fccd48615dd45d42116effe7f8e3806a86ee9",
+    "b2875f35916337f4b7945ab6451b019c59fbbc76",
+    "8a12ae70b7c44a10ee45bcf34f45cd5abe335e60",
+    "96b5264452a6c82b53e24c22160bfcf1b48a31bd",
+    "9a0f16ed18bdfb5277bedcc6577731f4b422be77"
+  ],
+  "full_delta_sha256": "07dcca1eccaf93ebb573ce64ce26d9966c5bef53556c3ccf02fb62856a4bc521",
+  "generated_regression_count": 911,
+  "reviewed_sources": [
+    {
+      "base": {
+        "bytes": 441,
+        "sha256": "af30dd2071bba296b3dadb41484e9702297bce6e8aa1cb64c9a6b9f7e7222bb3"
+      },
+      "candidate": {
+        "bytes": 465,
+        "sha256": "e98d3fa9a08b3475a0a40c99a08fb014907b46b29da39ce55a130adb1e3b998e"
+      },
+      "path": ".gitignore"
+    },
+    {
+      "base": {
+        "bytes": 22461,
+        "sha256": "e678ad8ea131dba9594746643b74f594a5ba614285c07a0ddc8c8023fb4c8c5b"
+      },
+      "candidate": {
+        "bytes": 31192,
+        "sha256": "fa10e6b6a0020e0bfc4f337b93e1a64a1b8e74b0f3028e42168e3a4a4aaebb3e"
+      },
+      "path": "CHANGES.md"
+    },
+    {
+      "base": {
+        "bytes": 24873,
+        "sha256": "c2ba4745158d3eda25ad7da5a68785a69214cf85cf51e0a3aa784577a6d3d4b4"
+      },
+      "candidate": {
+        "bytes": 27914,
+        "sha256": "85e698dfc861e7d448c50ec88ecfb1c8607863050bbdae61b0ea48b5561c0a9b"
+      },
+      "path": "README.md"
+    },
+    {
+      "base": {
+        "bytes": 8090,
+        "sha256": "70ffde0f69e9b94e27a8952adcc61add75e400611b2c95a181a54a2570f46593"
+      },
+      "candidate": {
+        "bytes": 8329,
+        "sha256": "1f34d7a28cc64973ede8159f170f42c03e5aa73da30b9518eb72dd9f0679c9a5"
+      },
+      "path": "clafer.cabal"
+    },
+    {
+      "base": {
+        "bytes": 20748,
+        "sha256": "d8de22fc45850ca87dc080121fcf1a1421db86c4951ea9f56ec5e9ba6f14ee5e"
+      },
+      "candidate": {
+        "bytes": 22028,
+        "sha256": "07c3ec3ed97e8d8631778f1a05d00f4a2ca78b4950a549ac2eef62805cdf16fb"
+      },
+      "path": "doc/CheatSheet.md"
+    },
+    {
+      "base": {
+        "bytes": 17304,
+        "sha256": "b5172db9664202b9665806e0d46d64f3f244483ad9d357a05709b1ddb0cefdd0"
+      },
+      "candidate": {
+        "bytes": 17282,
+        "sha256": "8ab9e28507baf925c28964eba1b021e96151c0bae5e52de343acc95cd3061660"
+      },
+      "path": "doc/decimal-numbers.md"
+    },
+    {
+      "base": {
+        "bytes": 25123,
+        "sha256": "d42a6f72ddfc70e3ef628e7d7ad2c3ae99e468185fdb5a7056fe80d38e861d4d"
+      },
+      "candidate": {
+        "bytes": 26450,
+        "sha256": "4d7412cf8e7153a7474214194b6ccd9e3f117ef9756bc579e96e620c4693340e"
+      },
+      "path": "doc/temporal-semantics-errata.md"
+    },
+    {
+      "base": {
+        "bytes": 36684,
+        "sha256": "43c7998fe37613268664ba3b469f246efa845b3e75658e02ab946f7385d1c188"
+      },
+      "candidate": {
+        "bytes": 41335,
+        "sha256": "0b433e0ee15e6dcdc0976e33b27e05d4cf45aaa200cfbab5a0e82b3da7021c21"
+      },
+      "path": "src/Language/Clafer.hs"
+    },
+    {
+      "base": {
+        "bytes": 11167,
+        "sha256": "95f5f98bb9992026584ccf72ce366a37c73ecc7279a31486c35ade12b29dbad9"
+      },
+      "candidate": {
+        "bytes": 12335,
+        "sha256": "6f1565062845464b190efd93bbf200c22d2b7d9f00b20f31f81decafcab82c88"
+      },
+      "path": "src/Language/Clafer/ClaferArgs.hs"
+    },
+    {
+      "base": {
+        "bytes": 23727,
+        "sha256": "54cdc70bf75b9dfdd4b2e6d44f1694fd5d6164a6cae2ba8fd40c5ba033bf685f"
+      },
+      "candidate": {
+        "bytes": 24327,
+        "sha256": "b3dfb6d35da17ae2a82d614a4740beb67d08f200feb8fc3746f56aa595e6d58c"
+      },
+      "path": "src/Language/Clafer/Common.hs"
+    },
+    {
+      "base": {
+        "bytes": 28918,
+        "sha256": "afb3b00af4a8a00e3617e05b3c960d3b651d98b423c29679d0cbdc0fed830433"
+      },
+      "candidate": {
+        "bytes": 28984,
+        "sha256": "536a1f3d19fa96159464b936eff96ea4d8bb91554b22cffa0b11ebe9098b4615"
+      },
+      "path": "src/Language/Clafer/Generator/Alloy.hs"
+    },
+    {
+      "base": {
+        "bytes": 37140,
+        "sha256": "68423e38d8002f6875bc72ebe267959cc5f44b2d0a5077446e304ae6e1a5057a"
+      },
+      "candidate": {
+        "bytes": 37938,
+        "sha256": "3861ceb922edcd1bc831c0255fca4db00e72b7f9531a33b027d813682cb5a9c4"
+      },
+      "path": "src/Language/Clafer/Generator/AlloyLtl.hs"
+    },
+    {
+      "base": null,
+      "candidate": {
+        "bytes": 5767,
+        "sha256": "aef096563fb5bf10873598d8b0ad5860f62ec5026fd99bb1abd38bc18e487a05"
+      },
+      "path": "src/Language/Clafer/Generator/AlloyNames.hs"
+    },
+    {
+      "base": {
+        "bytes": 16593,
+        "sha256": "337e886c9e7e30c44732a15f0242cecf9b2f3f91db8cc0a18212f72ff4d8c733"
+      },
+      "candidate": {
+        "bytes": 6664,
+        "sha256": "66efd15de3fb6ec8709066ddfbae9669c66252f335e8655420a2732eb9c7b5fb"
+      },
+      "path": "src/Language/Clafer/Generator/Choco.hs"
+    },
+    {
+      "base": null,
+      "candidate": {
+        "bytes": 19386,
+        "sha256": "8e33c8c2ab527aa90482228b16be9c4342b6a40c5d63c75fdce5569a59ab37a2"
+      },
+      "path": "src/Language/Clafer/Generator/ChocoModel.hs"
+    },
+    {
+      "base": null,
+      "candidate": {
+        "bytes": 10244,
+        "sha256": "280eecc1d1d6e9afa01a24feb52e75ef6687e3e718c706e1f5c81c0f589a7e84"
+      },
+      "path": "src/Language/Clafer/Generator/Explicit.hs"
+    },
+    {
+      "base": {
+        "bytes": 22900,
+        "sha256": "fa51e8b20ac86d3555c0e05de23f53586820eaba49c7cef01ea4c42b35ffd1af"
+      },
+      "candidate": {
+        "bytes": 23119,
+        "sha256": "b7f0822e5f0a68ff7f554bbb2bcdf058cea9f29511a9373aab88b0c890ca54ac"
+      },
+      "path": "src/Language/Clafer/Generator/Graph.hs"
+    },
+    {
+      "base": {
+        "bytes": 42644,
+        "sha256": "d54e17926756188cfab204dc6fd48d4f299f20dddde4ea88bf15dade1ea138c2"
+      },
+      "candidate": {
+        "bytes": 42736,
+        "sha256": "2785d8f7fbde0617507ce57fa330480b2ddd81bb7b65cf3dcbe3739925163330"
+      },
+      "path": "src/Language/Clafer/Generator/Html.hs"
+    },
+    {
+      "base": {
+        "bytes": 22557,
+        "sha256": "08c9138dc634c0737858e672b55e2db7c996245369d2cba0d9c6a9e75f2bcb14"
+      },
+      "candidate": {
+        "bytes": 22572,
+        "sha256": "f4ba2d04f0875c14146fe23e3fb0b0e92b3435656889bc7b59e6d5f5e9ca9cc5"
+      },
+      "path": "src/Language/Clafer/Import.hs"
+    },
+    {
+      "base": {
+        "bytes": 32370,
+        "sha256": "8fbe866a70521a25dfe75ad191dc0737887376877ccfb37921c26a4901e68ad7"
+      },
+      "candidate": {
+        "bytes": 32687,
+        "sha256": "173f82792eaf6041f9ae8d41a8b2992e016521a169f369243c527a232a00649f"
+      },
+      "path": "src/Language/Clafer/Intermediate/Desugarer.hs"
+    },
+    {
+      "base": {
+        "bytes": 17088,
+        "sha256": "2ce6630ec52b4a9680c158149ffd49d81b6e5eee81695dda493cd50782351e13"
+      },
+      "candidate": {
+        "bytes": 17135,
+        "sha256": "7c1ba1b98cf91f91f488dbcf7c8e2430bbe3126329da44fee8d22cc466c6fc2c"
+      },
+      "path": "src/Language/Clafer/Intermediate/Intclafer.hs"
+    },
+    {
+      "base": {
+        "bytes": 4466,
+        "sha256": "2e48cd02bb9054906831852cce03590a37daf4c783ff677fede43951f8cc7184"
+      },
+      "candidate": {
+        "bytes": 5206,
+        "sha256": "070836fe1f61ebd8dc8c683b672f3f945fd344c67eacc57373f7b21e3535cce8"
+      },
+      "path": "src/Language/Clafer/Intermediate/Resolver.hs"
+    },
+    {
+      "base": {
+        "bytes": 18892,
+        "sha256": "ea36bf91b1fdaa6dad55a3655cc04a557f2c6d5d48fee06cb622a6d4c4712fb4"
+      },
+      "candidate": {
+        "bytes": 18721,
+        "sha256": "88e2c6f930eceb73d3d20f8e90e6e49cac399a6586d8cd9c1808352a5f47f071"
+      },
+      "path": "src/Language/Clafer/Intermediate/ResolverInheritance.hs"
+    },
+    {
+      "base": {
+        "bytes": 21650,
+        "sha256": "bd7c4996e2915992ce2d0034d1b74e4866e373ddab0f73b5cca2e6e9150ba589"
+      },
+      "candidate": {
+        "bytes": 23106,
+        "sha256": "0f7bfc6d249e22995541ea28239b4fdfd165ec9c693b0cc2255a1f09862c1b33"
+      },
+      "path": "src/Language/Clafer/Intermediate/ResolverName.hs"
+    },
+    {
+      "base": {
+        "bytes": 13093,
+        "sha256": "57d5072892fda8a1aaa9a01b824c1a53201ad043ce3071538bad598e8a52bd77"
+      },
+      "candidate": {
+        "bytes": 14636,
+        "sha256": "ed112b198bd62309a8719bf4747531458ceb1aaa370ffc905b766e163e2bc407"
+      },
+      "path": "src/Language/Clafer/Intermediate/ResolverRoot.hs"
+    },
+    {
+      "base": {
+        "bytes": 25697,
+        "sha256": "7e65c4ee18206357ea014de7535b50b33f7d72b8604939b3b08e3af67337ddfd"
+      },
+      "candidate": {
+        "bytes": 26262,
+        "sha256": "101c376c7904ed991914eb9d62e9753350b6e4891bbde82d99a8926a862b7122"
+      },
+      "path": "src/Language/Clafer/Intermediate/ResolverType.hs"
+    },
+    {
+      "base": {
+        "bytes": 25355,
+        "sha256": "bdfc97fa42534f95f0b279c415c25cf2f016cc7b553fdc5fc1f0b8cf8b7a841d"
+      },
+      "candidate": {
+        "bytes": 26642,
+        "sha256": "084ebc6cd1fadf0aa8ff5116c6bab59a492d3e2a05b2508db2fce87db39c6e4b"
+      },
+      "path": "src/Language/Clafer/Intermediate/TypeSystem.hs"
+    },
+    {
+      "base": null,
+      "candidate": {
+        "bytes": 3837,
+        "sha256": "e5a1c3a3b31dc7d00aabaa8f3604255f8348427450b6ee276e17f4daea75e0b1"
+      },
+      "path": "src/Language/Clafer/Intermediate/UIDs.hs"
+    },
+    {
+      "base": {
+        "bytes": 12247,
+        "sha256": "baa47839ff4f4c645ec7a32251c4d417a619f3c9c196d2d1946b40a3ac45fc24"
+      },
+      "candidate": {
+        "bytes": 12199,
+        "sha256": "6b6c69bd0cf5c3997b48f22d232027c510c477ffae352ebb540d7f65ba3293db"
+      },
+      "path": "src/Language/Clafer/Optimizer/Optimizer.hs"
+    },
+    {
+      "base": {
+        "bytes": 6992,
+        "sha256": "af7d80ccc36166605a334eb033ac0b00841a0386bbe71a618a2ecece54d19c89"
+      },
+      "candidate": {
+        "bytes": 4496,
+        "sha256": "3aa366f19093fd9f4c68a24ced869d0a26d8efcde892dbf5b457cd04045aa9d1"
+      },
+      "path": "src/Language/Clafer/QNameUID.hs"
+    },
+    {
+      "base": {
+        "bytes": 3899,
+        "sha256": "b6410b5454f417797e38f1acf410eb13c01f40718c0702e4603614f410ab342d"
+      },
+      "candidate": {
+        "bytes": 4412,
+        "sha256": "7f9f8864dd48b6783c66676e52ac4565bcb09550337fe19118e313bb437da3a1"
+      },
+      "path": "test/Makefile"
+    },
+    {
+      "base": {
+        "bytes": 10738,
+        "sha256": "0f0479889962110bbb74f93e0fbc0604e45ce0195fda65c4f353988543e2867d"
+      },
+      "candidate": {
+        "bytes": 10726,
+        "sha256": "aafa8f937a18e5068b056128399718d979cdf268201eac2f97cc17703ee447ad"
+      },
+      "path": "test/Suite/Redefinition.hs"
+    },
+    {
+      "base": {
+        "bytes": 9373,
+        "sha256": "cd0161dcd4a709b9b265038b5e53027cc9249ea7092246d78e3ec931adc8ef4f"
+      },
+      "candidate": {
+        "bytes": 9761,
+        "sha256": "02e34af039454e9c39fae3acf327a38db14f31f4f5831290b6c87008851cf668"
+      },
+      "path": "test/Suite/SimpleScopeAnalyser.hs"
+    },
+    {
+      "base": {
+        "bytes": 4846,
+        "sha256": "3f0bb3adc2236a9aaae39d4fe857179a0998eb3cb49e33dd9dbca05cb9de4321"
+      },
+      "candidate": {
+        "bytes": 7752,
+        "sha256": "6de25a6b5c61e07f20973c207ea27b2e9cbf592a8c9d5edc666513389b515ad7"
+      },
+      "path": "test/Suite/TypeSystem.hs"
+    },
+    {
+      "base": {
+        "bytes": 2185,
+        "sha256": "4097c57c7baa0738febf9b3a0eaaebdda959c0f84dcde111b1374ccfe45a2890"
+      },
+      "candidate": {
+        "bytes": 2218,
+        "sha256": "a169a25de643b53460ec912496406bd4fd033fdaadd7cc547779f507ef831904"
+      },
+      "path": "test/diff-regressions.sh"
+    },
+    {
+      "base": {
+        "bytes": 408,
+        "sha256": "61f5220a4f0f54932291d7dde325fcb0ca57300a589b04d897d208cf739d9add"
+      },
+      "candidate": {
+        "bytes": 384,
+        "sha256": "30aab5803d63d8e5f154cab991b7146a294a4f1d1ef1a3f6daec748f69e5376e"
+      },
+      "path": "test/positive/escapes.cfr"
+    },
+    {
+      "base": {
+        "bytes": 525,
+        "sha256": "7612c07ea69a1b667c1ef5b2d54f67d90ee968aef01bd4ad49b63fec1fce24bb"
+      },
+      "candidate": null,
+      "path": "test/positive/leftAssocDeref.des.cfr"
+    },
+    {
+      "base": null,
+      "candidate": {
+        "bytes": 1799,
+        "sha256": "464d51e66c15f2770d4508b57f0be2ed8ce05b38e10101b4a6d3a101286ec01f"
+      },
+      "path": "test/positive/noclafer.cfr"
+    },
+    {
+      "base": {
+        "bytes": 665,
+        "sha256": "3a7714af22e1a96fc6181b485565f141f47f0ec66d6db2d423dff477177faed0"
+      },
+      "candidate": {
+        "bytes": 1150,
+        "sha256": "24d5821ebd67b6dccf36478bdeb529b699d12d5f9bd3327bc18a70d24f2aab57"
+      },
+      "path": "test/positive/tmp_final_inherited_reference.cfr"
+    },
+    {
+      "base": {
+        "bytes": 33429,
+        "sha256": "5bdbf821bc5e1f4b7b08c92b0a02cd5f66a4a1497fba4e303fca906ca204f833"
+      },
+      "candidate": {
+        "bytes": 36300,
+        "sha256": "dcf0b2b456ece272c75ece634b6d611f4d93e7137940f1344a81049e4d81ff53"
+      },
+      "path": "test/test-suite.hs"
+    }
+  ],
+  "schema": "clafer-pr113-delta/1"
+}

@@ -1,0 +1,8 @@
+//# OPTIONS --tl=4
+p ?
+q ?
+r ?
+s ?
+[ initially (q && s && no p && X (q && no s && no p && X G (no q && no s && p))) ]
+[ initially (s must precede p after q) ]
+// Original MIT qualification fixture.

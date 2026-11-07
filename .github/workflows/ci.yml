@@ -64,6 +64,7 @@ jobs:
           echo "MATHLIB_CACHE_DIR=$RUNNER_TEMP/mathlib-cache" >> "$GITHUB_ENV"
           echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
           echo "CLAFER_TEMPORAL_CACHE=$RUNNER_TEMP/clafer-temporal" >> "$GITHUB_ENV"
+          echo "CLAFER_PR113_CACHE=$RUNNER_TEMP/clafer-pr113" >> "$GITHUB_ENV"
           echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       # Lake validates source/options/import traces; proof and test results are never cached.
       - name: Cache Lean build artifacts
@@ -137,6 +138,19 @@ jobs:
             ${{ runner.temp }}/clafer-temporal/compiler
             !${{ runner.temp }}/clafer-temporal/compiler/.stack-work
           key: compiler-temporal-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/temporal-profile.json', 'scripts/oracles/temporal_build.py', 'scripts/oracles/TemporalExport.hs') }}
+      - name: Restore verified PR113 exporter and sources
+        id: pr113
+        if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-pr113/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/source-files.json
+            ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113/compiler
+            !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
+          key: compiler-pr113-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/pr113-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
       - name: Prepare static comparison tools and runtime isolation
         if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
         run: |
@@ -181,6 +195,24 @@ jobs:
             ${{ runner.temp }}/clafer-temporal/compiler
             !${{ runner.temp }}/clafer-temporal/compiler/.stack-work
           key: ${{ steps.temporal.outputs.cache-primary-key }}
+      - name: Prepare PR113 comparison tools
+        if: github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral'
+        run: |
+          python3 scripts/oracles/pr113.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_PR113_CACHE" "$RUNNER_TEMP/pr113-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-setup.log"
+          echo "CLAFER_PR113_TOOLS=$RUNNER_TEMP/pr113-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Save verified PR113 exporter and sources
+        if: (github.event_name == 'workflow_dispatch' || github.base_ref == 'behavioral' || github.ref == 'refs/heads/behavioral') && steps.pr113.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-pr113/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/source-files.json
+            ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113/compiler
+            !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
+          key: ${{ steps.pr113.outputs.cache-primary-key }}
       - name: Check scope against the baseline
         id: scope
         env:
@@ -270,6 +302,11 @@ jobs:
             ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/
+            ${{ runner.temp }}/pr113-tools/
+            ${{ runner.temp }}/pr113-setup.log
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/build.log
+            ${{ runner.temp }}/clafer-pr113/source-files.json
             ${{ runner.temp }}/temporal-tools/
             ${{ runner.temp }}/temporal-setup.log
             ${{ runner.temp }}/clafer-temporal/build.json

@@ -333,6 +333,21 @@ Haskell equivalence. Adoption of final 0.5.7 release bytes requires an immutable
 delta review, repeated corpus execution and explicit acceptance; preserve the
 candidate and static receipts.
 
+Qualify later PR113 bytes under the separate `behavioral-pr113-9a0f16e/v1`
+candidate profile. Retain the complete delta inventory, same-generation forward
+UID/Alloy mapping and renamed backend IR; reject incomplete, ambiguous or
+inconsistent mappings and mixed scalar/array modifier schemas. Exercise both
+modifier orders on direct and inherited references, swaps, target-image changes,
+head replacement, set-versus-bag multiplicity and corrected pattern witnesses.
+Keep the old revision's discrepancies executable. Freshly generate and recompile
+every registered temporal explicit model, including imported source closures,
+and retain both scope files, effective options and trace length. Pair original
+and explicit bounded runs/assertions using the original model's scopes and
+identical solver budgets. Printer fixed points and bounded outcome agreement
+are weaker than exact-lasso equivalence; they do not discharge C9 or the Lean
+explicit-form preservation task. This qualification does not adopt a new primary
+compiler pin; independent delta review remains required.
+
 Covers:
 - `intent~compiler-foundation~1`
 

@@ -105,6 +105,10 @@ python3 scripts/oracles/temporal.py prepare \
   --static-tools "$CLAFER_ORACLE_TOOLS" \
   --build-cache /tmp/clafer-temporal-build-UNIQUE /tmp/clafer-temporal-tools-UNIQUE
 export CLAFER_TEMPORAL_TOOLS=/tmp/clafer-temporal-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py prepare \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-build-UNIQUE /tmp/clafer-pr113-tools-UNIQUE
+export CLAFER_PR113_TOOLS=/tmp/clafer-pr113-tools-UNIQUE/tools.json
 ```
 
 This fetches source and an optional Mathlib cache, builds the upstream dependency,

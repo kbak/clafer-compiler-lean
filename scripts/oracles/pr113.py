@@ -1,0 +1,321 @@
+#!/usr/bin/env python3
+"""Explicitly selected PR113 delta qualification and revision-bound bounded replay."""
+import argparse
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+import oracle
+import temporal
+import pr113_build as build
+import pr113_protocol as protocol
+
+HERE = Path(__file__).resolve().parent
+CORPUS = oracle.ROOT / 'tests/fixtures/pr113/inventory.json'
+read = temporal.read
+
+
+def identity():
+    paths = [Path(__file__), HERE/'pr113_build.py', HERE/'pr113_protocol.py',
+             HERE/'pr113-profile.json', HERE/'PR113Export.hs', HERE/'AlloyPR113Inspect.java', CORPUS,
+             CORPUS.parent/'delta.json']
+    paths += list(CORPUS.parent.glob('*.cfr'))
+    return dict(temporal.identity(), **{str(p.relative_to(oracle.ROOT)):oracle.digest(p) for p in paths})
+
+
+def inspector(runtime, api):
+    command = [str(runtime['java'].with_name('javac')), '--release', '17', '-cp',
+        os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))), '-d', str(runtime['classes']),
+        str(HERE/'AlloyPR113Inspect.java')]
+    subprocess.run(command, check=True, capture_output=True, timeout=60, env=api['alloy_runtime'].java_env())
+    return dict(source=oracle.digest(HERE/'AlloyPR113Inspect.java'),
+                binary=oracle.digest(runtime['classes']/'AlloyPR113Inspect.class'))
+
+
+# [impl->req~compiler-temporal-oracles~1]
+def prepare(static_tools, build_cache, output):
+    output = oracle.external(output)
+    output.mkdir(parents=True, exist_ok=False)
+    api = oracle.adapters()
+    _, _, alloy = oracle.load_tools(static_tools, api)
+    receipt = build.prepare(build_cache, api)
+    runtime = temporal.compile_bridge(alloy, output/'classes', api)
+    inspection = inspector(runtime, api)
+    tools = dict(schema='clafer-pr113-tools/1', profile=build.profile(),
+        build=str(receipt), build_identity=oracle.digest(receipt),
+        static_tools=str(oracle.external(static_tools)), static_tools_identity=oracle.digest(static_tools),
+        temporal_bridge=runtime['temporal_bridge'], inspector=inspection)
+    notices = output/'notices'
+    notices.mkdir()
+    for name in ('LICENSE','stack.yaml','stack.yaml.lock','clafer.cabal'):
+        shutil.copyfile(receipt.parent/'compiler'/name, notices/name)
+    oracle.write(output/'notice-index.json',{p.name:oracle.digest(p) for p in notices.iterdir()})
+    oracle.write(output/'tools.json',tools)
+    return output/'tools.json'
+
+
+def load_tools(path):
+    t = read(oracle.external(path))
+    protocol.closed(t, 'schema profile build build_identity static_tools static_tools_identity temporal_bridge inspector', 'tools')
+    protocol.require(t['schema']=='clafer-pr113-tools/1' and t['profile']==build.profile(), 'Wrong PR113 tools/profile')
+    for key in ('alloy_version','alloy_jar_sha256','java_major','solver','options','resources'):
+        protocol.require(t['profile'][key]==temporal.temporal_build.profile()[key],
+                         'Reused temporal solver profile differs: '+key)
+    receipt = oracle.external(t['build'])
+    protocol.require(oracle.digest(receipt)==t['build_identity'] and build.valid(receipt.parent), 'Changed PR113 build')
+    build.sources(receipt.parent)
+    protocol.require(oracle.digest(t['static_tools'])==t['static_tools_identity'], 'Changed provisioning receipt')
+    api = oracle.adapters()
+    _, _, alloy = oracle.load_tools(t['static_tools'], api)
+    scratch = Path(tempfile.mkdtemp(prefix='pr113-bridge-'))
+    runtime = temporal.compile_bridge(alloy,scratch/'classes',api)
+    protocol.require(runtime['temporal_bridge']==t['temporal_bridge'] and inspector(runtime,api)==t['inspector'], 'Changed PR113 bridge')
+    return dict(build=receipt, exporter=receipt.parent/'clafer-pr113-capture',runtime=runtime,api=api,tools=t)
+
+
+def inputs(case, tools):
+    base = tools['build'].parent/'compiler/test/positive' if case['origin']=='haskell' else CORPUS.parent
+    result = {}
+    for name,digest in case['files'].items():
+        protocol.require(Path(name).name==name, 'Flat registered input path required')
+        path = base/name
+        protocol.require(oracle.digest(path)==digest, 'Changed fixture: '+name)
+        result[name] = path.read_bytes()
+    protocol.require(case['entry'] in result, 'Missing entry fixture')
+    return result
+
+
+def capture(tools, files, entry, output):
+    output.mkdir(parents=True,exist_ok=False)
+    input_dir = output/'inputs'
+    input_dir.mkdir()
+    for name,data in files.items():
+        protocol.require(Path(name).name==name, 'Invalid input filename')
+        (input_dir/name).write_bytes(data)
+    command = [str(tools['exporter']),entry]
+    oracle.write(output/'capture-command.json',dict(command=command,cwd='inputs'))
+    with (output/'generation.json').open('wb') as out, (output/'capture.stderr').open('wb') as err:
+        process = subprocess.run(command,cwd=input_dir,stdout=out,stderr=err,timeout=30)
+    protocol.require(process.returncode==0, 'Haskell exporter failed; inspect capture.stderr')
+    g = read(output/'generation.json')
+    if g['status']!='captured':
+        return g
+    protocol.generation(g)
+    for name,key in [('model.als','alloy'),('model.json','json'),('explicit.cfr','explicit'),
+                     ('original.cfr-scope','original_scopes'),('explicit.cfr-scope','explicit_scopes')]:
+        (output/name).write_text(g[key])
+    return g
+
+
+def inspect(tools, g, output):
+    runtime = tools['runtime']
+    command = [str(runtime['java']),'-XX:ActiveProcessorCount=1','-cp',
+        os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))),'AlloyPR113Inspect']
+    oracle.write(output/'inspect-command.json',command)
+    with (output/'inspect.stdout').open('wb') as out, (output/'inspect.stderr').open('wb') as err:
+        subprocess.run(command,cwd=output,stdout=out,stderr=err,check=True,timeout=30,
+                       env=tools['api']['alloy_runtime'].java_env())
+    observed = read(output/'inspection.json')
+    protocol.layout(g,observed)
+    return observed
+
+
+def assertions(g):
+    """Source preorder is the pinned explicit printer's assertion emission order."""
+    result = []
+    def visit(elements):
+        for e in elements:
+            if e['tag']=='IEClafer': visit(e['_iClafer']['_elements'])
+            elif e['tag']=='IEConstraint' and not e['_isHard']:
+                p = e['_cpexp']['_inPos']['start']
+                result.append('assertAt_'+str(p['line'])+'_'+str(p['column']))
+    visit(g['post_analysis']['_mDecls'])
+    return result
+
+
+def query(tools, generation, request, directory):
+    directory.mkdir()
+    (directory/'model.als').write_text(generation['alloy'])
+    result = temporal.solve(tools['runtime'],tools['api'],directory,request,**build.profile()['resources'])
+    oracle.write(directory/'result.json',result)
+    return result
+
+
+def index(output):
+    oracle.write(output/'evidence-index.json',{str(p.relative_to(output)):oracle.digest(p)
+        for p in sorted(output.rglob('*')) if p.is_file() and p!=output/'evidence-index.json'})
+
+
+def declaration_paths(module):
+    result = {}
+    def visit(elements, parent):
+        for element in elements:
+            if element['tag'] == 'IEClafer':
+                c = element['_iClafer']
+                path = parent + (c['_ident'],)
+                protocol.require(path not in result, 'Ambiguous revision correspondence')
+                result[path] = c['_uid']
+                visit(c['_elements'], path)
+    visit(module['_mDecls'], ())
+    return result
+
+
+def historical(tools, case, original, output):
+    """Reproduce the old discrepancy, matching authored paths, never UID prefixes."""
+    old = tools['old']
+    output.mkdir()
+    files = inputs(case, tools)
+    protocol.require(len(files) == 1, 'Historical witness must be self-contained')
+    (output/'input.cfr').write_bytes(files[case['entry']])
+    command = [str(old['exporter']), 'input.cfr']
+    oracle.write(output/'capture-command.json', command)
+    with (output/'generation.json').open('wb') as out, (output/'capture.stderr').open('wb') as err:
+        subprocess.run(command, cwd=output, stdout=out, stderr=err, check=True, timeout=30)
+    g = read(output/'generation.json')
+    protocol.require(g['status'] == 'captured' and g['backend'] == 'tmp.als', 'Historical capture failed')
+    old_paths, new_paths = declaration_paths(g['post_analysis']), declaration_paths(original['post_analysis'])
+    protocol.require(old_paths.keys() == new_paths.keys(), 'Revision declaration paths differ')
+    request = protocol.request(original, 0, scopes=case.get('scopes'), steps=case.get('steps'))
+    request['identities'] = {'this/root': request['identities']['this/root'], **{
+        'this/'+u: request['identities']['this/'+original['names'][new_paths[path]]]
+        for path,u in old_paths.items()}}
+    oracle.write(output/'correspondence.json', {u:new_paths[path] for path,u in old_paths.items()})
+    oracle.write(output/'profile.json', old['tools']['profile'])
+    shutil.copyfile(old['build'],output/'build.json')
+    (output/'model.als').write_text(g['alloy'])
+    (output/'model.json').write_text(g['json'])
+    result = temporal.solve(old['runtime'],old['api'],output,request,**build.profile()['resources'])
+    oracle.write(output/'result.json',result)
+    protocol.require(result['status']=='ok' and result['outcome']==case['old_expected'],
+                     'Historical discrepancy outcome differs: '+str(result.get('outcome')))
+    return dict(status=result['status'],outcome=result['outcome'])
+
+
+# [impl->req~compiler-temporal-oracles~1]
+def run_case(tools, case, output):
+    output = oracle.external(output)
+    output.mkdir(parents=True,exist_ok=False)
+    oracle.write(output/'case.json',case)
+    oracle.write(output/'source-identity.json',identity())
+    oracle.write(output/'profile.json',build.profile())
+    shutil.copyfile(tools['build'],output/'build.json')
+    result = dict(status='error', checks=[])
+    try:
+        original = capture(tools,inputs(case,tools),case['entry'],output/'original')
+        if original['status']!='captured':
+            result.update(status=original['status'],detail=original.get('detail'),outputs=original.get('outputs'))
+        else:
+            explicit = capture(tools,{'explicit.cfr':original['explicit'].encode()},'explicit.cfr',output/'explicit')
+            protocol.require(explicit['status']=='captured','Explicit recompile failed: '+str(explicit))
+            result['fixed_point'] = original['explicit']==explicit['explicit']
+            protocol.require(result['fixed_point'],'Explicit corpus fixed point failed')
+            protocol.require(original['names']==explicit['names'],'Explicit declaration identities changed')
+            protocol.require(original['trace_length']==explicit['trace_length'],'Explicit trace length changed')
+            a,b = inspect(tools,original,output/'original'),inspect(tools,explicit,output/'explicit')
+            original_order,explicit_order = assertions(original),assertions(explicit)
+            protocol.require(len(original_order)==len(explicit_order),'Assertion count changed')
+            positions_a = {c['label']:i for i,c in enumerate(a['commands']) if c['check']}
+            positions_b = {c['label']:i for i,c in enumerate(b['commands']) if c['check']}
+            protocol.require(set(positions_a)==set(original_order) and set(positions_b)==set(explicit_order), 'Assertion command coverage differs')
+            protocol.require(len(a['commands'])==len(original_order)+1 and len(b['commands'])==len(explicit_order)+1,
+                             'Unexpected extra commands')
+            pairs = [('run',0,0)] + [(x,positions_a[x],positions_b[y]) for x,y in zip(original_order,explicit_order)]
+            for ordinal,(label,ia,ib) in enumerate(pairs):
+                request = protocol.request(original,ia,scopes=case.get('scopes'),steps=case.get('steps'))
+                ra = query(tools,original,request,output/('original-query-'+str(ordinal)))
+                rb = query(tools,explicit,dict(request,command_index=ib),output/('explicit-query-'+str(ordinal)))
+                check = dict(label=label,original_index=ia,explicit_index=ib,
+                    original_status=ra['status'],explicit_status=rb['status'],
+                    original_outcome=ra.get('outcome'),explicit_outcome=rb.get('outcome'))
+                result['checks'].append(check)
+            failures = [c for c in result['checks'] if c['original_status']!='ok' or c['explicit_status']!='ok']
+            result['status'] = 'query_failure' if failures else 'ok'
+            if not failures:
+                result['agreement'] = all(c['original_outcome']==c['explicit_outcome'] for c in result['checks'])
+                if not result['agreement']: result['status']='discrepancy'
+                if 'expected' in case:
+                    result['expected_match'] = [c['original_outcome'] for c in result['checks']]==case['expected']
+                    if not result['expected_match']: result['status']='unexpected_outcome'
+                result['assertions_nonvacuous'] = all(c['original_outcome']=='sat' and c['explicit_outcome']=='sat'
+                    for c in result['checks'][:1]) if len(result['checks']) > 1 else None
+                if 'old_expected' in case:
+                    protocol.require('old' in tools, 'Historical tools required for revision witnesses')
+                    result['historical'] = historical(tools,case,original,output/'historical')
+            result['strength'] = 'printer fixed point and paired bounded run/check outcomes; no exact-lasso equivalence'
+    except subprocess.TimeoutExpired as error:
+        result.update(status='timeout',detail=str(error))
+    except (OSError,ValueError,KeyError,TypeError,RuntimeError,subprocess.SubprocessError) as error:
+        result.update(status='error',detail=str(error))
+    oracle.write(output/'result.json',result)
+    index(output)
+    return result
+
+
+def replay(tools, bundle, output):
+    bundle = oracle.external(bundle)
+    for name,digest in read(bundle/'evidence-index.json').items():
+        path = (bundle/name).resolve()
+        protocol.require(path.is_relative_to(bundle) and oracle.digest(path)==digest,'Replay artifact changed: '+name)
+    protocol.require(read(bundle/'source-identity.json')==identity(),'Replay adapter source changed')
+    protocol.require(read(bundle/'profile.json')==build.profile(),'Replay revision/profile changed')
+    protocol.require(oracle.digest(bundle/'build.json')==oracle.digest(tools['build']), 'Replay build changed')
+    if (bundle/'historical').exists():
+        protocol.require('old' in tools and oracle.digest(bundle/'historical/build.json')==oracle.digest(tools['old']['build']),
+                         'Historical replay build changed')
+    case = read(bundle/'case.json')
+    protocol.require(case in read(CORPUS)['cases'], 'Replay fixture is not registered')
+    result = run_case(tools,case,output)
+    protocol.require(result['status']==case.get('expected_status','ok'), 'Fresh replay did not complete')
+    for mode in ('original','explicit'):
+        for name in ('generation.json','model.als','model.json','explicit.cfr','original.cfr-scope','explicit.cfr-scope'):
+            if (bundle/mode/name).exists():
+                protocol.require(oracle.digest(bundle/mode/name)==oracle.digest(Path(output)/mode/name),'Fresh generation differs: '+mode+'/'+name)
+    protocol.require(read(bundle/'result.json')==result,'Fresh bounded outcomes differ')
+    if (bundle/'historical').exists():
+        for name in ('generation.json','model.als','model.json','correspondence.json','request.json'):
+            protocol.require(oracle.digest(bundle/'historical'/name)==oracle.digest(Path(output)/'historical'/name),
+                             'Historical generation/query differs: '+name)
+    return result
+
+
+def main():
+    cli = argparse.ArgumentParser(description=__doc__)
+    sub = cli.add_subparsers(dest='command',required=True)
+    p = sub.add_parser('prepare')
+    p.add_argument('--static-tools',required=True,type=Path)
+    p.add_argument('--build-cache',required=True,type=Path)
+    p.add_argument('output',type=Path)
+    for name in ('run','suite','replay'):
+        p = sub.add_parser(name)
+        p.add_argument('--tools',required=True,type=Path)
+        p.add_argument('--old-tools',type=Path)
+        if name=='run': p.add_argument('case')
+        if name=='replay': p.add_argument('bundle',type=Path)
+        p.add_argument('output',type=Path)
+    args = cli.parse_args()
+    if args.command=='prepare':
+        print(prepare(args.static_tools,args.build_cache,args.output)); return 0
+    tools = load_tools(args.tools)
+    if args.old_tools: tools['old'] = temporal.load_tools(args.old_tools)
+    if args.command=='replay':
+        print(json.dumps(replay(tools,args.bundle,args.output))); return 0
+    cases = read(CORPUS)['cases']
+    if args.command=='run': cases = [c for c in cases if c['id']==args.case]
+    protocol.require(bool(cases),'Unknown PR113 case')
+    ok = True
+    for case in cases:
+        r = run_case(tools,case,args.output/case['id'] if args.command=='suite' else args.output)
+        print(json.dumps(dict(case=case['id'],**r)),flush=True)
+        ok = ok and r['status']==case.get('expected_status','ok')
+    return 0 if ok else 1
+
+
+if __name__=='__main__':
+    try: sys.exit(main())
+    except (OSError,ValueError,KeyError,RuntimeError,subprocess.SubprocessError) as error:
+        print(json.dumps(dict(status='error',detail=str(error))),file=sys.stderr)
+        sys.exit(1)
