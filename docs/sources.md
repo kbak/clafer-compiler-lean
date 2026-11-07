@@ -562,3 +562,55 @@ proofs. The [component reuse assessment](behavioral-structure.md#reuse-and-evide
 records the richer-domain gaps, native/proof separation and unchanged dependency
 and license costs. Haskell `af858ec0fe3ce2ceacb7fd120947c058233086d6` supplies
 behavioral syntax evidence; it does not replace the static comparison compiler.
+
+## Behavioral frontend sources
+
+The [behavioral frontend](behavioral-frontend.md) uses the same installed semantics
+`6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and Haskell
+`af858ec0fe3ce2ceacb7fd120947c058233086d6` pins. Inspected `src/clafer.cf`
+(`Exp` and `Exp1`–`Exp27`, modifier lists, arrows, scopes, enum/initializer/assertion forms),
+`Desugarer.hs` (`desugarRefModifier`, `desugarTrans`, `desugarSequence`,
+`translateTmpPatterns`, binder and initializer cases), `AlloyLtl.hs`
+(`genQuant`, `genDecl`) and CheatSheet temporal sections. The registered source
+hashes remain unchanged. Haskell list-to-first-modifier truncation and its two
+pattern discrepancies are not adopted. The native comparison retains its `LetExp`
+desugaring crash distinctly from parsed/compiled outcomes.
+
+Executable reduction equations adapt upstream MIT `Patterns.expand`,
+`Transitions.Chain.sequence`/`expand`/`declaration` and `Modifiers.expand`.
+Proof-only interpretation establishes equality with these pinned transformations
+and reuses their independent interval/sequence/modifier agreement results.
+Modifier binding uses the accepted ancestor analysis and `Modifiers.Effective`.
+`PrimitiveExpression` supplies the partial syntax, `PartialObservation` and
+`PartialCompatibility` supply strict-domain composition, and `Properties` supplies
+model/assertion/scenario meaning. Grouped counting instantiates `Quantifier.eval`
+with complete ordered assignments behind the original raw-body barrier. This
+compiler composition does not change the pinned unary definitions or supply the
+missing authored-binder elaboration proof.
+`Initializers.constant` supplies the resolved presence-guarded equation and its
+strict-definedness premise. Lexical plans reuse the existing reserved-name policy;
+group lowering uses the upstream captured `letSet` and singleton-pushing quantifier
+constructors, with native set difference for disjoint choices. The generic
+observation pullback proves that keeping atom syntax fixed across model traces
+preserves strict definedness and signed truth. No source/target agreement premise
+is added by that representation change.
+No upstream meanings or Haskell code are vendored. Existing Lean/Std parser and
+collection machinery is reused; the component contract records runtime/proof
+boundaries and the remaining multi-binder elaboration proof. New code is MIT,
+Lean libraries remain Apache-2.0; no dependency or license cost is added.
+
+Grouped quantifiers follow complete ordered assignments, as specified in the
+[Alloy quantified-formula reference](https://alloytools.org/spec.html#expressions)
+and the [older reference, p.293](https://alloytools.org/download/alloy-language-reference.pdf#page=35).
+Pinned Haskell `desugarDecl` retains all local IDs in one declaration, and
+`AlloyLtl.genQuant`/`genDecl` emits one quantifier over the complete list.
+The static paper's [public author preprint, Appendix D, pp.31–32](https://gsd.uwaterloo.ca/sites/default/files/2014-Bak-Clafer-Unifying-Class-Feature-Modeling%28SOSYM%29.pdf#page=31)
+and the [behavioral paper, pp.2:27–28 and 2:30](https://arxiv.org/pdf/1807.08576v1#page=27)
+give unary core quantification and attribute the constraint language to Alloy;
+neither equates grouped uniqueness with nested uniqueness. This supplementary
+static-paper inspection used the public preprint, not the publisher offprint.
+The pinned upstream unary `Quantifier.eval` is consistent with these sources.
+Its guide's general nesting suggestion must be qualified for grouped `no`,
+`one` and `lone`; it supplies no grouped-counting preservation theorem.
+Finite probes (15 direct Alloy cases and four Haskell-generated cases) corroborate
+this distinction without establishing general elaboration correctness.

@@ -44,7 +44,7 @@ remain independent of noncomputable upstream definitions and proof-only imports.
 | [C4: behavioral IR][C4] | `IR/Behavioral`, `SemanticsBridge/Behavioral` | Executable declarations, signed formulas/capture, interpretation and admission agreement |
 | [C5: first encoding][C5] | `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | Generated lifetime/identity facts, concrete trace representation and first-slice preservation |
 | [C6: structural prerequisites][C6] | [Structural library APIs and proofs](behavioral-structure.md) in `Frontend`, `IR` and `SemanticsBridge` | Richer inheritance/reference admission, defaults, typed atoms and finite integer observations |
-| [C7: full frontend][C7] | `Frontend/Behavioral` | Parsing, source spans, resolution, elaboration and preservation of every surface row below |
+| [C7: full frontend][C7] | [Authored frontend and reduction APIs](behavioral-frontend.md) in `Frontend/Behavioral` | Parsing, source spans, resolution, elaboration and preservation of every surface row below |
 | [C8: full encoding][C8] | Behavioral backend and correctness families | All source reductions, definedness, arithmetic and full-profile trace preservation |
 | [C9: resolved CLI/comparison][C9] | Behavioral parts of `Driver`, decoder and oracle adapter | Closed versioned IR/bounds/trace formats, exact trace replay and typed outcomes |
 | [C10: source integration][C10] | Source driver, pipeline and qualification | Composed source pipeline, full corpus, source-matched evidence and reviewed candidate |

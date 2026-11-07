@@ -67,11 +67,11 @@ theorem normalizeAt_interpret (a : Formula k n) (s : Bool) (fuel : Nat)
     cases fuel with
     | zero => omega
     | succ fuel => cases q <;> cases s <;>
-      simp [Formula.normalizeAt_succ, Formula.normalizeStep, formula, quantifier, Clafer.Behavioral.Formula.normalize, ih]
+      simp [Formula.normalizeAt_succ, Formula.normalizeStep, FormulaF.normalizeStep, formula, quantifier, Clafer.Behavioral.Formula.normalize, ih]
   | _ => cases fuel with
     | zero => omega
     | succ fuel => cases s <;>
-      simp_all [Formula.normalizeAt_succ, Formula.normalizeStep, formula, Clafer.Behavioral.Formula.normalize]
+      simp_all [Formula.normalizeAt_succ, Formula.normalizeStep, FormulaF.normalizeStep, formula, Clafer.Behavioral.Formula.normalize]
 
 theorem normalize_interpret (a : Formula k n) (s : Bool) (fuel : Nat)
     (enough : sizeOf a < fuel) :
