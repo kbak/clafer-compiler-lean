@@ -5,10 +5,12 @@ syntax and retains the original source. It is separate from the static parser
 and from first-slice `behavioral-core/1` admission. The
 [completion matrix](behavioral.md#complete-feature-and-evidence-matrix) retains
 all C7 obligations. `parseAndElaborate` now constructs source model/check/run
-requests for the implemented expression fragment. Full expression coverage,
-whole-expression range composition and the independent authored-elaboration
-correctness theorem remain outstanding. Parsing success is not successful
-compilation or semantic admission.
+requests for the accepted expression surface. Successful expression elaboration
+carries a derivation from independent source rules; the interpretation bridge
+composes it with signed normalization. Whole-expression range checking retains
+all intermediate obligations under explicit structural observation budgets.
+Grammar recognition remains tested, and independent semantic acceptance remains
+required. Parsing success is not successful compilation or semantic admission.
 
 ## Authored syntax and grammar
 
@@ -94,7 +96,7 @@ placement/formula. The [modifier bridge](../ClaferCompiler/SemanticsBridge/Behav
 proves correspondence with upstream `Modifiers.Effective` and, under
 `Structural.Valid`, equivalence with model-wide `Modifiers.Holds`. Neither
 reference-modifier order collapses to `final`. These results establish modifier
-meaning independently of the still-missing full property elaborator.
+meaning independently of property expression synthesis.
 
 [`headerProperties`](../ClaferCompiler/Frontend/Behavioral/Headers.lean) inventories
 constant initializers in their enclosing scope and outgoing declaration transitions
@@ -106,8 +108,10 @@ unrelated declarations with the same spelling cannot change their resolution;
 the authored right-hand side retains enclosing-scope lookup. Transitions retain
 `this` as their source, guards and the remainder of the chain. The original headers
 and ordinary property inventory remain available separately. Source-to-generated
-expression inventory is tested; the full composed source elaboration theorem is
-still required.
+expression inventory is tested. `HeaderElaborates` independently specifies
+transition bodies and presence-guarded initializer equations, including declaration
+provenance and authored right-hand-side resolution. `elaborateHeader_sound` proves
+that successful header synthesis satisfies these rules.
 
 ## Executable reductions and proved boundary
 
@@ -133,14 +137,14 @@ source interface. No source/target satisfaction assumption is hidden in syntax
 agreement. The
 [generic surface bridge](../ClaferCompiler/SemanticsBridge/Behavioral/GenericSurface.lean)
 provides the same pattern and transition interpretation for partial atom/domain
-families. These results do not establish source expression resolution,
-whole-document elaboration, target translation or native execution correctness.
+families. The source rules below compose these reductions with expression resolution.
+Target translation and native execution correctness remain separate boundaries.
 
 The raw authored bodies remain available for strict definedness. The
 [upstream partial-domain contract](behavioral.md#bounds-arithmetic-and-outcomes)
 requires retaining the original expanded formula's `Defined` predicate alongside
-normalized truth. The C6 initializer/range obligations still require composition
-with authored expression elaboration.
+normalized truth. The source header rules retain the C6 initializer guard; the range pass below
+composes its arithmetic checks without assuming constraint truth.
 
 ## Partial primitives and grouped counting
 
@@ -188,13 +192,16 @@ chosen identities before body evaluation. `one`/`lone` use the single ordered-tu
 counting atom. The [binder bridge](../ClaferCompiler/SemanticsBridge/Behavioral/Binders.lean)
 proves the exact domain exclusions, retained domain/outer captures and unchanged
 attachment identity, and the counting interpretation. Native tests exercise group
-lowering and shadowing. The source synthesizer below uses this lowering; the general composed
-authored-binder meaning theorem remains required.
+lowering and shadowing. The source synthesizer extends the same lowering to
+partial value expressions through `Expression.binders`.
+[`ExpressionBinders.binders_interpret`](../ClaferCompiler/SemanticsBridge/Behavioral/ExpressionBinders.lean)
+proves agreement for all five quantifiers, arbitrary arities and disjointness,
+retaining the domain capture and the complete count body.
 
 This grouping rule is a compiler composition of upstream primitives with the
 adopted Alloy assignment rule. It is not an upstream authored-binder elaboration
-theorem. The source synthesizer below wires the supported typed expressions into this
-representation; complete source correspondence remains required.
+theorem supplied by the upstream library. The compiler source judgment below
+records the composition and its interpretation explicitly.
 
 ## Resolved properties and requests
 
@@ -217,7 +224,7 @@ truth and strict definedness; a model uses the inherited-reference observed trac
 
 ## Authored expressions and document requests
 
-[`Values`](../ClaferCompiler/Frontend/Behavioral/Values.lean) resolves nearest
+[`Names`](../ClaferCompiler/Frontend/Behavioral/Names.lean) resolves nearest
 captured locals, contextual fields, enclosing scopes and unique global names.
 Field selection reuses the static independent `Field`/`Global` predicates;
 reference ownership uses the behavioral structural analysis. A reference cycle
@@ -226,6 +233,11 @@ without a reachable target field still permits unique global-name lookup.
 retains direct fixed-identity navigation, while navigation from an observed set
 uses an ordinary step. The typed result distinguishes object heads, integer
 sets, integer scalars, empty sets, formulas and unexpanded transition chains.
+Heterogeneous collections retain all possible head types. Parent navigation on
+a parentless abstract view uses the actual parents of its concrete realizations;
+fixed-type filtering retains captured identities even when they are absent.
+Empty collections remain polymorphic during navigation. Unary relation
+restrictions `<:` and `:>` intersect their operands.
 Implicit value conversion performs one inherited dereference. Arithmetic then
 uses D3 finite-set coercion, while presence and cardinality inspect heads.
 
@@ -234,7 +246,13 @@ composes these values with the existing partial primitives, capture plans and
 surface reductions. It preserves negation until normalization. A chain is retained
 until its enclosing formula is needed, so only its first source is conditional.
 All thirty pattern/scope cells and Boolean conditionals use their accepted
-reductions. `let` captures a complete collection; grouped quantifiers resolve
+reductions. Scalar and collection conditionals remain within value terms, with
+strict condition and branch definedness. For example, `1 / (if p then 1 else 0)`
+retains one selected denominator; distributing division over both branches would
+change its domain. A condition inside a value uses raw truth behind the primitive
+observation barrier. A conditional quantifier domain stays inside its binder.
+Partial navigation propagates undefinedness, including selection of `noclafer`
+from a partial input. `let` captures a complete collection; grouped quantifiers resolve
 the domain before introducing names and retain the hidden domain slot.
 `sum`/`product` split syntactic union operands into separate occurrence folds,
 using strict singleton target extraction per head. Ordinary arithmetic instead
@@ -242,8 +260,8 @@ coerces the distinct target set. Missing values remain partial operations.
 `Operands` independently specifies syntactic union splitting; each successful
 `operandsAt` result carries its source derivation. Insufficient traversal fuel
 produces a diagnostic and cannot collapse an unvisited union subtree into one
-occurrence family. This local source rule does not prove complete expression
-elaboration or aggregate evaluation agreement.
+occurrence family. Aggregate rules combine this splitting with strict extraction
+and occurrence-preserving upstream folds.
 
 [`parseAndElaborate`](../ClaferCompiler/Frontend/Behavioral/Elaborate.lean) runs
 parsing, declaration/modifier binding and expression elaboration for every
@@ -251,8 +269,8 @@ property and generated header equation/transition. Its result retains the source
 document and full occurrence inventories, with body vectors indexed by their
 lengths. `Elaborated.model` separates assertions from constraints and appends
 header constraints. `authored_owner` proves that each emitted authored property
-retains its source owner, kind, body slot and span; this is an attachment theorem,
-not a source-expression correctness theorem.
+retains its source owner, kind, body slot and span. Expression correspondence is
+established separately by `Expressions.elaborate_sound`.
 
 `Elaborated.check` rejects an out-of-range assertion index. `Elaborated.run`
 resolves additional scenario constraints against the same declaration table,
@@ -265,20 +283,42 @@ The [native source tests](../tests/test_behavioral_elaboration.py) cover all thi
 pattern/scope forms, guarded chains, inherited integer references, repeated
 aggregate operands, shadowing, captures, direct versus observed `this`, strict
 undefined operands, header attachments, checks/runs and located diagnostics.
-Expression synthesis is currently tested, not proved against an independent
-complete source judgment. The following accepted cases still require implementation:
+The independent [`Elaborates`](../ClaferCompiler/Frontend/Behavioral/ExpressionRules.lean)
+judgment covers every authored expression constructor. Its premises use separate
+name, coercion, unary/binary, conditional, aggregate, chain and pattern rules;
+none assumes a successful invocation of the synthesizer. `certifiedAt` returns
+an erased derivation, and `elaborate_sound` relates successful formula synthesis
+to that judgment. The [`Source` bridge](../ClaferCompiler/SemanticsBridge/Behavioral/Source.lean)
+provides `elaborate_agrees` and `normalized_agrees`, composing source derivations,
+partial observations and executable signed normalization. Pattern, transition
+and grouped-binder interpretation theorems connect the reductions to the pinned
+independent meanings. Parsing and native execution remain tested boundaries;
+these proofs do not establish target encoding or full-profile qualification.
 
-- Scalar and collection conditionals, including strict branch definedness.
-- Relation restrictions (`<:`, `:>`), heterogeneous collection types and actual
-  parent typing for parentless abstract views.
-- General typed navigation over partial collection expressions and polymorphic
-  navigation from emptiness.
-- Composed authored-expression correctness, grouped-binder meaning and complete
-  intermediate range obligations.
+## Whole-expression range obligations
 
-These cases produce diagnostics rather than successful compilation; they remain
-C7 obligations. Successful construction of an IR model is not full-profile
-qualification or independent semantic acceptance.
+[`Expression.Ranges.analyze`](../ClaferCompiler/IR/Behavioral/Ranges.lean) takes
+an explicit width, structural observation budgets, capture estimates and traversal
+budget. Success carries an erased derivation from the independent
+[`FormulaBound`](../ClaferCompiler/IR/Behavioral/RangeRules.lean) constructor rules.
+It checks both conditional branches, every Boolean operand, temporal subformulas,
+and binder bodies even when their domains are empty. Fold bounds retain repeated
+syntactic operands and check the C6 prefix-inclusive sum/product ranges. Quantified
+locals have singleton budgets; `let` captures retain the complete domain budget.
+All intermediate scalar ranges must fit the selected width; division and remainder
+exclude possible zero divisors. Insufficient traversal fuel is a diagnostic.
+
+The pass never uses constraint truth. Its inputs must uniformly bound extents,
+context/root observations and complete step images across times; interval bounds
+apply to integer members without asserting that an observation is integer-typed
+or defined. C6 supplies the local semantic range theorems. This pass proves the
+composition of the checking obligations, not the validity of caller-supplied
+structural budgets. Discharging those scope premises and connecting checked
+ranges to target encoding remain C8 responsibilities. In particular, a finite
+budget cannot replace arbitrary infinite or noninteger observations with a finite
+integer universe. Native regressions reject overflow under false guards, in
+unselected branches, in vacuous/grouped bodies and across repeated fold operands.
+Successful IR construction alone does not perform this scope-dependent range check.
 
 ## Reuse and evidence
 
@@ -309,6 +349,22 @@ Binder plans reuse `Vector`, `Fin`, the existing reserved-name policy and checke
 renaming framework. The header adapter follows the existing C6 initializer sugar
 and upstream `Initializers.constant`; its distinct AST and attachment provenance
 prevent passing temporal expressions through the static parser or resolver.
+`PrimitiveExpression` lacks partial-navigation and value-conditional constructors;
+`Expression` composes its operations with upstream `Step.image`, integer
+coercion/extraction and strict conditional selection. Existing `FormulaF` and its
+normalizer supply all formula operations. The static range analyzer cannot
+represent temporal conditions, arbitrary set captures or occurrence folds, so the
+range pass reuses its `Interval` and the C6 range calculations over this expression
+family. It introduces no native trace evaluator.
+
+Proof-carrying traversals reuse Lean `MonadAttach`, `List.mapM`, `Option.mapM`,
+`Option.Rel` and the standard length/zip list interface. Small checked lemmas
+connect successful traversals to position-preserving relations. Batteries
+`List.Forall₂` was considered, but the native import contract excludes Batteries;
+its transitive presence through proof libraries does not authorize runtime use.
+Mutually recursive source list/option judgments are required by Lean's positivity check when lexical contexts
+vary; conversion lemmas connect them to the traversal relations. No package or
+license dependency is added. All proof-only upstream observations remain outside the native closure.
 The [source register](sources.md#behavioral-frontend-sources) records exact pins.
 
 [Native parser tests](../tests/test_behavioral_parser.py) check all pattern/scope
@@ -329,8 +385,8 @@ The shared domain is resolved before introducing the group's variables. Counting
 must preserve the accepted raw-body barrier and strict definedness; ordinary
 repeated unary `one`, `lone` or `no` is not a valid elaboration. The upstream
 unary definitions remain unchanged. The source register records the agreement
-between Alloy, the Haskell translation and the papers; the composed source and
-temporal proof remains an implementation obligation.
+between Alloy, the Haskell translation and the papers. The general binder bridge
+checks the composition; the upstream unary definitions remain unchanged.
 
 [Native declaration tests](../tests/test_behavioral_declarations.py) cover enum
 finality, both modifier orders, repetitions/inheritance, retained header
@@ -342,5 +398,5 @@ joint uniqueness and disjoint ordered assignments from incorrect alternatives.
 capture, disjoint exclusions, outer captures, nested shadowing and joint counts.
 
 Grammar recognition and token/AST correspondence remain tested boundaries.
-Independent semantic review, complete authored elaboration coverage and its
-correctness/range composition remain required; this API inventory does not close C7.
+Independent semantic review and source-matched qualification are required for C7
+acceptance; this API inventory does not grant that acceptance.

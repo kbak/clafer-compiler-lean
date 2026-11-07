@@ -17,15 +17,17 @@ def choices (k n bound : Nat) (disjoint : Bool) : SetExpr k (n + 1 + bound) :=
 -- [impl->req~compiler-behavioral-elaboration~1]
 /-- Nested all/some over a shared capture, with pairwise-distinct choices when
 requested. `bound` counts locals already introduced, not outer lexical slots. -/
-def successive (k n : Nat) (q : Quantifier) (disjoint : Bool) :
-    (remaining : Nat) → (bound : Nat) → Grouped.Formula k (n + 1 + (bound + remaining)) →
-      Grouped.Formula k (n + 1 + bound) :=
+def successiveWith (set : ∀ {n}, SetExpr k n → D n) (n : Nat)
+    (q : Quantifier) (disjoint : Bool) :
+    (remaining : Nat) → (bound : Nat) → FormulaF A D (n + 1 + (bound + remaining)) →
+      FormulaF A D (n + 1 + bound) :=
   Nat.rec (fun _ body => body) (fun remaining next bound body =>
-    .quant q (.set (choices k n bound disjoint))
-      (by
-        have b : Grouped.Formula k (n + 1 + ((bound + 1) + remaining)) :=
-          (by simpa only [Nat.add_assoc, Nat.add_comm 1 remaining] using body)
-        simpa only [Nat.add_assoc] using next (bound + 1) b))
+    .quant q (set (choices k n bound disjoint))
+      (next (bound + 1) (cast (congrArg (FormulaF A D)
+        (by omega : n + 1 + (bound + (remaining + 1)) = n + 1 + ((bound + 1) + remaining))) body)))
+
+def successive (k n : Nat) :=
+  successiveWith (k := k) (A := Grouped.Atom k) (fun {_} => Primitive.Collection.set) n
 
 /-- Every grouped quantifier captures its domain once, before authored binders
 are in scope. The caller synthesizes its body with the hidden slot plus locals.

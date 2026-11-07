@@ -645,8 +645,9 @@ Modifier binding uses the accepted ancestor analysis and `Modifiers.Effective`.
 `PartialCompatibility` supply strict-domain composition, and `Properties` supplies
 model/assertion/scenario meaning. Grouped counting instantiates `Quantifier.eval`
 with complete ordered assignments behind the original raw-body barrier. This
-compiler composition does not change the pinned unary definitions or supply the
-missing authored-binder elaboration proof.
+compiler composition does not change the pinned unary definitions. The compiler
+`ExpressionBinders` bridge proves the grouped composition used by the independent
+authored source judgment.
 `Initializers.constant` supplies the resolved presence-guarded equation and its
 strict-definedness premise. Lexical plans reuse the existing reserved-name policy;
 group lowering uses the upstream captured `letSet` and singleton-pushing quantifier
@@ -656,7 +657,7 @@ preserves strict definedness and signed truth. No source/target agreement premis
 is added by that representation change.
 No upstream meanings or Haskell code are vendored. Existing Lean/Std parser and
 collection machinery is reused; the component contract records runtime/proof
-boundaries and the remaining multi-binder elaboration proof. New code is MIT,
+boundaries and the composed elaboration proof. New code is MIT,
 Lean libraries remain Apache-2.0; no dependency or license cost is added.
 
 Grouped quantifiers follow complete ordered assignments, as specified in the
@@ -674,3 +675,24 @@ Its guide's general nesting suggestion must be qualified for grouped `no`,
 `one` and `lone`; it supplies no grouped-counting preservation theorem.
 Finite probes (15 direct Alloy cases and four Haskell-generated cases) corroborate
 this distinction without establishing general elaboration correctness.
+
+Value elaboration additionally follows pinned `Intermediate/ResolverType.hs`
+(`resolveTPExp`, `addSome`) and `Intermediate/TypeSystem.hs`
+(`getIfThenElseType`) for Boolean presence coercion and conditional typing.
+`Generator/AlloyLtl.hs` preserves non-Boolean conditionals inside value expressions;
+its negation pushdown stops at that boundary. The
+[Alloy expression specification](https://alloytools.org/spec.html#expressions)
+supplies heterogeneous union typing and domain/range restrictions; both restrictions
+on unary relations reduce to intersection. These comparisons do not override the
+adopted strict branch-definedness and D3 integer semantics. Fresh generated-output
+regressions retain conditional denominators inside division. `PrimitiveExpression`
+has no value-conditional or partial-navigation constructor, so compiler observations
+compose the pinned primitives with `Step.image` and strict conditional selection.
+The source pin and the separate PR113 comparison role remain unchanged.
+
+The same fresh captures preserve two Haskell semantic failures: a collection-valued
+conditional followed by `.parent` is prematurely classified as Boolean, and
+`noclafer.A` fails name lookup. These failures do not narrow the selected collection
+conditional and polymorphic-empty contract or establish Haskell agreement for those
+cases. Native compiler regressions and the independent source/partial-expression
+rules cover their accepted meanings separately.

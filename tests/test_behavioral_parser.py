@@ -189,3 +189,45 @@ class BehavioralParserTests(unittest.TestCase):
         observations.append({'source': source, 'ours': ours, 'reference': 'tool_error',
                              'stage': 'desugar', 'syntax_agreement_claimed': False})
         oracle.write(self.output / 'reference-comparison.json', observations)
+
+    # [utest->req~compiler-behavioral-elaboration~1]
+    def test_live_value_reference(self):
+        import temporal
+        loaded = temporal.load_tools(os.environ['CLAFER_TEMPORAL_TOOLS'])
+        cases = [
+            ('denominator', 'A ?\n[1 / (if some A then 1 else 0) = 1]',
+             ['1.div[((some alive_c0_A) => 1 else 0)]'], None),
+            ('restrictions', 'A *\n[(A <: A) = A]\n[(A :> A) = A]',
+             ['alive_c0_A <: alive_c0_A', 'alive_c0_A :> alive_c0_A'], None),
+            ('parent', 'abstract T\n  [some this.parent]\nP\n  a : T\nQ\n  b : T',
+             ['@p_c0_a :> alive_c0_P', '@p_c0_b :> alive_c0_Q'], None),
+            ('boolean', 'A ?\nB ?\n[if some A then B else some A]',
+             ['(some alive_c0_A) => (some alive_c0_B) else (some alive_c0_A)'], None),
+            # Preserve Haskell's semantic failures. These are accepted Alloy-like
+            # collection compositions, not claims of successful Haskell agreement.
+            ('collection', 'A\nB\n[some (if some A then A else B).parent]', [],
+             "must not be 'TBoolean'"),
+            ('empty', 'A\n[no noclafer.A]', [], "'noclafer' not found"),
+        ]
+        observations = []
+        for name, source, snippets, failure in cases:
+            path = self.output / f'value-reference-{name}.cfr'
+            path.write_text(source)
+            result = subprocess.run([str(loaded['exporter']), str(path)],
+                                    capture_output=True, text=True, timeout=30)
+            path.with_suffix('.stdout').write_text(result.stdout)
+            path.with_suffix('.stderr').write_text(result.stderr)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            reference = json.loads(result.stdout)
+            self.assertTrue(self.parse_many([source])[0].startswith('ok\n'))
+            if failure is None:
+                self.assertEqual(reference['status'], 'captured', reference)
+                for snippet in snippets:
+                    self.assertIn(snippet, reference['alloy'])
+            else:
+                self.assertEqual(reference['status'], 'malformed', reference)
+                self.assertIn('SemanticErr', reference['detail'])
+                self.assertIn(failure, reference['detail'])
+            observations.append({'source': source, 'reference_status': reference['status'],
+                                 'expected_semantic_failure': failure})
+        oracle.write(self.output / 'value-reference-comparison.json', observations)

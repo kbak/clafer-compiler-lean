@@ -82,9 +82,17 @@ def run : IO Unit := do
     let v ← load source
     unless v.bound.resolved.candidate.core.declarations.any (·.origin == .integer) do
       fail "expression-only model missing integer universe"
-  for order in ["finalref finaltarget", "finaltarget finalref"] do
-    let v ← load ("Target\n" ++ order ++ " ref -> Target\n")
-    unless (← declared v "ref") == order.splitOn " " do fail "direct modifier order"
+  for order in ["finalref finaltarget", "finaltarget finalref", "finalref finalref finaltarget",
+      "finaltarget finaltarget finalref"] do
+    for arrow in ["->", "->>"] do
+      for inherited in [false, true] do
+        let source := if inherited then
+          "Target\nabstract Ref " ++ arrow ++ " Target\n" ++ order ++ " ref : Ref\n"
+          else "Target\n" ++ order ++ " ref " ++ arrow ++ " Target\n"
+        let v ← load source
+        unless (← declared v "ref") == order.splitOn " " &&
+            (← effective v "ref") == order.splitOn " " do
+          fail "order/repetition × direct/inherited × single/set reference matrix"
   for source in ["A\n  enum B = C\n", "enum A = X | X\n", "A : B\nB : A\n"] do
     match parseBehavioral IR.BehavioralStructural.profile "bad.cfr" source with
     | .error _ => pure ()

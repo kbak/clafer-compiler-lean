@@ -34,9 +34,12 @@ source command, target encoding or full-profile qualification claim.
 The [behavioral frontend inventory](behavioral-frontend.md) separately records
 authored parsing, declaration/modifier/header binding, resolved reductions, partial
 normalization, grouped binder plans/counting and source model/check/run requests.
-The implemented expression fragment has native integration tests; full expression
-coverage, independent authored-elaboration correctness, range composition and C7
-acceptance remain outstanding.
+The accepted expression surface has native integration tests, independent source
+derivations, upstream interpretation/normalization proofs and complete range-check
+obligations under explicit structural budgets. Grammar recognition and native
+execution remain tested boundaries; scope-budget validity belongs to encoding.
+Independent semantic review and source-matched qualification remain required for
+C7 acceptance.
 
 The [temporal target](alloy-temporal.md) has separate admission, natural-time
 meaning and checked serialization. Its kernel laws and
