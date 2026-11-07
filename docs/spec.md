@@ -395,6 +395,49 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Independent Alloy temporal target
+
+`req~compiler-alloy-temporal-target~1`
+
+Provide a separate checked Alloy 6 temporal target for the selected behavioral
+profile. Define finite shared identity inventories, static and mutable declarations,
+current `univ`/`iden`, captured environments, relational prime and ordinary
+future/past truth independently of source truth and compilation. Facts begin at
+time zero; invariants require explicit `always`. Include next, strong/weak until,
+release and justified past-time birth guards. Type disjointness and identity scopes
+apply across the whole trace. Define nonempty lassos, valid loop indices, explicit
+step bounds including the closing edge, and representable signed integers.
+Preserve initial history when unfolding repeated frames. Reject malformed syntax,
+unsafe bounds and malformed lasso shape distinctly from candidate violation.
+Document the admitted target subset and future encoder responsibilities without
+reducing the behavioral source completion matrix. Kernel-check operator/lasso laws
+and retain actual pinned Analyzer positive/negative witnesses and their bounds.
+The [temporal target contract](alloy-temporal.md) states exact APIs and limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Checked temporal Alloy text
+
+`req~compiler-alloy-temporal-text~1`
+
+Serialize admitted temporal targets deterministically with explicit mutability,
+operator grouping, step/identity/integer scopes and hygienic names/source maps.
+Keep source labels out of executable text. Reuse the static identity namespace
+and map guarantees without changing static output. Validate complete reconstruction
+of emitted temporal text through an independent grammar before returning success;
+retain typed metadata/correspondence errors and the conditional successful-render
+proof boundary. Test actual Alloy parsing and bounded solving, distinguishing
+native/parser/solver evidence from kernel proofs or source preservation.
+See [temporal serialization](alloy-temporal.md#serialization-and-source-maps).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Explicit target bounds and checked cardinalities
 
 `req~compiler-bounds~1`
