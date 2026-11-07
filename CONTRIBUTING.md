@@ -148,7 +148,7 @@ libraries/tests/native code, exercises the real pinned comparison tools, audits 
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
 CLI and audit regressions share one worker; source CLI and pipeline comparisons
 share another. The general behavioral suite and the PR113/source corpora start
-first through the same bounded executor. PR113 runs at most three independent
+first through the same bounded executor. PR113 runs at most two independent
 cases concurrently, capped by available CPUs. The runner rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 

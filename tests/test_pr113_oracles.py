@@ -33,7 +33,7 @@ class PR113Oracles(unittest.TestCase):
         def run(case):
             return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
         cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1, min(3, cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=max(1, min(2, cpus))) as pool:
             cls.results = dict(pool.map(run,cls.cases))
         oracle.write(cls.output/'summary.json',cls.results)
 
