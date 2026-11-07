@@ -325,7 +325,7 @@ Keep this candidate and static profile intact. Before adopting release bytes:
 `behavioral-pr113-9a0f16e/v1` selects the immutable later Haskell revision in the
 [source register](sources.md#pr113-delta-candidate). It is a qualification
 candidate awaiting independent review. The primary behavioral pin, old temporal
-profile, static profile and their capture/replay code remain unchanged.
+profile, static profile and their capture/replay protocols remain unchanged.
 
 Reuse assessment: `temporal.py` supplies duplicate-key JSON parsing, bridge
 compilation, bounded solving and complete trace validation; `temporal_build.py`
@@ -335,9 +335,15 @@ processes, hashes and archives. The new Haskell adapter calls `readModel`,
 `generate`, `alloyNames`, `toAlloyNames`, `astrModule`, `isDynamicModule`,
 `genAlloyLtlModule`, `genExplicitModule` and the scope metadata APIs. A separate
 builder binds the new revision and exporter without altering historical build
-identities. A small Analyzer inspector adds declaration/field inspection through
-public AST APIs; the existing temporal solver bridge is reused unchanged.
-No additional packages, Lean dependencies, solver or printer are introduced.
+identities. The declaration/field inspector reuses the pinned Analyzer's public
+`CompModule`, signature, field and command APIs. The first run query also emits
+that inventory from its parsed module, avoiding a separate JVM launch and
+parse. The driver validates the complete layout and command inventory before
+accepting the query outcomes. Each query still runs in a fresh process with
+the same deadline, memory limits and solver options; inspection and query
+artifacts remain in the evidence bundle. The standalone inspector remains
+available for inspection-only calls. No additional packages, Lean dependencies,
+solver or printer are introduced.
 These external adapters are tested, unproved boundaries. Original adapters and
 local fixtures are MIT; upstream fixtures stay in the external archive with its
 MIT notice. Existing Alloy/SAT4J license obligations remain unchanged.
@@ -431,8 +437,11 @@ Covers:
 [Candidate tests](../tests/test_pr113_oracles.py) execute the complete inventory,
 check independent modifier/pattern witnesses and meaningful assertions, mutate
 schemas/mappings/fields and every indexed artifact, and freshly replay a paired
-revision discrepancy. CI provisions this profile for full qualification and
-when [reference dependencies change](build.md#ci-profiles).
+revision discrepancy. [Inspection orchestration tests](../tests/test_pr113_fusion.py)
+reject missing or malformed shared inventories, retain timeouts and verify that
+the first runs are used once while every assertion keeps its own fresh query.
+CI provisions this profile for full qualification and when
+[reference dependencies change](build.md#ci-profiles).
 
 Covers:
 - `req~compiler-temporal-oracles~1`

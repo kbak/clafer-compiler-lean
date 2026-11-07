@@ -83,6 +83,20 @@ class PR113Oracles(unittest.TestCase):
                     self.assertEqual(g['trace_length'],a['max_steps'])
                     self.assertEqual(1,a['min_steps'])
                     if case['origin']=='haskell': self.assertEqual(protocol.request(g,check['original_index']),a)
+                    for form in ('original','explicit'):
+                        query = self.output/case['id']/(form+'-query-'+str(n))
+                        runtime = pr113.read(query/'runtime.json')
+                        if n==0:
+                            self.assertEqual(['AlloyPR113Inspect','--solve'],runtime['command'][-2:])
+                            self.assertEqual(self.tools['tools']['inspector'],runtime['inspector'])
+                            captured = self.output/case['id']/form
+                            self.assertEqual(pr113.read(captured/'inspection.json'),pr113.read(query/'inspection.json'))
+                            invocation = pr113.read(captured/'inspect-command.json')
+                            self.assertEqual(runtime['command'],invocation['command'])
+                            self.assertEqual(query,(captured/invocation['cwd']).resolve())
+                        else:
+                            self.assertEqual('AlloyTemporalBridge',runtime['command'][-1])
+                            self.assertNotIn('inspector',runtime)
 
     def test_modifier_witnesses_check_identities_images_and_bag_counts(self):
         for inherited in (False,True):

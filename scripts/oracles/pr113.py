@@ -73,7 +73,8 @@ def load_tools(path):
     _, _, alloy = oracle.load_tools(t['static_tools'], api)
     scratch = Path(tempfile.mkdtemp(prefix='pr113-bridge-'))
     runtime = temporal.compile_bridge(alloy,scratch/'classes',api)
-    protocol.require(runtime['temporal_bridge']==t['temporal_bridge'] and inspector(runtime,api)==t['inspector'], 'Changed PR113 bridge')
+    runtime['inspector'] = inspector(runtime,api)
+    protocol.require(runtime['temporal_bridge']==t['temporal_bridge'] and runtime['inspector']==t['inspector'], 'Changed PR113 bridge')
     return dict(build=receipt, exporter=receipt.parent/'clafer-pr113-capture',runtime=runtime,api=api,tools=t)
 
 
@@ -111,16 +112,28 @@ def capture(tools, files, entry, output):
     return g
 
 
-def inspect(tools, g, output):
-    runtime = tools['runtime']
-    command = [str(runtime['java']),'-XX:ActiveProcessorCount=1','-cp',
-        os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))),'AlloyPR113Inspect']
-    oracle.write(output/'inspect-command.json',command)
-    with (output/'inspect.stdout').open('wb') as out, (output/'inspect.stderr').open('wb') as err:
-        subprocess.run(command,cwd=output,stdout=out,stderr=err,check=True,timeout=30,
-                       env=tools['api']['alloy_runtime'].java_env())
+def inspect(tools, g, output, query_directory=None):
+    if query_directory is None:
+        runtime = tools['runtime']
+        command = [str(runtime['java']),'-XX:ActiveProcessorCount=1','-cp',
+            os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))),'AlloyPR113Inspect']
+        oracle.write(output/'inspect-command.json',command)
+        with (output/'inspect.stdout').open('wb') as out, (output/'inspect.stderr').open('wb') as err:
+            subprocess.run(command,cwd=output,stdout=out,stderr=err,check=True,timeout=30,
+                           env=tools['api']['alloy_runtime'].java_env())
+    else:
+        # Retain the actual shared invocation; this did not start another JVM.
+        runtime = read(query_directory/'runtime.json')
+        oracle.write(output/'inspect-command.json',dict(command=runtime['command'],
+            cwd=os.path.relpath(query_directory,output), shared_with='result.json'))
+        for source,destination in [('stdout.log','inspect.stdout'),('stderr.log','inspect.stderr')]:
+            shutil.copyfile(query_directory/source,output/destination)
+        observed = query_directory/'inspection.json'
+        if not observed.is_file() and read(query_directory/'result.json')['status']=='timeout':
+            raise subprocess.TimeoutExpired(runtime['command'],runtime['timeout_seconds'])
+        shutil.copyfile(observed,output/'inspection.json')
     observed = read(output/'inspection.json')
-    protocol.layout(g,observed)
+    validate_inspection(g,observed)
     return observed
 
 
@@ -137,10 +150,28 @@ def assertions(g):
     return result
 
 
-def query(tools, generation, request, directory):
+# [impl->req~compiler-temporal-oracles~1]
+def validate_inspection(g, observed):
+    protocol.layout(g,observed)
+    order = assertions(g)
+    commands = observed['commands']
+    protocol.require(len(commands)==len(order)+1, 'Unexpected extra commands')
+    protocol.require(commands[0]['check'] is False, 'Command zero must be a model run')
+    protocol.require(all(c['check'] is True for c in commands[1:]), 'Only one model run expected')
+    positions = {c['label']:i for i,c in enumerate(commands) if c['check']}
+    protocol.require(len(positions)==len(order) and set(positions)==set(order), 'Assertion command coverage differs')
+
+
+def query(tools, generation, request, directory, *, inspection=False):
     directory.mkdir()
     (directory/'model.als').write_text(generation['alloy'])
-    result = temporal.solve(tools['runtime'],tools['api'],directory,request,**build.profile()['resources'])
+    result = temporal.solve(tools['runtime'],tools['api'],directory,request,
+        inspection=inspection,**build.profile()['resources'])
+    if inspection and result['status']=='ok':
+        try:
+            validate_inspection(generation,read(directory/'inspection.json'))
+        except (OSError,ValueError,KeyError,TypeError,IndexError) as error:
+            result = dict(result,status='error',outcome=None,detail='Invalid inspection: '+str(error))
     oracle.write(directory/'result.json',result)
     return result
 
@@ -215,7 +246,11 @@ def run_case(tools, case, output):
             protocol.require(result['fixed_point'],'Explicit corpus fixed point failed')
             protocol.require(original['names']==explicit['names'],'Explicit declaration identities changed')
             protocol.require(original['trace_length']==explicit['trace_length'],'Explicit trace length changed')
-            a,b = inspect(tools,original,output/'original'),inspect(tools,explicit,output/'explicit')
+            request = protocol.request(original,0,scopes=case.get('scopes'),steps=case.get('steps'))
+            first_a = query(tools,original,request,output/'original-query-0',inspection=True)
+            a = inspect(tools,original,output/'original',output/'original-query-0')
+            first_b = query(tools,explicit,request,output/'explicit-query-0',inspection=True)
+            b = inspect(tools,explicit,output/'explicit',output/'explicit-query-0')
             original_order,explicit_order = assertions(original),assertions(explicit)
             protocol.require(len(original_order)==len(explicit_order),'Assertion count changed')
             positions_a = {c['label']:i for i,c in enumerate(a['commands']) if c['check']}
@@ -225,9 +260,12 @@ def run_case(tools, case, output):
                              'Unexpected extra commands')
             pairs = [('run',0,0)] + [(x,positions_a[x],positions_b[y]) for x,y in zip(original_order,explicit_order)]
             for ordinal,(label,ia,ib) in enumerate(pairs):
-                request = protocol.request(original,ia,scopes=case.get('scopes'),steps=case.get('steps'))
-                ra = query(tools,original,request,output/('original-query-'+str(ordinal)))
-                rb = query(tools,explicit,dict(request,command_index=ib),output/('explicit-query-'+str(ordinal)))
+                if ordinal == 0:
+                    ra,rb = first_a,first_b
+                else:
+                    request = protocol.request(original,ia,scopes=case.get('scopes'),steps=case.get('steps'))
+                    ra = query(tools,original,request,output/('original-query-'+str(ordinal)))
+                    rb = query(tools,explicit,dict(request,command_index=ib),output/('explicit-query-'+str(ordinal)))
                 check = dict(label=label,original_index=ia,explicit_index=ib,
                     original_status=ra['status'],explicit_status=rb['status'],
                     original_outcome=ra.get('outcome'),explicit_outcome=rb.get('outcome'))

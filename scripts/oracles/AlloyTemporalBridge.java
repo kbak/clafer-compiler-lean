@@ -7,6 +7,7 @@ import edu.mit.csail.sdg.translator.*;
 import kodkod.engine.satlab.SATFactory;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.Function;
 
 public final class AlloyTemporalBridge {
     static final Gson JSON = new GsonBuilder().serializeNulls().create();
@@ -38,10 +39,12 @@ public final class AlloyTemporalBridge {
             "max_steps", c.maxprefix, "scopes", scopes, "formula", c.formula.toString());
     }
     // [impl->req~compiler-temporal-oracles~1]
-    static void execute(JsonObject r) throws Exception {
+    static void execute(JsonObject r, Function<CompModule,Map<String,Object>> inspection) throws Exception {
         require(Runtime.version().feature()==17, "Java 17 required");
         stage("parse");
         CompModule model = CompUtil.parseEverything_fromFile(new A4Reporter(), null, "model.als");
+        if (inspection != null)
+            Files.writeString(Path.of("inspection.json"), JSON.toJson(inspection.apply(model)));
         int index = r.get("command_index").getAsInt();
         require(index>=0 && index<model.getAllCommands().size(), "command index");
         Command original = model.getAllCommands().get(index);
@@ -120,12 +123,15 @@ public final class AlloyTemporalBridge {
         }
         out.put("status","ok"); stage("complete");
     }
-    public static void main(String[] args) throws Exception {
+    static void run(Function<CompModule,Map<String,Object>> inspection) throws Exception {
         out.put("schema","clafer-temporal-solver/1"); out.put("outcome",null);
-        try {execute(JsonParser.parseString(Files.readString(Path.of("request.json"))).getAsJsonObject());}
+        try {execute(JsonParser.parseString(Files.readString(Path.of("request.json"))).getAsJsonObject(), inspection);}
         catch (OutOfMemoryError e) {out.put("status","resource_limit"); out.put("detail",e.toString());}
         catch (IllegalArgumentException e) {out.put("status","malformed"); out.put("detail",e.toString());}
         catch (Throwable e) {out.put("status","error"); out.put("detail",e.toString()); e.printStackTrace(System.err);}
         Files.writeString(Path.of("solver.json"),JSON.toJson(out));
+    }
+    public static void main(String[] args) throws Exception {
+        run(null);
     }
 }

@@ -1,4 +1,5 @@
 """Checked temporal output against the actual pinned Alloy parser and SAT4J."""
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -67,6 +68,7 @@ class AlloyTemporalTests(unittest.TestCase):
         files = sorted(generated.glob('*.als'))
         self.assertGreater(len(files), 100)
         results = {}
+        cases = []
         for path in files:
             with self.subTest(case=path.stem):
                 raw = path.read_bytes()
@@ -86,20 +88,34 @@ class AlloyTemporalTests(unittest.TestCase):
                 case_dir = output / path.stem
                 case_dir.mkdir()
                 (case_dir / 'model.als').write_bytes(raw)
-                result = temporal.solve(runtime, api, case_dir, request)
-                oracle.write(case_dir / 'result.json', result)
-                self.assertEqual(result['status'], 'ok', result)
-                original = result['original_command']
-                # The bridge overrides bounds for reproducibility; independently
-                # verify that the actual emitted command already had those bounds.
-                self.assertEqual((original['bitwidth'], original['min_steps'], original['max_steps']),
-                                 (width, low, high))
-                self.assertEqual({s['signature']: (s['start'], s['exact']) for s in original['scopes']},
-                                 {name: (scope['count'], scope['exact']) for name, scope in scopes.items()})
-                expected = path.with_suffix('.expected')
-                if expected.exists():
-                    self.assertEqual(result['outcome'], expected.read_text(), result)
-                results[path.stem] = result
+                cases.append((path, case_dir, request))
+
+        def solve(case):
+            _, case_dir, request = case
+            result = temporal.solve(runtime, api, case_dir, request)
+            oracle.write(case_dir / 'result.json', result)
+            return result
+
+        # Reuse the PR113 suite's bounded concurrency, with fresh JVMs and
+        # disjoint case directories. All unittest checks stay on this thread.
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [pool.submit(solve, case) for case in cases]
+            for (path, _, request), future in zip(cases, futures):
+                with self.subTest(case=path.stem):
+                    result = future.result()
+                    self.assertEqual(result['status'], 'ok', result)
+                    original = result['original_command']
+                    # The bridge overrides bounds for reproducibility; independently
+                    # verify that the actual emitted command already had those bounds.
+                    self.assertEqual((original['bitwidth'], original['min_steps'], original['max_steps']),
+                                     (request['bitwidth'], request['min_steps'], request['max_steps']))
+                    self.assertEqual({s['signature']: (s['start'], s['exact']) for s in original['scopes']},
+                                     {name: (scope['count'], scope['exact'])
+                                      for name, scope in request['identities'].items()})
+                    expected = path.with_suffix('.expected')
+                    if expected.exists():
+                        self.assertEqual(result['outcome'], expected.read_text(), result)
+                    results[path.stem] = result
         self.assertGreater(results['nonzero-prefix']['trace']['loop'], 0)
         self.assertEqual(len(results['identity-two']['trace']['inventory']), 2)
         trace = results['birth-loop']['trace']

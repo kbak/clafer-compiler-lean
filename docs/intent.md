@@ -62,6 +62,10 @@ qualifies later Haskell naming, modifiers, patterns and explicit output through
 fresh bounded comparisons while preserving both historical profiles.
 The separate [temporal target](alloy-temporal.md) supplies independent target
 meaning and checked serialization for the behavioral encoder.
+The [first-slice encoding](behavioral-encoding.md) connects admitted behavioral
+IR to that target with a global trace representation, signed formula transport
+and structural snapshot proofs. Its native/Analyzer evidence remains separate
+from kernel proofs and full-profile qualification.
 
 ## Delivery and selected language scope
 
@@ -113,6 +117,7 @@ and semantic acceptance require explicit review; see the
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
+- [Behavioral encoding](behavioral-encoding.md): temporal lowering, global identities, snapshot correspondence and bounded evidence.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.

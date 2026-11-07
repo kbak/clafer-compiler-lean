@@ -41,8 +41,16 @@ acceptance remain outstanding.
 The [temporal target](alloy-temporal.md) has separate admission, natural-time
 meaning and checked serialization. Its kernel laws and
 [Analyzer regressions](../tests/test_alloy_temporal.py) cover target constructs;
-source-to-target preservation and full behavioral qualification remain dependent
-work. This does not change the static feature inventory below.
+the first-slice source-to-target proofs are recorded separately below, and full
+behavioral qualification retains its completion gate. This does not change the
+static feature inventory below.
+
+The [first-slice encoding](behavioral-encoding.md#kernel-boundaries) adds concrete
+trace representation, signed formula transport and actual structural snapshot
+correspondence. Its [35 Analyzer cases](behavioral-encoding.md#fixtures-and-validation)
+exercise compiler-generated modules, counterexamples and native witness replay.
+These are separate from the full-profile qualification gate and the static
+inventory below.
 
 ## Reuse assessment
 

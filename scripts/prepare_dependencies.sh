@@ -40,4 +40,9 @@ if (( ${#dependencies[@]} == 0 )); then
   exit 1
 fi
 lake build "${dependencies[@]/#/+}"
+# The source-candidate harness executes these independent finite checks natively.
+# Provision their pinned C-object closure before the bounded project check;
+# Lake still validates every object trace when the harness links during tests.
+lake query --json +Clafer.Verification.Admission:linkInfoExport \
+  +Clafer.Semantics.RealizationCompatibility:linkInfoExport
 python3 scripts/project_modules.py --dependencies

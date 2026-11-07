@@ -12,6 +12,42 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # [utest->req~compiler-build~1]
 class CheckScriptTest(unittest.TestCase):
+    def test_native_checker_dependency_preparation_is_required(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'scripts').mkdir()
+            shutil.copyfile(ROOT / 'scripts/prepare_dependencies.sh',
+                            root / 'scripts/prepare_dependencies.sh')
+            binary = root / 'bin'
+            binary.mkdir()
+            for name in ['bash', 'dirname']:
+                (binary / name).symlink_to(shutil.which(name))
+            stub = '''#!/usr/bin/env bash
+echo "${0##*/} $*" >> "$CALLS"
+if [[ "${0##*/}" == python3 && "$1" == - ]]; then
+  echo Mathlib.Fixture
+fi
+if [[ "$*" == *linkInfoExport* && "$FAIL_NATIVE" == 1 ]]; then exit 23; fi
+'''
+            for name in ['python3', 'lake']:
+                path = binary / name
+                path.write_text(stub)
+                path.chmod(0o755)
+            native = ('lake query --json +Clafer.Verification.Admission:linkInfoExport '
+                      '+Clafer.Semantics.RealizationCompatibility:linkInfoExport')
+            for fail in ('0', '1'):
+                with self.subTest(fail=fail):
+                    calls_file = root / ('calls-' + fail)
+                    result = subprocess.run(['bash', str(root / 'scripts/prepare_dependencies.sh')],
+                        env=dict(os.environ, PATH=str(binary), CALLS=str(calls_file),
+                                 FAIL_NATIVE=fail), capture_output=True, text=True, timeout=10)
+                    calls = calls_file.read_text().splitlines()
+                    self.assertIn(native, calls)
+                    self.assertEqual(result.returncode, 23 if fail == '1' else 0,
+                                     result.stdout + result.stderr)
+                    self.assertEqual(calls[-1], native if fail == '1' else
+                                     'python3 scripts/project_modules.py --dependencies')
+
     def run_check(self, fail='', missing_lake=False, args=(), artifact_cache='false'):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -142,15 +142,23 @@ class SourcePipelineTests(unittest.TestCase):
         oracle.write(output / 'binary.json', oracle.digest(executable))
         env = api['alloy_runtime'].java_env()
 
-        def run(name, command, cwd=output):
+        def run(name, command, cwd=output, timeout=45):
             oracle.write(output / (name + '-command.json'), list(map(str, command)))
             r = subprocess.run(list(map(str, command)), cwd=cwd, env=env,
-                               capture_output=True, text=True, timeout=45)
+                               capture_output=True, text=True, timeout=timeout)
             (output / (name + '-stdout.log')).write_text(r.stdout)
             (output / (name + '-stderr.log')).write_text(r.stderr)
             self.assertEqual(r.returncode, 0, name + ': ' + r.stdout + r.stderr)
+            return r
 
-        run('build', ['lake', 'build', '+tests.PipelineNative'], ROOT)
+        # Reuse Lake's import/native facets, including the pinned finite checker.
+        # Compile once; each independent batch retains its 45-second process limit.
+        modules = ['tests.PipelineNative', *json.loads(run('native-imports',
+            ['lake', 'query', '--json', '+tests.PipelineNative:transImports'], ROOT).stdout)]
+        objects = [Path(json.loads(line)) for line in run('native-objects',
+            ['lake', 'query', '--json', *(f'+{name}:o.export' for name in modules)],
+            ROOT, timeout=120).stdout.splitlines()]
+        self.assertEqual(len(objects), len(modules))
         harness = output / 'Harness.lean'
         harness.write_text('''import tests.PipelineNative
 def main : List String → IO Unit
@@ -160,13 +168,23 @@ def main : List String → IO Unit
     main rest
   | _ => throw (IO.userError "arguments")
 ''')
+        c_file, binary = output / 'Harness.c', output / 'pipeline-native'
+        run('native-compile', ['lake', 'env', 'lean', f'--root={output}', '-c', c_file, harness],
+            ROOT, timeout=120)
+        run('native-link', ['lake', 'env', 'leanc', c_file, *objects, '-o', binary],
+            ROOT, timeout=120)
+        oracle.write(output / 'native.json', dict(
+            binary=oracle.digest(binary), harness=oracle.digest(harness), c=oracle.digest(c_file),
+            objects=[dict(module=name, path=str(path), identity=oracle.digest(path))
+                     for name, path in zip(modules, objects)],
+            compilation_timeout_seconds=120, batch_timeout_seconds=45))
         classpath = os.pathsep.join(map(str, [output, runtime['classes'], runtime['jar']]))
         run('javac', [runtime['java'].with_name('javac'), '--release', '17', '-cp', classpath,
                       '-d', output, ROOT / 'scripts/oracles/AlloyTextBridge.java',
                       ROOT / 'scripts/oracles/AlloyArithmeticBridge.java'])
 
         def native_many(calls):
-            # Share only Lean startup/imports. Every call independently compiles
+            # Share only native startup. Every call independently compiles
             # its source and evaluates its candidate into a fresh output folder.
             self.assertTrue(calls)
             folders, arguments = [], []
@@ -183,7 +201,7 @@ def main : List String → IO Unit
                 folders.append(folder)
                 arguments.extend([folder / 'model.cfr', folder / 'bounds.json',
                                   folder, table, mutation])
-            run(calls[0][0] + '-batch', ['lake', 'env', 'lean', '--run', harness, *arguments], ROOT)
+            run(calls[0][0] + '-batch', [binary, *arguments], ROOT)
             return folders
 
         def solve(label, items):

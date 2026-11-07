@@ -211,7 +211,11 @@ round trips as appropriate; rejected valid test inputs are never discarded.
 The temporal oracle bridge applies the pinned Analyzer's different static/mutable
 `one`/`lone` scope rules; replacement tests exercise both mutable multiplicities.
 Every generated module is parsed and solved by the actual pinned Alloy 6.2.0
-runtime with SAT4J and `noOverflow`. Named semantic cases have independently chosen
+runtime with SAT4J and `noOverflow`. Python's standard `ThreadPoolExecutor`,
+already used by the PR113 corpus, runs at most two independent cases at once.
+Each case keeps its own fresh JVM, evidence directory and unchanged process
+deadline; assertions run on the main test thread. This adds no dependency or
+solver protocol. Named semantic cases have independently chosen
 SAT/bounded-UNSAT expectations, and selected SAT traces are inspected. The test
 checks the original parsed bounds before the bridge's command override, retaining
 all frames and loop indices. Native execution, the reconstruction parser's Alloy
