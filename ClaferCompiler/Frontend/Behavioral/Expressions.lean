@@ -16,13 +16,39 @@ def push (Γ : Context k n) (name : Name) (type : Ty k) : Context k (n + 1) :=
   Vector.ofFn fun i => if h : i.val = 0 then some (name, type)
     else Γ[(⟨i.val - 1, by omega⟩ : Fin n)]
 
-/-- Only syntactic union operands split occurrence families. Arbitrary set
-expressions retain their ordinary distinct-head semantics. -/
-def operandsAt : Nat → Expr → List Expr :=
-  Nat.rec (fun e => [e]) (fun _ next e => match e with
-    | .binary op a b _ => if op.text == "++" || op.text == "," then next a ++ next b else [e]
-    | .parens a _ => next a
-    | _ => [e])
+/-- Only syntactic unions and parentheses split occurrence families. Other
+operators, including intersection and difference, keep ordinary set semantics. -/
+def AtomicOperand : Expr → Prop
+  | .binary op _ _ _ => ¬ (op.text = "++" ∨ op.text = ",")
+  | .parens _ _ => False
+  | _ => True
+
+instance (e : Expr) : Decidable (AtomicOperand e) := by
+  unfold AtomicOperand; split <;> infer_instance
+
+/-- Independent source rules for occurrence-preserving aggregate operands. -/
+inductive Operands : Expr → List Expr → Prop where
+  | atomic (h : AtomicOperand e) : Operands e [e]
+  | parens (body : Operands e xs) : Operands (.parens e span) xs
+  | union (spelling : op.text = "++" ∨ op.text = ",")
+      (left : Operands a xs) (right : Operands b ys) :
+      Operands (.binary op a b span) (xs ++ ys)
+
+-- [proof->req~compiler-behavioral-elaboration~1]
+/-- Exhaustion never returns a collapsed occurrence family. Every successful
+split carries its derivation from the independent source rules above. -/
+def operandsAt : Nat → (e : Expr) → Option {xs // Operands e xs} :=
+  Nat.rec (fun _ => none) (fun _ next e => match e with
+    | .binary op a b span =>
+      if h : op.text = "++" ∨ op.text = "," then do
+        let a ← next a
+        let b ← next b
+        return ⟨a.val ++ b.val, .union h a.property b.property⟩
+      else some ⟨[.binary op a b span], .atomic h⟩
+    | .parens a _ => do
+      let a ← next a
+      return ⟨a.val, .parens a.property⟩
+    | e => if h : AtomicOperand e then some ⟨[e], .atomic h⟩ else none)
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 def aggregate (v : IR.BehavioralStructural.Validated k) (op : IR.BehavioralArithmetic.Fold)
@@ -92,7 +118,9 @@ def synthAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : 
       | .parens a _ => next Γ cursor a
       | .unary op a _ =>
         if op.text == "sum" || op.text == "product" then
-          let terms ← (operandsAt (fuel + 1) a).mapM (next Γ cursor)
+          let some operands := operandsAt (fuel + 1) a
+            | throw (failure doc e "behavioral.expression-budget")
+          let terms ← operands.val.mapM (next Γ cursor)
           lift (aggregate v (if op.text == "sum" then .sum else .product) terms)
         else lift (unary v op.text (← next Γ cursor a))
       | .binary op a b _ =>

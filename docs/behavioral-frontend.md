@@ -234,6 +234,11 @@ the domain before introducing names and retain the hidden domain slot.
 `sum`/`product` split syntactic union operands into separate occurrence folds,
 using strict singleton target extraction per head. Ordinary arithmetic instead
 coerces the distinct target set. Missing values remain partial operations.
+`Operands` independently specifies syntactic union splitting; each successful
+`operandsAt` result carries its source derivation. Insufficient traversal fuel
+produces a diagnostic and cannot collapse an unvisited union subtree into one
+occurrence family. This local source rule does not prove complete expression
+elaboration or aggregate evaluation agreement.
 
 [`parseAndElaborate`](../ClaferCompiler/Frontend/Behavioral/Elaborate.lean) runs
 parsing, declaration/modifier binding and expression elaboration for every

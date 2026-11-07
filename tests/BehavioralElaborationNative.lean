@@ -53,6 +53,12 @@ def captures : IO Unit := do
   | .next (.atom (.primitive (.inhabited (.set (.step .parent (.union .this .empty)))))) => pure ()
   | _ => fail "ordinary observed this became fixed-identity navigation"
 
+def foldCount : Nat → Primitive.Integer k n → Nat :=
+  Nat.rec (fun _ => 0) (fun _ next e => match e with
+    | .binary _ a b => next a + next b
+    | .fold .. => 1
+    | _ => 0)
+
 -- [utest->req~compiler-behavioral-elaboration~1]
 def arithmetic : IO Unit := do
   let m ← load "abstract R -> int\nr : R *\n[r + 1 = 3]\n"
@@ -68,6 +74,17 @@ def arithmetic : IO Unit := do
       | .fold .sum (.cons _ .nil) (.extract (.set (.step (.deref _) (.var 0)))) => pure ()
       | _ => fail "aggregate erased repeated operand occurrences or head extraction"
   | _ => fail "aggregate shape"
+  let m ← load "r -> int *\n[sum r ++ r ++ r ++ r ++ r ++ r ++ r = 0]\n"
+  match ← body m with
+  | .atom (.primitive (.equal (.integer sum) _)) =>
+    unless foldCount 100 sum == 7 do fail "seven authored operands did not retain seven occurrence families"
+  | _ => fail "aggregate fixture shape"
+  let some occurrence := (properties m.elaborated.declarations).head? | fail "aggregate occurrence"
+  for budget in [4, 5, 6] do
+    let .error d := Expressions.synthAt m.source m.elaborated.declarations.resolved.admitted
+        occurrence.owner budget #v[] none occurrence.expression
+      | fail "insufficient traversal budget silently collapsed aggregate occurrences"
+    unless d.code == "behavioral.expression-budget" do fail "aggregate traversal diagnostic"
   for expr in ["product r = 1", "min r = noclafer", "max r = 3", "#r = 2",
       "r * 2 / 3 % 4 >= -1", "if some r then r > 0 else no r"] do
     let _ ← load ("r -> int *\n[" ++ expr ++ "]\n")
