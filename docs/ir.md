@@ -1,5 +1,8 @@
 # Executable structural IR
 
+The separate [behavioral IR](behavioral-ir.md) reuses these guarded declarations
+under explicit temporal admission; the static interchange remains unchanged.
+
 The M1 in-memory IR exposes executable declaration tables and admission checks.
 Its runtime code imports only `Std`; its proof interpretation imports the pinned
 upstream admission module. The [native file/JSON driver](cli.md) composes admission

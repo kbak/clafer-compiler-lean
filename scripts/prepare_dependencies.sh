@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONDONTWRITEBYTECODE=1
-export LAKE_ARTIFACT_CACHE=false
+export LAKE_ARTIFACT_CACHE="${LAKE_ARTIFACT_CACHE:-false}"
 export LAKE_RESTORE_ARTIFACTS=true
 export LEAN_NUM_THREADS="${LEAN_NUM_THREADS:-4}"
 
@@ -40,4 +40,9 @@ if (( ${#dependencies[@]} == 0 )); then
   exit 1
 fi
 lake build "${dependencies[@]/#/+}"
+# The source-candidate harness executes these independent finite checks natively.
+# Provision their pinned C-object closure before the bounded project check;
+# Lake still validates every object trace when the harness links during tests.
+lake query --json +Clafer.Verification.Admission:linkInfoExport \
+  +Clafer.Semantics.RealizationCompatibility:linkInfoExport
 python3 scripts/project_modules.py --dependencies

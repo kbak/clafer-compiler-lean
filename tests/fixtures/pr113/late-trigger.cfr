@@ -1,0 +1,8 @@
+//# OPTIONS --tl=4
+p ?
+q ?
+r ?
+s ?
+[ initially (q && no p && no r && no s && X (no q && p && no r && no s && X (no q && no p && no r && no s && X G (no q && no p && r && no s)))) ]
+[ s must follow p between q and r ]
+// Original MIT qualification fixture.

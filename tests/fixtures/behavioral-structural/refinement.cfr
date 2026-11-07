@@ -1,0 +1,9 @@
+Target
+Narrow : Target
+System
+  abstract Port ->> Target
+    entry ->> Target
+SubSystem : System
+  port : Port -> Narrow
+OtherSystem : System
+  otherPort : Port

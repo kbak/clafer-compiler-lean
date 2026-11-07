@@ -88,7 +88,7 @@ structure LexerState where
   out : Array Token := #[]
   done : Bool := false
 
-def lexStep (file : String) (state : LexerState) : Except Diagnostic LexerState := do
+def lexStepWith (excluded : String → Bool) (file : String) (state : LexerState) : Except Diagnostic LexerState := do
   let ⟨it, line, col, leading, indent, out, _⟩ := state
   let start := it.2.offset.byteIdx
   if it.2.IsAtEnd then
@@ -123,7 +123,7 @@ def lexStep (file : String) (state : LexerState) : Except Diagnostic LexerState 
       .malformed "lexer.character" (toString e))
   | .success next text =>
     let stop := next.2.offset.byteIdx
-    if excludedWords.contains text || excludedSymbols.contains text then
+    if excluded text then
       throw (lexError file start stop line col .unsupported "lexer.excluded"
         s!"unsupported source construct: {text}")
     -- Longest-match decimal real/double tokens must not become integer joins.
@@ -135,13 +135,19 @@ def lexStep (file : String) (state : LexerState) : Except Diagnostic LexerState 
     let (l, c, b) := advance line col false text
     return ⟨next, l, c, b, indent, out.push ⟨text, ⟨file, start, stop⟩, line, col, indent + 1⟩, false⟩
 
+def lexStep (file : String) (state : LexerState) : Except Diagnostic LexerState :=
+  lexStepWith (fun text => excludedWords.contains text || excludedSymbols.contains text) file state
+
 -- [impl->req~compiler-parser~1]
-def lex (file source : String) : Except Diagnostic (Array Token) := do
+def lexWith (excluded : String → Bool) (file source : String) : Except Diagnostic (Array Token) := do
   let mut state : LexerState := { cursor := ⟨source, source.startPos⟩ }
   for _ in [:source.utf8ByteSize + 1] do
-    state ← lexStep file state
+    state ← lexStepWith excluded file state
     if state.done then return state.out
   throw (lexError file source.utf8ByteSize source.utf8ByteSize state.line state.column
     .malformed "lexer.progress" "tokenizer progress exhausted")
+
+def lex (file source : String) : Except Diagnostic (Array Token) :=
+  lexWith (fun text => excludedWords.contains text || excludedSymbols.contains text) file source
 
 end ClaferCompiler.Frontend

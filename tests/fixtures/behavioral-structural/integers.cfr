@@ -1,0 +1,4 @@
+abstract Value ->> integer
+value : Value
+other -> int
+[some value]

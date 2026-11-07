@@ -5,15 +5,16 @@ workflow. The [architecture](architecture.md) defines the selected structural
 fragment. Component contracts in the [documentation map](intent.md#documentation-map)
 record exact delivered APIs, proof assumptions and testing limits; the
 [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains task dependencies
-and acceptance history.
+and acceptance history. The [behavioral contract](behavioral.md) specifies the
+implemented temporal profile separately from the static contracts.
 
 ## Honest project boundary
 
 `req~scaffold-boundary~1`
 
-The README and intent explain the selected structural Clafer-to-Alloy language,
-its relationship to Clafer Semantics and the Haskell comparison compiler, and
-its supported interfaces. Describe the implemented frontend, structural and
+The README and intent explain the selected static and behavioral Clafer-to-Alloy
+profiles, their relationship to Clafer Semantics and the Haskell comparison compiler, and
+their supported interfaces. Describe the implemented frontend, structural and
 expression encodings, checked serialization and preservation proofs with their
 explicit scope, numeric-range and representation assumptions. The
 [constraint-preservation review](https://github.com/kbak/clafer-compiler-lean/pull/41)
@@ -43,12 +44,27 @@ source paths and lines. Keep the source-import regression to detect a checker
 that silently drops those tags. Run the repository check through IntentBond before
 handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. The full local check remains mandatory.
-On pull requests and pushes to `main`, hosted CI builds every Lean module, audits
+On PRs outside `behavioral` and pushes to `main`, hosted CI builds every Lean module, audits
 axioms, replays the kernel, checks scope identity and tests the native source/IR
-CLI. Manual dispatch runs the full IntentBond check, including external comparison
-tools and all regressions. Both retain evidence; routine CI does not establish
-full qualification or semantic acceptance. Public CI artifacts retain logs,
-notices, source identities and replay inputs without compiled test binaries.
+CLI. Every behavioral PR additionally checks traceability and runs all compiler
+regressions, including native execution and external source/target comparisons.
+Only the standalone historical and PR113 reference qualification suites may run
+conditionally: their complete corpora are mandatory when a reference pin,
+adapter, fixture, test, shared helper, provisioning recipe, or execution policy
+changes. Missing or ambiguous dependency information requires the full suites.
+Run both complete reference suites on scheduled verification, manual dispatch,
+behavioral integration pushes, ready-for-review behavioral PRs and the final
+`behavioral` → `main` PR on every update, including drafts. Scheduled checks use
+`main`; ordinary main PRs retain the routine profile. These hosted
+runs require independent compiler/proof, source and reference jobs against the same
+immutable candidate. Retain a full source-matched IntentBond check before
+acceptance. The full local check before handoff remains mandatory. A deferred
+reference suite must be reported as not run on this candidate; previously accepted reference evidence is
+bound to its exact inputs and is never described as fresh compiler validation.
+Keep compiler and reference jobs independent, with a required aggregate result
+that fails on every failed or missing mandatory job. Retain evidence; routine CI
+does not establish full qualification or semantic acceptance. Public CI artifacts
+retain logs, notices, source identities and replay inputs without compiled test binaries.
 Scope changes require explicit review.
 CI checks scope identity against the baseline, permitting only exact reviewed
 migrations without replacing the Git comparison baseline.
@@ -69,16 +85,25 @@ Needs: impl, utest
 `req~github-tracking~1`
 
 Use public repository issues for contribution and acceptance records. Maintainers
-track Todo, In Progress and Done in the Project; contributors do not need Project
+track Todo, Ready, In Progress and Done in the Project; contributors do not need Project
 access. Tasks describe scope, acceptance criteria, sources/requirements and dependencies.
 Planning tickets do not trigger implementation. IntentMade registration uses manual
 intake and draft PR publication; deployment configuration and credentials stay
 outside this repository.
+Ready is limited to actionable work with accepted hard dependencies across both
+repositories and does not start implementation. Reconcile affected unstarted
+statuses manually after accepted closure, reopening, dependency or scope changes;
+not-planned closure is not acceptance. Parent/sub-issue membership groups scope,
+not readiness. The helper accepts `track --status ready` and uses live Project
+field/option IDs without claiming dependency automation. Behavioral feature PRs
+target `behavioral`; close their issues explicitly only after accepted integration
+and refresh affected statuses. Preserve the main controls and report behavioral
+protection gaps separately from CI results.
 
 Covers:
 - `intent~compiler-foundation~1`
 
-Needs: impl
+Needs: impl, utest
 
 ## Feature and interface planning contract
 
@@ -109,14 +134,413 @@ relations, soundness, bounded completeness, frontend elaboration and serialized
 text/runtime trust boundaries explicit. Bounds/representation assumptions must
 not assume the preservation conclusion. Pin semantic and Haskell
 baselines, retain source locators/licenses and define reviewed upgrades. No
-research tag is required. Reserve future behavioral requirement IDs without
-inventing implementation/proof coverage; acceptance review precedes dependent
+research tag is required. Adopt behavioral planning requirements with real contract
+artifacts without inventing implementation/proof coverage; acceptance review precedes dependent
 manual intake. The build enforces module ownership/import boundaries and exercises
 independent upstream imports. Keep required theorem shapes distinct from actual
 proved declarations and their explicit assumptions.
 
 Covers:
 - `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral profile planning contract
+
+`req~compiler-behavioral-profile~1`
+
+Maintain the complete versioned behavioral feature matrix against accepted upstream
+source commits, paper §§5–6 and errata T1–T13. Map every feature and required
+structural prerequisite to frontend, IR, encoding, proof, runtime and qualification
+owners, with positive/negative fixtures and known compiler discrepancies. Distinguish
+the first smaller slice from completion; omissions and broader exclusions require
+explicit review. Preserve existing static modes, schema admission, source/oracle
+pins and temporal-rejection checks outside explicit behavioral profile selection.
+Document non-default integration, manual intake, immutable accepted-SHA repins,
+source delta review and the ordered upstream-first final merge/revalidation gates.
+Implementation and proof coverage are recorded in the component contracts; this
+matrix alone does not establish their qualification or acceptance.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl
+
+## Behavioral structural handoff
+
+`req~compiler-behavioral-structural-bridge~1`
+
+Under explicit `behavioral-0.5.7-candidate/v1` selection, provide resolved structural
+admission, authored identity/default correspondence and typed observation APIs
+for the complete structural prerequisites in B01/B04–B08/B18–B19/B31–B32.
+Use accepted S4 meaning for nested abstracts, refined parents, concrete supers,
+ordinary inherited children, nearest inherited/refined references and effective
+group unions. Keep names, IDs, head occurrences and targets distinct. Preserve
+actual-parent navigation, one-step coercion, group/default provenance and strict
+partial integer operations, with explicit finite observation and conservative
+range conditions. Diagnose unsupported domains and `:=`; supply enum/finality and
+constant-initializer sugar to the full frontend without enabling static temporal
+syntax. Expose original source fixtures and proved APIs for dependent features.
+Document exact successful-admission, source-coverage, role, observation and range
+theorems and their premises, distinguishing them from native/parser tests and
+future target composition. Preserve static behavior and comparison fixtures;
+review an immutable accepted-SHA repin and retain its source delta and full checks.
+The [component contract](behavioral-structure.md) records delivered APIs and C7/C8
+handoff obligations; no required row is deferred out of full qualification.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral authored frontend
+
+`req~compiler-behavioral-frontend~1`
+
+Under explicit `behavioral-0.5.7-candidate/v1` selection, parse every accepted
+behavioral modifier, temporal operator/alias, transition/guard/chain, lifetime
+anchor, pattern/scope, assertion and scenario source form. Preserve layout,
+precedence, original spans, syntactic polarity, lexical binders and attachment
+ownership. Retain all repeated/combined reference modifiers in either order on
+direct and inherited references. Keep model/scenario selection and assertions
+distinct; reject unsupported objectives, escapes, domains and default initializers
+explicitly. Preserve static-profile temporal rejection. Record an independent
+grammar and distinguish tested recognition from proved elaboration. The
+[frontend inventory](behavioral-frontend.md) states current APIs and their proof/testing
+boundaries; parsing is not semantic admission.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral source elaboration
+
+`req~compiler-behavioral-elaboration~1`
+
+Resolve and elaborate the complete accepted behavioral source into the independent
+upstream source rules. Preserve authored/effective metadata, context/parent lifetime
+selection, time-spanning captures, strict definedness and attachment identity.
+Implement initial/final/inherited-reference expansions, enum finality, constant
+initializers, all thirty pattern cells and required transition chains. Preserve
+response-between and first-opener precedence-after corrections and the distinct
+finalref/finaltarget meanings. Compose whole-expression range obligations without
+assuming constraint truth. Prove executable normalization and source elaboration
+agreement, beyond well-formed output; distinguish universal assertions, classical
+counterexample failure and existential scenarios. Grammar recognition, native
+execution and reference-tool outcomes remain separately tested boundaries.
+The [reduction inventory](behavioral-frontend.md#executable-reductions-and-proved-boundary)
+records source derivations, composed interpretation/normalization and complete
+range-check obligations, with explicit scope premises. Coverage does not replace
+source-matched qualification or independent semantic acceptance.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Trace assurance planning contract
+
+`req~compiler-trace-assurance~1`
+
+Specify independently defined infinite source and Alloy temporal meanings, a
+concrete shared identity correspondence over the whole trace, finite observation
+and integer conditions, and separate lasso unfolding. State soundness, bounded
+completeness, frontend and decode/encode theorem boundaries without assuming
+source satisfaction in soundness or target truth in representation/Fits premises.
+Preserve strict partial-domain obligations and signed parent-lifetime meaning.
+Assertions use classical failure of the interpreted property, not source negation.
+Separate identity budgets, trace-step/loop limits and integer bitwidth/ranges;
+retain typed malformed/unsupported diagnostics and distinct SAT, bounded UNSAT,
+unknown, timeout, violating and undefined outcomes. Require fixtures exposing
+replacement, reappearance, loop-edge history, occurrences, signs and range failures.
+Identify parser/text/native/solver trust separately. These are required theorem
+shapes and review obligations, not claims of completed proofs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl
+
+## Behavioral resolved IR
+
+`req~compiler-behavioral-ir~1`
+
+Provide explicit first-slice version/profile admission over the guarded structural
+core, retaining resolved declaration IDs, authored/effective metadata, source
+spans and unique attachment occurrences. Represent both source signs,
+X/F/G/U/W, initial/final anchors, Boolean connectives, captured sets and lexical
+quantifiers, including the raw `one`/`lone` counting barrier. Reject unsupported
+profiles, requested constructors and attachment forms without changing static
+admission. Retain one finite identity inventory, fixed direct types/parents,
+changing presence and distinct reference heads. Check representation invariants
+and separate identity, step and reference-observation bounds. Structural state
+satisfaction remains an explicit upstream obligation, not a result of these
+representation checks. See the [first-slice contract](behavioral-ir.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral interpretation
+
+`req~compiler-behavioral-interpretation~1`
+
+Interpret the executable first slice into accepted immutable upstream S2/S3
+definitions. Prove structural admission, signed normalization and finite set/atom
+evaluation agreement, including captures, current navigation and attachment
+ownership. Define one identity correspondence for the entire trace independently
+of satisfaction. Preserve first-parent-absence cancellation and reappearance,
+with checked contrasting lifetime witnesses on an admitted source trace. Keep
+classical target negation distinct from source negation. This slice does not
+provide partial atoms, a finite temporal satisfaction evaluator, target
+preservation or the complete behavioral profile. Its
+[interpretation handoff](behavioral-ir.md#proof-handoff) states exact boundaries.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral first-slice encoding
+
+`req~compiler-behavioral-encoding~1`
+
+Compile admitted `behavioral-core/1` documents to the independent temporal target
+with explicit object, declaration, step and integer bounds. Allocate one static
+identity/type/actual-parent inventory and mutable live/reference relations.
+Generate identity, lifetime and structural snapshot obligations, and preserve
+attachment ownership, both source signs, X/F/G/U/W, frozen sets and quantifiers.
+Retain the raw `one`/`lone` counting barrier. Return checked target syntax and
+source maps; compilation alone makes no satisfiability claim. Keep the static
+driver and its admission unchanged. The [encoding contract](behavioral-encoding.md)
+records the first-slice API and capacity costs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral trace representation
+
+`req~compiler-trace-representation~1`
+
+Provide executable finite trace encoding and checked decoding, preserving one
+global identity bijection, root, fixed direct type and actual parent, each live
+extent, reference-head occurrences, all frames and the loop index. Representation
+contains data equations only. Distinct heads with equal referents remain distinct;
+per-state renaming cannot disguise replacement. Prove concrete representation
+and round-trip boundaries and derive decoding data from independent target facts.
+Do not substitute assumed source validity or target truth for these equations.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral first-slice correctness
+
+`req~compiler-behavioral-correctness~1`
+
+Prove signed formula and definedness preservation over the concrete trace
+representation. Derive source validity and attachments from the actual successful
+compiler output. Prove bounded completeness for representable source lassos with
+data-only identity, scope, step and integer-observation capacity assumptions.
+Connect live snapshots to the existing structural backend's emitted declarations
+and facts, reusing its soundness and completeness results. Distinguish these
+in-memory kernel statements from tested text serialization, native execution,
+Analyzer solving and witness replay. Retain distinguishing SAT/UNSAT fixtures for
+all core temporal operators, lifetime cancellation, identity replacement, frozen
+captures and missing invariants. Full-profile frontend/runtime qualification and
+arbitrary infinite-trace finite representability remain separate obligations.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Partial behavioral lowering primitives
+
+`req~compiler-behavioral-partial-lowering~1`
+
+Retain source definedness separately from raw and signed target truth when
+composing partial behavioral formulas. Boolean operands and both conditional
+branches remain strict. Temporal domains follow the original source formula:
+next checks the next active state, future operators check the entire remaining
+parent lifetime, and inactive birth/death anchors impose no operand obligation.
+Quantifiers require every admitted member's body to be defined; captures freeze
+the same collection for truth and definedness. Keep raw counting barriers.
+Classical assertion failure negates the complete attached property, including
+definedness. Prove these composition laws and retain distinguishing counterexamples.
+Concrete partial observations, full-profile representation and composed compiler
+soundness/completeness remain required by the [complete encoding contract](behavioral.md#independent-trace-assurance).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Full behavioral preservation
+
+`req~compiler-full-behavioral-correctness~1`
+
+Compile the complete selected behavioral expression and structural profile at the
+elaborated in-memory boundary. Prove preservation of original partial values,
+raw truth and both source signs through the actual recursive lowering, including
+frozen captures, whole-tuple counting and repeated aggregate occurrences.
+Derive source structural validity and model/query satisfaction from successful
+compilation and satisfaction of its actual target module. Prove the reverse for
+represented source lassos under concrete data-only identity, declaration scope,
+integer observation, count and step bounds. Keep the primitive source integer
+carrier mathematical and infinite. Connect successful source elaboration to
+these results, retaining parser, native execution, serialization and solver
+boundaries explicitly. No assumed expression agreement, target truth in `Fits`,
+per-state identity renaming or bounded solver result replaces a proof.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral property commands
+
+`req~compiler-behavioral-property-commands~1`
+
+Compile a run request as model-plus-scenario satisfaction and a check request as
+classical failure of the complete asserted property. Assertions are separate
+from model facts. Undefined asserted properties are counterexamples; source
+negation retains the original strict domain and signed lifetime meaning.
+Preserve implicit-always attachment and explicit lifetime anchors. Prove these
+command meanings for the actual compiled module and retain distinguishing native
+counterexamples, including undefined assertions and additional scenarios.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Serialized temporal traces
+
+`req~compiler-temporal-decode~1`
+
+Strictly decode the complete Analyzer frame/loop schema for `behavioral-core/1`.
+Validate table metadata, closed fields, unique tuples and the global inventory;
+reject unknown atoms, truncated states, invalid loops and changing static types
+or parents. Preserve root, immutable identities and parent data, each mutable
+live set and every reference-head occurrence under one global bijection. Keep
+target sets separate from their occurrence heads. Primitive integer observations
+are unsupported in this profile and must not be silently erased. Decoding tests
+do not extend the in-memory representation proofs to JSON or native execution.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Exact temporal comparison and replay
+
+`req~compiler-temporal-comparison~1`
+
+Evaluate the same finite candidate with the pinned upstream verified evaluator,
+the native compiler's Alloy and the pinned historical Haskell Alloy in the
+documented common domain. Establish executable source-lowering correspondence
+before using that evaluator. Fix every observed table, every stored state and the
+loop under one global renaming. Accept neither per-state renaming nor stuttering
+or different lasso presentations as equivalent. Retain satisfied and violated
+candidates, both discrepancy directions, seeds, source/IR/Alloy and tool identities,
+effective options and original scopes. Verify those artifacts before fresh replay.
+Provide discrepancy-preserving live/reference-row minimization at the original
+identity/step bounds, explicitly distinguishing deletion minimality from a global
+minimum. Retain every attempt and report inconclusive minimization if any required
+query fails. Malformed, unsupported, error, resource limit and timeout results
+must not count as bounded UNSAT. Haskell expectations identify the exact profile
+and revision; historical discrepancies do not qualify a newer generator. Paired
+source/IR formula agreement is a reviewed fixture premise until full frontend
+qualification. The [comparison contract](temporal-comparison.md) records this
+boundary and the distinguishing lifetime/identity/loop tests.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Resolved behavioral command
+
+`req~compiler-behavioral-cli~1`
+
+Expose `compile-behavioral-ir` with explicit versioned `behavioral-core/1` IR,
+identity/declaration scopes, step bounds and bitwidth. Strictly admit original
+declaration IDs, lexical indices, constructor arities and attachment metadata.
+Produce deterministic checked Alloy or the documented JSON compilation envelope,
+reuse stable diagnostics and preserve existing output on failure. Compilation
+runs with only the native executable and its library closure; it requires neither
+Haskell nor Alloy and never invokes a solver. Keep the static command/profile
+contracts unchanged. Compilation success says nothing about satisfiability;
+bounded UNSAT is a separate external result. Document all input/output schemas,
+first-slice exclusions and diagnostic codes in the
+[resolved runtime contract](temporal-comparison.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral source integration
+
+`req~compiler-behavioral-integration~1`
+
+Expose the complete `behavioral-0.5.7-candidate/v1` source frontend and encoder
+through a separate native command, with closed versioned bounds for nonprimitive
+identity pools, declaration scopes, steps and observed integer values. Preserve
+authored source locations, deterministic output and source maps. Select model
+compilation, universal assertion counterexamples and additional existential
+scenarios explicitly; preserve scenario ownership and source attribution.
+Reuse checked in-memory requests and temporal serialization. Compilation needs
+only the native runtime, invokes no solver and preserves output on failure.
+Keep static and first-slice commands and schemas unchanged. Parser, JSON,
+serialization and native execution remain tested boundaries beside the existing
+full frontend preservation theorems. The [source workflow](behavioral-source.md)
+records the concrete API, bounds, reuse and qualification limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral source qualification
+
+`req~compiler-behavioral-qualification~1`
+
+Retain full-profile source/IR pairing, exact lasso comparisons with one global
+identity map and separate finite integer observations, positive and deliberate
+negative feature/interaction witnesses, replayable source/tool identities and
+explicit compilation/checking measurements. Distinguish executable reference
+checks from kernel-checked correspondence and from revision-specific Haskell
+comparisons. Unsupported requests and timeouts are inconclusive, never passes.
+Independent review and source-matched full regression evidence remain required
+for candidate acceptance; bounded agreement does not establish universal proof.
+
+Covers: `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral main integration
+
+`req~compiler-behavioral-main-integration~1`
+
+Pin the accepted immutable semantics-main commit and deliberately regenerate the
+dependency manifest. Review the delta from the qualified behavioral and static
+baselines, preserving source meanings, tool identities and historical evidence.
+Reconcile compiler main and retain full source-matched static and behavioral
+IntentBond, kernel, native and Haskell/Alloy qualification. The final integration
+PR requires all three existing validation jobs; ordinary main PRs retain routine
+checks. Keep current documentation and the complete feature/assurance inventory.
+Independent review and concrete authorization precede main merge. Record actual
+merged commits and matching evidence before closing the gate; tags and binary
+publication require separate selection. See [main integration](qualification.md#main-integration).
+
+Covers: `intent~compiler-foundation~1`
 
 Needs: impl, utest
 
@@ -138,7 +562,13 @@ module origins, including private/generated declarations. Reject project axioms,
 `propext`, `Classical.choice` and `Quot.sound`. Check the executable import closure
 excludes upstream semantics and proof-only modules. Document native IO/tooling
 trust. Fail on absent tools, failed gates, empty/skipped regressions and unknown
-module ownership. Retain source-bound IntentBond evidence before handoff.
+module ownership. Retain source-bound IntentBond evidence before handoff. Cached compiled artifacts
+may be reused only through Lake's source/options/import validation, with local
+restoration for fresh axiom inspection and kernel replay. Separate comparison-tool
+caches must still pass their pinned source/recipe/binary identity checks. Never
+reuse a previous proof/test result as current evidence. Report validation timings
+and bound concurrent regressions without dropping cases or relaxing per-command
+time limits. Amendments to the overall check deadline require explicit scope review.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -172,6 +602,69 @@ minimized evidence, independent expected semantics and an issue before semantic
 changes. Haskell is supplementary evidence. This base oracle establishes neither
 compiler correctness nor a new proof; the [three-way comparison](comparison.md)
 adds downstream compiler Alloy to the comparison.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Reproducible temporal comparison oracles
+
+`req~compiler-temporal-oracles~1`
+
+Select `behavioral-0.5.7-candidate/v1` explicitly for the pinned Haskell 0.5.7
+candidate and Alloy 6.2.0. Build and execute the unchanged Haskell library;
+retain paired source/JSON/Alloy/options, source-tree and exporter build hashes,
+actual Java identity, JAR identity and every effective solver option. Reuse
+existing provisioning without changing static oracle pins or temporal rejection.
+
+Run the registered positive/negative corpus for stable and replaced machines,
+both source signs under parent cancellation, persistent parents, identity scope
+one versus two, fixed parents across lifetimes and inherited final references.
+Pair assertion checks with satisfiable model runs at identical identity, integer
+and step budgets. Retain complete lasso frames, one shared atom inventory and the
+loop index; distinguish identity capacity, per-state population and trace length.
+Keep SAT, bounded UNSAT, malformed/unsupported input, tool/resource failure and
+timeout separate. Missing GMP/exporter prerequisites fail explicitly; no skipped
+Haskell gates. Inventory fixture hashes/licenses before execution and preserve
+hand-checked witnesses and known comparison gaps separately from source truth.
+
+Replay verifies retained artifacts and reruns the same compiler and bounded query.
+Exact source-candidate decoding/replay and semantic preservation remain C9's
+obligations. These bounded tool tests establish no new kernel theorem or blanket
+Haskell equivalence. Adoption of final 0.5.7 release bytes requires an immutable
+delta review, repeated corpus execution and explicit acceptance; preserve the
+candidate and static receipts.
+
+Qualify later PR113 bytes under the separate `behavioral-pr113-9a0f16e/v1`
+candidate profile. Retain the complete delta inventory, same-generation forward
+UID/Alloy mapping and renamed backend IR; reject incomplete, ambiguous or
+inconsistent mappings and mixed scalar/array modifier schemas. Exercise both
+modifier orders on direct and inherited references, swaps, target-image changes,
+head replacement, set-versus-bag multiplicity and corrected pattern witnesses.
+Keep the old revision's discrepancies executable. Freshly generate and recompile
+every registered temporal explicit model, including imported source closures,
+and retain both scope files, effective options and trace length. Pair original
+and explicit bounded runs/assertions using the original model's scopes and
+identical solver budgets. Printer fixed points and bounded outcome agreement
+are weaker than exact-lasso equivalence; they do not discharge C9 or the Lean
+explicit-form preservation task. This qualification does not adopt a new primary
+compiler pin; independent delta review remains required.
+
+Qualify `c7a2fb7` separately as `behavioral-pr113-c7a2fb7/v1`, retaining both
+historical profiles. Derive union field endpoints from captured resolved target
+expressions and the forward UID map; check ownership, arity, hierarchy and actual
+Analyzer type products. Admit only the selected direct, containment-navigation
+and union forms, preserving the structural importer's expression-target rejection.
+Include the static navigation fixture with explicit backend and integer handling.
+Keep exact original/explicit bytes, fixed points, original scopes and matched
+bounded queries. Record actual warning callbacks, including an old unused-root
+binder positive control; warnings are neither counterexamples nor tool failures.
+Check root cardinalities, constraints and assertions retain `always` and bind
+`this` to the singleton permanent root; nested instances retain their live guards.
+Retain source-map spans and identifier boundaries. Distinguish recurrence from
+`initially` with positive/negative traces and a removed-`always` mutant. Document
+unsupported captures and parse failures without changing independent semantics.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -229,6 +722,49 @@ official reference. Kernel-check constructor laws and independent truth tables,
 and compare representative equivalent formulas through the pinned real Analyzer.
 Keep formal target properties distinct from tested Analyzer correspondence and
 serialization/source preservation proofs. See the [target contract](alloy-core.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Independent Alloy temporal target
+
+`req~compiler-alloy-temporal-target~1`
+
+Provide a separate checked Alloy 6 temporal target for the selected behavioral
+profile. Define finite shared identity inventories, static and mutable declarations,
+current `univ`/`iden`, captured environments, relational prime and ordinary
+future/past truth independently of source truth and compilation. Facts begin at
+time zero; invariants require explicit `always`. Include next, strong/weak until,
+release and justified past-time birth guards. Type disjointness and identity scopes
+apply across the whole trace. Define nonempty lassos, valid loop indices, explicit
+step bounds including the closing edge, and representable signed integers.
+Preserve initial history when unfolding repeated frames. Reject malformed syntax,
+unsafe bounds and malformed lasso shape distinctly from candidate violation.
+Document the admitted target subset and future encoder responsibilities without
+reducing the behavioral source completion matrix. Kernel-check operator/lasso laws
+and retain actual pinned Analyzer positive/negative witnesses and their bounds.
+The [temporal target contract](alloy-temporal.md) states exact APIs and limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Checked temporal Alloy text
+
+`req~compiler-alloy-temporal-text~1`
+
+Serialize admitted temporal targets deterministically with explicit mutability,
+operator grouping, step/identity/integer scopes and hygienic names/source maps.
+Keep source labels out of executable text. Reuse the static identity namespace
+and map guarantees without changing static output. Validate complete reconstruction
+of emitted temporal text through an independent grammar before returning success;
+retain typed metadata/correspondence errors and the conditional successful-render
+proof boundary. Test actual Alloy parsing and bounded solving, distinguishing
+native/parser/solver evidence from kernel proofs or source preservation.
+See [temporal serialization](alloy-temporal.md#serialization-and-source-maps).
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -909,8 +1445,9 @@ Covers:
 ## Reserved implementation requirements
 
 `compiler-qualification` and `compiler-performance` are active requirements above.
-There are no remaining reserved implementation IDs in the selected roadmap. New
-scope needs its own reviewed requirements and manual intake; this does not imply acceptance
+The behavioral profile/trace planning IDs are active contract requirements above;
+behavioral implementation requirements above retain their component boundaries.
+New scope needs its own reviewed requirements and manual intake; this does not imply acceptance
 of the qualification candidate.
 
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) owns scheduling.

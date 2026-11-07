@@ -32,6 +32,52 @@ review conversations.
 Force pushes and branch deletion are blocked. Passing CI does not grant semantic
 acceptance; changes to proof contracts require independent review.
 
+### Ticket readiness
+
+Use **Todo → Ready → In Progress → Done**. Todo covers queued work with unmet
+prerequisites or unresolved scope. Ready is limited to actionable tickets whose
+hard dependencies are completed and accepted, including dependencies in the other
+repository. Roadmap containers stay out of Ready. Ready makes a task available
+for selection; manual intake is still required. Mark In Progress when selected
+work actually starts, and Done only after acceptance and required review.
+
+```sh
+python3 scripts/tickets.py track NUMBER --status ready
+python3 scripts/tickets.py track NUMBER --status in-progress
+```
+
+After accepted closure, reopening, dependency edits or scope changes, manually
+reconcile affected unstarted tickets in both repositories' Projects. Promote
+eligible Todo tickets to Ready; return newly blocked Ready tickets to Todo.
+Closed as not planned is not accepted completion. Native blocked-by links record
+hard dependencies; parent/sub-issue membership groups scope. Coordinate changes
+to active work with its owner. The helper sets the requested status; it neither
+checks dependencies nor installs automatic readiness synchronization.
+
+### Behavioral integration
+
+Behavioral feature branches use `codex/behavioral-...` and PRs target `behavioral`.
+The [behavioral contract](docs/behavioral.md) owns the full feature and assurance
+matrix, explicit static-profile separation and final two-repository gates.
+Keep `Closes #N` in feature PRs, then explicitly close the issue and mark Done
+after the accepted merge: GitHub may not auto-close issues on a non-default base.
+Keep the accepted commit, actual APIs/theorems/assumptions, fixtures and matching
+evidence with the handoff. Update readiness after acceptance; publication and
+passing automation alone do not complete an issue.
+
+Pin accepted upstream semantics by immutable SHA, never a moving `behavioral`
+branch or unaccepted PR head. S7 semantic qualification precedes C10 compiler
+qualification; upstream S8 main integration requires both. Downstream C11 then
+repins the actual merged upstream-main SHA and repeats full qualification before
+its own reviewed main merge. Main merges and releases require concrete authorization.
+
+Behavioral integration requires the same check/review controls: up-to-date required
+`Lean proofs and native CLI`, PR review, resolved conversations, administrator
+enforcement, and no force pushes or deletion. Review minimums may retain the
+single-maintainer zero-minimum policy without waiving independent semantic review.
+Inspect hosted protection/rulesets separately and retain readback outside source;
+report missing controls rather than treating a workflow file as proof of protection.
+
 ## Reuse before implementation
 
 Check existing repository code, pinned upstream sources, standard libraries and
@@ -45,7 +91,7 @@ machinery from scratch. Keep unresolved choices explicit; see the
 
 ## Setup and validation
 
-Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time and Bubblewrap
+Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time, coreutils `timeout` and Bubblewrap
 with working user namespaces are required for validation. The native runtime
 check currently targets Linux/glibc; ordinary compilation needs only the
 [documented native runtime](docs/cli.md#native-runtime).
@@ -55,6 +101,18 @@ check currently targets Linux/glibc; ordinary compilation needs only the
 bash scripts/prepare_dependencies.sh
 python3 scripts/oracles/oracle.py prepare /tmp/clafer-oracle-tools-UNIQUE
 export CLAFER_ORACLE_TOOLS=/tmp/clafer-oracle-tools-UNIQUE/tools.json
+python3 scripts/oracles/temporal.py prepare \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-temporal-build-UNIQUE /tmp/clafer-temporal-tools-UNIQUE
+export CLAFER_TEMPORAL_TOOLS=/tmp/clafer-temporal-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py prepare \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-build-UNIQUE /tmp/clafer-pr113-tools-UNIQUE
+export CLAFER_PR113_TOOLS=/tmp/clafer-pr113-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-c7-build-UNIQUE /tmp/clafer-pr113-c7-tools-UNIQUE
+export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
 ```
 
 This fetches source and an optional Mathlib cache, builds the upstream dependency,
@@ -93,29 +151,57 @@ The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
 CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another, alongside the remaining tests. It rejects
+share another. The PR113 corpus runs before the other groups so its bounded
+solver queries do not compete with Lean compilation. It runs at most two
+independent cases concurrently, capped by available CPUs. After that phase,
+the remaining groups share a bounded executor. The runner rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared
 dependency packages, export `CLAFER_COMPILER_PACKAGES="$PWD/.lake/packages"` before
 `ib check`. The snapshot copies them and verifies their clean, pinned Git identities;
-project outputs are rebuilt. No private paths or credentials belong in source.
+project outputs are rebuilt unless Lake's native artifact cache is explicitly
+selected with `LAKE_ARTIFACT_CACHE=true` and an external `LAKE_CACHE_DIR`.
+Lake checks source/options/import traces and restores artifacts locally for the
+mandatory axiom audit and kernel replay. No proof/test result is reused.
+No private paths or credentials belong in source.
 
 The scope selects all files and review paths. Its reviewed execution deadline is
-600 seconds; coverage floors, check command and all gates are unchanged.
+1200 seconds; this is a failure ceiling, not a runtime target. Coverage floors,
+check command and all gates are unchanged.
 Dependency preparation is outside that deadline; CI allows 45 minutes for
 provisioning and validation.
 
-Pull requests and pushes to `main` run the Lean build, axiom audit, kernel replay,
+PRs outside `behavioral` and pushes to `main` run the Lean build, axiom audit, kernel replay,
 native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
-check before handoff. GitHub Actions → CI → Run workflow runs the full suite,
-including Haskell/Alloy comparisons and all regressions. A passing routine CI run
-is not full qualification evidence.
+check before handoff. Every PR targeting `behavioral` runs all compiler regressions,
+including Haskell/Alloy comparisons, and fresh proof checks. The full behavioral
+source suite runs in its own required job to keep its two solver workers from
+competing with the temporal target suite and other regressions. Standalone historical
+and PR113 reference corpora run in a separate job when their inputs or unclassified
+paths change. Missing comparison baselines require that job. Compiler-only results
+identify the reference and behavioral source suites as executed separately.
+The final `behavioral` → `main` PR requires all three jobs on every update,
+including while draft; ordinary main PRs retain the routine checks.
+Marking a behavioral PR ready for review, pushing to `behavioral`, scheduled runs,
+and GitHub Actions → CI → Run workflow run the full suite. GitHub activates the
+daily schedule on the default branch; it checks `main`. Before final integration,
+dispatch full runs against `behavioral` manually. The existing required check
+waits for every selected job. See [profile selection](docs/build.md#ci-profiles)
+for the exact boundary. Routine or compiler-only CI is not full qualification evidence.
 
-CI caches pinned dependencies and external tools, verifies their identities and
-builds project outputs afresh. Full IntentBond runs use an isolated source snapshot.
+CI separately caches pinned dependency packages, native Lake artifacts, Mathlib
+downloads, verified static/temporal exporters, Alloy and OFT. A semantics repin does
+not invalidate unchanged Haskell tools. Exporter recipes and binary/source receipts
+are verified on reuse; cold exporters share the pinned Stack/GHC package store.
+Full IntentBond runs use an isolated source snapshot and run every validation gate.
+The axiom audit, regression suite and kernel replay run in sequence to avoid CPU
+and memory contention. After the exclusive PR113 phase, regression groups default
+to two workers; CI selects three. Set `CLAFER_TEST_JOBS=1..4`
+to select a limit, still bounded by CPU availability.
+CI summaries and retained logs report gate and regression-group durations.
 Preparation builds all imported upstream modules, including telematics examples.
-The workflow permits only the exact reviewed `120` → `600` deadline migration;
+The workflow permits only the exact reviewed `120` → `600` and `600` → `1200` deadline migrations;
 it retains the original comparison baseline and records both policy hashes.
 Every other scope amendment needs explicit review before selection as trusted policy.
 When checking across this migration locally, supply the reviewed scope explicitly

@@ -51,13 +51,13 @@ theorem interval_eval_iff (w : Nat) (b : IR.Structural.Bounds) (r : Rel)
       simp [hz, hc, ht, hLiteral, hCount, bounded_comparison, IntervalFits,
         DPGraph.Predicates.CountInRange, bounds] <;> tauto
 
-theorem represented_parents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+theorem represented_parents_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Parents (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Parents (interpret v.core) := by
   classical
   intro d c hc x hx
-  have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+  have hf := h.facts _
     (List.mem_map.mpr ⟨_, ownership_generated v d c hc, rfl⟩)
   have hu := (Formula.eval_all_true (.mult _ _) w i [] (head v d)).mp hf
     [(r.objects x).val] (by simpa [head] using (r.heads d x).mp hx)
@@ -68,13 +68,13 @@ theorem represented_parents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (represented_parent_fiber v s i r d c hc x)).mp (beq_iff_eq.mp (Option.some.inj hu))
 
 -- [proof->req~compiler-structural-correctness~1]
-theorem represented_multiplicities {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+theorem represented_multiplicities_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Multiplicities (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Multiplicities (interpret v.core) := by
   classical
   intro d c hc p hp
-  have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+  have hf := h.facts _
     (List.mem_map.mpr ⟨_, local_bounds_generated v d c hc, rfl⟩)
   have hu := (Formula.eval_all_true (interval_term _ _) w i [] (head v c)).mp hf
     [(r.objects p).val] (by simpa [head] using (r.heads c p).mp hp)
@@ -104,13 +104,13 @@ theorem represented_children {U : Type} (v : IR.Structural.Layout n)
     exact ⟨_, ⟨c, (child_inventory v.core d c).mpr hc, rfl⟩,
       (represented_contains_fiber v s i r c d hc p _ 0 rfl _).mpr ⟨x, hx, rfl⟩⟩
 
-theorem represented_groups {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+theorem represented_groups_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Groups (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Groups (interpret v.core) := by
   classical
   intro d hd p hp
-  have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+  have hf := h.facts _
     (List.mem_map.mpr ⟨_, group_generated v d hd, rfl⟩)
   have hu := (Formula.eval_all_true (interval_term _ _) w i [] (head v d)).mp hf
     [(r.objects p).val] (by simpa [head] using (r.heads d p).mp hp)
@@ -118,5 +118,23 @@ theorem represented_groups {U : Type} [Fintype U] (v : IR.Structural.Layout n)
   rw [unary_card (s.Child (interpret v.core) d p) (fun x => (r.objects x).val)
     (Subtype.val_injective.comp r.objects.injective) _ (represented_children v s i r d p)] at hn
   exact (DPGraph.Predicates.inRange_card _ _).mpr hn
+
+theorem represented_parents {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Parents (interpret v.core) :=
+  represented_parents_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
+
+theorem represented_multiplicities {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Multiplicities (interpret v.core) :=
+  represented_multiplicities_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
+
+theorem represented_groups {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Groups (interpret v.core) :=
+  represented_groups_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
 
 end ClaferCompiler.Correctness.Structural

@@ -109,14 +109,14 @@ def realizationRanksStable (rows : Array (Declaration Nat)) : Array Nat :=
   exact (repeatStable_eq _ _ _).symm
 
 -- [impl->req~compiler-defaults~1]
-def prepare (doc : Document) : Except Diagnostic
+def prepareWith (behavioral : Bool) (doc : Document) : Except Diagnostic
     (Raw × Array (Option Path) × Array Group × Array Nat) := do
   let paths ← inventory doc
   for i in [:paths.size] do
     let h := header doc paths[i]!
     if reserved h.name.text then
       throw (errorAt h.name "resolve.reserved-name" "reserved names cannot declare user types" .unsupported)
-    if h.abstractToken.isSome && paths[i]!.length != 1 then
+    if !behavioral && h.abstractToken.isSome && paths[i]!.length != 1 then
       throw (errorAt h.name "resolve.nested-abstract" "explicit nested abstract types are unsupported" .unsupported)
     for j in [:i] do
       if paths[j]!.dropLast == paths[i]!.dropLast && (header doc paths[j]!).name.text == h.name.text then
@@ -137,7 +137,10 @@ def prepare (doc : Document) : Except Diagnostic
         | some p => pure (some p)
         | none => throw (errorAt h.name "resolve.parent" "missing containment parent")
     let super ← (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)).mapM
-      (fun name => lookupName doc paths path.dropLast true name integerId)
+      (fun name => do
+        if behavioral && integerName name.text then
+          throw (errorAt name "resolve.primitive-super" "a primitive cannot be a superclass" .unsupported)
+        lookupName doc paths path.dropLast (!behavioral) name integerId)
     let reference ← match h.reference with
       | none => pure Reference.basic
       | some (arrow, name) => do
@@ -160,10 +163,10 @@ def prepare (doc : Document) : Except Diagnostic
       if superRanks[s]?.getD 0 >= superRanks[d.id]?.getD 0 then
         throw (errorAt (header doc (paths[d.id - 1]?.getD [])).name
           "resolve.inheritance-cycle" "inheritance cycle")
-      if d.reference != .basic then
+      if !behavioral && d.reference != .basic then
         throw (errorAt (header doc (paths[d.id - 1]?.getD [])).name
           "resolve.reference-inheritance" "reference inheritance is unsupported" .unsupported)
-    if d.isAbstract && d.reference != .basic then
+    if !behavioral && d.isAbstract && d.reference != .basic then
       throw (errorAt (header doc (paths[d.id - 1]?.getD [])).name
         "resolve.abstract-reference" "parentless abstract references are unsupported" .unsupported)
   let groups := Nat.repeat (fun old => rows.map (fun d =>
@@ -181,11 +184,15 @@ def prepare (doc : Document) : Except Diagnostic
   let realized := realizationRanks rows
   for d in rows do
     if let some s := d.super then
-      if realized[d.id]?.getD 0 >= realized[s]?.getD 0 then
+      if !behavioral && realized[d.id]?.getD 0 >= realized[s]?.getD 0 then
         throw (errorAt (header doc (paths[d.id - 1]?.getD [])).name
           "resolve.realization-cycle" "recursive inherited realization is unsupported" .unsupported)
   let sourcePaths := #[none] ++ paths.map some ++ (if hasInteger then #[none] else #[])
   return (⟨rows, 0, parentRanks, superRanks, Array.replicate rows.size false⟩, sourcePaths, groups, realized)
+
+/-- The static entry point retains the selected realization restrictions. -/
+def prepare (doc : Document) : Except Diagnostic
+    (Raw × Array (Option Path) × Array Group × Array Nat) := prepareWith false doc
 
 /-- Reuse the accepted ID-to-Fin resolver without imposing M1's feature guard. -/
 def bindCandidate (r : Raw) (paths : Array (Option Path)) (groups : Array Group)

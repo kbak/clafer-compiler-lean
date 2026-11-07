@@ -1,0 +1,379 @@
+name: Validation
+on:
+  workflow_call:
+    inputs:
+      profile:
+        type: string
+        required: true
+      candidate:
+        type: string
+        required: true
+      baseline:
+        type: string
+        required: true
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  build:
+    name: Validate ${{ inputs.profile }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: '2'
+      PYTHONDONTWRITEBYTECODE: '1'
+      LAKE_ARTIFACT_CACHE: 'true'
+      CLAFER_TEST_JOBS: '3'
+      LAKE_RESTORE_ARTIFACTS: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.candidate }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/intentbond.txt
+      - if: inputs.profile != 'routine'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Cache pinned OFT download
+        if: inputs.profile != 'routine'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/oft
+          key: oft-v1-${{ hashFiles('requirements/intentbond.txt') }}
+      - name: Install pinned IntentBond and verified OFT
+        if: inputs.profile != 'routine'
+        run: |
+          python -m pip install -r requirements/intentbond.txt
+          ib install-oft --destination "$RUNNER_TEMP/oft"
+          echo "INTENTBOND_OFT_JAR=$RUNNER_TEMP/oft/openfasttrace-4.9.0.jar" >> "$GITHUB_ENV"
+      - uses: leanprover/lean-action@fe408643ea7367d8c0404a8be3975bb145f5fb64 # v1
+        with:
+          auto-config: 'false'
+          build: 'false'
+          test: 'false'
+          lint: 'false'
+          use-mathlib-cache: 'false'
+          use-github-cache: 'false'
+      - name: Select external caches
+        run: |
+          echo "LAKE_CACHE_DIR=$RUNNER_TEMP/lean-cache" >> "$GITHUB_ENV"
+          echo "MATHLIB_CACHE_DIR=$RUNNER_TEMP/mathlib-cache" >> "$GITHUB_ENV"
+          echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
+          echo "CLAFER_TEMPORAL_CACHE=$RUNNER_TEMP/clafer-temporal" >> "$GITHUB_ENV"
+          echo "CLAFER_PR113_CACHE=$RUNNER_TEMP/clafer-pr113" >> "$GITHUB_ENV"
+          echo "CLAFER_PR113_C7_CACHE=$RUNNER_TEMP/clafer-pr113-c7" >> "$GITHUB_ENV"
+          echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
+      # Lake validates source/options/import traces; proof and test results are never cached.
+      - name: Cache Lean build artifacts
+        id: lean-artifacts
+        if: inputs.profile != 'reference'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/lean-cache
+          key: compiler-lean-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: |
+            compiler-lean-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-
+            compiler-lean-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-
+      - name: Cache Mathlib downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/mathlib-cache
+          key: compiler-mathlib-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            compiler-mathlib-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-
+      - name: Restore pinned dependency builds
+        id: dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lake/packages
+          key: compiler-packages-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'scripts/prepare_dependencies.sh') }}
+          restore-keys: |
+            compiler-packages-v3-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+      - name: Migrate the previous combined cache
+        if: steps.dependencies.outputs.cache-matched-key == '' && hashFiles('lake-manifest.json') == '853addd8492e8d9bbafb175ed482763345fe94bcdf92f36e7717472a3cb7e6e2'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            .lake/packages
+            ${{ runner.temp }}/clafer-capture
+            ${{ runner.temp }}/clafer-alloy
+            ${{ runner.temp }}/clafer-temporal
+          # One-time migration from the verified pre-split layout at this pin.
+          key: compiler-dependencies-v2-${{ runner.os }}-${{ runner.arch }}-c133b488702ad57e267c47a7b7a871951abd358462f789190527a3b5fcca6131
+      - name: Prepare pinned dependency sources and build artifacts
+        run: |
+          bash scripts/prepare_dependencies.sh 2>&1 | tee "$RUNNER_TEMP/dependency-setup.log"
+          echo "CLAFER_COMPILER_PACKAGES=$GITHUB_WORKSPACE/.lake/packages" >> "$GITHUB_ENV"
+      - name: Save prepared dependency builds
+        if: steps.dependencies.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lake/packages
+          key: ${{ steps.dependencies.outputs.cache-primary-key }}
+      - name: Restore verified static exporter
+        id: exporter
+        if: inputs.profile != 'routine'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-capture/*/clafer-capture
+            ${{ runner.temp }}/clafer-capture/*/build.json
+            ${{ runner.temp }}/clafer-capture/*/builder.sha256
+          key: compiler-exporter-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/Export.hs', '.lake/packages/clafer/scripts/verification/build.py', '.lake/packages/clafer/scripts/verification/runtime.py', '.lake/packages/clafer/scripts/verification/protocol.py') }}
+      - name: Cache pinned Alloy download
+        if: inputs.profile != 'routine'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/clafer-alloy
+          key: compiler-alloy-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/alloy_runtime.py') }}
+      - name: Restore verified temporal exporter and sources
+        id: temporal
+        if: inputs.profile != 'routine'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-temporal/clafer-temporal-capture
+            ${{ runner.temp }}/clafer-temporal/build.json
+            ${{ runner.temp }}/clafer-temporal/source-files.json
+            ${{ runner.temp }}/clafer-temporal/compiler.tar.gz
+            ${{ runner.temp }}/clafer-temporal/compiler
+            !${{ runner.temp }}/clafer-temporal/compiler/.stack-work
+          key: compiler-temporal-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/temporal-profile.json', 'scripts/oracles/temporal_build.py', 'scripts/oracles/TemporalExport.hs') }}
+      - name: Restore verified PR113 exporter and sources
+        id: pr113
+        if: inputs.profile == 'full' || inputs.profile == 'reference' || inputs.profile == 'source'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-pr113/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/source-files.json
+            ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113/compiler
+            !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
+            ${{ runner.temp }}/clafer-pr113-c7/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
+            ${{ runner.temp }}/clafer-pr113-c7/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113-c7/compiler
+            !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
+          key: compiler-pr113-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/pr113-profile.json', 'scripts/oracles/pr113-c7-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
+      - name: Prepare static comparison tools and runtime isolation
+        if: inputs.profile != 'routine'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgmp-dev bubblewrap apparmor
+          sudo install -Dm755 /usr/bin/bwrap /usr/local/lib/clafer-ci/bwrap
+          sudo install -m644 .github/ci/bwrap.apparmor /etc/apparmor.d/clafer-ci-bwrap
+          sudo apparmor_parser --replace /etc/apparmor.d/clafer-ci-bwrap
+          /usr/local/lib/clafer-ci/bwrap --unshare-user --die-with-parent --ro-bind / / /usr/bin/true
+          echo '/usr/local/lib/clafer-ci' >> "$GITHUB_PATH"
+          python3 scripts/oracles/oracle.py prepare "$RUNNER_TEMP/oracle-tools" 2>&1 | tee "$RUNNER_TEMP/oracle-setup.log"
+          echo "CLAFER_ORACLE_TOOLS=$RUNNER_TEMP/oracle-tools/tools.json" >> "$GITHUB_ENV"
+          echo "CLAFER_ORACLE_EVIDENCE=$RUNNER_TEMP/oracle-evidence" >> "$GITHUB_ENV"
+          # Cold builds share the exact GHC/Stack package store. Both builders
+          # retain and verify their separate, unchanged Haskell source trees.
+          pin=$(python3 -c 'import json; print(json.load(open("scripts/oracles/profile.json"))["haskell_commit"])')
+          echo "STACK_ROOT=$CLAFER_CAPTURE_CACHE/$pin/stack-root" >> "$GITHUB_ENV"
+      - name: Save verified static exporter
+        if: (inputs.profile != 'routine') && steps.exporter.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-capture/*/clafer-capture
+            ${{ runner.temp }}/clafer-capture/*/build.json
+            ${{ runner.temp }}/clafer-capture/*/builder.sha256
+          key: ${{ steps.exporter.outputs.cache-primary-key }}
+      - name: Prepare temporal comparison tools
+        if: inputs.profile != 'routine'
+        run: |
+          python3 scripts/oracles/temporal.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_TEMPORAL_CACHE" "$RUNNER_TEMP/temporal-tools" 2>&1 | tee "$RUNNER_TEMP/temporal-setup.log"
+          echo "CLAFER_TEMPORAL_TOOLS=$RUNNER_TEMP/temporal-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Save verified temporal exporter and sources
+        if: (inputs.profile != 'routine') && steps.temporal.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-temporal/clafer-temporal-capture
+            ${{ runner.temp }}/clafer-temporal/build.json
+            ${{ runner.temp }}/clafer-temporal/source-files.json
+            ${{ runner.temp }}/clafer-temporal/compiler.tar.gz
+            ${{ runner.temp }}/clafer-temporal/compiler
+            !${{ runner.temp }}/clafer-temporal/compiler/.stack-work
+          key: ${{ steps.temporal.outputs.cache-primary-key }}
+      - name: Prepare PR113 comparison tools
+        if: (inputs.profile == 'full' || inputs.profile == 'reference')
+        run: |
+          python3 scripts/oracles/pr113.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_PR113_CACHE" "$RUNNER_TEMP/pr113-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-setup.log"
+          echo "CLAFER_PR113_TOOLS=$RUNNER_TEMP/pr113-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Prepare c7a2fb7 source comparison tools
+        if: inputs.profile == 'full' || inputs.profile == 'reference' || inputs.profile == 'source'
+        run: |
+          python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_PR113_C7_CACHE" "$RUNNER_TEMP/pr113-c7-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-c7-setup.log"
+          echo "CLAFER_PR113_C7_TOOLS=$RUNNER_TEMP/pr113-c7-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Save verified PR113 exporter and sources
+        if: (inputs.profile == 'full' || inputs.profile == 'reference') && steps.pr113.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-pr113/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/source-files.json
+            ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113/compiler
+            !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
+            ${{ runner.temp }}/clafer-pr113-c7/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
+            ${{ runner.temp }}/clafer-pr113-c7/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113-c7/compiler
+            !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
+          key: ${{ steps.pr113.outputs.cache-primary-key }}
+      - name: Check scope against the baseline
+        id: scope
+        env:
+          PR_BASE: ${{ inputs.baseline }}
+        run: |
+          candidate=$(git rev-parse HEAD)
+          baseline=${PR_BASE:-$candidate}
+          if ! git cat-file -e "$baseline^{commit}" 2>/dev/null; then
+            baseline=$candidate
+          fi
+          if git cat-file -e "$baseline:scope.json" 2>/dev/null; then
+            git show "$baseline:scope.json" > "$RUNNER_TEMP/baseline-scope.json"
+            python3 scripts/ci_scope.py --baseline "$RUNNER_TEMP/baseline-scope.json" \
+              --candidate scope.json --output "$RUNNER_TEMP/trusted-scope.json" \
+              --record "$RUNNER_TEMP/scope-selection.json"
+          else
+            git show "$candidate:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
+            # The initial repository has no requirements to trace as a baseline.
+            # Validate the new baseline, while PR review covers the original diff.
+            baseline=$candidate
+            echo 'Initial scope adoption requires explicit review; validating the new baseline.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "Candidate: $candidate; baseline: $baseline" >> "$GITHUB_STEP_SUMMARY"
+          echo "baseline=$baseline" >> "$GITHUB_OUTPUT"
+          echo "candidate=$candidate" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "baseline=$baseline" "candidate=$candidate" > "$RUNNER_TEMP/source-revision.txt"
+      - name: Check Lean proofs and native CLI
+        if: inputs.profile == 'routine'
+        run: |
+          {
+            python3 scripts/check.py
+            bash -n scripts/check.sh
+            bash -n scripts/prepare_dependencies.sh
+            python3 scripts/project_modules.py --dependencies
+            lake build
+            mapfile -t modules < .lake/validation/modules.txt
+            lake build "${modules[@]/#/+}"
+            python3 scripts/project_modules.py --dependencies
+            lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean
+            lake env leanchecker --verbose ClaferCompiler Main tests
+            lake env python3 -m unittest -v tests.test_cli tests.test_source_cli tests.test_ci_scope
+          } 2>&1 | tee "$RUNNER_TEMP/build-and-cli.log"
+          echo 'Lean build, axiom audit, kernel replay and native CLI tests passed. Full IntentBond qualification runs locally or by manual dispatch.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Run selected IntentBond checks
+        if: inputs.profile != 'routine'
+        env:
+          profile: ${{ inputs.profile }}
+          baseline: ${{ steps.scope.outputs.baseline }}
+          candidate: ${{ steps.scope.outputs.candidate }}
+        run: |
+          python3 scripts/ci_profile.py scope --input "$RUNNER_TEMP/trusted-scope.json" \
+            --profile "$profile" --output "$RUNNER_TEMP/active-scope.json" \
+            --record "$RUNNER_TEMP/ci-profile.json"
+          echo "Validation profile: $profile" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$profile" = compiler ]; then
+            echo 'Reference and behavioral source suites run in separate required jobs; this result is compiler evidence, not full qualification.' >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$profile" = source ]; then
+            echo 'Behavioral source suites only; compiler proofs and other runtime checks run in separate required jobs.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          set +e
+          ib check --repo "$GITHUB_WORKSPACE" --scope "$RUNNER_TEMP/active-scope.json" \
+            --base "$baseline" --candidate "$candidate" --out "$RUNNER_TEMP/intentbond-evidence" &
+          check_pid=$!
+          tail --pid="$check_pid" --retry --follow=name --lines=+1 \
+            "$RUNNER_TEMP/intentbond-evidence/tests.log" 2>/dev/null &
+          log_pid=$!
+          wait "$check_pid"
+          result=$?
+          wait "$log_pid"
+          set -e
+          if [ -f "$RUNNER_TEMP/intentbond-evidence/tests.log" ]; then
+            {
+              echo '### Validation timings'
+              echo '```text'
+              sed -n '/^\[check\].*: exit /p' "$RUNNER_TEMP/intentbond-evidence/tests.log"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$result" = 4 ]; then
+            echo 'Automation passed; semantic review remains pending. This check is not approval.' >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$result" != 0 ]; then
+            exit "$result"
+          fi
+      # Lake validates restored source/options/import traces. A failed regression
+      # must not force the next run to rebuild otherwise reusable native objects.
+      - name: Save Lean build artifacts
+        if: always() && inputs.profile != 'reference' && steps.lean-artifacts.outputs.cache-primary-key != '' && steps.lean-artifacts.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/lean-cache
+          key: ${{ steps.lean-artifacts.outputs.cache-primary-key }}
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ci-evidence-${{ inputs.profile }}
+          path: |
+            ${{ runner.temp }}/intentbond-evidence/
+            ${{ runner.temp }}/trusted-scope.json
+            ${{ runner.temp }}/active-scope.json
+            ${{ runner.temp }}/ci-profile.json
+            ${{ runner.temp }}/baseline-scope.json
+            ${{ runner.temp }}/scope-selection.json
+            ${{ runner.temp }}/source-revision.txt
+            ${{ runner.temp }}/build-and-cli.log
+            ${{ runner.temp }}/dependency-setup.log
+            ${{ runner.temp }}/oracle-setup.log
+            ${{ runner.temp }}/oracle-tools/
+            ${{ runner.temp }}/pr113-tools/
+            ${{ runner.temp }}/pr113-setup.log
+            ${{ runner.temp }}/pr113-c7-tools/
+            ${{ runner.temp }}/pr113-c7-setup.log
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/build.log
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
+            ${{ runner.temp }}/clafer-pr113/build.json
+            ${{ runner.temp }}/clafer-pr113/build.log
+            ${{ runner.temp }}/clafer-pr113/source-files.json
+            ${{ runner.temp }}/temporal-tools/
+            ${{ runner.temp }}/temporal-setup.log
+            ${{ runner.temp }}/clafer-temporal/build.json
+            ${{ runner.temp }}/clafer-temporal/build.log
+            ${{ runner.temp }}/clafer-temporal/source-files.json
+            ${{ runner.temp }}/oracle-evidence/
+            !${{ runner.temp }}/oracle-tools/compiler.tar.gz
+            !${{ runner.temp }}/oracle-evidence/**/api-tests
+            !${{ runner.temp }}/oracle-evidence/**/arithmetic-tests
+            !${{ runner.temp }}/oracle-evidence/**/alloy-text-tests
+            !${{ runner.temp }}/oracle-evidence/**/comparison-native
+            !${{ runner.temp }}/oracle-evidence/**/constraints
+            !${{ runner.temp }}/oracle-evidence/**/expression-tests
+            !${{ runner.temp }}/oracle-evidence/**/parser
+            !${{ runner.temp }}/oracle-evidence/**/resolve
+            !${{ runner.temp }}/oracle-evidence/**/stage-probe
+            !${{ runner.temp }}/oracle-evidence/**/*.class
+          retention-days: 30

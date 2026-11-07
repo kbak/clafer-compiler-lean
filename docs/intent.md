@@ -1,6 +1,6 @@
 # Intent and delivery boundaries
 
-## Build a structural compiler
+## Compile structural and behavioral models
 
 `intent~compiler-foundation~1`
 
@@ -10,13 +10,20 @@ Clafer compiler as a compatibility reference. Publish the source under MIT, with
 public issues and pull requests, IntentBond traceability and manual task intake.
 Avoid unnecessary infrastructure by checking reusable implementations before
 writing new ones and recording concrete reasons for custom solutions.
+Provide a separately reviewed behavioral profile while preserving the structural
+compiler and its evidence. Keep the complete behavioral source workflow distinct
+from the narrower resolved-IR first slice.
+Keep compiler feedback independent of unchanged reference-tool qualification,
+while retaining complete qualification before acceptance.
 
 Needs: req
 
 ## Current boundary
 
-The compiler accepts the selected structural source language and guarded M1
-resolved IR, producing checked static Alloy with explicit bounds. The
+The compiler accepts the selected structural and behavioral source languages
+through separate commands. Guarded M1 resolved IR produces checked static Alloy;
+the behavioral source workflow produces temporal Alloy. Both require explicit
+bounds. The
 [source pipeline](pipeline.md) composes parsing, declaration resolution/defaulting,
 typed constraint elaboration, inherited realization and expression encoding.
 Its assurance includes M1 soundness and finite bounded completeness, expression
@@ -34,8 +41,11 @@ qualification candidate needs independent semantic review. The [roadmap](https:/
 and linked issues retain delivery and acceptance history.
 
 New compiler features require explicit selection and accepted dependencies.
-Approval of a roadmap does not start its implementation tickets. Behavioral and
-temporal modeling remain outside the project.
+Approval of a roadmap does not start its implementation tickets. The selected
+[behavioral contract](behavioral.md) defines the explicit temporal profile,
+retaining the structural compiler as its regression baseline. The
+[final integration gate](qualification.md#main-integration) requires an accepted
+immutable upstream-main pin, full qualification and concrete merge authorization.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
@@ -47,6 +57,35 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
+The separate [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
+reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
+they do not implement behavioral compilation or prove source preservation.
+The separate [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate)
+qualifies later Haskell naming, modifiers, patterns and explicit output through
+fresh bounded comparisons while preserving both historical profiles.
+The separate [temporal target](alloy-temporal.md) supplies independent target
+meaning and checked serialization for the behavioral encoder.
+The [first-slice encoding](behavioral-encoding.md) connects admitted behavioral
+IR to that target with a global trace representation, signed formula transport
+and structural snapshot proofs. Its native/Analyzer evidence remains separate
+from kernel proofs and full-profile qualification.
+The [full encoding](behavioral-encoding.md#full-profile-runtime) accepts elaborated
+model/check/run requests with the complete partial-expression surface and rich
+structural core. Its concrete trace representation retains all ordinary identities
+and completes finite integer observations into the mathematical integer carrier.
+The component contract records the recursive preservation, scope premises and
+composed in-memory proof boundary. The [source CLI](behavioral-source.md) composes these APIs with explicit full-profile
+bounds and property commands. Final qualification and independent acceptance
+remain separate gates.
+The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input,
+solver-free native compilation, actual Analyzer trace decoding and exact
+three-way candidate comparison. Replay preserves complete frames and the loop;
+its paired-source and first-slice limits remain explicit.
+
+The [full source workflow](behavioral-source.md) adds runtime-only compilation,
+strict scalar trace decoding and retained exact-observation comparisons. Its
+executable finite source observer is a tested boundary, distinct from the existing
+kernel-checked first-slice checker and full preservation theorems.
 
 ## Delivery and selected language scope
 
@@ -85,6 +124,10 @@ and semantic acceptance require explicit review; see the
 
 - [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
+- [Behavioral source workflow](behavioral-source.md): native model/check/scenario commands, exact scalar observations and qualification boundaries.
+- [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, checked elaboration and range obligations.
+- [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
+- [Behavioral integration](behavioral.md): complete profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
@@ -94,9 +137,13 @@ and semantic acceptance require explicit review; see the
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
+- [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
+- [Behavioral encoding](behavioral-encoding.md): temporal lowering, global identities, snapshot correspondence and bounded evidence.
+- [Temporal comparison and resolved CLI](temporal-comparison.md): strict schemas, exact lassos, verified evaluation, replay and runtime boundaries.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.
+- [Alloy temporal target](alloy-temporal.md): independent trace meaning, bounds, history and checked temporal serialization.
 - [Alloy text](alloy-text.md): naming, source maps, checked serialization and its proof boundary.
 - [Structural encoding](structural-encoding.md): M1 target layout, generation and local proofs.
 - [Inherited realization](inherited-realization.md): original objects/links, context views and structural preservation.

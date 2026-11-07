@@ -8,6 +8,19 @@ namespace ClaferCompiler.Correctness.Structural
 open Backend.Alloy Backend.Alloy.Structural
 open SemanticsBridge.Structural
 
+/-- Only the schema, declarations and generated clause values are needed by
+structural soundness. Solver scopes and command bounds are separate obligations. -/
+structure FactModel (v : IR.Structural.Layout n) (i : Instance) (w : Nat) : Prop where
+  schema : (schema v).wellFormed = true
+  declarations : i.declarations (Backend.Alloy.Structural.schema v) = true
+  facts : ∀ f ∈ (facts v).map Prod.snd, f.eval w i [] = some true
+
+theorem FactModel.ofSatisfies (v : IR.Structural.Layout n) (i : Instance)
+    (scopes : List Scope) (w : Nat) (h : Satisfies (target v scopes w) i) :
+    FactModel v i w :=
+  ⟨((Bool.and_eq_true_iff.mp (Bool.and_eq_true_iff.mp h.1).1).1),
+    h.2.2.2.1, fun f hf => Module.fact_true _ _ h.2.2.2.2.2 f hf⟩
+
 theorem field_typed (s : Schema) (i : Instance)
     (h : i.declarations s = true) (k : Nat) (f : Field)
     (hk : s.fields[k]? = some f) (a b : Nat)
@@ -87,14 +100,14 @@ theorem equal_eval_true (a b : Rel) (w : Nat) (i : Instance) (env : List Nat) :
 
 /-- Explicit generated abstract coverage includes the empty-family case, which
 Alloy's bare abstract-leaf declaration alone does not enforce. -/
-theorem represented_abstract_cover {U : Type} (v : IR.Structural.Layout n)
+theorem represented_abstract_cover_facts {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) (d : Fin n)
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) (d : Fin n)
     (ha : (v.core.get d).isAbstract = true) :
     ∀ x ∈ s.head d, ∃ c, (v.core.get c).super = some d ∧ x ∈ s.head c := by
   intro x hx
-  have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+  have hf := h.facts _
     (List.mem_map.mpr ⟨_, abstract_cover_generated v d ha, rfl⟩)
   have he := (equal_eval_true _ _ _ _ _).mp hf [(r.objects x).val]
   have hm : [(r.objects x).val] ∈ (head v d).eval i [] := by
@@ -128,12 +141,12 @@ theorem root_ancestor_iff (v : IR.Structural.Layout n) (d : Fin n) :
       simp [hr] at he
   · rintro rfl; exact .refl
 
-theorem represented_rooted {U : Type} (v : IR.Structural.Layout n)
+theorem represented_rooted_facts {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Rooted (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Rooted (interpret v.core) := by
   have disj := represented_disjoint v s i r
-    ((Bool.and_eq_true_iff.mp (Bool.and_eq_true_iff.mp h.1).1).1) h.2.2.2.1
+    h.schema h.declarations
   have root : ∀ x, x ∈ s.head v.core.root ↔ x = s.root := by
     intro x
     rw [r.heads v.core.root x, r.root]
@@ -146,7 +159,7 @@ theorem represented_rooted {U : Type} (v : IR.Structural.Layout n)
     · exact hd ((ancestor_root_iff v d).mp ha)
     · exact hd ((root_ancestor_iff v d).mp ha)
   · intro x
-    have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+    have hf := h.facts _
       (List.mem_map.mpr ⟨_, object_cover_generated v, rfl⟩)
     have hx : [(r.objects x).val] ∈ (Rel.sig 0).eval i [] := by
       simpa using (r.objects x).property
@@ -161,20 +174,40 @@ theorem represented_rooted {U : Type} (v : IR.Structural.Layout n)
     · exact Or.inl ((root x).mp (he ▸ hd))
     · exact Or.inr ⟨d, he, hd⟩
 
-theorem represented_abstracts {U : Type} (v : IR.Structural.Layout n)
+theorem represented_abstracts_facts {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Abstracts (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Abstracts (interpret v.core) := by
   intro d hd
-  refine ⟨represented_abstract_cover v s i r scopes w h d hd, ?_⟩
+  refine ⟨represented_abstract_cover_facts v s i r w h d hd, ?_⟩
   intro c e hc he hne x hx
   apply hne
   apply signatureId_injective v
-  exact declaration_siblings (schema v) i h.2.2.2.1 _ _ _ _
+  exact declaration_siblings (schema v) i h.declarations _ _ _ _
     (schema_signature v c) (schema_signature v e)
     (by change (v.core.get c).super = some d at hc
         change (v.core.get e).super = some d at he
         simp [hc, he])
     _ ((r.heads c x).mp hx.1) ((r.heads e x).mp hx.2)
+
+theorem represented_abstract_cover {U : Type} (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) (d : Fin n)
+    (ha : (v.core.get d).isAbstract = true) :
+    ∀ x ∈ s.head d, ∃ c, (v.core.get c).super = some d ∧ x ∈ s.head c :=
+  represented_abstract_cover_facts v s i r w (FactModel.ofSatisfies v i scopes w h) d ha
+
+theorem represented_rooted {U : Type} (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Rooted (interpret v.core) :=
+  represented_rooted_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
+
+theorem represented_abstracts {U : Type} (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Abstracts (interpret v.core) :=
+  represented_abstracts_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
 
 end ClaferCompiler.Correctness.Structural

@@ -6,6 +6,113 @@ Qualification links supported features to evidence, measures reproducible build
 and compilation costs, and prepares candidate bundles for independent semantic
 review. Bundles record their exact source revision, toolchain and review status.
 
+The [static inventory](#feature-and-evidence-inventory) and complete
+[behavioral source inventory](behavioral-source.md#feature-and-evidence-inventory)
+link delivered profiles to implementations, proofs and runtime witnesses.
+The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) retains
+all B01–B32 obligations. Component inventories distinguish first-slice evidence
+from the full frontend/encoder and source workflow. Every candidate still needs
+source-matched full checks and independent review.
+The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
+provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
+Haskell/Alloy queries and retains complete traces; it does not qualify downstream
+behavioral compilation, exact source-candidate replay or any new Lean theorem.
+
+The [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate) adds
+same-generation UID/Alloy correspondence, modifier-array validation, historical
+pattern/reference discrepancies and fresh explicit-model bounded comparisons.
+Its [tests](../tests/test_pr113_oracles.py) retain independent distinguishing
+witnesses and replay evidence. It establishes no exact-lasso equivalence or new
+Lean theorem; primary-pin adoption remains subject to independent review.
+
+The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
+the delivered `behavioral-core/1` API, exact interpretation theorems and
+[fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
+source command, target encoding or full-profile qualification claim.
+
+The [behavioral frontend inventory](behavioral-frontend.md) separately records
+authored parsing, declaration/modifier/header binding, resolved reductions, partial
+normalization, grouped binder plans/counting and source model/check/run requests.
+The accepted expression surface has native integration tests, independent source
+derivations, upstream interpretation/normalization proofs and complete range-check
+obligations under explicit structural budgets. Grammar recognition and native
+execution remain tested boundaries; scope-budget validity belongs to encoding.
+Candidate changes require independent semantic review and source-matched qualification.
+
+The [temporal target](alloy-temporal.md) has separate admission, natural-time
+meaning and checked serialization. Its kernel laws and
+[Analyzer regressions](../tests/test_alloy_temporal.py) cover target constructs;
+the first-slice source-to-target proofs are recorded separately below, and full
+behavioral qualification retains its completion gate. This does not change the
+static feature inventory below.
+
+The [first-slice encoding](behavioral-encoding.md#kernel-boundaries) adds concrete
+trace representation, signed formula transport and actual structural snapshot
+correspondence. Its [35 Analyzer cases](behavioral-encoding.md#fixtures-and-validation)
+exercise compiler-generated modules, counterexamples and native witness replay.
+These are separate from the full-profile qualification gate and the static
+inventory below.
+
+The [full encoding](behavioral-encoding.md#full-profile-proof-components) adds
+`Full.compile`, complete partial-expression lowering, disjoint direct-type
+inventories, inherited structural facts and finite integer observations.
+`Expressions.lowerAt_preserves` and `lower_preserves` follow the actual executable
+pass. `Full.compiled_sound` derives actual decoding and the existing upstream
+model/query satisfaction from target satisfaction; `Full.compiled_complete`
+proves the reverse for the concrete encoder under data-only source fitting
+conditions. `compiled_complete_observed` includes arbitrary source carriers under
+the concrete observation map. `frontend_sound` and `frontend_complete_observed` compose successful in-memory
+source elaboration, while `SourceElaborated` records every authored/header
+derivation. The full fixtures exercise scoped patterns, transition chains,
+lifetime anchors, inherited groups/references and property commands. These
+in-memory kernel results and bounded Analyzer witnesses retain the parser,
+text/native and solver boundaries; they do not establish final behavioral
+qualification or unrestricted infinite-trace representability.
+
+The [resolved temporal runtime](temporal-comparison.md) supplies actual-output
+decoding, verified finite source evaluation and exact three-way trace fixing.
+Its corpus distinguishes cancellation and source negation, replacement under a
+surviving parent, reappearance, frozen captures and loop edges. Decoder mutations,
+injected discrepancies, replay tampering and runtime isolation test the external
+boundaries. This is first-slice evidence with manually paired source/IR formulas;
+it does not qualify the full source frontend or later Haskell profiles.
+
+The [full source workflow](behavioral-source.md) records native commands, strict
+scalar decoding, exact source/IR observations and per-case measurements. The
+[suite](../tests/test_behavioral_source_comparison.py) retains complete lasso
+queries and replay identities, while the static and reference-tool suites remain
+mandatory. Its Python finite observer is tested, not kernel certified.
+
+## Main integration
+
+`impl~compiler-behavioral-main-integration~1`
+
+The [Lake configuration](../lakefile.toml), [manifest](../lake-manifest.json),
+[dependency checks](../scripts/project_modules.py), native version and oracle
+profiles identify the [accepted semantics-main source](sources.md#accepted-semantics-main-dependency).
+The [CI selector](../scripts/ci_profile.py) requires compiler/proof, behavioral
+source and reference qualification for the final `behavioral` → `main` PR,
+including drafts and synchronized updates. Routine main checks remain unchanged.
+Scheduled full qualification uses `main`; solver suites keep separate jobs and
+their existing concurrency and query deadlines.
+
+The [final gate](https://github.com/kbak/clafer-compiler-lean/issues/80) retains
+the frozen compiler baseline, source/API delta, full IntentBond evidence,
+required hosted checks, review disposition and actual merged commit identities.
+The [compiler](https://github.com/kbak/clafer-compiler-lean/issues/69) and
+[semantics](https://github.com/kbak/clafer-semantics/issues/122) roadmap matrices
+must account for every required feature and accepted dependency. Open work outside
+the selected profile does not silently expand or narrow it. Publication of a PR,
+passing automation and IntentBond exit 4 do not constitute merge acceptance.
+
+Reuse the existing check, three CI jobs, profile selector and source/tool receipt
+validation. No new runner, framework or dependency is needed. The full source
+comparison reuses its validated target observation after checking original bounds,
+avoiding a repeated table construction. Independent source observation and target
+truth remain separate; this cleanup changes no proof premise or comparison rule.
+
+Covers: `req~compiler-behavioral-main-integration~1`
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

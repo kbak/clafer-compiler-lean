@@ -5,6 +5,11 @@ meanings and assurance obligations. The
 [structural roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains
 delivery dependencies and acceptance history.
 
+The [behavioral integration contract](behavioral.md) defines the separately
+selected temporal profile and its implementation gates. Exclusions in this
+document remain binding for the existing static APIs and commands; they are not
+omissions from the behavioral completion matrix.
+
 The [source pipeline](pipeline.md) implements the integrated source command;
 the [qualification inventory](qualification.md#feature-and-evidence-inventory)
 links supported features to their contracts and evidence. The theorem shapes
@@ -38,7 +43,8 @@ fixtures, exact declaration names, source-matched evidence and unresolved limits
 | Lake, root module, check/CI and proof audit | [Build](build.md) | Native smoke run, module inventory, kernel/axiom audit, reviewed check scope |
 | External comparison tooling and corpus | [Oracles](oracles.md), [comparison](comparison.md) | Pins, same-generation Haskell receipt, exact-candidate replay and mutation sensitivity |
 | `ClaferCompiler/IR`, `SemanticsBridge` | [Structural IR](ir.md), [expressions](expressions.md) | Validated executable data, upstream interpretation, admission/denotation agreement |
-| `Backend/Alloy` syntax/semantics/printer | [Target core](alloy-core.md), [serialization](alloy-text.md) | Independent finite meaning, scopes, hygiene, syntax correspondence |
+| `Backend/Alloy` syntax/semantics/printer | [Target core](alloy-core.md), [serialization](alloy-text.md), [temporal target](alloy-temporal.md) | Independent finite meaning, scopes, hygiene, syntax correspondence |
+| `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | [Behavioral encoding](behavioral-encoding.md) | Global identity pools, partial signed lowering, finite primitive observations and concrete trace correspondence |
 | `Backend/Alloy` translation and `Correctness` | [Structural encoding](structural-encoding.md), [preservation](structural-correctness.md), [inherited realization](inherited-realization.md), [constraints](expression-encoding.md) | Concrete model relations, soundness and bounded completeness |
 | `Frontend` parser/resolver/elaborator | [Parser](parser.md), [resolution](resolution.md), [constraints](constraints.md) | Source spans, authored provenance, declarative elaboration relation and success proofs |
 | `Driver`, instance decoder and integration | [Decoding](comparison.md), [CLI](cli.md), [source pipeline](pipeline.md), [qualification](qualification.md) | Stable protocol, actual Alloy integration, complete telematics, candidate artifacts/benchmarks |
@@ -449,3 +455,10 @@ independent review. Broader Haskell compatibility requires a reviewed scope chan
 The [comparison contract](comparison.md) records native decoding and exact
 three-way execution. The in-memory preservation proofs remain distinct from
 finite native/serialized comparisons.
+
+The separate [behavioral structural handoff](behavioral-structure.md) supplies
+explicit-profile library APIs for richer declarations, inherited references and
+finite integer observations. It preserves the static entry points; the
+[behavioral frontend](behavioral-frontend.md)
+and [full encoder](behavioral-encoding.md#full-profile-proof-components) compose
+its richer domain under their own proof and runtime boundaries.

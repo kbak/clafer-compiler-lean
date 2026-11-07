@@ -1,51 +1,85 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [[ $# != 0 ]]; then
-  echo 'Usage: bash scripts/check.sh (all checks are mandatory)' >&2
+regression_args=()
+reference_ci=false
+source_ci=false
+if [[ $# == 1 && $1 == --compiler-ci ]]; then
+  regression_args=(--compiler-ci)
+elif [[ $# == 1 && $1 == --reference-ci ]]; then
+  reference_ci=true
+elif [[ $# == 1 && $1 == --source-ci ]]; then
+  source_ci=true
+elif [[ $# != 0 ]]; then
+  echo 'Usage: bash scripts/check.sh [--compiler-ci | --reference-ci | --source-ci]' >&2
   exit 2
 fi
 export PYTHONDONTWRITEBYTECODE=1
-export LAKE_ARTIFACT_CACHE=false
+export LAKE_ARTIFACT_CACHE="${LAKE_ARTIFACT_CACHE:-false}"
 export LAKE_RESTORE_ARTIFACTS=true
 export LEAN_NUM_THREADS="${LEAN_NUM_THREADS:-4}"
 
+# Reuse the pinned semantics check's timing wrapper; a cached build still runs
+# every validation gate against the restored artifacts.
+run_step() {
+  local label=$1 started=$SECONDS status=0
+  shift
+  printf '\n[check] %s: starting\n' "$label"
+  "$@" || status=$?
+  printf '[check] %s: exit %s, %ss\n' "$label" "$status" "$((SECONDS - started))"
+  return "$status"
+}
+
 # [impl->req~compiler-build~1]
-python3 scripts/check.py
+run_step 'Repository checks' python3 scripts/check.py
 bash -n scripts/check.sh
 bash -n scripts/prepare_dependencies.sh
 python3 scripts/project_modules.py
 command -v lake >/dev/null
 
 # An optional external cache supplies dependencies only. The source/manifest
-# checks below still run; no project output or proof result is restored here.
+# checks below still run. Lake may separately reuse traced build artifacts;
+# proof and test results are always recomputed.
 if [[ -n "${CLAFER_COMPILER_PACKAGES:-}" && ! -e .lake/packages ]]; then
   cp -a --reflink=auto "$CLAFER_COMPILER_PACKAGES" .lake/packages
 fi
 
 lake env lean --version
 python3 scripts/project_modules.py --dependencies
-lake build
+if $reference_ci; then
+  run_step 'Reference corpora' python3 scripts/run_tests.py --reference-ci
+  echo 'Reference qualification passed; compiler proof and runtime checks are separate.'
+  exit 0
+fi
+run_step 'Library and native build' lake build
+# Lake caches the executable, but not the response file used by native probes
+# and qualification. Relink from the restored objects to retain current local
+# link inputs, including when an older workspace already has a response file.
+rm -f .lake/build/bin/clafer-compiler
+run_step 'Native link receipt' env LAKE_ARTIFACT_CACHE=false lake build clafer-compiler
+test -s .lake/build/bin/clafer-compiler.rsp
 python3 scripts/project_modules.py --dependencies
+if $source_ci; then
+  run_step 'Behavioral source regressions' lake env python3 scripts/run_tests.py --source-ci
+  echo 'Behavioral source qualification passed; compiler proof and other runtime checks are separate.'
+  exit 0
+fi
 mapfile -t modules < .lake/validation/modules.txt
-lake build "${modules[@]/#/+}"
-lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean &
-audit_pid=$!
-
-# leanchecker loads each project's .olean and replays its kernel declarations.
-# The recursive roots also include helpers not imported by the library root.
-# Audit, replay and isolated regressions only read these completed build outputs.
-# Two bounded replay workers use LeanChecker's existing task scheduler; all
-# modules are still replayed, with at most two import environments loaded at once.
-LEAN_NUM_THREADS=2 lake env leanchecker --verbose ClaferCompiler Main tests &
-kernel_pid=$!
-test_status=0
-lake env python3 scripts/run_tests.py || test_status=$?
-kernel_status=0
-wait "$kernel_pid" || kernel_status=$?
+run_step 'All module build' lake build "${modules[@]/#/+}"
+# Keep the heavy import environments out of the regression CPU/memory budget.
+# Every gate is still awaited and its exit status is mandatory, including after
+# another validation gate fails. leanchecker recursively includes hidden helpers.
 audit_status=0
-wait "$audit_pid" || audit_status=$?
+run_step 'Axiom audit' lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean || audit_status=$?
+test_status=0
+run_step 'Regression groups' lake env python3 scripts/run_tests.py "${regression_args[@]}" || test_status=$?
+kernel_status=0
+run_step 'Kernel replay' env LEAN_NUM_THREADS=2 lake env leanchecker --verbose ClaferCompiler Main tests || kernel_status=$?
 if (( audit_status != 0 )); then exit "$audit_status"; fi
 if (( test_status != 0 )); then exit "$test_status"; fi
 if (( kernel_status != 0 )); then exit "$kernel_status"; fi
-echo 'All build, native, import, kernel, axiom and regression gates passed.'
+if [[ ${#regression_args[@]} == 0 ]]; then
+  echo 'All build, native, import, kernel, axiom and regression gates passed.'
+else
+  echo 'Compiler CI passed; reference and behavioral source suites run in separate required jobs.'
+fi

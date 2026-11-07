@@ -84,9 +84,19 @@ theorem raw_extent_live {U : Type} (v : IR.Structural.Layout n)
   | none => simp [hk] at ha
   | some xs => exact r.live.1 xs (List.mem_of_getElem? hk) a (by simpa [hk] using ha)
 
-theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
+-- [proof->req~compiler-behavioral-correctness~1]
+/-- Signature declarations depend on these head observations and inheritance
+properties; they do not need live containment or reference multiplicities. -/
+theorem signature_declarations_of_observations {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s) :
+    (objects : U ≃ {x : Nat // x ∈ i.signatures[0]?.getD []})
+    (heads : ∀ d x, x ∈ s.head d ↔ (objects x).val ∈ i.signatures[signatureId v d]?.getD [])
+    (extentLive : ∀ (k a : Nat), a ∈ i.signatures[k]?.getD [] → a ∈ i.signatures[0]?.getD [])
+    (coverage : ∀ x, ∃ d, x ∈ s.head d)
+    (ih : s.Inherits (interpret v.core))
+    (abstracts : ∀ d, (v.core.get d).isAbstract = true →
+      ∀ x, x ∈ s.head d → ∃ e, (v.core.get e).super = some d ∧ x ∈ s.head e)
+    (dh : s.DeclarationDisjoint (interpret v.core)) :
     ((schema v).signatures.zipIdx.all fun (decl, id) => Id.run do
       let extent := i.signatures[id]?.getD []
       let children := ((schema v).signatures.zipIdx.filter fun (child, _) => child.parent == some id).map Prod.snd
@@ -101,8 +111,6 @@ theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
   rintro ⟨decl, k⟩ hk
   have hk := List.mk_mem_zipIdx_iff_getElem?.mp hk
   have sigmem (d : Fin n) := List.mk_mem_zipIdx_iff_getElem?.mpr (schema_signature v d)
-  have ih := h.2.2.1
-  have dh := h.2.2.2.2.2.2.2.2.2
   by_cases hz : k = 0
   · subst k
     have hd : decl = { isAbstract := true } := by simpa [schema] using hk.symm
@@ -114,17 +122,14 @@ theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
       right
       apply List.all_eq_true.mpr
       intro a ha
-      let x := r.objects.symm ⟨a, ha⟩
-      have hx : (r.objects x).val = a := by simp [x]
-      obtain ⟨d, hd⟩ : ∃ d, x ∈ s.head d := by
-        rcases h.2.1.2.2 x with hr | ⟨d, _, hd⟩
-        · exact ⟨v.core.root, h.2.1.1 x |>.mpr hr⟩
-        · exact ⟨d, hd⟩
+      let x := objects.symm ⟨a, ha⟩
+      have hx : (objects x).val = a := by simp [x]
+      obtain ⟨d, hd⟩ := coverage x
       obtain ⟨e, he, hxe⟩ := source_top v s ih d x hd
       apply List.any_eq_true.mpr
       refine ⟨signatureId v e, List.mem_map.mpr ⟨_, List.mem_filter.mpr ⟨sigmem e, ?_⟩, rfl⟩, ?_⟩
       · simp [he]
-      · exact List.contains_iff_mem.mpr (by simpa [hx] using (r.heads e x).mp hxe)
+      · exact List.contains_iff_mem.mpr (by simpa [hx] using (heads e x).mp hxe)
     · apply List.all_eq_true.mpr
       rintro ⟨other, j⟩ hj
       by_cases hj0 : j = 0
@@ -142,13 +147,13 @@ theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
     · apply List.all_eq_true.mpr
       intro a ha
       cases hp : (v.core.get d).super with
-      | none => simpa [hp] using List.contains_iff_mem.mpr (raw_extent_live v s i r _ a ha)
+      | none => simpa [hp] using List.contains_iff_mem.mpr (extentLive _ a ha)
       | some p =>
-        have hm := raw_extent_live v s i r _ a ha
-        let x := r.objects.symm ⟨a, hm⟩
-        have hx : (r.objects x).val = a := by simp [x]
-        have hs := ih d p hp x ((r.heads d x).mpr (by simpa [hx] using ha))
-        simpa [hp, hx] using List.contains_iff_mem.mpr ((r.heads p x).mp hs)
+        have hm := extentLive _ a ha
+        let x := objects.symm ⟨a, hm⟩
+        have hx : (objects x).val = a := by simp [x]
+        have hs := ih d p hp x ((heads d x).mpr (by simpa [hx] using ha))
+        simpa [hp, hx] using List.contains_iff_mem.mpr ((heads p x).mp hs)
     · cases ha : (v.core.get d).isAbstract with
       | false => simp
       | true =>
@@ -156,15 +161,15 @@ theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
         right
         apply List.all_eq_true.mpr
         intro a hx
-        have hm := raw_extent_live v s i r _ a hx
-        let x := r.objects.symm ⟨a, hm⟩
-        have hx' : (r.objects x).val = a := by simp [x]
-        obtain ⟨e, he, hxe⟩ := (h.2.2.2.1 d ha).1 x ((r.heads d x).mpr (by simpa [hx'] using hx))
+        have hm := extentLive _ a hx
+        let x := objects.symm ⟨a, hm⟩
+        have hx' : (objects x).val = a := by simp [x]
+        obtain ⟨e, he, hxe⟩ := abstracts d ha x ((heads d x).mpr (by simpa [hx'] using hx))
         apply List.any_eq_true.mpr
         refine ⟨signatureId v e, List.mem_map.mpr ⟨_, List.mem_filter.mpr ⟨sigmem e, ?_⟩, rfl⟩, ?_⟩
         · change (v.core.get e).super = some d at he
           simp [he]
-        · exact List.contains_iff_mem.mpr (by simpa [hx'] using (r.heads e x).mp hxe)
+        · exact List.contains_iff_mem.mpr (by simpa [hx'] using (heads e x).mp hxe)
     · apply List.all_eq_true.mpr
       rintro ⟨other, j⟩ hj
       have hj := List.mk_mem_zipIdx_iff_getElem?.mp hj
@@ -186,18 +191,42 @@ theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
             apply Bool.eq_false_iff.mpr
             intro hb
             have hb := List.contains_iff_mem.mp hb
-            have hm := raw_extent_live v s i r _ a ha
-            let x := r.objects.symm ⟨a, hm⟩
-            have hx : (r.objects x).val = a := by simp [x]
+            have hm := extentLive _ a ha
+            let x := objects.symm ⟨a, hm⟩
+            have hx : (objects x).val = a := by simp [x]
             exact hde (source_siblings v s dh d e hp x
-              ((r.heads d x).mpr (by simpa [hx] using ha))
-              ((r.heads e x).mpr (by simpa [hx] using hb)))
+              ((heads d x).mpr (by simpa [hx] using ha))
+              ((heads e x).mpr (by simpa [hx] using hb)))
           · have he : ((v.core.get d).super.map (signatureId v) |>.getD 0) ≠
                 ((v.core.get e).super.map (signatureId v) |>.getD 0) := by
               cases hd : (v.core.get d).super <;> cases he : (v.core.get e).super <;>
                 simp_all [signatureId_injective v |>.eq_iff,
                   Nat.ne_of_lt (signatureId_bounds v _).1, (Nat.ne_of_lt (signatureId_bounds v _).1).symm]
             simp [he]
+
+theorem source_signature_declarations {U : Type} (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (h : Clafer.Semantics.StructuralSatisfies (interpret v.core) s) :
+    ((schema v).signatures.zipIdx.all fun (decl, id) => Id.run do
+      let extent := i.signatures[id]?.getD []
+      let children := ((schema v).signatures.zipIdx.filter fun (child, _) => child.parent == some id).map Prod.snd
+      let included := decl.parent.all fun parent => extent.all (i.signatures[parent]?.getD []).contains
+      let covered := !decl.isAbstract || children.isEmpty ||
+        extent.all (fun atom => children.any fun child => (i.signatures[child]?.getD []).contains atom)
+      let disjoint := (schema v).signatures.zipIdx.all fun (other, j) =>
+        id == j || decl.parent != other.parent ||
+        extent.all (fun atom => !(i.signatures[j]?.getD []).contains atom)
+      return included && covered && disjoint && decl.multiplicity.holds extent.length) = true := by
+  apply signature_declarations_of_observations v s i r.objects r.heads
+    (raw_extent_live v s i r)
+  · intro x
+    rcases h.2.1.2.2 x with hr | ⟨d, _, hd⟩
+    · exact ⟨v.core.root, h.2.1.1 x |>.mpr hr⟩
+    · exact ⟨d, hd⟩
+  · exact h.2.2.1
+  · intro d ha
+    exact (h.2.2.2.1 d ha).1
+  · exact h.2.2.2.2.2.2.2.2.2
 
 theorem field_nodup (s : Schema) (i : Instance) (hw : i.wellFormed s = true) (k : Nat) :
     (i.fields[k]?.getD []).Nodup := by

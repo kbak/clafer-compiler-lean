@@ -1,0 +1,1406 @@
+{
+  "cases": [
+    {
+      "expected": "sat",
+      "id": "stable-run",
+      "identity": {
+        "bytes": 458,
+        "sha256": "ef3d5f4a9cea6f3f4e0765462e4a3cf380a07390383cef9db7868f0f05b9ead3"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_in_source_state.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_a": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "stable"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "stable-check",
+      "identity": {
+        "bytes": 458,
+        "sha256": "ef3d5f4a9cea6f3f4e0765462e4a3cf380a07390383cef9db7868f0f05b9ead3"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_in_source_state.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_a": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "replaced-1-run",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_a": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "machine"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "replaced-1-identity-check",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_a": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "replaced-1-global-check",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 2,
+        "identities": {
+          "this/c0_a": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "replaced-2-run",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_a": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "machine"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "replaced-2-identity-check",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_a": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "replaced-2-global-check",
+      "identity": {
+        "bytes": 399,
+        "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_transition_replaced_machine.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 2,
+        "identities": {
+          "this/c0_a": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_b": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_c": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_go": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_sm": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "replacement"
+    },
+    {
+      "expected": "sat",
+      "id": "negated-run",
+      "identity": {
+        "bytes": 485,
+        "sha256": "8467c30eeb6677ad0b19bc4036dea0264a46b6c57919ca512b47ec0a5ab61fdc"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_negated_obligations.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "cancelled"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "negated-check-1",
+      "identity": {
+        "bytes": 485,
+        "sha256": "8467c30eeb6677ad0b19bc4036dea0264a46b6c57919ca512b47ec0a5ab61fdc"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_negated_obligations.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "negated-check-2",
+      "identity": {
+        "bytes": 485,
+        "sha256": "8467c30eeb6677ad0b19bc4036dea0264a46b6c57919ca512b47ec0a5ab61fdc"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_negated_obligations.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 2,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "negated-check-3",
+      "identity": {
+        "bytes": 485,
+        "sha256": "8467c30eeb6677ad0b19bc4036dea0264a46b6c57919ca512b47ec0a5ab61fdc"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_negated_obligations.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 3,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "identity-scope-1",
+      "identity": {
+        "bytes": 241,
+        "sha256": "08295d926f44cd15ef9f9c33848123a944cea30c5352223bbc68172992188cde"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_scope_identities.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_item": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "identity-scope-2",
+      "identity": {
+        "bytes": 241,
+        "sha256": "08295d926f44cd15ef9f9c33848123a944cea30c5352223bbc68172992188cde"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_scope_identities.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_item": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "identity"
+    },
+    {
+      "expected": "sat",
+      "id": "fixed-parent-run",
+      "identity": {
+        "bytes": 358,
+        "sha256": "178d2e0f679edba107fc579316fd579e599398dc7a2251815037ae7acada81f1"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_parent_across_lifetimes.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_box": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_item": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "fixed-parent"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "fixed-parent-check",
+      "identity": {
+        "bytes": 358,
+        "sha256": "178d2e0f679edba107fc579316fd579e599398dc7a2251815037ae7acada81f1"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_parent_across_lifetimes.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_box": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_item": {
+            "count": 2,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "inherited-run",
+      "identity": {
+        "bytes": 665,
+        "sha256": "3a7714af22e1a96fc6181b485565f141f47f0ec66d6db2d423dff477177faed0"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_final_inherited_reference.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_Car": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_Engine": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_bolt": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_drive": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_electric": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_engine": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_gas": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_gear": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_leaf": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_mini": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor2": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor3": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor4": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_park": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_tesla": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-check-1",
+      "identity": {
+        "bytes": 665,
+        "sha256": "3a7714af22e1a96fc6181b485565f141f47f0ec66d6db2d423dff477177faed0"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_final_inherited_reference.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_Car": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_Engine": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_bolt": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_drive": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_electric": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_engine": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_gas": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_gear": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_leaf": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_mini": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor2": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor3": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor4": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_park": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_tesla": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-check-2",
+      "identity": {
+        "bytes": 665,
+        "sha256": "3a7714af22e1a96fc6181b485565f141f47f0ec66d6db2d423dff477177faed0"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_final_inherited_reference.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 2,
+        "identities": {
+          "this/c0_Car": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_Engine": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_bolt": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_drive": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_electric": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_engine": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_gas": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_gear": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_leaf": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_mini": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor2": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor3": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor4": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_park": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_tesla": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-check-3",
+      "identity": {
+        "bytes": 665,
+        "sha256": "3a7714af22e1a96fc6181b485565f141f47f0ec66d6db2d423dff477177faed0"
+      },
+      "license": "external compiler LICENSE (MIT)",
+      "origin": "haskell",
+      "path": "test/positive/tmp_final_inherited_reference.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 3,
+        "identities": {
+          "this/c0_Car": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_Engine": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_bolt": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_drive": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_electric": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_engine": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_gas": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_gear": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_leaf": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_mini": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor2": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor3": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_motor4": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_park": {
+            "count": 4,
+            "exact": false
+          },
+          "this/c0_tesla": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "cancelled-signs",
+      "identity": {
+        "bytes": 212,
+        "sha256": "65563d9344906435cc39a86098c3b5b985e2dd210c6214e52e3b72dc4f525118"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "cancelled-signs.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "cancelled"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "persistent-signs",
+      "identity": {
+        "bytes": 147,
+        "sha256": "99ffce36c2cc94e174ebc8d14a7a3545569d709ad2d11ca01e2aeec0f8ba897b"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "persistent-signs.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "context-death",
+      "identity": {
+        "bytes": 217,
+        "sha256": "43de21a24d3e1fa67587c421b0003d24e15d807af967b8555ca5ffef1280e47a"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "context-death.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_ctx": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_error": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-swap-final",
+      "identity": {
+        "bytes": 228,
+        "sha256": "eb7c861d20674b8679d4a23b5e60d8b83f218a32d5777eac6fd8f4b883f69f06"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "inherited-final.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_Link": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_Target": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_head": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_left": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_owner": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_right": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-swap-finalref",
+      "identity": {
+        "bytes": 231,
+        "sha256": "38ad53653d2f88b08b82e855901b83c74fb2a699ca4da27bfd238ccfefd83e93"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "inherited-finalref.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_Link": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_Target": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_head": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_left": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_owner": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_right": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "inherited-swap-finaltarget",
+      "identity": {
+        "bytes": 234,
+        "sha256": "5c9d41879c05a8217ec30317852a57f88d359bb547ac1db29d37f4a045695461"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "inherited-finaltarget.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_Link": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_Target": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_head": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_left": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_owner": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_right": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    },
+    {
+      "expected": "sat",
+      "id": "inherited-swap-mutable",
+      "identity": {
+        "bytes": 222,
+        "sha256": "bd81ced551f1b62f1b562b92fcade44cc82eb35baaaf1d6614b9f41928ade59e"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "inherited-mutable.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_Link": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_Target": {
+            "count": 2,
+            "exact": false
+          },
+          "this/c0_head": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_left": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_owner": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_right": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "reference-swap"
+    },
+    {
+      "expected": "sat",
+      "id": "stable-event-run",
+      "identity": {
+        "bytes": 201,
+        "sha256": "34e13010b8b3102eea7d2bfc471a40d2bb519ee239ae957196952f530a587cd9"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "stable-event.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 0,
+        "identities": {
+          "this/c0_done": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_trigger": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_waiting": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": "stable-event"
+    },
+    {
+      "expected": "bounded_unsat",
+      "id": "stable-event-check",
+      "identity": {
+        "bytes": 201,
+        "sha256": "34e13010b8b3102eea7d2bfc471a40d2bb519ee239ae957196952f530a587cd9"
+      },
+      "license": "repository LICENSE (MIT)",
+      "origin": "compiler",
+      "path": "stable-event.cfr",
+      "request": {
+        "bitwidth": 8,
+        "command_index": 1,
+        "identities": {
+          "this/c0_done": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_machine": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_trigger": {
+            "count": 1,
+            "exact": false
+          },
+          "this/c0_waiting": {
+            "count": 1,
+            "exact": false
+          },
+          "this/root": {
+            "count": 1,
+            "exact": false
+          }
+        },
+        "max_steps": 6,
+        "min_steps": 3,
+        "overall": 4
+      },
+      "witness": null
+    }
+  ],
+  "known_comparison_gaps": [
+    {
+      "haskell": "may accept; accepted source rejects",
+      "id": "response-between",
+      "meaning": "Every trigger in the active interval must get a response",
+      "rejecting_trace": "q@0,p@1,r@3,no-s"
+    },
+    {
+      "haskell": "may accept; accepted source rejects",
+      "id": "precedence-after",
+      "meaning": "Start at the first opener",
+      "rejecting_trace": "q@0,p@1,q@2,s@3"
+    },
+    {
+      "haskell": "per-head equality is stronger",
+      "id": "finaltarget-image",
+      "meaning": "Target-image stability permits head assignments to swap"
+    },
+    {
+      "haskell": "no blanket equivalence",
+      "id": "richer-structure-arithmetic",
+      "meaning": "Shared inherited-reference assignments, concrete supers and mathematical definedness require separately admitted comparison domains"
+    }
+  ],
+  "schema": "clafer-temporal-fixtures/1"
+}
