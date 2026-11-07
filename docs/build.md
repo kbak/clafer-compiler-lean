@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`5182c8f5884eddfd8bff8a26b493a8550f0162b6` and its inherited Mathlib/dependency commits.
+`f00e5dacb07eed51026f69fcf699683210d394d3` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -145,11 +145,13 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 
 | Trigger | Checks |
 | --- | --- |
-| PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
+| Ordinary PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
 | PR targeting `behavioral` | Compiler and behavioral source IntentBond jobs: every Lean module, axiom audit, kernel replay and all compiler regressions, including native and Haskell/Alloy comparisons |
 | Behavioral PR changing reference dependencies or unclassified paths | Additional independent reference job with both complete historical and PR113 corpora |
-| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | All three IntentBond jobs are mandatory: compiler/proofs, behavioral source and complete reference qualification |
+| Final `behavioral` → `main` PR (including drafts), behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | All three IntentBond jobs are mandatory: compiler/proofs, behavioral source and complete reference qualification |
 
+Scheduled qualification checks `main`. Final integration is identified by the
+PR head and base branches, independently of the changed paths.
 The full local IntentBond check remains mandatory before handoff. Routine CI is
 build/proof/CLI evidence, not full qualification evidence. All paths check scope
 identity against the original baseline and retain logs. The full-check command,

@@ -4,8 +4,10 @@ The source workflow selects `behavioral-0.5.7-candidate/v1` explicitly and
 composes the [authored frontend](behavioral-frontend.md),
 [full encoder](behavioral-encoding.md#full-profile-runtime) and checked temporal
 serializer. The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix)
-retains the full qualification obligations. Acceptance and candidate evidence
-belong to the [integration task](https://github.com/kbak/clafer-compiler-lean/issues/79).
+retains the full qualification obligations. Source-workflow acceptance is recorded
+in the
+[integration review](https://github.com/kbak/clafer-compiler-lean/issues/79);
+[main integration](qualification.md#main-integration) requalifies the final pin.
 
 ## Reuse and boundaries
 
@@ -246,8 +248,9 @@ requires distinct targets in the concrete containment fiber. The source observer
 reports `violated` and the Lean target is UNSAT; Haskell `c7a2fb7` is SAT because
 its output omits that inherited set key. The regression retains this exact
 `target-only` discrepancy, rather than counting it as semantic agreement. The
-source rule is unchanged; this newly observed Haskell limitation and its proposed
-disposition require independent review with the candidate.
+source rule is unchanged; the
+[accepted source integration](https://github.com/kbak/clafer-compiler-lean/issues/79)
+retains this Haskell limitation explicitly.
 
 ```sh
 python3 scripts/comparison/behavioral_haskell.py run case.json /tmp/haskell-case-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_PR113_C7_TOOLS"
@@ -275,7 +278,8 @@ Existing tests, required checks and the full deadline remain unchanged.
 
 The complete #91 and #95 source deltas, not just the named commits, remain in
 [the source register](sources.md#pr113-union-and-root-binding-delta). Their full
-reference corpora run with fresh S7-bound tools during qualification. Preserve
+reference corpora run with fresh tools bound to the installed semantics pin
+during qualification. Preserve
 the accepted `union-dead-target` original-SAT/explicit-UNSAT discrepancy and the
 ill-typed `root-navigation-unsupported` case. Unsupported/timeouts are not agreement.
 This native workflow emits Alloy directly; it does not offer a Haskell explicit

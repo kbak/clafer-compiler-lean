@@ -181,10 +181,12 @@ competing with the temporal target suite and other regressions. Standalone histo
 and PR113 reference corpora run in a separate job when their inputs or unclassified
 paths change. Missing comparison baselines require that job. Compiler-only results
 identify the reference and behavioral source suites as executed separately.
+The final `behavioral` → `main` PR requires all three jobs on every update,
+including while draft; ordinary main PRs retain the routine checks.
 Marking a behavioral PR ready for review, pushing to `behavioral`, scheduled runs,
 and GitHub Actions → CI → Run workflow run the full suite. GitHub activates the
-daily schedule only after the workflow reaches the default branch; it checks
-`behavioral`. Until then, dispatch full runs manually. The existing required check
+daily schedule on the default branch; it checks `main`. Before final integration,
+dispatch full runs against `behavioral` manually. The existing required check
 waits for every selected job. See [profile selection](docs/build.md#ci-profiles)
 for the exact boundary. Routine or compiler-only CI is not full qualification evidence.
 

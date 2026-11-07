@@ -1,10 +1,12 @@
 # What the compiler experiment establishes
 
-An independent mathematical semantics can guide an executable structural
-Clafer-to-Alloy compiler with machine-checked preservation proofs. This project
+An independent mathematical semantics can guide an executable structural and
+behavioral Clafer-to-Alloy compiler with machine-checked preservation proofs.
+This project
 provides a concrete implementation, explicit proof assumptions and comparisons
 against real external tools. Its guarantees apply to the
-[selected language](architecture.md#feature-matrix), not every Haskell Clafer input.
+[static](architecture.md#feature-matrix) and [behavioral](behavioral.md#complete-feature-and-evidence-matrix)
+profiles, not every Haskell Clafer input.
 
 <a id="what-we-learned"></a>
 
@@ -44,7 +46,7 @@ are complete or the proofs state the right properties.
 | --- | --- |
 | Semantic assurance | This project supplies kernel-checked admission, elaboration and preservation results against independent meanings, with explicit assumptions. The inspected Haskell reference pipeline does not supply an equivalent proof chain. This does not measure overall defect rates. |
 | Executable correctness | Parser recognition, JSON decoding correspondence, generated native code, emitted-text interpretation and solving remain tested boundaries. No end-to-end verified executable claim follows. |
-| Language coverage | Haskell supports a wider language. This compiler restricts structural syntax, inheritance and arithmetic, and retains adopted defaulting differences. |
+| Language coverage | Haskell supports a wider language. This compiler keeps the static and behavioral profiles explicit, including their different inheritance/arithmetic admission and documented source-policy departures. |
 | Performance | Measurements apply to the recorded candidate, input corpus and host. The [benchmark method](qualification.md#measurements-and-replay) separates compiler costs from solving; the [native optimization measurements](https://github.com/kbak/clafer-compiler-lean/issues/50) retain results and their source identities. |
 | Reliability in use | Field defect rates, long-term maintenance costs, adversarial robustness and user outcomes have not been measured. |
 

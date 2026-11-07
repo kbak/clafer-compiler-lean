@@ -6,15 +6,15 @@ fragment. Component contracts in the [documentation map](intent.md#documentation
 record exact delivered APIs, proof assumptions and testing limits; the
 [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) retains task dependencies
 and acceptance history. The [behavioral contract](behavioral.md) specifies the
-selected integration work and future profile separately from delivered static support.
+implemented temporal profile separately from the static contracts.
 
 ## Honest project boundary
 
 `req~scaffold-boundary~1`
 
-The README and intent explain the selected structural Clafer-to-Alloy language,
-its relationship to Clafer Semantics and the Haskell comparison compiler, and
-its supported interfaces. Describe the implemented frontend, structural and
+The README and intent explain the selected static and behavioral Clafer-to-Alloy
+profiles, their relationship to Clafer Semantics and the Haskell comparison compiler, and
+their supported interfaces. Describe the implemented frontend, structural and
 expression encodings, checked serialization and preservation proofs with their
 explicit scope, numeric-range and representation assumptions. The
 [constraint-preservation review](https://github.com/kbak/clafer-compiler-lean/pull/41)
@@ -53,8 +53,10 @@ conditionally: their complete corpora are mandatory when a reference pin,
 adapter, fixture, test, shared helper, provisioning recipe, or execution policy
 changes. Missing or ambiguous dependency information requires the full suites.
 Run both complete reference suites on scheduled verification, manual dispatch,
-behavioral integration pushes and ready-for-review behavioral PRs. These hosted
-runs require both independent compiler and reference jobs against the same
+behavioral integration pushes, ready-for-review behavioral PRs and the final
+`behavioral` → `main` PR on every update, including drafts. Scheduled checks use
+`main`; ordinary main PRs retain the routine profile. These hosted
+runs require independent compiler/proof, source and reference jobs against the same
 immutable candidate. Retain a full source-matched IntentBond check before
 acceptance. The full local check before handoff remains mandatory. A deferred
 reference suite must be reported as not run on this candidate; previously accepted reference evidence is
@@ -156,7 +158,8 @@ explicit review. Preserve existing static modes, schema admission, source/oracle
 pins and temporal-rejection checks outside explicit behavioral profile selection.
 Document non-default integration, manual intake, immutable accepted-SHA repins,
 source delta review and the ordered upstream-first final merge/revalidation gates.
-This is a contract obligation; it does not assert implemented behavioral support.
+Implementation and proof coverage are recorded in the component contracts; this
+matrix alone does not establish their qualification or acceptance.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -517,6 +520,25 @@ checks from kernel-checked correspondence and from revision-specific Haskell
 comparisons. Unsupported requests and timeouts are inconclusive, never passes.
 Independent review and source-matched full regression evidence remain required
 for candidate acceptance; bounded agreement does not establish universal proof.
+
+Covers: `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral main integration
+
+`req~compiler-behavioral-main-integration~1`
+
+Pin the accepted immutable semantics-main commit and deliberately regenerate the
+dependency manifest. Review the delta from the qualified behavioral and static
+baselines, preserving source meanings, tool identities and historical evidence.
+Reconcile compiler main and retain full source-matched static and behavioral
+IntentBond, kernel, native and Haskell/Alloy qualification. The final integration
+PR requires all three existing validation jobs; ordinary main PRs retain routine
+checks. Keep current documentation and the complete feature/assurance inventory.
+Independent review and concrete authorization precede main merge. Record actual
+merged commits and matching evidence before closing the gate; tags and binary
+publication require separate selection. See [main integration](qualification.md#main-integration).
 
 Covers: `intent~compiler-foundation~1`
 
@@ -1424,7 +1446,7 @@ Covers:
 
 `compiler-qualification` and `compiler-performance` are active requirements above.
 The behavioral profile/trace planning IDs are active contract requirements above;
-later behavioral implementation requirements belong to their selected owners.
+behavioral implementation requirements above retain their component boundaries.
 New scope needs its own reviewed requirements and manual intake; this does not imply acceptance
 of the qualification candidate.
 

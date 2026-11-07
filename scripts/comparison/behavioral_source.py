@@ -83,6 +83,7 @@ def target(c,p):
 
 
 def within_bounds(c,p,bounds):
+    """Validate original bounds and return the constructed target observation."""
     trace=target(c,p)
     tc.require(p['minSteps']<=c['length']<=p['maxSteps'],'step bounds')
     for name,b in p['scopes'].items():
@@ -92,6 +93,7 @@ def within_bounds(c,p,bounds):
     for b in bounds['declarations']:
         count=sum(b['id'] in tc.ancestors(ds,r['type']) for r in c['identities'])
         tc.require(count<=b['size'] and (not b['exact'] or count==b['size']),'inherited identity bounds')
+    return trace
 
 
 def graph(c):
@@ -190,8 +192,8 @@ class Runtime:
             tc.closed(case,'version source query bounds candidate')
             tc.require(case['version']=='clafer-behavioral-source-case/1','case version')
             tc.require(mutation in ('none','reject-all','drop-constraints'),'mutation')
-            p=self.compile(output,case);c=case['candidate'];trace=target(c,p)
-            within_bounds(c,p,case['bounds'])
+            p=self.compile(output,case);c=case['candidate']
+            trace=within_bounds(c,p,case['bounds'])
             decoded=self.decode(output,trace,'candidate')
             tc.require(isomorphism(c,decoded) is not None,'decode changed candidate')
             start=time.monotonic();source=Observation(p,c).check();check_seconds=time.monotonic()-start

@@ -6,14 +6,13 @@ Qualification links supported features to evidence, measures reproducible build
 and compilation costs, and prepares candidate bundles for independent semantic
 review. Bundles record their exact source revision, toolchain and review status.
 
-The inventory below covers delivered static support. The separately selected
-[behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) assigns
-every planned row to frontend, IR, encoding, proof, runtime and qualification
-owners. The separate [structural handoff](behavioral-structure.md) inventories
-implemented C6 library APIs, proved domains and native/kernel witnesses; it is
-not full behavioral qualification. Behavioral C10
-requires all rows, source-matched full checks and independent review. The first
-vertical slice cannot substitute for that completion gate.
+The [static inventory](#feature-and-evidence-inventory) and complete
+[behavioral source inventory](behavioral-source.md#feature-and-evidence-inventory)
+link delivered profiles to implementations, proofs and runtime witnesses.
+The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) retains
+all B01–B32 obligations. Component inventories distinguish first-slice evidence
+from the full frontend/encoder and source workflow. Every candidate still needs
+source-matched full checks and independent review.
 The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
 provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
 Haskell/Alloy queries and retains complete traces; it does not qualify downstream
@@ -38,8 +37,7 @@ The accepted expression surface has native integration tests, independent source
 derivations, upstream interpretation/normalization proofs and complete range-check
 obligations under explicit structural budgets. Grammar recognition and native
 execution remain tested boundaries; scope-budget validity belongs to encoding.
-Independent semantic review and source-matched qualification remain required for
-C7 acceptance.
+Candidate changes require independent semantic review and source-matched qualification.
 
 The [temporal target](alloy-temporal.md) has separate admission, natural-time
 meaning and checked serialization. Its kernel laws and
@@ -84,6 +82,36 @@ scalar decoding, exact source/IR observations and per-case measurements. The
 [suite](../tests/test_behavioral_source_comparison.py) retains complete lasso
 queries and replay identities, while the static and reference-tool suites remain
 mandatory. Its Python finite observer is tested, not kernel certified.
+
+## Main integration
+
+`impl~compiler-behavioral-main-integration~1`
+
+The [Lake configuration](../lakefile.toml), [manifest](../lake-manifest.json),
+[dependency checks](../scripts/project_modules.py), native version and oracle
+profiles identify the [accepted semantics-main source](sources.md#accepted-semantics-main-dependency).
+The [CI selector](../scripts/ci_profile.py) requires compiler/proof, behavioral
+source and reference qualification for the final `behavioral` → `main` PR,
+including drafts and synchronized updates. Routine main checks remain unchanged.
+Scheduled full qualification uses `main`; solver suites keep separate jobs and
+their existing concurrency and query deadlines.
+
+The [final gate](https://github.com/kbak/clafer-compiler-lean/issues/80) retains
+the frozen compiler baseline, source/API delta, full IntentBond evidence,
+required hosted checks, review disposition and actual merged commit identities.
+The [compiler](https://github.com/kbak/clafer-compiler-lean/issues/69) and
+[semantics](https://github.com/kbak/clafer-semantics/issues/122) roadmap matrices
+must account for every required feature and accepted dependency. Open work outside
+the selected profile does not silently expand or narrow it. Publication of a PR,
+passing automation and IntentBond exit 4 do not constitute merge acceptance.
+
+Reuse the existing check, three CI jobs, profile selector and source/tool receipt
+validation. No new runner, framework or dependency is needed. The full source
+comparison reuses its validated target observation after checking original bounds,
+avoiding a repeated table construction. Independent source observation and target
+truth remain separate; this cleanup changes no proof premise or comparison rule.
+
+Covers: `req~compiler-behavioral-main-integration~1`
 
 ## Reuse assessment
 
