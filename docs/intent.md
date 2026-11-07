@@ -66,6 +66,10 @@ The [first-slice encoding](behavioral-encoding.md) connects admitted behavioral
 IR to that target with a global trace representation, signed formula transport
 and structural snapshot proofs. Its native/Analyzer evidence remains separate
 from kernel proofs and full-profile qualification.
+The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input,
+solver-free native compilation, actual Analyzer trace decoding and exact
+three-way candidate comparison. Replay preserves complete frames and the loop;
+its paired-source and first-slice limits remain explicit.
 
 ## Delivery and selected language scope
 
@@ -118,6 +122,7 @@ and semantic acceptance require explicit review; see the
 - [IR](ir.md): executable declarations and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
 - [Behavioral encoding](behavioral-encoding.md): temporal lowering, global identities, snapshot correspondence and bounded evidence.
+- [Temporal comparison and resolved CLI](temporal-comparison.md): strict schemas, exact lassos, verified evaluation, replay and runtime boundaries.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.

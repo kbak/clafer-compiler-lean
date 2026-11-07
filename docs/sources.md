@@ -634,6 +634,30 @@ records remaining compiler/proof gaps. The planning tooling introduces no runtim
 or license dependency. The structural library repin is recorded below; no upstream
 semantic definitions or Haskell code are vendored.
 
+## Exact temporal runtime sources
+
+The [resolved temporal runtime](temporal-comparison.md) retains the accepted
+semantics pin `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`. Its executable adapter
+uses and proves agreement with
+[`Clafer/Behavioral/Lowering.lean`](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Behavioral/Lowering.lean),
+[`Verification.lean`](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Behavioral/Verification.lean)
+and their imported finite set adapter. The lowering equations are adapted from
+that MIT source; source meanings and finite evaluation remain upstream imports.
+The pinned MIT `scripts/verification/relation.py` supplies whole-graph
+isomorphism. Its static `candidates.shrink` requires a static candidate protocol;
+the temporal harness uses the same greedy deletion strategy with complete
+frame-indexed trials and fixed bounds instead of altering that upstream API.
+
+The Haskell adapter is specifically for
+[`af858ec0fe3ce2ceacb7fd120947c058233086d6`](https://github.com/gsdlab/clafer/tree/af858ec0fe3ce2ceacb7fd120947c058233086d6),
+profile `behavioral-0.5.7-candidate/v1`, with paired JSON/`tmp.als` receipts and
+the retained effective options. The temporal errata T1–T2, T7 and T13 inform the
+identity/lifetime witnesses. The existing Alloy 6.2 bridge exports each frame and
+the loop; the harness adds a private phase clock using the registered Alloy 6
+temporal operators. No Haskell source, tool revision, semantic pin or dependency
+license changes. The newer PR113 profile and original-versus-explicit models are
+not admitted by this adapter; their qualification remains separate.
+
 ## Behavioral dependency delta
 
 The installed accepted revision `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`

@@ -1,0 +1,29 @@
+{
+  "version": "clafer-behavioral-bounds/1",
+  "objects": 4,
+  "bitwidth": 8,
+  "minSteps": 2,
+  "maxSteps": 2,
+  "declarations": [
+    {
+      "id": 0,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 1,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 2,
+      "size": 1,
+      "exact": true
+    },
+    {
+      "id": 3,
+      "size": 1,
+      "exact": true
+    }
+  ]
+}

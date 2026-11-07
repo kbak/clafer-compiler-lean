@@ -2,6 +2,7 @@ module
 
 public import ClaferCompiler.Driver.Decode
 public import ClaferCompiler.Driver.Source
+public import ClaferCompiler.Driver.Behavioral
 public import ClaferCompiler.Backend.Alloy.Print
 
 @[expose] public section
@@ -18,11 +19,14 @@ def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-sourc
   "semantics: 6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4\n" ++
   "haskell-reference: 6750e6f591b2131549122c13dee94d3d2257eaea\n" ++
   "source-text: selected static; compilation does not run a solver"
+  ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
 
 def usage : String := "usage: clafer-compiler --version | --help\n" ++
   "       clafer-compiler compile-ir INPUT --bounds BOUNDS --output OUTPUT\n" ++
   "       clafer-compiler compile-source INPUT --bounds BOUNDS --output OUTPUT\n" ++
+  "       clafer-compiler compile-behavioral-ir INPUT --bounds BOUNDS --output OUTPUT\n" ++
   "         [--objects N] [--bitwidth N] [--diagnostics text|json]\n" ++
+  "Behavioral compilation additionally accepts --format alloy|json.\n" ++
   "Use - for stdin/stdout (only one input may use stdin).\n" ++
   "Bounds are required; no inference or solver execution."
 
@@ -36,6 +40,8 @@ structure Options where
   objects : Option Nat := none
   bitwidth : Option Nat := none
   source : Bool := false
+  behavioral : Bool := false
+  formatJson : Bool := false
 
 def argumentError (message : String) : Diagnostic :=
   { code := "cli.arguments", phase := "arguments", message }
@@ -45,7 +51,7 @@ def optionPairs (args : List String) : Except Diagnostic (List (String × String
     match state.1 with
     | none => pure (some value, state.2)
     | some key => do
-      if !["--bounds", "--output", "--objects", "--bitwidth", "--diagnostics"].contains key then
+      if !["--bounds", "--output", "--objects", "--bitwidth", "--diagnostics", "--format"].contains key then
         throw (argumentError "unknown option")
       if state.2.any (fun entry => entry.1 == key) then throw (argumentError "duplicate option")
       pure (none, (key, value) :: state.2)) (none, [])
@@ -54,7 +60,8 @@ def optionPairs (args : List String) : Except Diagnostic (List (String × String
 
 def options (args : List String) : Except Diagnostic Options := do
   let command :: input :: rest := args | throw (argumentError usage)
-  if command != "compile-ir" && command != "compile-source" then throw (argumentError usage)
+  if !["compile-ir", "compile-source", "compile-behavioral-ir"].contains command then
+    throw (argumentError usage)
   if input.isEmpty then throw (argumentError "empty input path")
   let pairs ← optionPairs rest
   let get := fun key => (pairs.find? (fun entry => entry.1 == key)).map Prod.snd
@@ -64,11 +71,15 @@ def options (args : List String) : Except Diagnostic Options := do
   if input == "-" && bounds == "-" then throw (argumentError "both inputs cannot use stdin")
   if let some format := get "--diagnostics" then
     if format != "text" && format != "json" then throw (argumentError "unknown diagnostic format")
+  if let some format := get "--format" then
+    if command != "compile-behavioral-ir" || (format != "alloy" && format != "json") then
+      throw (argumentError "--format alloy|json requires compile-behavioral-ir")
   let number := fun key => (get key).mapM fun value => do
     let some n := value.toNat? | throw (argumentError "expected natural-number option")
     if value != toString n then throw (argumentError "expected canonical natural-number option")
     return n
-  return ⟨input, bounds, output, ← number "--objects", ← number "--bitwidth", command == "compile-source"⟩
+  return ⟨input, bounds, output, ← number "--objects", ← number "--bitwidth",
+    command == "compile-source", command == "compile-behavioral-ir", get "--format" == some "json"⟩
 
 /-- Recognize diagnostic pairs only in the option suffix, never path arguments. -/
 def jsonDiagnostics (args : List String) : Bool :=
@@ -171,14 +182,18 @@ def run (args : List String) : IO UInt32 := do
       match ← readInput opts.bounds with
       | .error d => emitDiagnostic json d
       | .ok bounds =>
-        let result := if opts.source then
-          compileSource (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth
-        else compileText (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth
+        let result := if opts.behavioral then
+          (Behavioral.compileText (logicalFile opts.input) input (logicalFile opts.bounds)
+            bounds opts.objects opts.bitwidth).map (fun p =>
+              if opts.formatJson then p.json.compress ++ "\n" else p.text)
+        else if opts.source then
+          (compileSource (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (·.text)
+        else (compileText (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (·.text)
         match result with
         | .error d => emitDiagnostic json d
         | .ok result =>
           try
-            writeOutput opts.output result.text
+            writeOutput opts.output result
             return 0
           catch _ => emitDiagnostic json {
             code := "io.write", phase := "io", category := .operational, file := logicalFile opts.output

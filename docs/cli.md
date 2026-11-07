@@ -4,6 +4,10 @@ The native driver compiles guarded M1 resolved IR or selected structural Clafer
 source to static Alloy with explicit bounds. The [source pipeline](pipeline.md)
 adds typed constraint elaboration and version-2 bounds. Both commands share strict
 decoding, deterministic diagnostics and checked output serialization.
+The separate `compile-behavioral-ir` command accepts the versioned first-slice
+behavioral IR and explicit temporal bounds. Its complete schemas, diagnostic
+additions and JSON output are in the [temporal runtime contract](temporal-comparison.md).
+All three commands share native IO and require no solver installation.
 
 ## Reuse assessment
 

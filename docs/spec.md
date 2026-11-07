@@ -355,6 +355,72 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Serialized temporal traces
+
+`req~compiler-temporal-decode~1`
+
+Strictly decode the complete Analyzer frame/loop schema for `behavioral-core/1`.
+Validate table metadata, closed fields, unique tuples and the global inventory;
+reject unknown atoms, truncated states, invalid loops and changing static types
+or parents. Preserve root, immutable identities and parent data, each mutable
+live set and every reference-head occurrence under one global bijection. Keep
+target sets separate from their occurrence heads. Primitive integer observations
+are unsupported in this profile and must not be silently erased. Decoding tests
+do not extend the in-memory representation proofs to JSON or native execution.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Exact temporal comparison and replay
+
+`req~compiler-temporal-comparison~1`
+
+Evaluate the same finite candidate with the pinned upstream verified evaluator,
+the native compiler's Alloy and the pinned historical Haskell Alloy in the
+documented common domain. Establish executable source-lowering correspondence
+before using that evaluator. Fix every observed table, every stored state and the
+loop under one global renaming. Accept neither per-state renaming nor stuttering
+or different lasso presentations as equivalent. Retain satisfied and violated
+candidates, both discrepancy directions, seeds, source/IR/Alloy and tool identities,
+effective options and original scopes. Verify those artifacts before fresh replay.
+Provide discrepancy-preserving live/reference-row minimization at the original
+identity/step bounds, explicitly distinguishing deletion minimality from a global
+minimum. Retain every attempt and report inconclusive minimization if any required
+query fails. Malformed, unsupported, error, resource limit and timeout results
+must not count as bounded UNSAT. Haskell expectations identify the exact profile
+and revision; historical discrepancies do not qualify a newer generator. Paired
+source/IR formula agreement is a reviewed fixture premise until full frontend
+qualification. The [comparison contract](temporal-comparison.md) records this
+boundary and the distinguishing lifetime/identity/loop tests.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Resolved behavioral command
+
+`req~compiler-behavioral-cli~1`
+
+Expose `compile-behavioral-ir` with explicit versioned `behavioral-core/1` IR,
+identity/declaration scopes, step bounds and bitwidth. Strictly admit original
+declaration IDs, lexical indices, constructor arities and attachment metadata.
+Produce deterministic checked Alloy or the documented JSON compilation envelope,
+reuse stable diagnostics and preserve existing output on failure. Compilation
+runs with only the native executable and its library closure; it requires neither
+Haskell nor Alloy and never invokes a solver. Keep the static command/profile
+contracts unchanged. Compilation success says nothing about satisfiability;
+bounded UNSAT is a separate external result. Document all input/output schemas,
+first-slice exclusions and diagnostic codes in the
+[resolved runtime contract](temporal-comparison.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Reproducible build and assurance bootstrap
 
 `req~compiler-build~1`

@@ -1,0 +1,226 @@
+{
+  "version": "clafer-temporal-case/1",
+  "document": {
+    "version": "clafer-behavioral-ir/1",
+    "profile": "behavioral-core/1",
+    "structure": {
+      "version": "clafer-ir/1",
+      "profile": "m1-effective",
+      "root": 0,
+      "declarations": [
+        {
+          "id": 0,
+          "name": "root",
+          "origin": "root",
+          "parent": null,
+          "super": null,
+          "reference": {
+            "kind": "basic"
+          },
+          "isAbstract": false,
+          "localBounds": {
+            "lower": 0,
+            "upper": "*"
+          },
+          "groupBounds": {
+            "lower": 0,
+            "upper": "*"
+          },
+          "source": null,
+          "authored": null
+        },
+        {
+          "id": 1,
+          "name": "machine",
+          "origin": "user",
+          "parent": 0,
+          "super": null,
+          "reference": {
+            "kind": "basic"
+          },
+          "isAbstract": false,
+          "localBounds": {
+            "lower": 0,
+            "upper": 1
+          },
+          "groupBounds": {
+            "lower": 0,
+            "upper": "*"
+          },
+          "source": null,
+          "authored": null
+        },
+        {
+          "id": 2,
+          "name": "ctx",
+          "origin": "user",
+          "parent": 1,
+          "super": null,
+          "reference": {
+            "kind": "basic"
+          },
+          "isAbstract": false,
+          "localBounds": {
+            "lower": 0,
+            "upper": 1
+          },
+          "groupBounds": {
+            "lower": 0,
+            "upper": "*"
+          },
+          "source": null,
+          "authored": null
+        },
+        {
+          "id": 3,
+          "name": "error",
+          "origin": "user",
+          "parent": 2,
+          "super": null,
+          "reference": {
+            "kind": "basic"
+          },
+          "isAbstract": false,
+          "localBounds": {
+            "lower": 0,
+            "upper": 1
+          },
+          "groupBounds": {
+            "lower": 0,
+            "upper": "*"
+          },
+          "source": null,
+          "authored": null
+        }
+      ],
+      "parentRanks": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "superRanks": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "unused": [
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "attachments": [
+      {
+        "id": 40,
+        "owner": 2,
+        "kind": "constraint",
+        "body": [
+          "eventually",
+          [
+            "atom",
+            [
+              "inhabited",
+              [
+                "thisStep",
+                [
+                  "child",
+                  3
+                ]
+              ]
+            ]
+          ]
+        ],
+        "source": null
+      }
+    ]
+  },
+  "bounds": {
+    "version": "clafer-behavioral-bounds/1",
+    "objects": 4,
+    "bitwidth": 8,
+    "minSteps": 2,
+    "maxSteps": 2,
+    "declarations": [
+      {
+        "id": 0,
+        "size": 1,
+        "exact": true
+      },
+      {
+        "id": 1,
+        "size": 1,
+        "exact": true
+      },
+      {
+        "id": 2,
+        "size": 1,
+        "exact": true
+      },
+      {
+        "id": 3,
+        "size": 1,
+        "exact": true
+      }
+    ]
+  },
+  "source": "machine ?\n  ctx ?\n    error ?\n    [ F error ]\n",
+  "uids": {
+    "0": "root",
+    "1": "c0_machine",
+    "2": "c0_ctx",
+    "3": "c0_error"
+  },
+  "candidate": {
+    "version": "clafer-behavioral-trace/1",
+    "profile": "behavioral-core/1",
+    "root": 0,
+    "length": 2,
+    "loop": 1,
+    "identities": [
+      {
+        "id": 0,
+        "type": 0,
+        "parent": null
+      },
+      {
+        "id": 1,
+        "type": 1,
+        "parent": 0
+      },
+      {
+        "id": 2,
+        "type": 2,
+        "parent": 1
+      },
+      {
+        "id": 3,
+        "type": 3,
+        "parent": 2
+      }
+    ],
+    "frames": [
+      {
+        "live": [
+          0,
+          1,
+          2
+        ],
+        "references": []
+      },
+      {
+        "live": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "references": []
+      }
+    ],
+    "integerObservations": []
+  },
+  "seed": 78
+}
