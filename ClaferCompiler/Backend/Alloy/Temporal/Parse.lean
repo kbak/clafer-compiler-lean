@@ -14,6 +14,9 @@ but never imports the temporal printer or receives its input module. -/
 inductive Piece where
   | word (s : String) | rel (r : Rel) | grouped (r : Rel)
   | integer (n : Integer) | formula (p : Formula)
+  | sum (r : Rel) | lower (lo : Int) (r : Rel) | upper (hi : Int) (r : Rel)
+  | range (lo hi : Int) (r : Rel) | intRange (lo hi : Int) (r : Rel)
+  | guard (lo hi : Int) (r : Rel)
 
 def readUnary : String → Option Unary
   | "not" => some .neg | "after" => some .after | "always" => some .always
@@ -32,12 +35,26 @@ def leaf (depth : Nat) (s : String) : Option Piece :=
   | _ => match readSymbol s with
     | some (.signature n) => some (.rel (.sig n))
     | some (.field n) => some (.rel (.field n))
+    | some (.auxiliary n) => some (.rel (.values n))
     | some (.binder n) => if n < depth then some (.rel (.var (depth - n - 1))) else none
     | _ => s.toInt?.map fun n => .integer (.literal n)
 
 def reduce (depth : Nat) : List Piece → Option Piece
   | [.word s] => leaf depth s
   | [.rel r] => some (.grouped r)
+  | [.word "Int", .word "[", .integer ⟨[.literal n]⟩, .word "]"] =>
+      some (.rel (.integer n))
+  | [.word "sum", .word "[", .rel r, .word "]"] => some (.sum r)
+  | [.integer ⟨[.literal lo]⟩, .word "=<", .sum r] => some (.lower lo r)
+  | [.sum r, .word "=<", .integer ⟨[.literal hi]⟩] => some (.upper hi r)
+  | [.lower lo r, .word "and", .upper hi q] =>
+      if r == q then some (.range lo hi r) else none
+  | [.formula ⟨[.subset r i]⟩, .word "and", .range lo hi q] =>
+      if r == q && i == .ints then some (.intRange lo hi r) else none
+  | [.formula ⟨[.mult .one r]⟩, .word "and", .intRange lo hi q] =>
+      if r == q then some (.guard lo hi r) else none
+  | [.guard lo hi r, .word "implies", .sum q, .word "else", .integer ⟨[.literal fallback]⟩] =>
+      if r == q && lo == fallback then some (.integer (.scalar lo hi r)) else none
   | [.word "none", .word "->", .word "none"] => some (.rel (.empty .binary))
   | [.word "no", .word "none"] => some (.formula .truth)
   | [.word "some", .word "none"] => some (.formula .falsity)
@@ -50,6 +67,12 @@ def reduce (depth : Nat) : List Piece → Option Piece
       some (.integer (.add a b))
   | [.word "minus", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
       some (.integer (.subtract a b))
+  | [.word "mul", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
+      some (.integer (.multiply a b))
+  | [.word "div", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
+      some (.integer (.divide a b))
+  | [.word "rem", .word "[", .integer a, .word ",", .integer b, .word "]"] =>
+      some (.integer (.remainder a b))
   | [.word op, .formula p] => (readUnary op).map fun u => .formula (.unary u p)
   | [.word m, .rel r] => do
       let m ← readMult m
@@ -110,9 +133,16 @@ def signature : Parser (Nat × (Alloy.Signature × Bool) × List (Nat × (Alloy.
   let id ← signatureId
   let parent ← (token "extends" *> (some <$> signatureId)) <|> pure none
   token "{"
-  let fields ← commaSeparated (field id)
+  let fields ← commaSeparated ((Sum.inl <$> attempt (field id)) <|> (do
+    token "var"
+    token (Symbol.auxiliary id).name
+    token ":"; token "one"; token "Int"
+    pure (Sum.inr ())))
   token "}"
-  pure (id, (⟨parent, abstract_, mult, false⟩, mutable), fields)
+  let scalars := fields.filterMap fun f => match f with | .inr _ => some () | _ => none
+  if scalars.length > 1 then fail "duplicate scalar field"
+  pure (id, (⟨parent, abstract_, mult, !scalars.isEmpty⟩, mutable),
+    fields.filterMap fun f => match f with | .inl f => some f | _ => none)
 
 structure ParseState where
   signatures : List (Nat × (Alloy.Signature × Bool)) := []

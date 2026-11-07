@@ -55,6 +55,22 @@ exercise compiler-generated modules, counterexamples and native witness replay.
 These are separate from the full-profile qualification gate and the static
 inventory below.
 
+The [full encoding](behavioral-encoding.md#full-profile-proof-components) adds
+`Full.compile`, complete partial-expression lowering, disjoint direct-type
+inventories, inherited structural facts and finite integer observations.
+`Expressions.lowerAt_preserves` and `lower_preserves` follow the actual executable
+pass. `Full.compiled_sound` derives actual decoding and the existing upstream
+model/query satisfaction from target satisfaction; `Full.compiled_complete`
+proves the reverse for the concrete encoder under data-only source fitting
+conditions. `compiled_complete_observed` includes arbitrary source carriers under
+the concrete observation map. `frontend_sound` and `frontend_complete_observed` compose successful in-memory
+source elaboration, while `SourceElaborated` records every authored/header
+derivation. The full fixtures exercise scoped patterns, transition chains,
+lifetime anchors, inherited groups/references and property commands. These
+in-memory kernel results and bounded Analyzer witnesses retain the parser,
+text/native and solver boundaries; they do not establish final behavioral
+qualification or unrestricted infinite-trace representability.
+
 The [resolved temporal runtime](temporal-comparison.md) supplies actual-output
 decoding, verified finite source evaluation and exact three-way trace fixing.
 Its corpus distinguishes cancellation and source negation, replacement under a

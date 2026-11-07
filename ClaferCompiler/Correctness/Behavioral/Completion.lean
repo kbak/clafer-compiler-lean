@@ -40,7 +40,7 @@ theorem compiled_complete (v : IR.Behavioral.Admitted k) (b : Bounds) (fuel : Na
     apply static_schema_wellFormed
     simp only [Temporal.Module.wellTyped, Temporal.Schema.wellFormed, Bool.and_eq_true] at typed
     exact typed.1.1.1.1.1
-  refine ⟨?_, typed, bounded, decl, encode_inScope _ _ scopes unique scopeFits, ?_, trivial, trivial⟩
+  refine ⟨?_, typed, bounded, decl, encode_inScope _ _ scopes unique scopeFits, ?_, trivial, trivial, ?_⟩
   · simpa [Temporal.Lasso.Fits, target, encode] using timeFits
   · intro fact hf
     simp only [target, List.mem_append] at hf
@@ -66,5 +66,15 @@ theorem compiled_complete (v : IR.Behavioral.Admitted k) (b : Bounds) (fuel : Na
       · rw [← owner_id v a.val a.property, contexts_resolved v]
         exact hx
       · exact hx.1
+  · intro t
+    simp only [target, schema, Backend.Alloy.Structural.schema, Instance.scalarFields,
+      List.zipIdx_cons, List.all_cons, Bool.and_eq_true]
+    constructor
+    · rfl
+    · apply List.all_eq_true.mpr
+      intro row hr
+      obtain ⟨d, _, hd⟩ := List.mem_map.mp (List.fst_mem_of_mem_zipIdx hr)
+      simp only [← hd]
+      rfl
 
 end ClaferCompiler.Correctness.Behavioral

@@ -20,6 +20,8 @@ inductive Rel.Term : Rel → Prop where
   | univ : Term .univ
   | iden : Term .iden
   | ints : Term .ints
+  | integer (n) : Term (.integer n)
+  | values (owner) : Term (.values owner)
   | union : Term a → Term b → Term (.union a b)
   | inter : Term a → Term b → Term (.inter a b)
   | diff : Term a → Term b → Term (.diff a b)
@@ -38,6 +40,8 @@ theorem Rel.Term.stack (h : Rel.Term r) (alg : RelAlgebra α) :
   | univ => exact ⟨alg.univ, fun _ => rfl⟩
   | iden => exact ⟨alg.iden, fun _ => rfl⟩
   | ints => exact ⟨alg.ints, fun _ => rfl⟩
+  | integer n => exact ⟨alg.integer n, fun _ => rfl⟩
+  | values owner => exact ⟨alg.values owner, fun _ => rfl⟩
   | union ha hb ia ib =>
     obtain ⟨a, ha⟩ := ia
     obtain ⟨b, hb⟩ := ib
@@ -218,9 +222,12 @@ open Backend.Alloy.Behavioral
 @[simp] theorem shift_prime (n : Nat) (a : Rel) :
     shift n a.prime = (shift n a).prime := by simp [shift, Rel.prime]
 
+@[simp] theorem shift_integer (n : Nat) (i : Int) : shift n (.integer i) = .integer i := rfl
+@[simp] theorem shift_values (n owner : Nat) : shift n (.values owner) = .values owner := rfl
+
 theorem shift_term (h : Rel.Term r) (n : Nat) : (shift n r).Term := by
   induction h <;> simp only [shift_empty, shift_sig, shift_field, shift_var,
-    shift_univ, shift_iden, shift_ints, shift_union, shift_inter, shift_diff,
+    shift_univ, shift_iden, shift_ints, shift_integer, shift_values, shift_union, shift_inter, shift_diff,
     shift_product, shift_join, shift_transpose, shift_prime] <;> constructor <;> assumption
 
 theorem shift_eval (h : Rel.Term r) (s : Schema) (w : Nat) (τ : Trace)
@@ -238,6 +245,8 @@ theorem shift_eval (h : Rel.Term r) (s : Schema) (w : Nat) (τ : Trace)
   | univ => rfl
   | iden => rfl
   | ints => rfl
+  | integer _ => rfl
+  | values _ => rfl
   | union ha hb ia ib => simp only [shift_union, Rel.eval_union (shift_term ha _) (shift_term hb _), Rel.eval_union ha hb, ia, ib]
   | inter ha hb ia ib => simp only [shift_inter, Rel.eval_inter (shift_term ha _) (shift_term hb _), Rel.eval_inter ha hb, ia, ib]
   | diff ha hb ia ib => simp only [shift_diff, Rel.eval_diff (shift_term ha _) (shift_term hb _), Rel.eval_diff ha hb, ia, ib]

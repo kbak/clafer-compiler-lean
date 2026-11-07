@@ -66,6 +66,13 @@ The [first-slice encoding](behavioral-encoding.md) connects admitted behavioral
 IR to that target with a global trace representation, signed formula transport
 and structural snapshot proofs. Its native/Analyzer evidence remains separate
 from kernel proofs and full-profile qualification.
+The [full encoding](behavioral-encoding.md#full-profile-runtime) accepts elaborated
+model/check/run requests with the complete partial-expression surface and rich
+structural core. Its concrete trace representation retains all ordinary identities
+and completes finite integer observations into the mathematical integer carrier.
+The component contract records the recursive preservation, scope premises and
+composed in-memory proof boundary. Source CLI integration and final qualification
+remain separate delivery gates.
 The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input,
 solver-free native compilation, actual Analyzer trace decoding and exact
 three-way candidate comparison. Replay preserves complete frames and the loop;

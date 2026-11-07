@@ -355,6 +355,66 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Partial behavioral lowering primitives
+
+`req~compiler-behavioral-partial-lowering~1`
+
+Retain source definedness separately from raw and signed target truth when
+composing partial behavioral formulas. Boolean operands and both conditional
+branches remain strict. Temporal domains follow the original source formula:
+next checks the next active state, future operators check the entire remaining
+parent lifetime, and inactive birth/death anchors impose no operand obligation.
+Quantifiers require every admitted member's body to be defined; captures freeze
+the same collection for truth and definedness. Keep raw counting barriers.
+Classical assertion failure negates the complete attached property, including
+definedness. Prove these composition laws and retain distinguishing counterexamples.
+Concrete partial observations, full-profile representation and composed compiler
+soundness/completeness remain required by the [complete encoding contract](behavioral.md#independent-trace-assurance).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Full behavioral preservation
+
+`req~compiler-full-behavioral-correctness~1`
+
+Compile the complete selected behavioral expression and structural profile at the
+elaborated in-memory boundary. Prove preservation of original partial values,
+raw truth and both source signs through the actual recursive lowering, including
+frozen captures, whole-tuple counting and repeated aggregate occurrences.
+Derive source structural validity and model/query satisfaction from successful
+compilation and satisfaction of its actual target module. Prove the reverse for
+represented source lassos under concrete data-only identity, declaration scope,
+integer observation, count and step bounds. Keep the primitive source integer
+carrier mathematical and infinite. Connect successful source elaboration to
+these results, retaining parser, native execution, serialization and solver
+boundaries explicitly. No assumed expression agreement, target truth in `Fits`,
+per-state identity renaming or bounded solver result replaces a proof.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral property commands
+
+`req~compiler-behavioral-property-commands~1`
+
+Compile a run request as model-plus-scenario satisfaction and a check request as
+classical failure of the complete asserted property. Assertions are separate
+from model facts. Undefined asserted properties are counterexamples; source
+negation retains the original strict domain and signed lifetime meaning.
+Preserve implicit-always attachment and explicit lifetime anchors. Prove these
+command meanings for the actual compiled module and retain distinguishing native
+counterexamples, including undefined assertions and additional scenarios.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Serialized temporal traces
 
 `req~compiler-temporal-decode~1`

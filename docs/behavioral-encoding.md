@@ -1,20 +1,24 @@
-# Behavioral first-slice encoding
+# Behavioral encoding
 
 `impl~compiler-behavioral-encoding~1`
 `impl~compiler-trace-representation~1`
 `impl~compiler-behavioral-correctness~1`
+`impl~compiler-full-behavioral-correctness~1`
+`impl~compiler-behavioral-property-commands~1`
 
-The first-slice library connects admitted [behavioral IR](behavioral-ir.md) to
-the independent [temporal target](alloy-temporal.md). It uses the selected
+The behavioral libraries connect admitted [behavioral IR](behavioral-ir.md) to
+the independent [temporal target](alloy-temporal.md). They use the selected
 [behavioral profile](behavioral.md), immutable [sources](sources.md#behavioral-sources)
-and the guarded structural core. The full behavioral frontend, primitive
-arithmetic, surface reductions, resolved CLI protocol and final qualification
-retain their own completion gates.
+and the selected structural core. The original first-slice API and resolved CLI
+remain available. The full-profile API consumes elaborated in-memory requests;
+source CLI integration and final qualification retain their own completion gates.
 
 Covers:
 - `req~compiler-behavioral-encoding~1`
 - `req~compiler-trace-representation~1`
 - `req~compiler-behavioral-correctness~1`
+- `req~compiler-full-behavioral-correctness~1`
+- `req~compiler-behavioral-property-commands~1`
 
 ## Runtime representation
 
@@ -129,7 +133,170 @@ finite observations. They do not prove serialized grammar recognition, native
 execution, SAT solving, arbitrary infinite-trace periodicity or full behavioral
 profile qualification. Independent semantic review remains an acceptance gate.
 
+## Full-profile runtime
+
+`Backend.Alloy.Behavioral.Full.compile` accepts `Full.Request`, explicit
+identity/declaration scopes, an integer observation interval, bitwidth, trace
+step limits and traversal fuel. It compiles constraints, effective inherited
+modifiers and the selected run scenario or assertion into the same checked
+independent target. Every source branch passes range analysis before lowering;
+exhausted traversal fuel returns an unsupported diagnostic.
+
+The full schema uses disjoint concrete direct-type pools and derives inherited
+views from the validated ancestor table. Mutable object-reference rows preserve
+reference heads, including bag occurrences; scalar-reference rows use a separate
+integer field. Containment, effective local/group intervals, inherited reference
+owners, refined containment and set keys are checked against those concrete
+observations. The actual parent and allocated object inventory remain fixed over
+the entire trace.
+
+Primitive integers have the source carrier `Int`, with the full mathematical
+integer extent at every time. A finite target observes bounded integer literals,
+scalar fields and expression operands. `Completion` combines the finite ordinary
+object carrier with all integers; it does not identify the source integer extent
+with Alloy's bounded `Int`. Direct infinite primitive extents, primitive child
+enumeration and primitive-owned attachments are rejected. Finite integer captures
+and arithmetic remain supported, including a captured integer as `this`.
+
+`Full.Expressions.lowerAt` translates sets, collection families, scalar integers,
+predicates, grouped atoms and formulas. Guarded values preserve missing results,
+strict conditional branches, singleton extraction, implicit sum coercion, empty
+extrema and repeated fold occurrences. Arithmetic admission covers intermediate
+values and fold prefixes. Ordered grouped tuples count the original raw body;
+ordinary source negation uses the separate signed translation.
+
+Each partial formula has a reified original domain and raw/positive/negative
+truth. Parent cancellation and inactive birth/end anchors introduce no operand
+domain obligation. Within the active parent interval, temporal operands retain
+the original strict domain even after a truth witness. `check` negates the whole
+attached property classically, so an undefined property is a counterexample;
+this differs from a source negation, which also requires definedness.
+
+## Full-profile proof components
+
+`Full.TraceRep` relates the fixed ordinary identity labels and every stored
+observation to the target. The completed source interpretation adds all primitive
+integers. `ObservesCompletion.formula_transport` transports every
+expression constructor between a represented source carrier and that completion,
+including source definedness and both temporal signs.
+
+`compiled_structural_sound` in the `Full` correctness namespace starts from successful full
+compilation and actual target satisfaction, derives checked decoder success,
+and proves upstream structural validity of the completed trace.
+`encode_full_structure` proves the reverse declarations, scopes, scalar fields
+and generated structural facts. `structuralFacts_defined_of_holds` supplies the
+target-definedness obligations for those actual facts. Their fit assumptions
+constrain data: global identity capacity and labels, source pool/fiber counts,
+integer intervals and stored scalar values. They contain no expression truth or
+preservation premise.
+
+The expression proof follows the executable pass. `SyntaxBuilt.lowerAt` checks
+all successful branches, including unreachable alternatives. `Ranges.inputs_of_facts`
+derives primitive input bounds from target structure; `Ranges.integer_fits`
+propagates them through source expression evaluation. Constructor proofs consume
+the actual successful lowering results and preserve the original source options,
+raw truth and both signs. Frozen environments and the finite alias cover are
+explicit data invariants. The range and completion proofs remain outside the
+runtime dependency graph.
+
+`Expressions.lowerAt_preserves` proves preservation by induction over the actual
+seven-part recursive pass. `lower_preserves` derives its range certificate from
+successful admission. `modifiers_source` connects the actual generated list to
+the upstream effective modifier contract, including vacuous primitive contexts.
+`command_source` distinguishes classical failure of the whole asserted property
+from strict source negation.
+
+`Full.compiled_sound` composes these results: successful compilation and actual
+target satisfaction yield checked decoding and `SourceResult` on the completed
+source trace. The direct IR theorems also take the declaration ID and origin
+proof for the built-in integer type; source frontend binding derives its
+existence. `SourceResult` uses the existing upstream model, constraints,
+counterexamples and scenario semantics; `sourceResult_request` connects these
+witnesses to the existing request interpretation. `Full.compiled_complete`
+proves that the concrete encoder satisfies the actual successfully compiled
+module for a completed source witness satisfying data-only `Fits` conditions.
+These conditions cover source identity labels/capacity, scalar observations,
+structural counts, declaration scopes and lasso length. Target formula truth,
+target definedness and expression agreement are conclusions, not fit premises.
+`compiled_complete_observed` accepts the original source trace and integer
+realization with `ObservesCompletion` data equations. The proved
+`ObservesCompletion.valid` and `sourceResult` transport its structure and query
+meaning to completion; neither completed validity nor formula agreement is
+assumed from the caller. Unused source identities need not be enumerated.
+
+`TargetDefined.formula_defined` and the actual lowering's `CountFree.lowerAt`
+certificate derive arithmetic totality from the checked target syntax, even in
+inactive alternatives. This permits an undefined source assertion to yield a
+defined target counterexample. `frontend_sound` and `frontend_complete` compose
+the full compiler with successful source elaboration;
+`frontend_complete_observed` retains the original source carrier. `elaborate_source` retains
+every authored and generated header derivation; `check_model` and `run_model`
+identify the model in actual frontend requests. `check_source` preserves the
+assertion index and `run_source` preserves every scenario body, span and attachment
+in order through the existing list traversal. Source declaration binding
+supplies the implicit primitive integer declaration even for an empty model.
+
+The full-profile Analyzer fixtures in `BehavioralFullNative`,
+`BehavioralFullExpressionsNative`, `BehavioralFullPatternsNative`,
+`BehavioralFullModifiersNative`, `BehavioralFullTemporalNative`,
+`BehavioralFullStructureNative` and `BehavioralFullFrontendNative` exercise
+actual frontend elaboration and output.
+The pattern suite covers all thirty pattern/scope cells, both signs and
+satisfying/violating traces, plus missing and simultaneous boundaries, events at
+boundaries, late triggers, first openers, parent death and reappearance. Modifier
+fixtures distinguish inherited and direct heads, target images, replacement,
+gaps and both orders of combined modifiers. The native harness rejects proof
+and upstream-semantics imports. Additional authored cases distinguish inherited
+birth obligations, parent-gap resets, dynamic enum literal identities, nested
+universal assertion checks and declaration equations after the first live state.
+The harness retains source hashes, emitted text and solver observations. These
+finite witnesses do not establish periodicity of
+arbitrary infinite source traces or replace kernel checking.
+
 ## Reuse assessment
+
+Full expression values reuse finite guarded alternatives derived from the existing
+freeze construction, target postfix syntax, upstream `PrimitiveExpression` and
+`IntegerObservation`, frontend `Ranges`, and static scalar fallback. These APIs
+do not directly express strict conditional values or ordered tuple counts.
+Standard `List` folds hold guarded values; both conditional branches retain their
+domains. Repeated covering aliases are deduplicated by identity, while repeated
+source domains retain distinct occurrences. This adds no dependency or license
+cost; finite case expansion may be exponential and needs explicit covering and
+range proofs before full-profile preservation can be claimed.
+
+The rich structural candidate uses validated ancestor and reference-owner tables
+with disjoint direct-type signatures. The first-slice M1 schema and its
+`SnapshotRepresentation` require a narrower inheritance shape and cannot be reused
+wholesale. Fixed parents, live tables and target relational builders remain shared.
+The primitive integer extent is represented separately from object identities;
+full source completion requires an observation theorem, not a bijection between
+an infinite integer carrier and the finite object inventory.
+
+The full attachment builder reuses the fixed global alias cover for every
+attachment. Root-owned formulas specialize their frozen context to the
+represented root identity. This preserves one attachment construction and avoids
+an extra proof layer solely to omit unused binders. Alloy can eliminate binders
+whose aliases do not occur in a body; captures retain the same explicit finite
+expansion cost.
+
+Target arithmetic totality reuses `Integer.range`, checked interval operations
+and the existing arithmetic proof helpers. The first-slice definedness theorem
+requires relation-count bounds, whereas full lowering emits count literals and
+no `Integer.count`. `CountFree` records that concrete syntax invariant through
+the existing value and traversal operations, allowing target admission to prove
+totality of every emitted alternative. This proof-only layer adds no dependency
+or runtime machinery.
+
+Partial formula lowering reuses the first-slice raw/positive/negative
+`Translation`, frozen-set enumeration and explicit lifetime operators. It retains
+definedness as a separate target formula over the original source tree. Reusing
+`Temporal.Formula.Defined` for this purpose would be incorrect: its arithmetic
+checks are target well-definedness, and its temporal checks do not stop at the
+source parent's first absence. The upstream `Formula.Defined` equations supply
+the source domain. Reifying that domain with the existing target constructors
+also permits classical failure of an undefined assertion. No new temporal
+evaluator, collection library or dependency is required.
 
 The existing structural signature allocator, declarations, fact generator,
 finite fiber proofs and scope resolver supply the structural component. A live
@@ -176,3 +343,18 @@ The mandatory repository check still builds every discovered Lean module,
 audits transitive axioms, replays the kernel and runs all static and behavioral
 regression groups. Its retained receipt is evidence for one exact candidate;
 IntentBond exit 4 leaves independent semantic review pending.
+
+The full range bridge reuses `Expression.Ranges` derivations, the accepted
+`BehavioralArithmetic` interval lemmas, upstream finite integer conversion and
+aggregate APIs, and Mathlib finite-set cardinality. It supplies the missing
+connection from scope and observation budgets to these semantic APIs. The bridge
+has no native dependency or additional license cost; mathematical enumeration
+and finite-set proofs remain outside the runtime compiler.
+
+`Partial.knownTrue` reuses the target `Formula.fold` to recognize a conservative
+subset of formulas that hold at every time and environment. `totalAlways` omits
+repeated lifetime guards for those total original domains. The proof
+`Partial.knownTrue_sound` is independent of source satisfaction; source range
+admission still visits every operand and branch before lowering. The existing
+fold and lifetime lemmas supply the implementation and proof machinery; no
+optimizer package or additional runtime dependency is introduced.

@@ -26,6 +26,8 @@ structure Inputs (k : Nat) where
   root : CollectionEstimate
   extents : Vector CollectionEstimate k
   steps : Step k → CollectionEstimate
+  extentAllowed : Vector Bool k := Vector.replicate k true
+  stepAllowed : Step k → Bool := fun _ => true
 
 abbrev Context (n : Nat) := Vector CollectionEstimate n
 
@@ -42,12 +44,12 @@ inductive SetBound (b : Inputs k) (Γ : Context n) : SetExpr k n → CollectionE
   | this (fits : b.context.values.fits b.width = true) : SetBound b Γ .this b.context
   | root (fits : b.root.values.fits b.width = true) : SetBound b Γ .root b.root
   | var (fits : Γ[i].values.fits b.width = true) : SetBound b Γ (.var i) Γ[i]
-  | extent (fits : b.extents[d].values.fits b.width = true) : SetBound b Γ (.extent d) b.extents[d]
+  | extent (allowed : b.extentAllowed[d] = true) (fits : b.extents[d].values.fits b.width = true) : SetBound b Γ (.extent d) b.extents[d]
   | union (left : SetBound b Γ a x) (right : SetBound b Γ c y) : SetBound b Γ (.union a c) (union x y)
   | inter (left : SetBound b Γ a x) (right : SetBound b Γ c y) : SetBound b Γ (.inter a c) (intersection x y)
   | diff (left : SetBound b Γ a x) (right : SetBound b Γ c y) : SetBound b Γ (.diff a c) x
-  | step (body : SetBound b Γ a x) (fits : (b.steps s).values.fits b.width = true) : SetBound b Γ (.step s a) (b.steps s)
-  | thisStep (fits : (b.steps s).values.fits b.width = true) : SetBound b Γ (.thisStep s) (b.steps s)
+  | step (body : SetBound b Γ a x) (allowed : b.stepAllowed s = true) (fits : (b.steps s).values.fits b.width = true) : SetBound b Γ (.step s a) (b.steps s)
+  | thisStep (allowed : b.stepAllowed s = true) (fits : (b.steps s).values.fits b.width = true) : SetBound b Γ (.thisStep s) (b.steps s)
 
 def family (ds : List CollectionEstimate) : CollectionEstimate :=
   match ds with
@@ -69,7 +71,7 @@ mutual
     | union (left : CollectionBound b Γ a x) (right : CollectionBound b Γ c y) : CollectionBound b Γ (.union a c) (union x y)
     | inter (left : CollectionBound b Γ a x) (right : CollectionBound b Γ c y) : CollectionBound b Γ (.inter a c) (intersection x y)
     | diff (left : CollectionBound b Γ a x) (right : CollectionBound b Γ c y) : CollectionBound b Γ (.diff a c) x
-    | step (body : CollectionBound b Γ a r) (fits : (b.steps s).values.fits b.width = true) : CollectionBound b Γ (.step s a) (b.steps s)
+    | step (body : CollectionBound b Γ a r) (allowed : b.stepAllowed s = true) (fits : (b.steps s).values.fits b.width = true) : CollectionBound b Γ (.step s a) (b.steps s)
     | ofType (body : CollectionBound b Γ a r) : CollectionBound b Γ (.ofType d a) r
     | ite (condition : FormulaBound b Γ c) (yes : CollectionBound b Γ a x) (no : CollectionBound b Γ d y) :
         CollectionBound b Γ (.ite c a d) (selected x y)

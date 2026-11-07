@@ -16,7 +16,13 @@ theorem relation_constant {r : Temporal.Rel} (h : r.Term) (s : Temporal.Schema) 
     (constant : ConstantValuation τ) (e : Temporal.Environment) (t u : Nat) :
     r.eval s w τ e t = r.eval s w τ e u := by
   induction h generalizing t u with
-  | empty | var | ints => rfl
+  | empty | var | ints | integer => rfl
+  | values n =>
+    change (τ.state t |>.values[n]?.getD []).map (fun (x, n) =>
+      [Temporal.Atom.object x, Temporal.Atom.integer n]) =
+      (τ.state u |>.values[n]?.getD []).map (fun (x, n) =>
+        [Temporal.Atom.object x, Temporal.Atom.integer n])
+    rw [constant t, constant u]
   | sig n =>
     change (τ.state t |>.signatures[n]?.getD []).map (fun x => [Temporal.Atom.object x]) =
       (τ.state u |>.signatures[n]?.getD []).map (fun x => [Temporal.Atom.object x])

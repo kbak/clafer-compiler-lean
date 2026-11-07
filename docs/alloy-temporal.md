@@ -23,7 +23,9 @@ The folds carry lexical-depth or environment/time functions where needed.
 The admitted declaration subset includes the existing static type-signature
 forest and mutable top-level type signatures. Every signature has an explicit
 scope; mutable signatures use upper identity scopes. Mutable subtype scopes,
-subset signatures, scalar value fields and exact mutable scopes are not admitted.
+subset signatures and exact mutable scopes are not admitted. A scalar signature
+adds one mutable `Int` value per object using the existing scalar table; its
+owner, uniqueness, totality and signed-width checks hold in every state.
 Use static identity carriers and mutable fields for a fixed pool with changing
 live membership. These are target representation choices, not exclusions from the
 source completion matrix: the full encoder owns additional required integer
@@ -32,10 +34,14 @@ Alloy modules, functions, closures, higher-arity relations or text escapes.
 
 Relations include unary/binary emptiness, signatures, fields, captured singleton
 variables, `univ`, `iden`, `Int`, union/intersection/difference, product, join,
-transpose and prime. Quantifier domains are unary and resolve in the outer
+transpose and prime. Integer singleton relations and mixed object-to-integer
+value relations use distinct tagged atoms. Quantifier domains are unary and resolve in the outer
 environment; bodies resolve at the next de Bruijn depth. Integers include
-literals, tuple counts, addition and subtraction with the existing signed
-bitwidth and conservative interval checks. Admission visits both branches and
+literals, tuple counts, guarded scalar extraction, addition, subtraction,
+multiplication, division and remainder with signed bitwidth and conservative
+interval checks. Division and remainder truncate toward zero; possible-zero
+divisor intervals are unsupported. Extraction selects a bounded fallback outside
+its singleton integer interval, with source definedness represented separately. Admission visits both branches and
 quantified/temporal bodies. It never assumes fact truth to justify a range.
 Mutable `one`/`lone` populations may draw from more than one identity across
 time; the static singleton scope restrictions apply only to static declarations.
@@ -55,7 +61,7 @@ Covers:
 
 [Semantics](../ClaferCompiler/Backend/Alloy/Temporal/Semantics.lean) defines
 `Atom`, `State`, `Trace`, `Rel.eval`, `Integer.eval`, `Formula.Holds`,
-`Formula.Defined`, `Trace.Declarations`, `Trace.InScope`, `Satisfies`,
+`Formula.Defined`, `scalarValue`, `Trace.Declarations`, `Trace.InScope`, `Satisfies`,
 `Lasso`, `checkLasso` and `Lasso.Satisfies`.
 
 A trace has one finite object inventory and a state at every natural-number time.
@@ -136,6 +142,20 @@ Covers:
 - `req~compiler-alloy-temporal-text~1`
 
 ## Source correspondence and reuse
+
+The full encoder's integer extension reuses the temporal postfix traversal,
+`IntRange.checked`, Lean's `Int.tdiv`/`Int.tmod`, and the existing checked
+printer/parser. The static target only supplies addition/subtraction and a
+singleton scalar interface; it cannot express the selected product, quotient
+and remainder operations. The frontend's `BehavioralArithmetic` supplies
+conservative magnitude bounds and their semantic proofs. Target interval
+calculations use those same bounds over the target's existing `IntRange`, with
+the correspondence proved in the compiler correctness layer. They introduce
+no source-truth dependency into target interpretation. Division and remainder
+admission must exclude zero throughout the denominator interval, and every
+intermediate must fit. The pinned Alloy integer built-ins supply the text
+correspondence; native Analyzer tests remain separate from Lean evaluation.
+No dependency or license pin changes are required.
 
 The guide is the [official Alloy 6 reference](https://alloytools.org/alloy6.html)
 and [language reference](https://alloytools.org/spec.html), especially temporal

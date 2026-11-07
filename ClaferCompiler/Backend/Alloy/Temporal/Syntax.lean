@@ -18,6 +18,7 @@ structure Schema where
 Standard List folds avoid generated partial recursive project helpers. -/
 inductive RelOp where
   | empty (arity : Arity) | sig (id : Nat) | field (id : Nat) | var (index : Nat)
+  | integer (value : Int) | values (owner : Nat)
   | univ | iden | ints | union | inter | diff | product | join | transpose | prime
   deriving DecidableEq, BEq
 
@@ -32,6 +33,8 @@ def Rel.var (x : Nat) : Rel := ⟨[.var x]⟩
 def Rel.univ : Rel := ⟨[.univ]⟩
 def Rel.iden : Rel := ⟨[.iden]⟩
 def Rel.ints : Rel := ⟨[.ints]⟩
+def Rel.integer (n : Int) : Rel := ⟨[.integer n]⟩
+def Rel.values (owner : Nat) : Rel := ⟨[.values owner]⟩
 def Rel.union (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.union]⟩
 def Rel.inter (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.inter]⟩
 def Rel.diff (a b : Rel) : Rel := ⟨a.code ++ b.code ++ [.diff]⟩
@@ -48,6 +51,8 @@ structure RelAlgebra (α : Type) where
   univ : α
   iden : α
   ints : α
+  integer : Int → α
+  values : Nat → α
   union : α → α → α
   inter : α → α → α
   diff : α → α → α
@@ -65,6 +70,8 @@ def RelAlgebra.step (a : RelAlgebra α) (stack : Option (List α)) (op : RelOp) 
   | .univ, some xs => some (a.univ :: xs)
   | .iden, some xs => some (a.iden :: xs)
   | .ints, some xs => some (a.ints :: xs)
+  | .integer n, some xs => some (a.integer n :: xs)
+  | .values n, some xs => some (a.values n :: xs)
   | .union, some (y :: x :: xs) => some (a.union x y :: xs)
   | .inter, some (y :: x :: xs) => some (a.inter x y :: xs)
   | .diff, some (y :: x :: xs) => some (a.diff x y :: xs)
@@ -80,7 +87,9 @@ def Rel.fold (a : RelAlgebra α) (fallback : α) (r : Rel) : α :=
   | _ => fallback
 
 inductive IntegerOp where
-  | literal (value : Int) | count (rel : Rel) | add | subtract
+  | literal (value : Int) | count (rel : Rel)
+  | scalar (lower upper : Int) (rel : Rel) | add | subtract
+  | multiply | divide | remainder
   deriving DecidableEq, BEq
 
 structure Integer where
@@ -89,21 +98,33 @@ structure Integer where
 
 def Integer.literal (n : Int) : Integer := ⟨[.literal n]⟩
 def Integer.count (r : Rel) : Integer := ⟨[.count r]⟩
+def Integer.scalar (lo hi : Int) (r : Rel) : Integer := ⟨[.scalar lo hi r]⟩
 def Integer.add (a b : Integer) : Integer := ⟨a.code ++ b.code ++ [.add]⟩
 def Integer.subtract (a b : Integer) : Integer := ⟨a.code ++ b.code ++ [.subtract]⟩
+def Integer.multiply (a b : Integer) : Integer := ⟨a.code ++ b.code ++ [.multiply]⟩
+def Integer.divide (a b : Integer) : Integer := ⟨a.code ++ b.code ++ [.divide]⟩
+def Integer.remainder (a b : Integer) : Integer := ⟨a.code ++ b.code ++ [.remainder]⟩
 
 structure IntegerAlgebra (α : Type) where
   literal : Int → α
   count : Rel → α
+  scalar : Int → Int → Rel → α
   add : α → α → α
   subtract : α → α → α
+  multiply : α → α → α
+  divide : α → α → α
+  remainder : α → α → α
 
 def IntegerAlgebra.step (a : IntegerAlgebra α) (stack : Option (List α)) (op : IntegerOp) : Option (List α) :=
   match op, stack with
   | .literal n, some xs => some (a.literal n :: xs)
   | .count r, some xs => some (a.count r :: xs)
+  | .scalar lo hi r, some xs => some (a.scalar lo hi r :: xs)
   | .add, some (y :: x :: xs) => some (a.add x y :: xs)
   | .subtract, some (y :: x :: xs) => some (a.subtract x y :: xs)
+  | .multiply, some (y :: x :: xs) => some (a.multiply x y :: xs)
+  | .divide, some (y :: x :: xs) => some (a.divide x y :: xs)
+  | .remainder, some (y :: x :: xs) => some (a.remainder x y :: xs)
   | _, _ => none
 
 def Integer.fold (a : IntegerAlgebra α) (fallback : α) (n : Integer) : α :=
@@ -256,6 +277,8 @@ def Rel.typeOf (s : Schema) (depth : Nat) (r : Rel) : Option Arity :=
     field := fun i => if i < s.declarations.fields.length then some .binary else none
     var := fun i => if i < depth then some .unary else none
     univ := some .unary, iden := some .binary, ints := some .unary
+    integer := fun _ => some .unary
+    values := fun i => if (s.declarations.signatures[i]?).any Alloy.Signature.scalar then some .binary else none
     union := sameArity, inter := sameArity, diff := sameArity
     product := fun a b => if a == some .unary && b == some .unary then some .binary else none
     join := fun a b => match a, b with
@@ -268,7 +291,9 @@ def Rel.typeOf (s : Schema) (depth : Nat) (r : Rel) : Option Arity :=
 def Integer.wellTyped (s : Schema) (d : Nat) (n : Integer) : Bool :=
   n.fold {
     literal := fun _ => true, count := fun r => (r.typeOf s d).isSome
-    add := (· && ·), subtract := (· && ·) } false
+    scalar := fun lo hi r => lo ≤ hi && r.typeOf s d == some .unary
+    add := (· && ·), subtract := (· && ·), multiply := (· && ·)
+    divide := (· && ·), remainder := (· && ·) } false
 
 def Formula.wellTyped (s : Schema) (d : Nat) (p : Formula) : Bool :=
   p.fold {
@@ -287,7 +312,7 @@ def Schema.wellFormed (s : Schema) : Bool :=
   s.mutableSignatures.length == s.declarations.signatures.length &&
   s.mutableFields.length == s.declarations.fields.length &&
   s.declarations.signatures.zipIdx.all (fun (sig, i) =>
-    !sig.scalar && (!(s.mutableSignatures[i]?.getD false) || sig.parent.isNone))
+    (!(s.mutableSignatures[i]?.getD false) || sig.parent.isNone))
 
 def Module.wellTyped (m : Module) : Bool :=
   m.schema.wellFormed && m.facts.all (Formula.wellTyped m.schema 0) &&
@@ -304,35 +329,61 @@ def Rel.columns (m : Module) (r : Rel) : List Nat :=
                    (m.command.scopes[f.target]?.map Scope.size).getD 0]
       | none => [0, 0]
     var := fun _ => [1]
+    integer := fun _ => [1]
+    values := fun i => [(m.command.scopes[i]?.map Scope.size).getD 0, 2 ^ m.command.bitwidth]
     ints := [2 ^ m.command.bitwidth], univ := [capacity], iden := [capacity, capacity]
     union := List.zipWith (· + ·), inter := List.zipWith min, diff := fun a _ => a
     product := (· ++ ·), join := fun a b => a.dropLast ++ b.drop 1
     transpose := List.reverse, prime := id } []
 
+/-- The same conservative magnitude bounds used by the frontend range pass,
+over the target's independent interval representation. -/
+def magnitude (r : IntRange) : Nat := max r.lower.natAbs r.upper.natAbs
+
+def symmetric (bound : Nat) : IntRange := ⟨-(bound : Int), bound⟩
+
+def nonzero (r : IntRange) : Bool := r.upper < 0 || 0 < r.lower
+
+def quotientRange (width : Nat) (a b : Option IntRange) : Option IntRange := do
+  let a ← a; let b ← b
+  if nonzero b then IntRange.checked width (symmetric (magnitude a)) else none
+
+def Rel.safe (m : Module) (r : Rel) : Bool := r.code.all fun op => match op with
+  | .integer n => fitsInt m.command.bitwidth n
+  | _ => true
+
+-- [impl->req~compiler-alloy-temporal-target~1]
 def Integer.range (m : Module) (n : Integer) : Option IntRange :=
   n.fold {
     literal := fun n => IntRange.checked m.command.bitwidth ⟨n, n⟩
-    count := fun r => IntRange.checked m.command.bitwidth
-      ⟨0, Int.ofNat ((r.columns m).foldl (· * ·) 1)⟩
+    scalar := fun lo hi r => if r.safe m then IntRange.checked m.command.bitwidth ⟨lo, hi⟩ else none
+    count := fun r => if r.safe m then IntRange.checked m.command.bitwidth
+      ⟨0, Int.ofNat ((r.columns m).foldl (· * ·) 1)⟩ else none
     add := fun a b => do
       let a ← a; let b ← b
       IntRange.checked m.command.bitwidth ⟨a.lower + b.lower, a.upper + b.upper⟩
     subtract := fun a b => do
       let a ← a; let b ← b
-      IntRange.checked m.command.bitwidth ⟨a.lower - b.upper, a.upper - b.lower⟩ } none
+      IntRange.checked m.command.bitwidth ⟨a.lower - b.upper, a.upper - b.lower⟩
+    multiply := fun a b => do
+      let a ← a; let b ← b
+      IntRange.checked m.command.bitwidth (symmetric (magnitude a * magnitude b))
+    divide := quotientRange m.command.bitwidth
+    remainder := quotientRange m.command.bitwidth } none
 
 def Formula.safe (m : Module) (p : Formula) : Bool :=
   p.fold {
     truth := true, falsity := true
-    equal := fun _ _ => true, subset := fun _ _ => true, mult := fun _ _ => true
+    equal := fun a b => a.safe m && b.safe m
+    subset := fun a b => a.safe m && b.safe m, mult := fun _ r => r.safe m
     compare := fun _ a b => (a.range m).isSome && (b.range m).isSome
     unary := fun _ p => p, binary := fun _ p q => p && q
-    all := fun _ p => p, exists_ := fun _ p => p } false
+    all := fun r p => r.safe m && p, exists_ := fun r p => r.safe m && p } false
 
 def Rel.temporal (r : Rel) : Bool := r.code.contains .prime
 
 def Integer.temporal (n : Integer) : Bool := n.code.any fun op => match op with
-  | .count r => r.temporal
+  | .count r | .scalar _ _ r => r.temporal
   | _ => false
 
 def Formula.temporal (p : Formula) : Bool := p.code.any fun op => match op with
@@ -348,6 +399,7 @@ def Formula.temporal (p : Formula) : Bool := p.code.any fun op => match op with
 /-- Alloy rejects an explicit `steps` scope on an entirely static module. -/
 def Module.temporal (m : Module) : Bool :=
   m.schema.mutableSignatures.any id || m.schema.mutableFields.any id ||
+  m.schema.declarations.signatures.any Alloy.Signature.scalar ||
   m.facts.any Formula.temporal || m.command.body.temporal
 
 def Module.safeBounds (m : Module) : Bool :=

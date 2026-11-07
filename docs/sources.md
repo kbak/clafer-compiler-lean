@@ -627,6 +627,24 @@ output. The [native/Analyzer corpus](behavioral-encoding.md#fixtures-and-validat
 records emitted modules, complete witnesses and source/tool hashes independently
 of those kernel statements. No source or tool pin changes accompany this slice.
 
+The [full-profile encoder](behavioral-encoding.md#full-profile-runtime) reuses
+that target and the accepted upstream `PartialObservation`, `PrimitiveExpression`,
+`IntegerObservation`, aggregate, lifetime and structural definitions. The
+behavioral paper's builtin integer domain is the mathematical integers; the
+full completion preserves it while bounding only target observations. The pinned
+Haskell `AlloyLtl.hs` integer import, strict arithmetic lowering, pattern expansions
+and inherited modifier combinations supply comparison context. The behavioral
+frontend provisions the implicit integer declaration before separately adding a
+numeric scenario. This repairs the compiler's separate-scenario admission path;
+it changes neither the paper nor the upstream/Haskell integer meaning.
+
+No new semantic dependency or tool pin is introduced. Mathlib's existing finite
+sets, indexed occurrences, cardinality, equivalences and relation libraries
+supply proof machinery; Lean/Std supplies executable list/vector traversals.
+The full proof modules and infinite source completion are absent from native
+compiler imports. Exact source and tool hashes accompany the expanded native
+and Analyzer fixtures.
+
 Workflow changes reuse the accepted upstream MIT `scripts/tickets.py` Ready mapping
 and live Project-ID test pattern, Python's standard library and existing Actions
 conditions. The [reuse assessment](behavioral.md#static-separation-and-reuse)
