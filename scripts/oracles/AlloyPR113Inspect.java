@@ -13,8 +13,7 @@ public final class AlloyPR113Inspect {
         throw new IllegalArgumentException("unsupported field declaration: " + expression);
     }
     // [impl->req~compiler-temporal-oracles~1]
-    public static void main(String[] args) throws Exception {
-        CompModule model = CompUtil.parseEverything_fromFile(new A4Reporter(), null, "model.als");
+    static Map<String,Object> inventory(CompModule model) {
         Map<String,Object> sigs = new TreeMap<>(), fields = new TreeMap<>();
         for (Sig s : model.getAllReachableSigs()) {
             if (s.builtin) continue;
@@ -35,7 +34,16 @@ public final class AlloyPR113Inspect {
         }
         List<Object> commands = new ArrayList<>();
         for (Command c : model.getAllCommands()) commands.add(AlloyTemporalBridge.command(c));
-        Files.writeString(Path.of("inspection.json"), AlloyTemporalBridge.JSON.toJson(
-            Map.of("schema","clafer-pr113-inspection/1", "signatures",sigs,"fields",fields,"commands",commands)));
+        return Map.of("schema","clafer-pr113-inspection/1", "signatures",sigs,"fields",fields,"commands",commands);
+    }
+    public static void main(String[] args) throws Exception {
+        if (Arrays.equals(args, new String[]{"--solve"})) {
+            // The bridge retains one fresh model and the ordinary query/error path.
+            AlloyTemporalBridge.run(AlloyPR113Inspect::inventory);
+        } else {
+            if (args.length != 0) throw new IllegalArgumentException("expected --solve or no arguments");
+            CompModule model = CompUtil.parseEverything_fromFile(new A4Reporter(), null, "model.als");
+            Files.writeString(Path.of("inspection.json"), AlloyTemporalBridge.JSON.toJson(inventory(model)));
+        }
     }
 }

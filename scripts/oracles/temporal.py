@@ -117,19 +117,25 @@ def interrupted(directory, status, detail):
     return dict(observed, status=status, detail=detail)
 
 
-def solve(runtime, api, directory, request, timeout=30, heap_mb=512):
+def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspection=False):
     request_valid(request)
     if type(timeout) is not int or timeout<=0 or type(heap_mb) is not int or heap_mb<64:
         raise ValueError('Invalid resource budget')
+    if type(inspection) is not bool:
+        raise ValueError('Boolean inspection selection required')
     oracle.write(directory / 'request.json', request)
     options = [f'-Xmx{heap_mb}m','-Xss1m','-XX:ActiveProcessorCount=1','-XX:+UseSerialGC',
                '-XX:ReservedCodeCacheSize=64m','-XX:CompressedClassSpaceSize=64m']
     command = [str(runtime['java']), *options, '-cp', os.pathsep.join(
-        map(str,(runtime['classes'],runtime['jar']))), 'AlloyTemporalBridge']
+        map(str,(runtime['classes'],runtime['jar'])))]
+    command += ['AlloyPR113Inspect', '--solve'] if inspection else ['AlloyTemporalBridge']
     address = heap_mb+2048
-    oracle.write(directory / 'runtime.json', dict(identity=runtime['identity'],
+    receipt = dict(identity=runtime['identity'],
         bridge=runtime['temporal_bridge'], command=command, timeout_seconds=timeout,
-        heap_mb=heap_mb, address_space_mb=address, jvm_options=options))
+        heap_mb=heap_mb, address_space_mb=address, jvm_options=options)
+    if inspection:
+        receipt['inspector'] = runtime['inspector']
+    oracle.write(directory / 'runtime.json', receipt)
     def limits():
         resource.setrlimit(resource.RLIMIT_AS,(address*1024**2,)*2)
         resource.setrlimit(resource.RLIMIT_CORE,(0,0))
@@ -156,6 +162,16 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512):
                 raise ValueError('Unexpected effective solver options')
             if result['outcome']=='sat':
                 validate_trace(result['trace'],request)
+            if inspection:
+                try:
+                    observed = read(directory/'inspection.json')
+                    if (type(observed) is not dict or set(observed) != {'schema','signatures','fields','commands'}
+                            or observed['schema'] != 'clafer-pr113-inspection/1'
+                            or type(observed['signatures']) is not dict or type(observed['fields']) is not dict
+                            or type(observed['commands']) is not list):
+                        raise ValueError('Invalid inspection schema')
+                except (OSError,ValueError,KeyError,TypeError) as error:
+                    return dict(result,status='error',outcome=None,detail='Invalid inspection: '+str(error))
         return result
     except (OSError,ValueError,KeyError,TypeError) as error:
         return interrupted(directory,'error','Invalid solver output: '+str(error))
