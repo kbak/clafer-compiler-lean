@@ -24,6 +24,7 @@ ISOLATED_GROUPS = {
         'test_structural_alloy', 'test_structural_ir', 'test_structural_representation'},
 }
 ISOLATED_MODULES = set.union(*ISOLATED_GROUPS.values())
+REFERENCE_MODULES = {'test_pr113_oracles', 'test_temporal_oracles'}
 
 
 def cases(suite):
@@ -48,11 +49,21 @@ if len(sys.argv) == 2 and sys.argv[1] in ISOLATED_GROUPS:
         raise SystemExit('Each isolated module must contain tests')
     suite = unittest.TestSuite(groups)
     raise SystemExit(0 if run(suite) else 1)
-if sys.argv[1:]:
-    raise SystemExit('Usage: run_tests.py (all groups are mandatory)')
+compiler_ci = sys.argv[1:] == ['--compiler-ci']
+if sys.argv[1:] == ['--reference-ci']:
+    groups = [unittest.defaultTestLoader.discover('tests', pattern=name+'.py')
+              for name in sorted(REFERENCE_MODULES)]
+    if any(group.countTestCases() == 0 for group in groups):
+        raise SystemExit('Each reference module must contain tests')
+    raise SystemExit(0 if run(unittest.TestSuite(groups)) else 1)
+if sys.argv[1:] and not compiler_ci:
+    raise SystemExit('Usage: run_tests.py [--compiler-ci | --reference-ci]')
 
 suite = unittest.defaultTestLoader.discover('tests', pattern='test_*.py')
 all_cases = list(cases(suite))
+if compiler_ci:
+    all_cases = [t for t in all_cases if t.__class__.__module__ not in REFERENCE_MODULES]
+    print('Compiler CI: standalone reference corpora not run; full qualification required separately.', flush=True)
 present = [Path('tests',name+'.py').is_file() for name in ISOLATED_MODULES]
 if any(present) and not all(present):
     raise SystemExit('All isolated modules are required')
@@ -62,7 +73,7 @@ if all(present):
     if requested < 1 or requested > 4:
         raise SystemExit('CLAFER_TEST_JOBS must be between 1 and 4')
     worker_count = max(1, min(requested, cpus))
-    print(f'Regression groups: {len(ISOLATED_GROUPS) + 1}; workers: {worker_count}', flush=True)
+    print(f'Regression groups: {len(ISOLATED_GROUPS) + (0 if compiler_ci else 1)}; workers: {worker_count}', flush=True)
     def timed(label, action, *args):
         started = time.monotonic()
         result = action(*args)
@@ -73,7 +84,7 @@ if all(present):
         return subprocess.run([sys.executable, str(Path(__file__).resolve()), flag]).returncode == 0
     # Do not make bounded solver queries compete with Lean compilation/checkers.
     # Still run every other group if this mandatory phase fails.
-    results = [timed('--pr113-worker', isolated, '--pr113-worker')]
+    results = [] if compiler_ci else [timed('--pr113-worker', isolated, '--pr113-worker')]
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)

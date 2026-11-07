@@ -13,6 +13,8 @@ writing new ones and recording concrete reasons for custom solutions.
 Extend this foundation through a separately reviewed behavioral profile, preserving
 the structural compiler and its evidence while developing temporal support on the
 integration branch. Keep the full behavioral completion scope distinct from a first slice.
+Keep compiler feedback independent of unchanged reference-tool qualification,
+while retaining complete qualification before acceptance.
 
 Needs: req
 

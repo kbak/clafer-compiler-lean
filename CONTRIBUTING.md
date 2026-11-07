@@ -170,10 +170,17 @@ provisioning and validation.
 
 PRs outside `behavioral` and pushes to `main` run the Lean build, axiom audit, kernel replay,
 native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
-check before handoff. PRs targeting `behavioral`, pushes to `behavioral`, and
-GitHub Actions → CI → Run workflow run the full suite,
-including Haskell/Alloy comparisons and all regressions. A passing routine CI run
-is not full qualification evidence.
+check before handoff. Every PR targeting `behavioral` runs all compiler regressions,
+including Haskell/Alloy comparisons, and fresh proof checks. Standalone historical
+and PR113 reference corpora run in a separate job when their inputs or unclassified
+paths change. Missing comparison baselines require that job. Compiler-only results
+explicitly identify the two reference suites as not run in that profile.
+Marking a behavioral PR ready for review, pushing to `behavioral`, scheduled runs,
+and GitHub Actions → CI → Run workflow run the full suite. GitHub activates the
+daily schedule only after the workflow reaches the default branch; it checks
+`behavioral`. Until then, dispatch full runs manually. The existing required check
+waits for every selected job. See [profile selection](docs/build.md#ci-profiles)
+for the exact boundary. Routine or compiler-only CI is not full qualification evidence.
 
 CI separately caches pinned dependency packages, native Lake artifacts, Mathlib
 downloads, verified static/temporal exporters, Alloy and OFT. A semantics repin does
