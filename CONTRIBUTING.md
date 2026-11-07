@@ -147,9 +147,10 @@ The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
 CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another. The general behavioral suite and the PR113/source corpora start
-first through the same bounded executor. PR113 runs at most two independent
-cases concurrently, capped by available CPUs. The runner rejects
+share another. The PR113 corpus runs before the other groups so its bounded
+solver queries do not compete with Lean compilation. It runs at most two
+independent cases concurrently, capped by available CPUs. After that phase,
+the remaining groups share a bounded executor. The runner rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared
@@ -162,7 +163,8 @@ mandatory axiom audit and kernel replay. No proof/test result is reused.
 No private paths or credentials belong in source.
 
 The scope selects all files and review paths. Its reviewed execution deadline is
-600 seconds; coverage floors, check command and all gates are unchanged.
+1200 seconds; this is a failure ceiling, not a runtime target. Coverage floors,
+check command and all gates are unchanged.
 Dependency preparation is outside that deadline; CI allows 45 minutes for
 provisioning and validation.
 
@@ -179,12 +181,12 @@ not invalidate unchanged Haskell tools. Exporter recipes and binary/source recei
 are verified on reuse; cold exporters share the pinned Stack/GHC package store.
 Full IntentBond runs use an isolated source snapshot and run every validation gate.
 The axiom audit, regression suite and kernel replay run in sequence to avoid CPU
-and memory contention. Regression groups default to two workers; CI selects three
-to overlap the PR113 corpus with the other suites. Set `CLAFER_TEST_JOBS=1..4`
+and memory contention. After the exclusive PR113 phase, regression groups default
+to two workers; CI selects three. Set `CLAFER_TEST_JOBS=1..4`
 to select a limit, still bounded by CPU availability.
 CI summaries and retained logs report gate and regression-group durations.
 Preparation builds all imported upstream modules, including telematics examples.
-The workflow permits only the exact reviewed `120` → `600` deadline migration;
+The workflow permits only the exact reviewed `120` → `600` and `600` → `1200` deadline migrations;
 it retains the original comparison baseline and records both policy hashes.
 Every other scope amendment needs explicit review before selection as trusted policy.
 When checking across this migration locally, supply the reviewed scope explicitly

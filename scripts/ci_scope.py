@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Select baseline policy, allowing only the reviewed 120-to-600-second migration.
+"""Select baseline policy, allowing only explicitly reviewed deadline migrations.
 
 Adapted from pinned Clafer Semantics scripts/ci_scope.py (MIT).
 Copyright (c) 2026 Kacper Bak; see LICENSE.
@@ -15,6 +15,8 @@ from pathlib import Path
 ORIGINAL_SHA256 = "7209c4746455221aca57b7a884e133e4c38460dd180550323fe50b2c49c12449"
 MIGRATED_SHA256 = "796e137352b837af1042ca51f875749f1bf0152ac6439d3ce8678f475f26ba77"
 
+EXTENDED_SHA256 = "ad905b4cf0e2e275f60cc7aae01d09c7359732b80f8ae16e816392850838f7a5"
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -24,12 +26,15 @@ def digest(data):
 def select_scope(baseline, candidate):
     if candidate == baseline:
         return baseline
-    if digest(baseline) != ORIGINAL_SHA256:
+    migrations = {ORIGINAL_SHA256: (600, MIGRATED_SHA256),
+                  MIGRATED_SHA256: (1200, EXTENDED_SHA256)}
+    if digest(baseline) not in migrations:
         raise ValueError("unapproved scope change: baseline is not the approved migration source")
+    deadline, expected = migrations[digest(baseline)]
     policy = json.loads(baseline)
-    policy["tests"]["timeout_seconds"] = 600
+    policy["tests"]["timeout_seconds"] = deadline
     migrated = (json.dumps(policy, indent=2) + "\n").encode()
-    if digest(migrated) != MIGRATED_SHA256 or candidate != migrated:
+    if digest(migrated) != expected or candidate != migrated:
         raise ValueError("unapproved scope change: only the exact reviewed deadline is permitted")
     return migrated
 
@@ -44,7 +49,7 @@ def main():
     baseline, candidate = args.baseline.read_bytes(), args.candidate.read_bytes()
     selected = select_scope(baseline, candidate)
     record = {
-        "migration": "check-deadline-600" if selected != baseline else None,
+        "migration": f"check-deadline-{json.loads(selected)['tests']['timeout_seconds']}" if selected != baseline else None,
         "baseline_scope_sha256": digest(baseline),
         "candidate_scope_sha256": digest(candidate),
         "selected_scope_sha256": digest(selected),

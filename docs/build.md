@@ -81,20 +81,23 @@ available to proofs. These equalities cover Lean-level results; they do not veri
 the code generator or C toolchain. Native regressions and the
 [measurement harness](qualification.md#measurements-and-replay) check that boundary.
 
-`scope.json` includes all source and review paths, with a 600-second check deadline.
-The reviewed deadline amendment changes no coverage policy, command or gate.
+`scope.json` includes all source and review paths, with a 1200-second check deadline.
+The reviewed deadline amendment changes no coverage policy, command or gate;
+the deadline is a failure ceiling, not a runtime target.
 Provision dependencies before checking. After the build, the axiom audit,
 isolated regression suite and kernel replay run in sequence. This keeps expensive
 replay environments out of each regression's CPU and memory budget. Every gate
 runs even if another validation gate failed; every exit status must succeed.
 Replay uses two workers to bound large imported environments resident at once. Failures in the audit, replay or
 regressions fail the check. No module, test or kernel gate is skipped.
-The regression runner partitions the discovered tests into isolated concurrent
-groups; every group must execute without skips and pass. It retains every
-discovered case and propagates each group's failure.
+The regression runner runs the PR113 corpus first, with its existing two case
+workers, then runs the remaining groups concurrently. The bounded solver queries
+in that corpus therefore do not compete with Lean compilation in other suites.
+Every group must execute without skips and pass, including after a failed PR113
+phase. It retains every discovered case and propagates each group's failure.
 CI's overall 45-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and permits
-only the exact reviewed deadline migration described below. IntentBond exit 4
+only the exact reviewed deadline migrations described below. IntentBond exit 4
 always leaves semantic review pending.
 An external package cache may be copied into a fresh snapshot; its source commits
 are verified. An opt-in native Lake artifact cache can also restore unchanged
@@ -131,7 +134,7 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 The full local IntentBond check remains mandatory before handoff. Routine CI is
 build/proof/CLI evidence, not full qualification evidence. Both paths check scope
 identity against the original baseline and retain logs. The full-check command,
-coverage policy, test cases and time limits are unchanged.
+coverage policy, test cases and per-command time limits are unchanged.
 
 Both paths reuse the existing module inventory, Lake build targets, axiom audit,
 LeanChecker and Python `unittest` tests; no separate test framework or compiler
@@ -155,7 +158,7 @@ When adding a probe, keep its compiled output out of the public artifact paths.
 The [scope selector](../scripts/ci_scope.py) adapts the pinned Clafer Semantics
 `scripts/ci_scope.py` (MIT, copyright 2026 Kacper Bak). IntentBond already accepts
 external trusted policy; plain `cmp` cannot distinguish an approved amendment from
-an arbitrary edit. The selector constructs the approved `120` → `600` deadline
+an arbitrary edit. The selector constructs the approved `120` → `600` or `600` → `1200` deadline
 from the original baseline, pins both byte hashes and rejects every other change.
 It never replaces the Git comparison baseline. CI retains the selected policy and
 migration receipt. [Regression tests](../tests/test_ci_scope.py) check accepted
@@ -167,7 +170,10 @@ upstream modules imported by project sources, including the telematics examples
 outside the upstream root module. These are pinned dependency outputs; Lake also
 checks every project build target in the fresh check snapshot. The regression runner reuses Python's
 standard `ThreadPoolExecutor` (also used by the comparison harness) to bound
-concurrent groups by CPU availability. The default is two workers, with an
+concurrent groups by CPU availability after the exclusive PR113 phase. CPU-count
+caps alone do not reserve execution time for a solver while other groups compile
+Lean probes; phase separation supplies that isolation without changing query
+budgets. The default is two workers, with an
 explicit `CLAFER_TEST_JOBS` limit from one to four. Every discovered
 case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if

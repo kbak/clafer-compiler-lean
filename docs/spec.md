@@ -310,7 +310,8 @@ may be reused only through Lake's source/options/import validation, with local
 restoration for fresh axiom inspection and kernel replay. Separate comparison-tool
 caches must still pass their pinned source/recipe/binary identity checks. Never
 reuse a previous proof/test result as current evidence. Report validation timings
-and bound concurrent regressions without dropping cases or relaxing time limits.
+and bound concurrent regressions without dropping cases or relaxing per-command
+time limits. Amendments to the overall check deadline require explicit scope review.
 
 Covers:
 - `intent~compiler-foundation~1`
