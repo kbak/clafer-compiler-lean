@@ -28,7 +28,8 @@ def compiler_only(path):
 
 
 # [impl->req~intentbond-workflow~1]
-def select(repo, event, base_ref, ref, action, baseline):
+# [impl->req~compiler-behavioral-main-integration~1]
+def select(repo, event, base_ref, ref, action, baseline, head_ref=''):
     candidate = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
     result = dict(candidate=candidate, baseline=baseline, profile='routine', reference=False,
                   reason='static CI', reference_inputs=[])
@@ -36,6 +37,7 @@ def select(repo, event, base_ref, ref, action, baseline):
         return dict(result, profile='compiler', reference=True,
                     reason='event or target classification unavailable')
     if (event in ('schedule', 'workflow_dispatch') or ref == 'refs/heads/behavioral'
+            or (event == 'pull_request' and base_ref == 'main' and head_ref == 'behavioral')
             or (base_ref == 'behavioral' and action == 'ready_for_review')):
         return dict(result, profile='compiler', reference=True,
                     reason='scheduled, manual, integration or acceptance qualification')
@@ -79,7 +81,7 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     selection = commands.add_parser('select')
     selection.add_argument('--repo', type=Path, default=Path('.'))
-    for name in ('event', 'base-ref', 'ref', 'action', 'baseline'):
+    for name in ('event', 'base-ref', 'head-ref', 'ref', 'action', 'baseline'):
         selection.add_argument('--'+name, default='')
     selection.add_argument('--output', type=Path, required=True)
     selection.add_argument('--record', type=Path, required=True)
@@ -90,7 +92,7 @@ def main():
     policy.add_argument('--record', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'select':
-        result = select(args.repo, args.event, args.base_ref, args.ref, args.action, args.baseline)
+        result = select(args.repo, args.event, args.base_ref, args.ref, args.action, args.baseline, args.head_ref)
         with args.output.open('a') as out:
             for key in ('candidate', 'baseline', 'profile', 'reference'):
                 out.write(f'{key}={str(result[key]).lower()}\n')

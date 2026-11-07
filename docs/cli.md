@@ -7,7 +7,10 @@ decoding, deterministic diagnostics and checked output serialization.
 The separate `compile-behavioral-ir` command accepts the versioned first-slice
 behavioral IR and explicit temporal bounds. Its complete schemas, diagnostic
 additions and JSON output are in the [temporal runtime contract](temporal-comparison.md).
-All three commands share native IO and require no solver installation.
+The full `compile-behavioral-source` command composes the complete frontend and
+encoder, with model/assertion/scenario options and separate version-2 behavioral
+bounds; see the [source workflow](behavioral-source.md). All four commands share
+native IO and require no solver installation.
 
 ## Reuse assessment
 
@@ -48,24 +51,18 @@ system dynamic loader. These tools are verification prerequisites, not compiler
 runtime dependencies. Lean library imports retain Apache-2.0 licensing; original
 driver/test code remains MIT. No dependency pins or scope policy change.
 
-The [full check](build.md) runs concurrent regression groups within its
-600-second deadline.
-The existing `unittest` discovery/runner and standard `subprocess` are reused: one process runs the M1 CLI, comparison and audit
-regressions, another runs source CLI/pipeline comparisons, and two more run
-frontend/qualification and target regressions. The parent runs the remaining
-discovered cases. Every group must execute a nonempty suite
-without skips and pass. Separate processes avoid sharing Python mocks or module
-state. Test harnesses link the production objects already built by Lake; concurrent
-Alloy invocations use separate Java bridge build directories. Pytest/xdist was considered but would
-add dependencies and change collection semantics for an established unittest suite.
-The audit regressions were checked individually: their Lean fixtures and outputs
-live in fresh temporary directories, and they only read the shared audit template.
-No case, assertion, kernel gate or timeout is removed; failure propagation is tested.
+The [full check](build.md#validation-and-trust) runs the complete regression suite
+within its reviewed 1200-second deadline. The existing `unittest` runner and
+standard `subprocess` isolate groups and bound concurrency. Native probes reuse
+production objects; Alloy invocations retain separate bridge directories.
+Hosted compiler, behavioral source and reference qualification run in separate
+jobs to preserve solver query budgets. No test result is reused as fresh evidence.
 
 ## Command contract
 
 `clafer-compiler --version` reports the package version, exact M1 profile, IR and
-bounds versions, semantic/Haskell source pins and the `m2-source` profile.
+bounds versions, semantic/Haskell source pins, `m2-source`, `behavioral-core/1`
+and `behavioral-0.5.7-candidate/v1`.
 `--help` prints usage. Compilation is:
 
 ```sh

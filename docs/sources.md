@@ -21,7 +21,7 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/5182c8f5884eddfd8bff8a26b493a8550f0162b6) | `5182c8f5884eddfd8bff8a26b493a8550f0162b6` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/f00e5dacb07eed51026f69fcf699683210d394d3) | `f00e5dacb07eed51026f69fcf699683210d394d3` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea) | `6750e6f591b2131549122c13dee94d3d2257eaea` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/AlloyBridge.java) |
@@ -443,7 +443,8 @@ selector adds no compiler meaning, proof assumption, runtime dependency or licen
 ## Behavioral sources
 
 The executable [first-slice IR](behavioral-ir.md) uses accepted S2/S3 commit
-`27a5bbe86657edab00980da57b2f86221f92a5f1`, the installed Lake dependency above.
+`27a5bbe86657edab00980da57b2f86221f92a5f1` as its original source baseline.
+The installed main pin above retains these definitions.
 Its inspected `Trace`, `Environment`, `Formula`, `Normalization`, `Denotation`
 and `Lowering` modules supply shared identities, current set observations,
 signed truth and lifetime lowering. `Examples.cycling` supplies the independent
@@ -454,10 +455,10 @@ dependencies, static checker algorithms and fixture bytes are unchanged.
 The executable normalizer adapts the MIT upstream constructor equations with
 their source meaning retained only upstream. Its
 [reuse and proof boundaries](behavioral-ir.md#reuse-assessment) distinguish
-native algorithms, interpretation proofs and future full-profile work.
+native algorithms and interpretation proofs from the full-profile components.
 
 The [behavioral compiler contract](behavioral.md) uses the accepted
-[S7 dependency](#accepted-semantic-qualification-dependency). The stable source
+[main dependency](#accepted-semantics-main-dependency). The stable source
 locators below were inspected at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`, the
 [accepted surface integration](https://github.com/kbak/clafer-semantics/pull/147).
 The original [profile adoption](https://github.com/kbak/clafer-semantics/pull/131)
@@ -532,7 +533,8 @@ retain them in the comparison domain; no blanket 0.5.7 equivalence is asserted.
 The separate qualification profile pins
 [`9a0f16ed18bdfb5277bedcc6577731f4b422be77`](https://github.com/gsdlab/clafer/tree/9a0f16ed18bdfb5277bedcc6577731f4b422be77).
 It does not replace `af858ec` as the primary behavioral source or change the
-static comparison pin. Independent source/profile delta acceptance is pending.
+static comparison pin. Its accepted comparison role does not adopt it as the
+primary source profile.
 The [delta inventory](../tests/fixtures/pr113/delta.json) records both endpoints,
 all ten intervening commits and exact old/new hashes for all 40 changed source,
 build, documentation and test files outside generated regressions. The full
@@ -596,7 +598,8 @@ closed union correspondence, exact output, warning evidence, static/backend
 separation, the retained top-level `this.item` parser failure and the live-union-target
 soundness discrepancy (original SAT versus explicit bounded UNSAT). No native Lean
 expression-valued reference support or upstream resolved-import change is adopted.
-Independent candidate review and any later release delta remain required.
+The [accepted comparison review](https://github.com/kbak/clafer-compiler-lean/issues/95)
+retains those limits; any later release delta still requires separate review.
 
 The [official Alloy 6 reference](https://alloytools.org/alloy6.html) supplies the
 independent temporal construct guide: mutable signatures/fields, ordinary temporal
@@ -781,7 +784,7 @@ rules cover their accepted meanings separately.
 
 ## Accepted semantic qualification dependency
 
-The source integration pins accepted S7 commit
+The source integration was qualified against accepted S7 commit
 `5182c8f5884eddfd8bff8a26b493a8550f0162b6`, accepted through
 [upstream qualification](https://github.com/kbak/clafer-semantics/issues/129).
 The delta from `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` adds
@@ -789,15 +792,16 @@ The delta from `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` adds
 `QualificationExamples`, with their documentation and test inventory. Existing
 structural and behavioral meanings, static adapters, fixture bytes, Lean and
 transitive dependency revisions are unchanged. Earlier source locators above
-remain citations at their inspected revisions. The installed dependency is the
-S7 commit; historical receipts keep their original identities.
+remain citations at their inspected revisions. The
+[installed main dependency](#accepted-semantics-main-dependency) retains these
+meanings; historical receipts keep their original identities.
 
 S7 explicitly accepts `behavioral-0.5.7-candidate/v1` with Haskell
 `af858ec0fe3ce2ceacb7fd120947c058233086d6` and D1–D5. This source integration
 retains that immutable prerelease disposition. It does not adopt a moving
 release or relabel the separately qualified PR113 comparison candidates.
 The static Haskell 0.5.4 and Alloy 6.2.0 pins and their expected corpus outcomes
-are unchanged; fresh tool receipts bind their reuse to the installed S7 source.
+are unchanged; fresh tool receipts bind their reuse to the installed semantics source.
 
 
 ### Full source observation adapter
@@ -818,4 +822,36 @@ The revision-qualified c7 exact comparison retains the inherited set-key
 counterexample described in the source workflow. Source `Keys` already covers
 inherited reference kinds in each concrete containment fiber; the Haskell output
 omits this obligation. Its SAT result is a discrepancy, not a new accepted source
-meaning. Candidate review must accept or reject this proposed limitation disposition.
+meaning. The [accepted C10 review](https://github.com/kbak/clafer-compiler-lean/issues/79)
+retains this limitation without changing source semantics.
+
+## Accepted semantics-main dependency
+
+The installed dependency is immutable upstream main
+`f00e5dacb07eed51026f69fcf699683210d394d3`, accepted through
+[semantic main integration](https://github.com/kbak/clafer-semantics/issues/130).
+Against the qualified S7 pin above, existing source definitions and theorem
+statements used by the compiler are unchanged. `Formula.domainFormula_agrees`
+combines identical quantifier and capture proof branches. Added modifier and
+root-attachment witnesses, source-import checks, trace tags and current source
+contracts strengthen upstream qualification. The static `DPGraph` edits and
+verification-adapter changes are comments only. Lake, Lean, Mathlib, licenses,
+static fixture bytes and Haskell/Alloy pins are unchanged.
+
+The optional `Clafer.Behavioral` source entrypoint remains separate from
+`Clafer.Behavioral.FiniteComposition`. Full preservation continues to require
+richer structural admission, effective modifiers, exact context selection,
+history-aware observations, finite identity/range capacity and the documented
+static correspondence premises. The Python full-source observer remains a tested
+adapter, not a kernel-certified finite evaluator. The
+[upstream qualification inventory](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/behavioral-qualification.md)
+records the exact APIs and assumptions. Earlier locators remain at their inspected
+revisions; new tool receipts must match this installed pin.
+
+The primary source remains `behavioral-0.5.7-candidate/v1` at `af858ec0fe3ce2ceacb7fd120947c058233086d6`,
+with D1–D5. The accepted c7 comparison retains inherited-set duplicate targets,
+live-union-target disagreement and root-navigation rejection. The upstream
+[source ledger](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/sources.md)
+classifies subsequent `eb2f653a02979d0db35451ed6abf131eaf7c355a` and
+`8cfa0f3740f1cfb515f9862bc8993b826fa08a67` as build, documentation and negative-fixture
+changes. No runtime qualification or final-release adoption of those bytes is claimed.

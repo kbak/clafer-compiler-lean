@@ -28,6 +28,7 @@ class CIProfileTests(unittest.TestCase):
                      'docs/oracles.md', 'docs/sources.md', 'docs/spec.md']:
             self.assertFalse(compiler_only(path), path)
 
+    # [utest->req~compiler-behavioral-main-integration~1]
     def test_actual_git_changes_and_missing_baseline(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -46,6 +47,13 @@ class CIProfileTests(unittest.TestCase):
             result = select(*args, base)
             self.assertEqual(result['profile'], 'compiler')
             self.assertFalse(result['reference'])
+            # The final integration PR must qualify every suite, including while
+            # draft or after synchronization; ordinary main PRs stay routine.
+            for action in ('opened', 'synchronize', 'reopened', 'ready_for_review'):
+                result = select(root, 'pull_request', 'main', 'refs/pull/1/merge', action,
+                                base, 'behavioral')
+                self.assertEqual(result['profile'], 'compiler')
+                self.assertTrue(result['reference'])
             # Full qualification must require both parallel jobs even for a
             # compiler-only diff. Exercise the actual workflow output contract.
             for event, ref, action in [('schedule', 'refs/heads/main', ''),
@@ -58,8 +66,8 @@ class CIProfileTests(unittest.TestCase):
             output, record = root/'outputs', root/'selection.json'
             selected = subprocess.run([sys.executable, str(ROOT/'scripts/ci_profile.py'),
                 'select', '--repo', str(root), '--event', 'pull_request',
-                '--base-ref', 'behavioral', '--ref', 'refs/pull/1/merge',
-                '--action', 'ready_for_review', '--baseline', base,
+                '--base-ref', 'main', '--head-ref', 'behavioral', '--ref', 'refs/pull/1/merge',
+                '--action', 'synchronize', '--baseline', base,
                 '--output', str(output), '--record', str(record)],
                 capture_output=True, text=True)
             self.assertEqual(selected.returncode, 0, selected.stderr)

@@ -2,11 +2,13 @@
 
 `impl~compiler-behavioral-profile-contract~1`
 
-This contract specifies the selected downstream work on `behavioral`, under the
-[behavioral roadmap][roadmap]. The [behavioral IR](behavioral-ir.md) and
-[structural handoff](behavioral-structure.md), and
-[first-slice encoding](behavioral-encoding.md) record implemented library APIs and
-their proof boundaries; the matrix below retains the full completion obligations.
+This contract specifies the implemented behavioral profile and its integration
+gates under the
+[behavioral roadmap][roadmap]. The [behavioral IR](behavioral-ir.md),
+[structural handoff](behavioral-structure.md) and
+[full encoding](behavioral-encoding.md#full-profile-proof-components) record library
+APIs and proof boundaries. The [source workflow](behavioral-source.md) supplies
+native model, check and scenario commands and the full feature evidence inventory.
 The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
@@ -15,10 +17,10 @@ The completion profile is `behavioral-0.5.7-candidate/v1`. Its independent sourc
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
-source truth. The Lake dependency now imports that accepted revision for the
-[structural handoff](behavioral-structure.md). Its
-[source delta](sources.md#behavioral-dependency-delta) retains the static Haskell/Alloy
-comparison pins and regression corpus; repin acceptance requires independent review.
+source truth. The Lake dependency pins accepted upstream main; its
+[source delta](sources.md#accepted-semantics-main-dependency) retains the static
+Haskell/Alloy comparison pins and regression corpus. Candidate acceptance still
+requires independent review.
 
 Covers:
 - `req~compiler-behavioral-profile~1`
@@ -32,13 +34,13 @@ frontend judgments, independent Alloy temporal meaning, encoding, decoding and
 compiler proofs. No generic temporal graph package is required.
 
 The module families below are responsibility boundaries within the existing
-Lake package. Delivered first-slice and C6 declarations are inventoried in the
-[behavioral IR](behavioral-ir.md) and [structural handoff](behavioral-structure.md);
-other rows retain their own delivery
-gates. Public API names and exact theorem assumptions must accompany each accepted implementation. Runtime modules must
+Lake package. The [qualification inventory](qualification.md) links delivered IR,
+structural, frontend, encoding and runtime declarations to their component contracts.
+Public API names and exact theorem assumptions accompany each accepted implementation.
+Runtime modules must
 remain independent of noncomputable upstream definitions and proof-only imports.
 
-| Owner | Module family / planned interface | Required handoff |
+| Owner | Module family / interface | Required handoff |
 | --- | --- | --- |
 | [C2: comparison tools][C2] | `scripts/oracles`, separate temporal profile | Pinned Haskell/Alloy tools, explicit temporal options, paired receipts and known comparison gaps |
 | [C3: temporal target][C3] | [Temporal target APIs](alloy-temporal.md) in `Backend/Alloy/Temporal` | Independent infinite-trace interpretation, checked serialization, lasso bounds and actual Analyzer correspondence tests |
@@ -164,12 +166,13 @@ both discrepancy directions, negative candidates, seeds and minimized exact repl
 
 ### Explicit profile exclusions
 
-This contract proposes retaining runtime strings/reals/doubles, optimization
+This contract retains runtime strings/reals/doubles, optimization
 goals, backend escapes, alternative production backends, automatic scope inference
 and a source import/module system outside the behavioral compiler profile.
 Single-model composition suffices for scenario queries; the paper's external
-import directive is not silently erased. C1 acceptance must explicitly review
-these dispositions. The upstream-approved `:=` rejection is retained; `=` is
+import directive is not silently erased. These dispositions belong to the
+accepted profile; changing them requires explicit review. The upstream-approved
+`:=` rejection is retained; `=` is
 required. No exclusion removes an integer, reference or structural prerequisite
 listed above. Any further omission needs an explicit profile amendment.
 
@@ -358,9 +361,14 @@ an accepted upstream SHA in Lake and its manifest; never pin a moving branch or
 an unaccepted PR head. Review deltas against both prior source and static pins.
 Semantic gaps require a public disposition before dependent interpretation.
 
-Behavioral PRs and pushes run the full pinned IntentBond workflow even for docs.
-The required check remains `Lean proofs and native CLI`; main's existing selection
-and protections are preserved. Hosted protection must separately require that
+Behavioral PRs run the compiler and source qualification jobs even for docs;
+reference-input changes, acceptance events and integration pushes also run the
+complete reference corpora. The final `behavioral` → `main` PR requires all three
+jobs on every update. Scheduled full qualification checks `main`. The
+[CI profile contract](build.md#ci-profiles) preserves routine main PR checks,
+separate solver jobs and existing deadlines. The required check remains
+`Lean proofs and native CLI`; main's protections are preserved. Hosted protection
+must separately require that
 check with up-to-date branches, PR review, resolved conversations, administrator
 enforcement and no force push/deletion. The single-maintainer review minimum can
 remain zero; it does not remove the independent semantic-review obligation.

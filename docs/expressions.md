@@ -54,7 +54,8 @@ Diagnostics use the existing IR category/code record:
 | `expr.unsafe-bounds` | unsupported | Invalid width/interval or uncertifiable integer range |
 
 These are an in-memory API. JSON parsing, text diagnostics, source elaboration,
-Alloy constraint generation and production CLI changes are separate tasks.
+[Alloy constraint generation](expression-encoding.md) and the
+[source CLI](pipeline.md) compose this expression layer with their own contracts.
 
 Covers:
 - `req~compiler-expressions~1`

@@ -458,5 +458,7 @@ finite native/serialized comparisons.
 
 The separate [behavioral structural handoff](behavioral-structure.md) supplies
 explicit-profile library APIs for richer declarations, inherited references and
-finite integer observations. It preserves the static entry points and separates
-full behavioral parsing and temporal target preservation into their owning tasks.
+finite integer observations. It preserves the static entry points; the
+[behavioral frontend](behavioral-frontend.md)
+and [full encoder](behavioral-encoding.md#full-profile-proof-components) compose
+its richer domain under their own proof and runtime boundaries.

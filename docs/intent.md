@@ -1,6 +1,6 @@
 # Intent and delivery boundaries
 
-## Build a structural compiler
+## Compile structural and behavioral models
 
 `intent~compiler-foundation~1`
 
@@ -10,9 +10,9 @@ Clafer compiler as a compatibility reference. Publish the source under MIT, with
 public issues and pull requests, IntentBond traceability and manual task intake.
 Avoid unnecessary infrastructure by checking reusable implementations before
 writing new ones and recording concrete reasons for custom solutions.
-Extend this foundation through a separately reviewed behavioral profile, preserving
-the structural compiler and its evidence while developing temporal support on the
-integration branch. Keep the full behavioral completion scope distinct from a first slice.
+Provide a separately reviewed behavioral profile while preserving the structural
+compiler and its evidence. Keep the complete behavioral source workflow distinct
+from the narrower resolved-IR first slice.
 Keep compiler feedback independent of unchanged reference-tool qualification,
 while retaining complete qualification before acceptance.
 
@@ -20,8 +20,10 @@ Needs: req
 
 ## Current boundary
 
-The compiler accepts the selected structural source language and guarded M1
-resolved IR, producing checked static Alloy with explicit bounds. The
+The compiler accepts the selected structural and behavioral source languages
+through separate commands. Guarded M1 resolved IR produces checked static Alloy;
+the behavioral source workflow produces temporal Alloy. Both require explicit
+bounds. The
 [source pipeline](pipeline.md) composes parsing, declaration resolution/defaulting,
 typed constraint elaboration, inherited realization and expression encoding.
 Its assurance includes M1 soundness and finite bounded completeness, expression
@@ -40,9 +42,10 @@ and linked issues retain delivery and acceptance history.
 
 New compiler features require explicit selection and accepted dependencies.
 Approval of a roadmap does not start its implementation tickets. The selected
-[behavioral contract](behavioral.md) plans a separate explicit temporal profile on
-`behavioral`, retaining the delivered structural compiler as its regression baseline.
-Contract adoption does not implement that profile or authorize final main integration.
+[behavioral contract](behavioral.md) defines the explicit temporal profile,
+retaining the structural compiler as its regression baseline. The
+[final integration gate](qualification.md#main-integration) requires an accepted
+immutable upstream-main pin, full qualification and concrete merge authorization.
 
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
@@ -124,7 +127,7 @@ and semantic acceptance require explicit review; see the
 - [Behavioral source workflow](behavioral-source.md): native model/check/scenario commands, exact scalar observations and qualification boundaries.
 - [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, checked elaboration and range obligations.
 - [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
-- [Behavioral integration](behavioral.md): complete planned profile, trace assurance, task ownership and final integration gates.
+- [Behavioral integration](behavioral.md): complete profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.

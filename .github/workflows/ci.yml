@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event_name == 'schedule' && 'behavioral' || github.ref }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || github.ref }}
           fetch-depth: 0
           persist-credentials: false
       - name: Select profile and retain dependency decision
@@ -32,11 +32,13 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
           REF: ${{ github.ref }}
           ACTION: ${{ github.event.action }}
           BASELINE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           python3 scripts/ci_profile.py select --event "$EVENT" --base-ref "$BASE_REF" \
+            --head-ref "$HEAD_REF" \
             --ref "$REF" --action "$ACTION" --baseline "$BASELINE" \
             --output "$GITHUB_OUTPUT" --record "$RUNNER_TEMP/ci-selection.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

@@ -3,13 +3,14 @@
 [![CI](https://github.com/kbak/clafer-compiler-lean/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kbak/clafer-compiler-lean/actions/workflows/ci.yml)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/kbak/clafer-compiler-lean)
 
-A structural [Clafer](https://www.clafer.org/)-to-Alloy compiler written in Lean 4,
-with machine-checked preservation proofs for its supported model representations.
+A [Clafer](https://www.clafer.org/)-to-Alloy compiler for structural and behavioral
+models, written in Lean 4, with machine-checked preservation proofs for its supported model representations.
 Clafer combines class and feature modeling: declarations describe objects,
 containment, references and inheritance, while constraints restrict valid models.
 
 The compiler accepts Clafer source or a guarded resolved-IR format and emits
-static Alloy with explicit bounds. Compilation does not run a solver.
+static or temporal Alloy under separate explicit profiles and bounds. Compilation
+does not run a solver.
 
 [Documentation](docs/intent.md#documentation-map) · [Contributing](CONTRIBUTING.md) ·
 [Issues](https://github.com/kbak/clafer-compiler-lean/issues) · [MIT license](LICENSE)
@@ -33,7 +34,8 @@ flowchart TB
 
 The diagram shows the in-memory proof boundary for supported inputs. Preservation
 has explicit representation, scope, observation and numeric-range assumptions;
-see the [composed proof contract](docs/pipeline.md#composed-assurance).
+see the [static](docs/pipeline.md#composed-assurance) and
+[behavioral](docs/behavioral-encoding.md#full-profile-proof-components) proof contracts.
 Parser and external execution limits are described under
 [assurance and validation](#assurance-and-validation).
 
@@ -47,6 +49,8 @@ potential reuse and evidence-based comparison with the Haskell compiler.
 | Declarations, cardinalities, containment, set/bag references and selected inheritance | [Structural encoding](docs/structural-encoding.md), [inherited realization](docs/inherited-realization.md) |
 | Boolean logic, sets/relations, navigation, finite quantifiers, cardinality and integer addition/subtraction | [Static expressions](docs/expressions.md) |
 | Source parsing, checked resolution/defaults and typed constraint elaboration | [Source pipeline](docs/pipeline.md) |
+| Temporal operators, lifetime modifiers, transitions, patterns, enums and integer operations | [Behavioral profile](docs/behavioral.md#complete-feature-and-evidence-matrix) |
+| Model, assertion-counterexample and scenario compilation with temporal bounds | [Behavioral source workflow](docs/behavioral-source.md) |
 | Native source and resolved-IR commands, diagnostics and explicit bounds | [CLI](docs/cli.md) |
 | Complete supported Appendix 6 telematics model and reproducible validation | [Pipeline evidence](docs/pipeline.md), [qualification](docs/qualification.md) |
 
@@ -55,14 +59,11 @@ source meanings and reusable proofs as a commit-pinned Lake dependency. The
 [Haskell compiler](https://github.com/gsdlab/clafer) guides syntax and compatibility
 comparisons. Their roles and immutable revisions are in the [source register](docs/sources.md).
 
-The [feature matrix](docs/architecture.md#feature-matrix) defines the exact supported
-fragment. Temporal behavior, enums, runtime strings/reals, multiplication/division,
-general aggregation and automatic scope inference are outside it. Full Haskell
-compatibility is not promised.
-
-The `behavioral` integration branch adds the separate
-[behavioral source workflow](docs/behavioral-source.md), with temporal bounds,
-assertion/scenario commands and its own qualification and review gates.
+The [static matrix](docs/architecture.md#feature-matrix) and
+[behavioral matrix](docs/behavioral.md#complete-feature-and-evidence-matrix) define
+the supported profiles. Static commands retain their narrower language. Runtime
+strings/reals, optimization goals, backend escapes, source imports and automatic
+scope inference are excluded. Full Haskell compatibility is not promised.
 
 ## Build and compile
 
@@ -86,17 +87,24 @@ Compile the included telematics model using its explicit bounds:
 Open the generated file in Alloy to explore bounded instances. The [CLI guide](docs/cli.md)
 explains bounds, the `compile-ir` command, stdin/stdout and diagnostics. A built
 binary needs only the [native runtime](docs/cli.md#native-runtime), without Lean,
-Haskell or Java installed.
+Haskell or Java installed. For temporal models, use
+`compile-behavioral-source` with the separate
+[behavioral bounds and property options](docs/behavioral-source.md#native-commands-and-bounds).
 
 ## Assurance and validation
 
 The kernel-checked results include admission, structural soundness and bounded
 completeness, expression preservation, and full integer source-model composition.
+Behavioral results preserve strict definedness, signed lifetime meaning and one
+identity correspondence across the trace, with bounded completeness for fitting
+source lassos.
 They have explicit representation, scope, observation and numeric-range assumptions;
-see the [proof contracts](docs/pipeline.md#composed-assurance).
+see the [static](docs/pipeline.md#composed-assurance) and
+[behavioral](docs/behavioral-encoding.md#full-profile-proof-components) contracts.
 Grammar-to-parser correspondence and native/serialized execution remain tested
 boundaries. Finite Lean/Haskell/Alloy comparisons complement the proofs; they do
-not establish unrestricted compatibility or unbounded unsatisfiability.
+not establish unrestricted compatibility or unbounded unsatisfiability. The full
+behavioral Python source observer is tested, not a kernel-certified evaluator.
 
 Contributions run the full build, kernel and axiom audits, native regressions,
 pinned external comparisons and IntentBond checks. Follow [setup and validation](CONTRIBUTING.md#setup-and-validation)
