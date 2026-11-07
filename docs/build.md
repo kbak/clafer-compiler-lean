@@ -103,6 +103,14 @@ its existing two case workers, then runs the remaining groups concurrently. The 
 in that corpus therefore do not compete with Lean compilation in other suites.
 Every group must execute without skips and pass, including after a failed PR113
 phase. It retains every discovered case and propagates each group's failure.
+The full temporal target suite uses its own early subprocess group, so the
+other compiler regressions can overlap its solver work. This reuses the existing
+group registry, bounded executor and subprocess isolation rather than adding a
+test framework or persistent solver service. Separate processes preserve the
+tests' environment and mock isolation; evidence directories remain per suite.
+The outer worker cap, temporal suite's two fresh JVM workers, complete case
+inventory and query deadlines remain unchanged. Runner fixtures check the new
+group's missing, empty, skipped and failing cases as well as serial execution.
 CI's overall 45-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and permits
 only the exact reviewed deadline migrations described below. IntentBond exit 4
