@@ -123,7 +123,6 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512):
         raise ValueError('Invalid resource budget')
     oracle.write(directory / 'request.json', request)
     options = [f'-Xmx{heap_mb}m','-Xss1m','-XX:ActiveProcessorCount=1','-XX:+UseSerialGC',
-               '-XX:TieredStopAtLevel=1',
                '-XX:ReservedCodeCacheSize=64m','-XX:CompressedClassSpaceSize=64m']
     command = [str(runtime['java']), *options, '-cp', os.pathsep.join(
         map(str,(runtime['classes'],runtime['jar']))), 'AlloyTemporalBridge']

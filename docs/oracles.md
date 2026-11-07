@@ -193,16 +193,6 @@ builder reuses the pinned Stack/GHC/dependency recipe without changing either
 compiler's library sources. These are external, unproved test adapters, with no
 new Lean or production runtime dependencies.
 
-Temporal queries and PR113 inspections use Java 17's
-`-XX:TieredStopAtLevel=1` for their short-lived JVMs. This reuses HotSpot's C1
-compiler to reduce startup compilation work; long CPU-bound queries can lose
-the benefit of C2 optimization. The
-[Java startup guidance](https://docs.aws.amazon.com/lambda/latest/dg/java-customization.html)
-describes that tradeoff. Each query still starts a fresh isolated process, with
-the same solver, bounds, resource limits and complete result validation. Runtime
-receipts retain the JVM options. No persistent JVM, cached solver result or new
-dependency is introduced; these executions remain tested external boundaries.
-
 License decision: reuse upstream positive `.cfr` fixtures by immutable path/hash
 inside the externally retained candidate source archive, with its MIT GSD/ISD
 Labs notice. Do not copy generated `.als.reg` outputs into execution evidence as

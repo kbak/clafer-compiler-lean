@@ -173,6 +173,16 @@ case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if
 later project verification fails. The full check retains every semantic assertion,
 input case, per-command limit and trusted check deadline.
+
+Source-pipeline comparisons reuse `PipelineNative.run` in a generated Lean
+harness that accepts batches of independent calls. Sharing startup and imports
+avoids repeatedly loading the same checker environment. Each call compiles its
+source, evaluates its own candidate and writes fresh artifacts; all mutation,
+replay and solver assertions remain mandatory. The existing subprocess deadline
+applies to the entire batch. This reuses Lean list recursion and Python's recorded
+subprocess wrapper without adding a persistent service, native dependency closure
+or result cache. These test executions remain outside the kernel proof boundary.
+
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 

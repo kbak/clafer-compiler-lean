@@ -113,7 +113,7 @@ def capture(tools, files, entry, output):
 
 def inspect(tools, g, output):
     runtime = tools['runtime']
-    command = [str(runtime['java']),'-XX:ActiveProcessorCount=1','-XX:TieredStopAtLevel=1','-cp',
+    command = [str(runtime['java']),'-XX:ActiveProcessorCount=1','-cp',
         os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))),'AlloyPR113Inspect']
     oracle.write(output/'inspect-command.json',command)
     with (output/'inspect.stdout').open('wb') as out, (output/'inspect.stderr').open('wb') as err:
