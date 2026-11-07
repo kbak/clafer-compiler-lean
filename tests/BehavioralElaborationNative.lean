@@ -183,7 +183,7 @@ def ranges : IO Unit := do
     let formula ← body m
     let bounds : Expression.Ranges.Inputs m.elaborated.declarations.resolved.count :=
       ⟨width, ⟨1, ⟨0, 0⟩⟩, ⟨1, ⟨0, 0⟩⟩,
-        Vector.replicate _ ⟨3, ⟨2, 2⟩⟩, fun _ => ⟨3, ⟨2, 2⟩⟩⟩
+        Vector.replicate _ ⟨3, ⟨2, 2⟩⟩, (fun _ => ⟨3, ⟨2, 2⟩⟩), Vector.replicate _ true, fun _ => true⟩
     match Expression.Ranges.analyze bounds 256 formula #v[], expected with
     | .ok _, none => pure ()
     | .error d, some code => unless d.code == code do fail (expression ++ ": " ++ d.code)
@@ -193,7 +193,7 @@ def ranges : IO Unit := do
       | fail "range budget exhaustion silently accepted"
     unless exhausted.code == "behavioral.range-budget" do fail "range budget diagnostic"
   let bad : Expression.Ranges.Inputs 1 :=
-    ⟨4, ⟨1, ⟨0, 0⟩⟩, ⟨1, ⟨0, 0⟩⟩, #v[⟨1, ⟨8, 8⟩⟩], fun _ => ⟨1, ⟨8, 8⟩⟩⟩
+    ⟨4, ⟨1, ⟨0, 0⟩⟩, ⟨1, ⟨0, 0⟩⟩, #v[⟨1, ⟨8, 8⟩⟩], (fun _ => ⟨1, ⟨8, 8⟩⟩), #v[true], fun _ => true⟩
   for path in [SetExpr.diff .empty (.extent 0), .inter .empty (.extent 0),
       .diff .empty (.step .parent .this)] do
     let .error d := Expression.Ranges.analyze bad 32
@@ -296,6 +296,26 @@ def diagnostics : IO Unit := do
     unless d.code == code && d.primary.file == "bad.cfr" && d.line == 2 do
       fail ("incorrect diagnostic " ++ d.code ++ ": " ++ toString d.line)
 
+-- [utest->req~compiler-behavioral-elaboration~1]
+def separateScenarios : IO Unit := do
+  for source in ["", "A ?\n", "abstract A\na : A ?\n"] do
+    let m ← load source
+    let e := m.elaborated
+    let integerRows := (List.finRange e.declarations.resolved.count).filter fun d =>
+      (e.declarations.resolved.candidate.core.get d).origin == .integer
+    unless integerRows.length == 1 && e.model.constraints.isEmpty && e.model.assertions.isEmpty do
+      fail "scenario preparation must reserve one integer domain without adding a property"
+    for expression in ["0 = 0", "0 < 1", "some 0", "all x : 0 | some x", "#noclafer = 0"] do
+      let .ok scenario := parseBehavioral IR.BehavioralStructural.profile "scenario.cfr" ("[" ++ expression ++ "]")
+        | fail "numeric scenario parse"
+      let .ok request := e.run [⟨e.model.structural.core.structural.root, scenario⟩]
+        | fail ("separate numeric scenario: " ++ expression)
+      unless request.model.constraints.isEmpty do fail "scenario became a model constraint"
+      match request.command with
+      | .run [c] => unless c.owner == e.model.structural.core.structural.root && c.source.file == "scenario.cfr" do
+          fail "scenario attachment or span changed"
+      | _ => fail "scenario count changed"
+
 def run : IO Unit := do
   captures
   arithmetic
@@ -305,6 +325,7 @@ def run : IO Unit := do
   initializerOrigins
   documents
   correctedPatternAttachments
+  separateScenarios
   diagnostics
   IO.println "behavioral source expressions, captures, arithmetic, surfaces and requests passed"
 

@@ -77,6 +77,23 @@ def cases : List (String × Bool × Module) := [
   ("univ-prime", true, base (not_ (.equal .univ (.prime .univ))) [p, toggle]),
   ("iden-prime", true, base (not_ (.equal .iden (.prime .iden))) [p, toggle]),
   ("int-univ", false, base (.subset .ints .univ) [] .check),
+  ("scalar-valid", true, base (.compare .eq (.scalar (-3) 3 (.integer 2)) (.literal 2))),
+  ("scalar-empty", true, base (.compare .eq (.scalar (-3) 3 (.empty .unary)) (.literal (-3)))),
+  ("scalar-object", true, base (.compare .eq (.scalar (-3) 3 (.sig 0)) (.literal (-3))) [p]),
+  ("scalar-mixed", true, base (.compare .eq (.scalar (-3) 3 (.union (.sig 0) (.integer 2))) (.literal (-3))) [p]),
+  ("scalar-many-overflow", true, base (.compare .eq (.scalar (-3) 3 (.union (.integer 6) (.integer 7))) (.literal (-3)))),
+  ("scalar-outside-range", true, base (.compare .eq (.scalar (-3) 3 (.integer 6)) (.literal (-3)))),
+  ("integer-product", true, base (.compare .eq (.multiply (.literal (-2)) (.literal 3)) (.literal (-6)))),
+  ("integer-quotient", true, base (.compare .eq (.divide (.literal (-7)) (.literal 3)) (.literal (-2)))),
+  ("integer-remainder", true, base (.compare .eq (.remainder (.literal (-7)) (.literal 3)) (.literal (-1)))),
+  ("integer-negative-divisor", true, base (.compare .eq (.divide (.literal 7) (.literal (-3))) (.literal (-2)))),
+  ("integer-two-negatives", true, base (.compare .eq (.divide (.literal (-7)) (.literal (-3))) (.literal 2))),
+  ("integer-remainder-sign", true, base (.compare .eq (.remainder (.literal 7) (.literal (-3))) (.literal 1))),
+  ("integer-floor-mutation", false, base (.compare .eq (.divide (.literal (-7)) (.literal 3)) (.literal (-3)))),
+  ("integer-remainder-mutation", false, base (.compare .eq (.remainder (.literal (-7)) (.literal 3)) (.literal 2))),
+  ("integer-current-count", true, base (and_
+      (.compare .eq (.multiply (.literal 3) (.count (.sig 0))) (.literal 3))
+      (after (.compare .eq (.multiply (.literal 3) (.count (.sig 0))) (.literal 0)))) [p, toggle]),
   ("mutable-identity-one", false, base (and_ (.mult .one (.sig 0))
       (after (.equal (.sig 0) (.empty .unary)))) [always p])
 ]
@@ -130,6 +147,43 @@ theorem zero_steps_rejected : (check { base p with command := { (base p).command
 theorem hidden_overflow_rejected :
     (check (base (not_ (.compare .eq (.add (.literal 7) (.literal 1)) (.literal 0))))).isOk = false := by decide
 
+-- [utest->req~compiler-alloy-temporal-target~1]
+theorem product_overflow_under_false_guard_rejected :
+    (check (base (.binary .implies .falsity
+      (.compare .eq (.multiply (.literal 3) (.literal 3)) (.literal 1))))).isOk = false := by decide
+
+theorem division_by_zero_under_negation_rejected :
+    (check (base (not_ (.compare .eq (.divide (.literal 1) (.literal 0)) (.literal 0))))).isOk = false := by decide
+
+theorem remainder_by_zero_in_empty_binder_rejected :
+    (check (base (.all (.empty .unary)
+      (.compare .eq (.remainder (.literal 1) (.literal 0)) (.literal 0))))).isOk = false := by decide
+
+theorem possible_zero_divisor_rejected :
+    (check (base (.compare .eq (.divide (.literal 1) (.count (.sig 0))) (.literal 1)) [p])).isOk = false := by decide
+
+theorem quotient_overflow_rejected :
+    (check (base (.compare .eq (.divide (.literal (-8)) (.literal (-1))) (.literal 0)))).isOk = false := by decide
+
+theorem overflowing_intermediate_rejected :
+    (check (base (.compare .eq
+      (.multiply (.multiply (.literal 3) (.literal 3)) (.literal 0)) (.literal 0)))).isOk = false := by decide
+
+theorem signed_arithmetic_evaluation :
+    (Integer.divide (.literal (-7)) (.literal 3)).eval (base p).schema 4 cycle.unfold [] 0 = some (-2) ∧
+    (Integer.remainder (.literal (-7)) (.literal 3)).eval (base p).schema 4 cycle.unfold [] 0 = some (-1) ∧
+    (Integer.multiply (.literal (-2)) (.literal 3)).eval (base p).schema 4 cycle.unfold [] 0 = some (-6) := by decide
+
+theorem undefined_arithmetic_evaluation :
+    (Integer.divide (.literal 1) (.literal 0)).eval (base p).schema 4 cycle.unfold [] 0 = none ∧
+    (Integer.remainder (.literal 1) (.literal 0)).eval (base p).schema 4 cycle.unfold [] 0 = none ∧
+    (Integer.divide (.literal (-8)) (.literal (-1))).eval (base p).schema 4 cycle.unfold [] 0 = none ∧
+    (Integer.multiply (.literal 3) (.literal 3)).eval (base p).schema 4 cycle.unfold [] 0 = none := by decide
+
+theorem nested_integer_literal_rejected :
+    (check (base (.compare .eq (.count (.integer 100)) (.literal 0)))).isOk = false ∧
+    (check (base (.compare .eq (.scalar 0 1 (.integer 100)) (.literal 0)))).isOk = false := by decide
+
 theorem bad_binding_rejected : (check (base (.mult .one (.var 0)))).isOk = false := by decide
 
 -- [utest->req~compiler-alloy-temporal-target~1]
@@ -154,6 +208,8 @@ theorem static_steps_rejected :
 theorem malformed_programs_rejected :
     ([Formula.mult .some ⟨[.union]⟩, .mult .some ⟨[.sig 0, .sig 0]⟩,
       .compare .eq ⟨[.add]⟩ (.literal 0), .compare .eq ⟨[.literal 0, .literal 1]⟩ (.literal 0),
+      .compare .eq ⟨[.multiply]⟩ (.literal 0), .compare .eq ⟨[.literal 1, .divide]⟩ (.literal 0),
+      .compare .eq ⟨[.literal 1, .remainder]⟩ (.literal 0),
       ⟨[.unary .after]⟩, ⟨[.truth, .truth]⟩].all fun f => !(check (base f)).isOk) = true := by decide
 
 end ClaferCompiler.Tests.AlloyTemporal

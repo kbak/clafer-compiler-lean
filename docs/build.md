@@ -103,6 +103,14 @@ its existing two case workers, then runs the remaining groups concurrently. The 
 in that corpus therefore do not compete with Lean compilation in other suites.
 Every group must execute without skips and pass, including after a failed PR113
 phase. It retains every discovered case and propagates each group's failure.
+The full temporal target suite uses its own early subprocess group, so the
+other compiler regressions can overlap its solver work. This reuses the existing
+group registry, bounded executor and subprocess isolation rather than adding a
+test framework or persistent solver service. Separate processes preserve the
+tests' environment and mock isolation; evidence directories remain per suite.
+The outer worker cap, temporal suite's two fresh JVM workers, complete case
+inventory and query deadlines remain unchanged. Runner fixtures check the new
+group's missing, empty, skipped and failing cases as well as serial execution.
 CI's overall 45-minute job budget includes dependency downloads
 and compilation. It compares candidate scope bytes with the baseline and permits
 only the exact reviewed deadline migrations described below. IntentBond exit 4
@@ -140,7 +148,7 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 | PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
 | PR targeting `behavioral` | Compiler IntentBond profile: every Lean module, axiom audit, kernel replay and all compiler regressions, including native and Haskell/Alloy comparisons |
 | Behavioral PR changing reference dependencies or unclassified paths | Additional independent reference job with both complete historical and PR113 corpora |
-| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | Full pinned IntentBond check, including both reference corpora and every compiler regression |
+| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | Both independent IntentBond jobs are mandatory: compiler/proofs and complete reference qualification |
 
 The full local IntentBond check remains mandatory before handoff. Routine CI is
 build/proof/CLI evidence, not full qualification evidence. All paths check scope
@@ -166,12 +174,20 @@ scripts/shared helpers, manifests, toolchains, CI configuration, requirements,
 scope and source/oracle/build/specification contracts require it. Unknown paths,
 missing baselines and unsuccessful ancestry/diff checks also require it.
 No accepted input hash or successful result is inferred from a missing comparison.
+Acceptance, integration, scheduled and manual runs always select both jobs, even
+when the diff contains only compiler inputs. Unknown event/target classification
+also requires both. This reuses the existing compiler/reference profiles, reusable
+workflow and required aggregate; the combined hosted profile would serialize the
+reference corpus ahead of compiler validation on one runner. Separate runners
+preserve solver resource isolation while allowing both complete suites to overlap.
+No new dependency, license obligation or compiler runtime/proof boundary is added.
 
 `--compiler-ci` omits exactly `test_pr113_oracles` and `test_temporal_oracles`
 from regression execution. It retains every other discovered case, including new
 test modules, plus the normal build, audit and kernel gates. `--reference-ci`
 executes both complete reference modules and rejects missing, empty, skipped or
-failed suites. Full qualification remains the default and runs all modules.
+failed suites. The default local check runs all modules together. Hosted full
+qualification requires both profiles against the same immutable candidate.
 
 The [reusable validation workflow](../.github/workflows/validate.yml) derives each
 explicit profile from the baseline-checked full scope. Only its name and test
@@ -191,7 +207,7 @@ selector is tooling within the existing Python/Git/CI trust boundary, not a comp
 proof. [Regression tests](../tests/test_ci_profile.py) exercise actual Git changes,
 missing baselines, scope preservation, complete test partitioning and gate failures.
 The daily schedule targets `behavioral`; GitHub activates schedules from the
-default branch, so manual full dispatch remains necessary until integration there.
+default branch, so manual qualification dispatch remains necessary until integration there.
 
 Public CI artifacts retain check logs, source identities, notices, generated text,
 solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`

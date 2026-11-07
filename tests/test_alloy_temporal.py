@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts/oracles'))
 import oracle
 import temporal
+sys.path.insert(0, str(ROOT / 'scripts'))
+import project_modules
 
 
 # [utest->req~compiler-alloy-temporal-target~1]
@@ -28,11 +30,26 @@ class AlloyTemporalTests(unittest.TestCase):
         print(f'Temporal target evidence: {output}', flush=True)
         runtime = temporal.compile_bridge(runtime, output / 'classes', api)
         env = api['alloy_runtime'].java_env()
-        sources = [Path(__file__), ROOT / 'tests/AlloyTemporal.lean',
-                   ROOT / 'tests/AlloyTemporalNative.lean',
-                   ROOT / 'scripts/oracles/AlloyTemporalBridge.java',
-                   ROOT / 'scripts/oracles/temporal.py',
-                   *sorted((ROOT / 'ClaferCompiler/Backend/Alloy/Temporal').glob('*.lean'))]
+        modules = []
+        forbidden = ('Clafer.', 'Mathlib.', 'ClaferCompiler.SemanticsBridge',
+                     'ClaferCompiler.Correctness')
+
+        def include(module):
+            if module in modules:
+                return
+            self.assertFalse(module.startswith(forbidden), module)
+            path = ROOT / (module.replace('.', '/') + '.lean')
+            for dependency in project_modules.imports(path.read_text()):
+                self.assertFalse(dependency.startswith(forbidden), dependency)
+                if (ROOT / (dependency.replace('.', '/') + '.lean')).exists():
+                    include(dependency)
+            modules.append(module)
+
+        include('tests.AlloyTemporalNative')
+        sources = [ROOT / (m.replace('.', '/') + '.lean') for m in modules]
+        sources += [Path(__file__), ROOT / 'scripts/project_modules.py',
+                    ROOT / 'scripts/oracles/AlloyTemporalBridge.java',
+                    ROOT / 'scripts/oracles/temporal.py']
         identities = {str(p.relative_to(ROOT)): oracle.digest(p) for p in sources}
         for p in sources:
             dest = output / 'source' / p.relative_to(ROOT)
@@ -40,18 +57,13 @@ class AlloyTemporalTests(unittest.TestCase):
             dest.write_bytes(p.read_bytes())
         oracle.write(output / 'source.json', identities)
 
-        def run(name, command, cwd=ROOT, timeout=60):
+        def run(name, command, cwd=ROOT, timeout=120):
             oracle.write(output / (name + '-command.json'), command)
             with (output / (name + '-stdout.log')).open('w') as out, \
                     (output / (name + '-stderr.log')).open('w') as err:
                 subprocess.run(command, cwd=cwd, env=env, stdout=out, stderr=err,
                                check=True, timeout=timeout)
 
-        modules = ['ClaferCompiler.Backend.Alloy.' + name for name in
-                   ('Syntax', 'Bounds', 'Semantics', 'Names', 'Parse', 'Print',
-                    'Temporal.Syntax', 'Temporal.Semantics', 'Temporal.Parse',
-                    'Temporal.Print', 'Temporal')]
-        modules += ['tests.AlloyTemporal', 'tests.AlloyTemporalNative']
         run('build-native', ['lake', 'build', *['+' + m + ':c.o' for m in modules]])
         harness = output / 'Harness.lean'
         harness.write_text('import tests.AlloyTemporalNative\n'
@@ -91,8 +103,12 @@ class AlloyTemporalTests(unittest.TestCase):
                 cases.append((path, case_dir, request))
 
         def solve(case):
-            _, case_dir, request = case
-            result = temporal.solve(runtime, api, case_dir, request)
+            path, case_dir, request = case
+            scalar_fields = path.with_suffix('.integer-fields').read_text().splitlines()
+            # Nested scoped patterns expand several lifetime operators. Preserve
+            # every witness while allowing the pinned solver to finish them.
+            result = temporal.solve(runtime, api, case_dir, request, timeout=120,
+                                    integer_fields=scalar_fields)
             oracle.write(case_dir / 'result.json', result)
             return result
 

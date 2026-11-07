@@ -117,12 +117,15 @@ def interrupted(directory, status, detail):
     return dict(observed, status=status, detail=detail)
 
 
-def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspection=False):
+def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspection=False, integer_fields=()):
     request_valid(request)
     if type(timeout) is not int or timeout<=0 or type(heap_mb) is not int or heap_mb<64:
         raise ValueError('Invalid resource budget')
     if type(inspection) is not bool:
         raise ValueError('Boolean inspection selection required')
+    integer_fields = set(integer_fields)
+    if any(type(name) is not str or not name.startswith('this/') for name in integer_fields):
+        raise ValueError('Explicit integer field names required')
     oracle.write(directory / 'request.json', request)
     options = [f'-Xmx{heap_mb}m','-Xss1m','-XX:ActiveProcessorCount=1','-XX:+UseSerialGC',
                '-XX:ReservedCodeCacheSize=64m','-XX:CompressedClassSpaceSize=64m']
@@ -164,11 +167,11 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
             if result['options'] != expected:
                 raise ValueError('Unexpected effective solver options')
             if result['outcome']=='sat':
-                integer_fields = set()
+                scalar_fields = set(integer_fields)
                 if runtime.get('pr113_candidate')=='c7a2fb7' and runtime.get('static_backend'):
                     observed = read(directory/'inspection.json')
-                    integer_fields = {k for k,f in observed['fields'].items() if f['targets']==['Int']}
-                validate_trace(result['trace'],request,integer_fields=integer_fields)
+                    scalar_fields.update(k for k,f in observed['fields'].items() if f['targets']==['Int'])
+                validate_trace(result['trace'],request,integer_fields=scalar_fields)
             if inspection:
                 try:
                     observed = read(directory/'inspection.json')

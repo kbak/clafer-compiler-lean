@@ -112,17 +112,34 @@ def headerAt (doc : Document) (path : Path) : Option Header := do
   | .declaration h _ _ => some h
   | _ => none
 
+/-- Reserve the built-in integer domain before separately supplied scenarios are
+elaborated. The empty marker uses the existing structural resolver rule and is
+appended after authored elements, so it changes no authored declaration path.
+Only the retained expanded document supplies behavioral properties. -/
+def declarationDocument (source : Document) (elements : List Frontend.Element) : Frontend.Document :=
+  ⟨source.file, source.source,
+    elements ++ [.constraint [] ⟨source.file, source.source.utf8ByteSize, source.source.utf8ByteSize⟩]⟩
+
 /-- The retained expanded document owns properties, initializers and transitions.
-The projection is an input to structural binding only. -/
+The projection and domain marker are inputs to structural binding only. -/
 structure BoundDeclarations (source : Document) where
   expandedElements : List Element
   expansion : ExpandsList true source.elements expandedElements
   projectedElements : List Frontend.Element
   projection : ProjectsList expandedElements projectedElements
-  resolved : BehavioralResolution.Elaborated ⟨source.file, source.source, projectedElements⟩
+  resolved : BehavioralResolution.Elaborated (declarationDocument source projectedElements)
 
 def BoundDeclarations.expanded {source : Document} (b : BoundDeclarations source) : Document :=
   ⟨source.file, source.source, b.expandedElements⟩
+
+-- [proof->req~compiler-behavioral-elaboration~1]
+theorem BoundDeclarations.integerDomain {source : Document} (b : BoundDeclarations source) :
+    ∃ d, (b.resolved.candidate.core.get d).origin = .integer := by
+  have root := b.resolved.correspondence.2.2.2.1 b.resolved.candidate.core.root
+  simp only at root
+  apply root.2.2.2.2.2
+  simp [Resolution.hasConstraints, declarationDocument, Resolution.constraintHere,
+    Resolution.isDeclaration]
 
 /-- One authored expression occurrence; superclass properties remain attached
 to their authored declaration rather than copied onto each refinement. -/
@@ -154,7 +171,7 @@ def bindDeclarations (profile : String) (source : Document) :
       "unsupported behavioral profile" .unsupported)
   let expanded ← expandAt (source.source.utf8ByteSize + 1) true source.elements
   let projected ← projectAt (source.source.utf8ByteSize + 1) expanded.val
-  let resolved ← BehavioralResolution.elaborate profile ⟨source.file, source.source, projected.val⟩
+  let resolved ← BehavioralResolution.elaborate profile (declarationDocument source projected.val)
   return ⟨expanded.val, expanded.property, projected.val, projected.property, resolved⟩
 
 end ClaferCompiler.Frontend.Behavioral

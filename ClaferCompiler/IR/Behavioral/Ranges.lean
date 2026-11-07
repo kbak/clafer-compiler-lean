@@ -18,6 +18,12 @@ def rangeError : Structural.Diagnostic :=
 def checkRange (b : Inputs k) (r : Interval) : Verified (r.fits b.width = true) :=
   if h : r.fits b.width = true then .ok ⟨h⟩ else .error rangeError
 
+/-- Observation admission is checked before recursive expansion, including in
+vacuous bodies. Whole primitive extents have no finite budget. -/
+def checkObservation (allowed : Bool) : Verified (allowed = true) :=
+  if h : allowed = true then .ok ⟨h⟩ else
+    .error { category := .unsupported, code := "behavioral.infinite-observation" }
+
 structure Pass (b : Inputs k) where
   set : {n : Nat} → (a : SetExpr k n) → (Γ : Context n) → Result (SetBound b Γ a)
   collection : {n : Nat} → (a : Collection k n) → (Γ : Context n) → Result (CollectionBound b Γ a)
@@ -45,8 +51,9 @@ def analyzeStep (b : Inputs k) (next : Pass b) : Pass b where
       let fits ← checkRange b (Γ[i]).values
       return ⟨Γ[i], .var fits.property⟩
     | extent d => exact do
+      let allowed ← checkObservation b.extentAllowed[d]
       let fits ← checkRange b (b.extents[d]).values
-      return ⟨b.extents[d], .extent fits.property⟩
+      return ⟨b.extents[d], .extent allowed.property fits.property⟩
     | union a c => exact do
       let a ← next.set a Γ
       let c ← next.set c Γ
@@ -61,11 +68,13 @@ def analyzeStep (b : Inputs k) (next : Pass b) : Pass b where
       return ⟨a.val, .diff a.property c.property⟩
     | step s a => exact do
       let a ← next.set a Γ
+      let allowed ← checkObservation (b.stepAllowed s)
       let fits ← checkRange b (b.steps s).values
-      return ⟨b.steps s, .step a.property fits.property⟩
+      return ⟨b.steps s, .step a.property allowed.property fits.property⟩
     | thisStep s => exact do
+      let allowed ← checkObservation (b.stepAllowed s)
       let fits ← checkRange b (b.steps s).values
-      return ⟨b.steps s, .thisStep fits.property⟩
+      return ⟨b.steps s, .thisStep allowed.property fits.property⟩
   collection := fun a Γ => by
     cases a with
     | set a => exact do
@@ -95,8 +104,9 @@ def analyzeStep (b : Inputs k) (next : Pass b) : Pass b where
         return ⟨a.val, .diff a.property c.property⟩
     | step s a => exact do
         let a ← next.collection a Γ
+        let allowed ← checkObservation (b.stepAllowed s)
         let fits ← checkRange b (b.steps s).values
-        return ⟨b.steps s, .step a.property fits.property⟩
+        return ⟨b.steps s, .step a.property allowed.property fits.property⟩
     | ofType d a => exact do
         let a ← next.collection a Γ
         return ⟨a.val, .ofType a.property⟩

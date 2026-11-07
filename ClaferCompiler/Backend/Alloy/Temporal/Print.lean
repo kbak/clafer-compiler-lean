@@ -15,6 +15,8 @@ def relText (d : Nat) (r : Rel) : String :=
     field := fun i => parens (Symbol.field i).name
     var := fun i => parens (Symbol.binder (d - i - 1)).name
     univ := parens "univ", iden := parens "iden", ints := parens "Int"
+    integer := fun n => parens ("Int [ " ++ parens n.repr ++ " ]")
+    values := fun owner => parens (Symbol.auxiliary owner).name
     union := binary "+", inter := binary "&", diff := binary "-"
     product := binary "->", join := binary ".", transpose := unary "~"
     prime := fun r => parens (r ++ " '") } ""
@@ -23,8 +25,19 @@ def intText (d : Nat) (n : Integer) : String :=
   n.fold {
     literal := fun n => parens n.repr
     count := fun r => unary "#" (relText d r)
+    scalar := fun lo hi r =>
+      let rel := relText d r
+      let value := parens ("sum [ " ++ rel ++ " ]")
+      let guard := binary "and" (unary "one" rel)
+        (binary "and" (binary "in" rel (parens "Int"))
+          (binary "and" (binary "=<" (parens lo.repr) value)
+            (binary "=<" value (parens hi.repr))))
+      parens (guard ++ " implies " ++ value ++ " else " ++ parens lo.repr)
     add := fun a b => parens ("plus [ " ++ a ++ " , " ++ b ++ " ]")
-    subtract := fun a b => parens ("minus [ " ++ a ++ " , " ++ b ++ " ]") } ""
+    subtract := fun a b => parens ("minus [ " ++ a ++ " , " ++ b ++ " ]")
+    multiply := fun a b => parens ("mul [ " ++ a ++ " , " ++ b ++ " ]")
+    divide := fun a b => parens ("div [ " ++ a ++ " , " ++ b ++ " ]")
+    remainder := fun a b => parens ("rem [ " ++ a ++ " , " ++ b ++ " ]") } ""
 
 def unaryText : Unary → String
   | .neg => "not" | .after => "after" | .always => "always" | .eventually => "eventually"
@@ -58,6 +71,9 @@ def signatureChunks (m : Module) (sig : Alloy.Signature) (i : Nat) : List Chunk 
     [⟨if m.schema.mutableFields[j]?.getD false then "var " else "", none⟩,
      ⟨(Symbol.field j).name, some (.field j)⟩,
      ⟨" : " ++ multText f.multiplicity ++ " " ++ (Symbol.signature f.target).name, none⟩]
+  let fields := fields ++ if sig.scalar then
+    [[⟨"var ", none⟩, ⟨(Symbol.auxiliary i).name, some (.auxiliary i)⟩,
+      ⟨" : one Int", none⟩]] else []
   [⟨leading, none⟩, ⟨(Symbol.signature i).name, some (.signature i)⟩, ⟨parent ++ " { ", none⟩] ++
     List.intercalate [⟨" , ", none⟩] fields ++ [⟨" }\n", none⟩]
 

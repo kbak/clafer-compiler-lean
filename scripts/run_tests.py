@@ -16,6 +16,7 @@ import unittest
 ISOLATED_GROUPS = {
     # This corpus runs exclusively, preserving its per-query solver budgets.
     '--pr113-worker': {'test_pr113_oracles'},
+    '--temporal-target-worker': {'test_alloy_temporal'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
     '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--frontend-worker': {'test_constraints', 'test_parser', 'test_resolution', 'test_qualification'},
@@ -88,8 +89,8 @@ if all(present):
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        # The general group includes the temporal target and native behavioral
-        # suites. Queue it early within the remaining work.
+        # Start general regressions and the long temporal target worker early,
+        # so native behavioral and comparison tests can run alongside the target.
         futures = [pool.submit(timed, 'remaining', run, remaining)]
         futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS
                        if flag != '--pr113-worker')

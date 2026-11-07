@@ -42,6 +42,9 @@ def relationAlgebra (s : Schema) (width : Nat) (τ : Trace) : RelAlgebra RelMean
   univ := fun _ t => ((τ.state t).universe s width).map fun x => [x]
   iden := fun _ t => ((τ.state t).universe s width).map fun x => [x, x]
   ints := fun _ _ => (integerAtoms width).map fun x => [x]
+  integer := fun n _ _ => if fitsInt width n then [[.integer n]] else []
+  values := fun owner _ t => (τ.state t |>.values[owner]?.getD []).map
+    fun (x, n) => [.object x, .integer n]
   union := fun a b env t => (a env t ++ b env t).eraseDups
   inter := fun a b env t => (a env t).filter (b env t).contains
   diff := fun a b env t => (a env t).filter fun x => !(b env t).contains x
@@ -54,12 +57,27 @@ def relationAlgebra (s : Schema) (width : Nat) (τ : Trace) : RelAlgebra RelMean
 def Rel.eval (s : Schema) (width : Nat) (τ : Trace) (env : Environment) (t : Nat) (r : Rel) : Relation :=
   r.fold (relationAlgebra s width τ) (fun _ _ => []) env t
 
+/-- Total guarded extraction. Source partiality is encoded by a separate formula;
+an invalid collection selects a bounded fallback, including under negation. -/
+def scalarValue (lo hi : Int) (rows : Relation) : Int :=
+  match rows.eraseDups with
+  | [[.integer n]] => if lo ≤ n && n ≤ hi then n else lo
+  | _ => lo
+
 def Integer.eval (s : Schema) (width : Nat) (τ : Trace) (env : Environment) (t : Nat) (n : Integer) : Option Int :=
   n.fold {
     literal := boundedInt width
+    scalar := fun lo hi r => boundedInt width (scalarValue lo hi (r.eval s width τ env t))
     count := fun r => boundedInt width (Int.ofNat (r.eval s width τ env t).eraseDups.length)
     add := fun a b => do boundedInt width ((← a) + (← b))
-    subtract := fun a b => do boundedInt width ((← a) - (← b)) } none
+    subtract := fun a b => do boundedInt width ((← a) - (← b))
+    multiply := fun a b => do boundedInt width ((← a) * (← b))
+    divide := fun a b => do
+      let x ← a; let y ← b
+      if y = 0 then none else boundedInt width (x.tdiv y)
+    remainder := fun a b => do
+      let x ← a; let y ← b
+      if y = 0 then none else boundedInt width (x.tmod y) } none
 
 /-- Ordinary classical temporal truth over natural time. The fold carries
 closures, so neither captured environments nor time are reset by evaluation. -/
@@ -152,7 +170,8 @@ def Satisfies (m : Module) (τ : Trace) : Prop :=
   m.command.body.Defined m.schema m.command.bitwidth τ [] 0 ∧
   (match m.command.kind with
    | .run => m.command.body.Holds m.schema m.command.bitwidth τ [] 0
-   | .check => ¬ m.command.body.Holds m.schema m.command.bitwidth τ [] 0)
+   | .check => ¬ m.command.body.Holds m.schema m.command.bitwidth τ [] 0) ∧
+  (∀ t, (τ.state t).scalarFields m.command.bitwidth m.schema.declarations = true)
 
 /-- Lasso frames are valuations, not temporal truth caches. -/
 structure Lasso where

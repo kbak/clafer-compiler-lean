@@ -83,9 +83,12 @@ initializers, declaration transitions and every authored modifier token.
 
 Properties keep their kind, owner, element/body positions, expressions and spans.
 Inherited properties occur once at their authored attachment. The projection uses
-empty structural constraint markers to request the integer universe for authored
-expressions. Header expression markers are appended after existing children, so
-they cannot shift those children's paths. These markers are not behavioral
+empty structural constraint markers to request the integer universe. A final
+top-level marker reserves that domain even when the original model has no
+expressions, so separately supplied scenarios use the same built-in integer
+type as inline constraints. `BoundDeclarations.integerDomain` proves its
+presence from the resolver correspondence. Markers are appended after existing
+elements, so they cannot shift authored paths. These markers are not behavioral
 constraints; expression interpretation always uses the retained behavioral tree.
 
 [`bindModifiers`](../ClaferCompiler/Frontend/Behavioral/Modifiers.lean) checks the
@@ -313,12 +316,20 @@ context/root observations and complete step images across times; interval bounds
 apply to integer members without asserting that an observation is integer-typed
 or defined. C6 supplies the local semantic range theorems. This pass proves the
 composition of the checking obligations, not the validity of caller-supplied
-structural budgets. Discharging those scope premises and connecting checked
-ranges to target encoding remain C8 responsibilities. In particular, a finite
+structural budgets. The [full encoding](behavioral-encoding.md#full-profile-proof-components)
+discharges those scope premises from actual structural and bound facts and
+connects the checked ranges to recursive expression preservation. In particular, a finite
 budget cannot replace arbitrary infinite or noninteger observations with a finite
 integer universe. Native regressions reject overflow under false guards, in
 unselected branches, in vacuous/grouped bodies and across repeated fold operands.
 Successful IR construction alone does not perform this scope-dependent range check.
+
+`Correctness.Behavioral.Full.elaborate_source` recovers the independent
+`FormulaElaborates` derivation for every authored property and `HeaderElaborates`
+derivation for every generated initializer/transition from successful
+`elaborate`. Its inventory is indexed by the source properties and headers.
+The vector traversal proof reuses Lean's `Vector.ofFnM_succ`; declaration
+correspondence and modifier spellings retain their existing certificates.
 
 ## Reuse and evidence
 
