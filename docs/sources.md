@@ -21,7 +21,7 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4) | `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/5182c8f5884eddfd8bff8a26b493a8550f0162b6) | `5182c8f5884eddfd8bff8a26b493a8550f0162b6` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea) | `6750e6f591b2131549122c13dee94d3d2257eaea` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/AlloyBridge.java) |
@@ -456,15 +456,15 @@ their source meaning retained only upstream. Its
 [reuse and proof boundaries](behavioral-ir.md#reuse-assessment) distinguish
 native algorithms, interpretation proofs and future full-profile work.
 
-The [behavioral compiler contract](behavioral.md) uses accepted upstream semantics
-at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`, the
+The [behavioral compiler contract](behavioral.md) uses the accepted
+[S7 dependency](#accepted-semantic-qualification-dependency). The stable source
+locators below were inspected at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`, the
 [accepted surface integration](https://github.com/kbak/clafer-semantics/pull/147).
 The original [profile adoption](https://github.com/kbak/clafer-semantics/pull/131)
 was accepted at `a260e69e0ce44d47220dc629f5526ab8bce28d8a`. The newer contract
 revision contains the accepted trace, signed-formula, structural/partial-atom,
-surface and finite-verification work. It is also the installed Lake dependency
-for the [structural handoff](behavioral-structure.md); this does not claim full
-upstream or compiler behavioral qualification.
+surface and finite-verification work. S7 retains those meanings and adds generic
+qualification APIs; compiler qualification retains its own acceptance gate.
 
 | Accepted upstream interface at the installed pin | Downstream use and limit |
 | --- | --- |
@@ -654,8 +654,8 @@ semantic definitions or Haskell code are vendored.
 
 ## Exact temporal runtime sources
 
-The [resolved temporal runtime](temporal-comparison.md) retains the accepted
-semantics pin `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`. Its executable adapter
+The [resolved temporal runtime](temporal-comparison.md) uses the unchanged APIs
+inspected at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`. Its executable adapter
 uses and proves agreement with
 [`Clafer/Behavioral/Lowering.lean`](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Behavioral/Lowering.lean),
 [`Verification.lean`](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Behavioral/Verification.lean)
@@ -678,7 +678,7 @@ not admitted by this adapter; their qualification remains separate.
 
 ## Behavioral dependency delta
 
-The installed accepted revision `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`
+The earlier accepted revision `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`
 adds the structural/partial-atom APIs needed by the
 [behavioral structural handoff](behavioral-structure.md). The static regression
 baseline is `26f884d3f630bd74a88cfe43d6f31118e9025bbf`. Across that delta, the
@@ -707,8 +707,8 @@ behavioral syntax evidence; it does not replace the static comparison compiler.
 
 ## Behavioral frontend sources
 
-The [behavioral frontend](behavioral-frontend.md) uses the same installed semantics
-`6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and Haskell
+The [behavioral frontend](behavioral-frontend.md) retains the meanings inspected at
+semantics `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and Haskell
 `af858ec0fe3ce2ceacb7fd120947c058233086d6` pins. Inspected `src/clafer.cf`
 (`Exp` and `Exp1`–`Exp27`, modifier lists, arrows, scopes, enum/initializer/assertion forms),
 `Desugarer.hs` (`desugarRefModifier`, `desugarTrans`, `desugarSequence`,
@@ -778,3 +778,44 @@ conditional followed by `.parent` is prematurely classified as Boolean, and
 conditional and polymorphic-empty contract or establish Haskell agreement for those
 cases. Native compiler regressions and the independent source/partial-expression
 rules cover their accepted meanings separately.
+
+## Accepted semantic qualification dependency
+
+The source integration pins accepted S7 commit
+`5182c8f5884eddfd8bff8a26b493a8550f0162b6`, accepted through
+[upstream qualification](https://github.com/kbak/clafer-semantics/issues/129).
+The delta from `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` adds
+`Composition`, `PartialLowering`, `FinitePartial`, `FiniteComposition` and
+`QualificationExamples`, with their documentation and test inventory. Existing
+structural and behavioral meanings, static adapters, fixture bytes, Lean and
+transitive dependency revisions are unchanged. Earlier source locators above
+remain citations at their inspected revisions. The installed dependency is the
+S7 commit; historical receipts keep their original identities.
+
+S7 explicitly accepts `behavioral-0.5.7-candidate/v1` with Haskell
+`af858ec0fe3ce2ceacb7fd120947c058233086d6` and D1–D5. This source integration
+retains that immutable prerelease disposition. It does not adopt a moving
+release or relabel the separately qualified PR113 comparison candidates.
+The static Haskell 0.5.4 and Alloy 6.2.0 pins and their expected corpus outcomes
+are unchanged; fresh tool receipts bind their reuse to the installed S7 source.
+
+
+### Full source observation adapter
+
+The [source workflow](behavioral-source.md#exact-comparison-and-replay) reuses the
+accepted full encoder, strict Analyzer table reader, phase clock and global graph
+comparison. Its executable Python reference reads the exported source expression
+constructors, not target formulas. Equations follow accepted S7
+[`Denotation`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Denotation.lean),
+[`PartialObservation`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/PartialObservation.lean),
+[`Lifetime`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Lifetime.lean),
+[`Modifiers`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Modifiers.lean)
+and [`Structural.Keys`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Structural.lean).
+This reference is tested, not kernel proved or a certified S7 adapter. Its review
+boundary remains explicit alongside the separate compiler proofs.
+
+The revision-qualified c7 exact comparison retains the inherited set-key
+counterexample described in the source workflow. Source `Keys` already covers
+inherited reference kinds in each concrete containment fiber; the Haskell output
+omits this obligation. Its SAT result is a discrepancy, not a new accepted source
+meaning. Candidate review must accept or reject this proposed limitation disposition.

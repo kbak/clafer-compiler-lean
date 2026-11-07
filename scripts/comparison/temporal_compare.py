@@ -137,7 +137,7 @@ def symbol(name):
 
 
 # [impl->req~compiler-temporal-comparison~1]
-def pin(trace):
+def pin(trace, *, integer_fields=(), typed_aliases=False, positions=False):
     """Frozen global aliases plus a distinct phase for every stored position.
 
     With exactly N steps, initial phase zero and the specified successor graph,
@@ -158,11 +158,32 @@ def pin(trace):
         for kind in ('signatures','fields'):
             for name, tuples in trace['frames'][i][kind].items():
                 empty = 'none' if kind == 'signatures' else 'none->none'
-                value = ' + '.join('->'.join(aliases[x] for x in row) for row in tuples) or empty
+                def atom(i, x):
+                    if name in integer_fields and i == 1:
+                        require(type(x) is str and re.fullmatch(r'0|-?[1-9][0-9]*', x),
+                                'noncanonical scalar integer')
+                        return '(' + x + ')'
+                    return aliases[x]
+                value = ' + '.join('->'.join(atom(j, x) for j,x in enumerate(row)) for row in tuples) or empty
                 rows.append(f'{symbol(name)} = ({value})')
-        equations.append(f'always (tc_Clock.tc_now = tc_phase{i} implies (\n' + '\nand\n'.join(rows) + '\n))')
+        prefix=('after '*i+'((' if positions else f'always (tc_Clock.tc_now = tc_phase{i} implies (')
+        equations.append(prefix+'\n'+'\nand\n'.join(rows)+'\n))')
     universe = ' + '.join(symbol(s) for s in trace['signatures'])
-    fact = '\nfact { some disj ' + ', '.join(aliases.values()) + ': ('+universe+') | {\n'
+    if typed_aliases:
+        # These memberships follow from the fixed initial signature equations.
+        # Restricting each binder avoids enumerating irrelevant type permutations.
+        binders=[]
+        for atom, alias in aliases.items():
+            choices=[s for s,rows in trace['frames'][0]['signatures'].items()
+                     if not trace['signatures'][s]['mutable'] and [atom] in rows]
+            require(choices, 'no static alias domain')
+            selected=min(choices,key=lambda s:(len(trace['frames'][0]['signatures'][s]),s))
+            binders.append(f'some {alias}: {symbol(selected)} | ')
+        equations += [f'{a} != {b}' for i,a in enumerate(aliases.values())
+                      for b in list(aliases.values())[i+1:]]
+        fact='\nfact { '+''.join(binders)+'{\n'
+    else:
+        fact = '\nfact { some disj ' + ', '.join(aliases.values()) + ': ('+universe+') | {\n'
     fact += '\nand\n'.join(equations) + '\n} }\n'
     scopes = {'this/tc_Phase':dict(count=n,exact=True),'this/tc_Clock':dict(count=1,exact=True)}
     scopes.update({f'this/tc_phase{i}':dict(count=1,exact=True) for i in range(n)})

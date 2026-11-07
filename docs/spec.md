@@ -483,6 +483,45 @@ Covers:
 
 Needs: impl, utest
 
+## Behavioral source integration
+
+`req~compiler-behavioral-integration~1`
+
+Expose the complete `behavioral-0.5.7-candidate/v1` source frontend and encoder
+through a separate native command, with closed versioned bounds for nonprimitive
+identity pools, declaration scopes, steps and observed integer values. Preserve
+authored source locations, deterministic output and source maps. Select model
+compilation, universal assertion counterexamples and additional existential
+scenarios explicitly; preserve scenario ownership and source attribution.
+Reuse checked in-memory requests and temporal serialization. Compilation needs
+only the native runtime, invokes no solver and preserves output on failure.
+Keep static and first-slice commands and schemas unchanged. Parser, JSON,
+serialization and native execution remain tested boundaries beside the existing
+full frontend preservation theorems. The [source workflow](behavioral-source.md)
+records the concrete API, bounds, reuse and qualification limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
+## Behavioral source qualification
+
+`req~compiler-behavioral-qualification~1`
+
+Retain full-profile source/IR pairing, exact lasso comparisons with one global
+identity map and separate finite integer observations, positive and deliberate
+negative feature/interaction witnesses, replayable source/tool identities and
+explicit compilation/checking measurements. Distinguish executable reference
+checks from kernel-checked correspondence and from revision-specific Haskell
+comparisons. Unsupported requests and timeouts are inconclusive, never passes.
+Independent review and source-matched full regression evidence remain required
+for candidate acceptance; bounded agreement does not establish universal proof.
+
+Covers: `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Reproducible build and assurance bootstrap
 
 `req~compiler-build~1`

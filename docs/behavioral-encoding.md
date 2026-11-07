@@ -11,7 +11,8 @@ the independent [temporal target](alloy-temporal.md). They use the selected
 [behavioral profile](behavioral.md), immutable [sources](sources.md#behavioral-sources)
 and the selected structural core. The original first-slice API and resolved CLI
 remain available. The full-profile API consumes elaborated in-memory requests;
-source CLI integration and final qualification retain their own completion gates.
+the [source CLI](behavioral-source.md) composes that API with checked rendering.
+Final qualification and independent acceptance retain their own gates.
 
 Covers:
 - `req~compiler-behavioral-encoding~1`

@@ -3,12 +3,15 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 regression_args=()
 reference_ci=false
+source_ci=false
 if [[ $# == 1 && $1 == --compiler-ci ]]; then
   regression_args=(--compiler-ci)
 elif [[ $# == 1 && $1 == --reference-ci ]]; then
   reference_ci=true
+elif [[ $# == 1 && $1 == --source-ci ]]; then
+  source_ci=true
 elif [[ $# != 0 ]]; then
-  echo 'Usage: bash scripts/check.sh [--compiler-ci | --reference-ci]' >&2
+  echo 'Usage: bash scripts/check.sh [--compiler-ci | --reference-ci | --source-ci]' >&2
   exit 2
 fi
 export PYTHONDONTWRITEBYTECODE=1
@@ -56,6 +59,11 @@ rm -f .lake/build/bin/clafer-compiler
 run_step 'Native link receipt' env LAKE_ARTIFACT_CACHE=false lake build clafer-compiler
 test -s .lake/build/bin/clafer-compiler.rsp
 python3 scripts/project_modules.py --dependencies
+if $source_ci; then
+  run_step 'Behavioral source regressions' lake env python3 scripts/run_tests.py --source-ci
+  echo 'Behavioral source qualification passed; compiler proof and other runtime checks are separate.'
+  exit 0
+fi
 mapfile -t modules < .lake/validation/modules.txt
 run_step 'All module build' lake build "${modules[@]/#/+}"
 # Keep the heavy import environments out of the regression CPU/memory budget.
@@ -73,5 +81,5 @@ if (( kernel_status != 0 )); then exit "$kernel_status"; fi
 if [[ ${#regression_args[@]} == 0 ]]; then
   echo 'All build, native, import, kernel, axiom and regression gates passed.'
 else
-  echo 'Compiler CI passed; standalone reference corpora were not run in this profile.'
+  echo 'Compiler CI passed; reference and behavioral source suites run in separate required jobs.'
 fi

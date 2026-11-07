@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and its inherited Mathlib/dependency commits.
+`5182c8f5884eddfd8bff8a26b493a8550f0162b6` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -146,9 +146,9 @@ audit and [test runner](../scripts/run_tests.py) enforce the required gates.
 | Trigger | Checks |
 | --- | --- |
 | PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
-| PR targeting `behavioral` | Compiler IntentBond profile: every Lean module, axiom audit, kernel replay and all compiler regressions, including native and Haskell/Alloy comparisons |
+| PR targeting `behavioral` | Compiler and behavioral source IntentBond jobs: every Lean module, axiom audit, kernel replay and all compiler regressions, including native and Haskell/Alloy comparisons |
 | Behavioral PR changing reference dependencies or unclassified paths | Additional independent reference job with both complete historical and PR113 corpora |
-| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | Both independent IntentBond jobs are mandatory: compiler/proofs and complete reference qualification |
+| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | All three IntentBond jobs are mandatory: compiler/proofs, behavioral source and complete reference qualification |
 
 The full local IntentBond check remains mandatory before handoff. Routine CI is
 build/proof/CLI evidence, not full qualification evidence. All paths check scope
@@ -174,30 +174,35 @@ scripts/shared helpers, manifests, toolchains, CI configuration, requirements,
 scope and source/oracle/build/specification contracts require it. Unknown paths,
 missing baselines and unsuccessful ancestry/diff checks also require it.
 No accepted input hash or successful result is inferred from a missing comparison.
-Acceptance, integration, scheduled and manual runs always select both jobs, even
+Acceptance, integration, scheduled and manual runs always select all three jobs, even
 when the diff contains only compiler inputs. Unknown event/target classification
-also requires both. This reuses the existing compiler/reference profiles, reusable
-workflow and required aggregate; the combined hosted profile would serialize the
-reference corpus ahead of compiler validation on one runner. Separate runners
-preserve solver resource isolation while allowing both complete suites to overlap.
+also requires all three. This reuses the existing profile selector, reusable
+workflow, test-group registry and required aggregate. The behavioral source suite
+uses two solver workers; sharing a four-CPU runner with the temporal target suite's
+two solver workers and other regressions creates CPU contention. A separate
+required source job preserves their query budgets and complete case inventories.
+The reference corpus likewise runs separately from compiler validation.
 No new dependency, license obligation or compiler runtime/proof boundary is added.
 
-`--compiler-ci` omits exactly `test_pr113_oracles` and `test_temporal_oracles`
-from regression execution. It retains every other discovered case, including new
-test modules, plus the normal build, audit and kernel gates. `--reference-ci`
-executes both complete reference modules and rejects missing, empty, skipped or
-failed suites. The default local check runs all modules together. Hosted full
-qualification requires both profiles against the same immutable candidate.
+`--compiler-ci` delegates exactly `test_pr113_oracles` and `test_temporal_oracles`
+to `--reference-ci`, and `test_behavioral_source_cli` and
+`test_behavioral_source_comparison` to `--source-ci`. It retains every other
+discovered case, including new test modules, plus the normal build, audit and
+kernel gates. The source profile builds the native compiler and runs both complete
+source modules. Every profile rejects missing, empty, skipped or failed suites.
+The default local check runs all modules together. Hosted full qualification
+requires all three profiles against the same immutable candidate.
 
 The [reusable validation workflow](../.github/workflows/validate.yml) derives each
 explicit profile from the baseline-checked full scope. Only its name and test
 command differ; coverage, skip policy and deadline remain identical. Each job
 retains its actual scope, profile receipt, source SHA and fresh IntentBond evidence.
-Compiler-only evidence does not claim reference execution or full qualification.
+Each profile identifies the suites it executes and does not claim full qualification.
 The reference job validates the pinned reference implementation, not the developing
-compiler. Both jobs check the same immutable candidate. The required
+compiler. All jobs check the same immutable candidate. The required
 `Lean proofs and native CLI` aggregate rejects any failed, cancelled or unexpectedly
-skipped job; a reference job may be absent only when the retained selection allows it.
+skipped job. Behavioral validation always requires the source job; the reference
+job may be absent only when the retained dependency selection allows it.
 
 GitHub `workflow_call`, job dependencies and the existing actions provide execution
 and aggregation. Whole-workflow path filters can leave required checks pending and

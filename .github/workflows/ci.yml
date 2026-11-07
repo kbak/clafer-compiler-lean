@@ -52,6 +52,15 @@ jobs:
       profile: ${{ needs.select.outputs.profile }}
       candidate: ${{ needs.select.outputs.candidate }}
       baseline: ${{ needs.select.outputs.baseline }}
+  source:
+    name: Behavioral source qualification
+    needs: select
+    if: needs.select.outputs.profile == 'compiler'
+    uses: ./.github/workflows/validate.yml
+    with:
+      profile: source
+      candidate: ${{ needs.select.outputs.candidate }}
+      baseline: ${{ needs.select.outputs.baseline }}
   reference:
     name: Reference qualification
     needs: select
@@ -63,7 +72,7 @@ jobs:
       baseline: ${{ needs.select.outputs.baseline }}
   build:
     name: Lean proofs and native CLI
-    needs: [select, compiler, reference]
+    needs: [select, compiler, source, reference]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -71,11 +80,19 @@ jobs:
         env:
           SELECTION: ${{ needs.select.result }}
           COMPILER: ${{ needs.compiler.result }}
+          SOURCE: ${{ needs.source.result }}
+          PROFILE: ${{ needs.select.outputs.profile }}
           REFERENCE: ${{ needs.reference.result }}
           REQUIRED: ${{ needs.select.outputs.reference }}
         run: |
           test "$SELECTION" = success
           test "$COMPILER" = success
+          if [ "$PROFILE" = compiler ]; then
+            test "$SOURCE" = success
+          else
+            test "$PROFILE" = routine
+            test "$SOURCE" = skipped
+          fi
           if [ "$REQUIRED" = true ]; then
             test "$REFERENCE" = success
           else

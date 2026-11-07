@@ -123,7 +123,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('audit completed', calls)
         self.assertIn('kernel completed', calls)
         self.assertIn('lake env python3 scripts/run_tests.py --compiler-ci', calls)
-        self.assertIn('standalone reference corpora were not run', result.stdout)
+        self.assertIn('reference and behavioral source suites run in separate required jobs', result.stdout)
         self.assertNotIn('All build', result.stdout)
 
     def test_reference_profile_prepares_dependencies_without_claiming_compiler_gates(self):
@@ -134,6 +134,17 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertNotIn('audit completed', calls)
         self.assertNotIn('kernel completed', calls)
         self.assertIn('compiler proof and runtime checks are separate', result.stdout)
+
+    def test_source_profile_builds_native_code_and_propagates_suite_failure(self):
+        for failure in ('', 'scripts/run_tests.py'):
+            result, calls = self.run_check(args=['--source-ci'], fail=failure)
+            self.assertEqual(result.returncode, 23 if failure else 0, result.stdout + result.stderr)
+            self.assertIn('lake build', calls)
+            self.assertIn('native link cache=false', calls)
+            self.assertIn('lake env python3 scripts/run_tests.py --source-ci', calls)
+            self.assertNotIn('audit completed', calls)
+            self.assertNotIn('kernel completed', calls)
+            self.assertEqual('Behavioral source qualification passed' in result.stdout, not failure)
 
     def test_required_failures_stop_the_check(self):
         for failure in ['scripts/check.py', 'scripts/project_modules.py', '--dependencies',
@@ -185,7 +196,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             (root/'tests/test_comparison.py').write_text(good)
             (root/'tests/test_source_cli.py').write_text(good)
             (root/'tests/test_source_pipeline.py').write_text(good)
-            added = ('test_pr113_oracles', 'test_alloy_temporal', 'test_constraints', 'test_parser', 'test_resolution', 'test_qualification',
+            added = ('test_behavioral_source_cli', 'test_behavioral_source_comparison',
+                     'test_pr113_oracles', 'test_alloy_temporal', 'test_constraints', 'test_parser', 'test_resolution', 'test_qualification',
                      'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
                      'test_expressions', 'test_inherited', 'test_integer_arithmetic',
                      'test_structural_alloy', 'test_structural_ir', 'test_structural_representation')

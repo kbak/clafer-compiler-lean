@@ -79,6 +79,12 @@ injected discrepancies, replay tampering and runtime isolation test the external
 boundaries. This is first-slice evidence with manually paired source/IR formulas;
 it does not qualify the full source frontend or later Haskell profiles.
 
+The [full source workflow](behavioral-source.md) records native commands, strict
+scalar decoding, exact source/IR observations and per-case measurements. The
+[suite](../tests/test_behavioral_source_comparison.py) retains complete lasso
+queries and replay identities, while the static and reference-tool suites remain
+mandatory. Its Python finite observer is tested, not kernel certified.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the

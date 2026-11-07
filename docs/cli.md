@@ -239,3 +239,9 @@ Covers:
 - `req~compiler-cli~1`
 - `req~compiler-diagnostics~1`
 - `req~compiler-ir~1`
+
+## Full behavioral source command
+
+`compile-behavioral-source` uses the separate explicit full profile and version-2
+bounds. See the [source workflow](behavioral-source.md#native-commands-and-bounds)
+for model, assertion, scenario, integer and declaration-scope contracts.

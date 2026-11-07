@@ -84,7 +84,8 @@ class CIProfileTests(unittest.TestCase):
         self.assertEqual(profile_scope(original, 'full'), original)
         policy = json.loads(original)
         for name, command in [('compiler', ['bash', 'scripts/check.sh', '--compiler-ci']),
-                              ('reference', ['bash', 'scripts/check.sh', '--reference-ci'])]:
+                              ('reference', ['bash', 'scripts/check.sh', '--reference-ci']),
+                              ('source', ['bash', 'scripts/check.sh', '--source-ci'])]:
             expected = copy.deepcopy(policy)
             expected['name'] += '/'+name
             expected['tests']['command'] = command
@@ -112,10 +113,19 @@ class CIProfileTests(unittest.TestCase):
                 ('success', 'success', 'success', 'false', False),
                 ('success', 'success', 'skipped', '', False)]:
             result = subprocess.run(['bash', '-e', '-c', script], env=dict(os.environ,
-                SELECTION=selection, COMPILER=compiler, REFERENCE=reference, REQUIRED=required))
+                SELECTION=selection, COMPILER=compiler, REFERENCE=reference, REQUIRED=required,
+                SOURCE='success', PROFILE='compiler'))
             self.assertEqual(result.returncode == 0, ok, (selection, compiler, reference, required))
+        for profile, source, ok in [('compiler', 'success', True), ('routine', 'skipped', True),
+                ('compiler', 'failure', False), ('compiler', 'cancelled', False),
+                ('compiler', 'skipped', False), ('compiler', '', False),
+                ('routine', 'success', False), ('', 'skipped', False)]:
+            result = subprocess.run(['bash', '-e', '-c', script], env=dict(os.environ,
+                SELECTION='success', COMPILER='success', REFERENCE='skipped', REQUIRED='false',
+                SOURCE=source, PROFILE=profile))
+            self.assertEqual(result.returncode == 0, ok, (profile, source))
 
-    def test_profiles_partition_only_reference_cases_and_discover_new_tests(self):
+    def test_profiles_partition_every_case_and_discover_new_tests(self):
         good = 'import unittest\nclass T(unittest.TestCase):\n def test_ok(self): pass\n'
         bad = good.replace('pass', 'self.fail("fixture")')
         with tempfile.TemporaryDirectory() as directory:
@@ -125,7 +135,8 @@ class CIProfileTests(unittest.TestCase):
             for name in names:
                 (root/'tests'/name).write_text(good)
             references = ['test_pr113_oracles.py', 'test_temporal_oracles.py']
-            for name in references:
+            sources = ['test_behavioral_source_cli.py', 'test_behavioral_source_comparison.py']
+            for name in references + sources:
                 (root/'tests'/name).write_text(bad)
             def run(*args):
                 return subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py'), *args],
@@ -133,9 +144,10 @@ class CIProfileTests(unittest.TestCase):
                     capture_output=True, text=True, timeout=15)
             compiler = run('--compiler-ci')
             self.assertEqual(compiler.returncode, 0, compiler.stdout+compiler.stderr)
-            self.assertEqual(compiler.stderr.count('test_ok ('), len(names)-2)
+            self.assertEqual(compiler.stderr.count('test_ok ('), len(names)-4)
             self.assertNotEqual(run().returncode, 0)
             self.assertNotEqual(run('--reference-ci').returncode, 0)
+            self.assertNotEqual(run('--source-ci').returncode, 0)
             (root/'tests/test_future_feature.py').write_text(bad)
             self.assertNotEqual(run('--compiler-ci').returncode, 0)
             for name in references:
@@ -143,5 +155,17 @@ class CIProfileTests(unittest.TestCase):
             reference = run('--reference-ci')
             self.assertEqual(reference.returncode, 0, reference.stderr)
             self.assertEqual(reference.stderr.count('test_ok ('), 2)
+            for name in sources:
+                (root/'tests'/name).write_text(good)
+            source = run('--source-ci')
+            self.assertEqual(source.returncode, 0, source.stderr)
+            self.assertEqual(source.stderr.count('test_ok ('), 2)
+            for name in sources:
+                for text in ['', bad, good.replace(' def test_ok', ' @unittest.skip("fixture")\n def test_ok')]:
+                    (root/'tests'/name).write_text(text)
+                    self.assertNotEqual(run('--source-ci').returncode, 0, (name, text))
+                (root/'tests'/name).unlink()
+                self.assertNotEqual(run('--source-ci').returncode, 0, name)
+                (root/'tests'/name).write_text(good)
             (root/'tests/test_temporal_oracles.py').unlink()
             self.assertNotEqual(run('--reference-ci').returncode, 0)
