@@ -226,7 +226,8 @@ The builder can reuse an explicit external `STACK_ROOT`; otherwise it creates on
 inside the build cache. It requires GMP development headers/library (`libgmp-dev`)
 and retains failed build logs with an actionable diagnostic. Invalid or changed
 exporter/source/build receipts require rebuilding; validation never provisions
-missing tools or skips their tests. CI prepares both profiles and retains temporal
+missing tools or skips selected tests. CI prepares the profiles required by its
+[validation selection](build.md#ci-profiles) and retains temporal
 setup/build logs, notices, tool receipts and execution evidence.
 
 `TemporalExport.hs` calls the unchanged library's `generate` once with JSON, Alloy
@@ -439,7 +440,8 @@ schemas/mappings/fields and every indexed artifact, and freshly replay a paired
 revision discrepancy. [Inspection orchestration tests](../tests/test_pr113_fusion.py)
 reject missing or malformed shared inventories, retain timeouts and verify that
 the first runs are used once while every assertion keeps its own fresh query.
-CI provisions this profile alongside both historical gates.
+CI provisions this profile for full qualification and when
+[reference dependencies change](build.md#ci-profiles).
 
 Covers:
 - `req~compiler-temporal-oracles~1`

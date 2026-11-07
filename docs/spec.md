@@ -46,11 +46,21 @@ handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. The full local check remains mandatory.
 On PRs outside `behavioral` and pushes to `main`, hosted CI builds every Lean module, audits
 axioms, replays the kernel, checks scope identity and tests the native source/IR
-CLI. PRs targeting `behavioral`, pushes to `behavioral` and manual dispatch run
-the full IntentBond check, including external comparison
-tools and all regressions. Both retain evidence; routine CI does not establish
-full qualification or semantic acceptance. Public CI artifacts retain logs,
-notices, source identities and replay inputs without compiled test binaries.
+CLI. Every behavioral PR additionally checks traceability and runs all compiler
+regressions, including native execution and external source/target comparisons.
+Only the standalone historical and PR113 reference qualification suites may run
+conditionally: their complete corpora are mandatory when a reference pin,
+adapter, fixture, test, shared helper, provisioning recipe, or execution policy
+changes. Missing or ambiguous dependency information requires the full suites.
+Run both complete reference suites on scheduled verification and manual dispatch,
+and retain a full source-matched IntentBond check before acceptance. The full
+local check before handoff remains mandatory. A deferred reference suite must be
+reported as not run on this candidate; previously accepted reference evidence is
+bound to its exact inputs and is never described as fresh compiler validation.
+Keep compiler and reference jobs independent, with a required aggregate result
+that fails on every failed or missing mandatory job. Retain evidence; routine CI
+does not establish full qualification or semantic acceptance. Public CI artifacts
+retain logs, notices, source identities and replay inputs without compiled test binaries.
 Scope changes require explicit review.
 CI checks scope identity against the baseline, permitting only exact reviewed
 migrations without replacing the Git comparison baseline.

@@ -113,7 +113,8 @@ compiler outputs using source/options/import traces; it never restores validatio
 results. Lake does not cache the native linker's response file. The check relinks
 the executable from the restored objects with artifact reuse disabled for that
 command, so an old local response file cannot stand in for current link inputs. Native probes and qualification retain the real
-local link inputs. The full check has no skip mode.
+local link inputs. The default full check runs every gate; the explicitly named
+CI profiles below retain separate execution evidence.
 
 The header parser, audit and audit-fixture runner adapt
 `scripts/project_modules.py`, `tests/axiom_audit.lean` and `tests/test_axiom_audit.py`
@@ -132,27 +133,65 @@ package files above make these a native executable.
 [Module discovery](../scripts/project_modules.py) implements
 `inventory`, `validate`, `check_dependencies` and `audit_source`. The full check,
 audit and [test runner](../scripts/run_tests.py) enforce the required gates.
-[CI](../.github/workflows/ci.yml) uses two validation paths:
+[CI](../.github/workflows/ci.yml) selects the following validation paths:
 
 | Trigger | Checks |
 | --- | --- |
 | PR outside `behavioral` or push to `main` | Repository syntax/links, dependency identities, every Lean module, axiom audit, kernel replay, native source/IR CLI regressions and scope-policy tests |
-| PR targeting `behavioral`, push to `behavioral`, or manual dispatch | Full pinned IntentBond check, including Haskell/Alloy comparisons, runtime isolation and all Python/native regressions |
+| PR targeting `behavioral` | Compiler IntentBond profile: every Lean module, axiom audit, kernel replay and all compiler regressions, including native and Haskell/Alloy comparisons |
+| Behavioral PR changing reference dependencies or unclassified paths | Additional independent reference job with both complete historical and PR113 corpora |
+| Behavioral PR marked ready for review, push to `behavioral`, scheduled or manual run | Full pinned IntentBond check, including both reference corpora and every compiler regression |
 
 The full local IntentBond check remains mandatory before handoff. Routine CI is
-build/proof/CLI evidence, not full qualification evidence. Both paths check scope
+build/proof/CLI evidence, not full qualification evidence. All paths check scope
 identity against the original baseline and retain logs. The full-check command,
 coverage policy, test cases and per-command time limits are unchanged.
 
-Both paths reuse the existing module inventory, Lake build targets, axiom audit,
+These paths reuse the existing module inventory, Lake build targets, axiom audit,
 LeanChecker and Python `unittest` tests; no separate test framework or compiler
-runtime dependency is added. The workflow selects the full suite for behavioral
-integration, including contract-only changes, and the smaller routine suite elsewhere;
-`scripts/check.sh` always runs every gate. GitHub's cache action reuses pinned
+runtime dependency is added. The default `scripts/check.sh` runs every gate.
+GitHub's cache action reuses pinned
 dependency packages, native Lake artifacts and external comparison tools.
 Preparation and clean-pin/tool identity checks still run for the tools each path
 uses. Kernel replay and axiom inspection run on the restored local artifacts;
 successful proof/test results are never restored.
+
+### CI profiles
+
+The [profile selector](../scripts/ci_profile.py) uses Git's complete, untruncated
+path diff with rename detection disabled. Compiler Lean files, Lean test files,
+independent `tests/test_*.py` modules, and component documentation do not affect
+standalone reference qualification. The two reference test modules, all fixtures,
+scripts/shared helpers, manifests, toolchains, CI configuration, requirements,
+scope and source/oracle/build/specification contracts require it. Unknown paths,
+missing baselines and unsuccessful ancestry/diff checks also require it.
+No accepted input hash or successful result is inferred from a missing comparison.
+
+`--compiler-ci` omits exactly `test_pr113_oracles` and `test_temporal_oracles`
+from regression execution. It retains every other discovered case, including new
+test modules, plus the normal build, audit and kernel gates. `--reference-ci`
+executes both complete reference modules and rejects missing, empty, skipped or
+failed suites. Full qualification remains the default and runs all modules.
+
+The [reusable validation workflow](../.github/workflows/validate.yml) derives each
+explicit profile from the baseline-checked full scope. Only its name and test
+command differ; coverage, skip policy and deadline remain identical. Each job
+retains its actual scope, profile receipt, source SHA and fresh IntentBond evidence.
+Compiler-only evidence does not claim reference execution or full qualification.
+The reference job validates the pinned reference implementation, not the developing
+compiler. Both jobs check the same immutable candidate. The required
+`Lean proofs and native CLI` aggregate rejects any failed, cancelled or unexpectedly
+skipped job; a reference job may be absent only when the retained selection allows it.
+
+GitHub `workflow_call`, job dependencies and the existing actions provide execution
+and aggregation. Whole-workflow path filters can leave required checks pending and
+do not express the conservative unknown-input rule, so a small standard-library
+selector supplies that rule. No new dependency or license is introduced. The
+selector is tooling within the existing Python/Git/CI trust boundary, not a compiler
+proof. [Regression tests](../tests/test_ci_profile.py) exercise actual Git changes,
+missing baselines, scope preservation, complete test partitioning and gate failures.
+The daily schedule targets `behavioral`; GitHub activates schedules from the
+default branch, so manual full dispatch remains necessary until integration there.
 
 Public CI artifacts retain check logs, source identities, notices, generated text,
 solver witnesses and replay inputs for 30 days. The pinned `upload-artifact`

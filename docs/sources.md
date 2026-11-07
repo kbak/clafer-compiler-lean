@@ -433,6 +433,13 @@ Lake 4.35's own `Lake/Config/PackageConfig.lean` documents artifact reuse and lo
 restoration; no custom build-cache protocol is introduced. This adds no compiler
 meaning, proof assumption or runtime dependency.
 
+Dependency-based reference qualification reuses Git's path diff, Python's standard
+library, and GitHub Actions' `workflow_call`, job dependencies and always-running
+aggregate gate. The [profile contract](build.md#ci-profiles) records the conservative
+input classification, fresh evidence boundaries and tests. Whole-workflow path
+filters cannot express that policy and can leave required checks pending. The
+selector adds no compiler meaning, proof assumption, runtime dependency or license.
+
 ## Behavioral sources
 
 The executable [first-slice IR](behavioral-ir.md) uses accepted S2/S3 commit
