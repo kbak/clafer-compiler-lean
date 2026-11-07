@@ -46,7 +46,11 @@ reverse upstream dependency without changing the audited pin/source identity.
 
 Run the setup and check commands in [CONTRIBUTING](../CONTRIBUTING.md#setup-and-validation).
 [Dependency preparation](../scripts/prepare_dependencies.sh) fetches the committed
-manifest and builds the independent upstream package. The optional Mathlib binary
+manifest and builds the independent upstream package, including the native object
+closure of `Clafer.Verification.Admission` and
+`Clafer.Semantics.RealizationCompatibility` used by the source-candidate harness.
+Lake's `linkInfoExport` facet provides that closure without a separate dependency
+resolver. The optional Mathlib binary
 cache saves compilation; failure falls back to source builds. It supplies no new
 compiler proof evidence. The toolchain, pinned dependencies and their build artifacts
 are trusted inputs; the audit does not recheck all upstream declarations.
@@ -58,6 +62,10 @@ generates an `import all` audit, exercises native/Python regressions and invokes
 `leanchecker --verbose ClaferCompiler Main tests`. Kernel replay and axiom audit
 run on every full check and routine CI run, even when Lake reuses unchanged
 compiled artifacts.
+
+CI retains Lake's traced build artifacts even after a regression fails, so a
+retry can reuse completed compilation. It caches no audit, test or kernel verdict;
+the full check still runs every gate against the current source.
 
 [The axiom audit](../scripts/axiom_audit.lean) selects declarations by originating
 module, including private names and generated declarations. It rejects project

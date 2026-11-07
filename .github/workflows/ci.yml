@@ -68,7 +68,8 @@ jobs:
           echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       # Lake validates source/options/import traces; proof and test results are never cached.
       - name: Cache Lean build artifacts
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: lean-artifacts
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/lean-cache
           key: compiler-lean-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
@@ -87,7 +88,9 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .lake/packages
-          key: compiler-packages-v3-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
+          key: compiler-packages-v4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'scripts/prepare_dependencies.sh') }}
+          restore-keys: |
+            compiler-packages-v3-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}
       - name: Migrate the previous combined cache
         if: steps.dependencies.outputs.cache-matched-key == '' && hashFiles('lake-manifest.json') == '853addd8492e8d9bbafb175ed482763345fe94bcdf92f36e7717472a3cb7e6e2'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -287,6 +290,14 @@ jobs:
           elif [ "$result" != 0 ]; then
             exit "$result"
           fi
+      # Lake validates restored source/options/import traces. A failed regression
+      # must not force the next run to rebuild otherwise reusable native objects.
+      - name: Save Lean build artifacts
+        if: always() && steps.lean-artifacts.outputs.cache-primary-key != '' && steps.lean-artifacts.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/lean-cache
+          key: ${{ steps.lean-artifacts.outputs.cache-primary-key }}
       - name: Retain evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
