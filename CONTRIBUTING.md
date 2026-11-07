@@ -91,7 +91,7 @@ machinery from scratch. Keep unresolved choices explicit; see the
 
 ## Setup and validation
 
-Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time and Bubblewrap
+Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time, coreutils `timeout` and Bubblewrap
 with working user namespaces are required for validation. The native runtime
 check currently targets Linux/glibc; ordinary compilation needs only the
 [documented native runtime](docs/cli.md#native-runtime).

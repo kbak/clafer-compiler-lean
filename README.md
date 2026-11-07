@@ -60,8 +60,9 @@ fragment. Temporal behavior, enums, runtime strings/reals, multiplication/divisi
 general aggregation and automatic scope inference are outside it. Full Haskell
 compatibility is not promised.
 
-The [behavioral profile](docs/behavioral.md) is planned on the `behavioral`
-integration branch. It is not yet supported by the compiler.
+The `behavioral` integration branch adds the separate
+[behavioral source workflow](docs/behavioral-source.md), with temporal bounds,
+assertion/scenario commands and its own qualification and review gates.
 
 ## Build and compile
 

@@ -31,7 +31,7 @@ def rows (labels : List String) (arity : Nat) (n : Node) : Except Diagnostic (Li
   return xs.toList
 
 -- [impl->req~compiler-temporal-decode~1]
-def target (v : IR.Structural.Layout k) (n : Node) : Except Diagnostic Temporal.Lasso := do
+def targetSchema (schema : Temporal.Schema) (n : Node) : Except Diagnostic Temporal.Lasso := do
   closed n ["length", "loop", "inventory", "frames", "signatures", "fields"]
   let length ← natural (← field n "length")
   let loop ← natural (← field n "loop")
@@ -39,15 +39,16 @@ def target (v : IR.Structural.Layout k) (n : Node) : Except Diagnostic Temporal.
   let atoms ← array string atomsNode
   unique atomsNode atoms.toList
   let labels := atoms.toList.mergeSort (· ≤ ·)
-  let schema := Backend.Alloy.Behavioral.schema v
   let sigs := schema.declarations.signatures.zipIdx
   let fields := schema.declarations.fields.zipIdx
+  let scalarOwners := sigs.filterMap fun (s, i) => if s.scalar then some i else none
+  let scalarName := fun i => Behavioral.signatureName i ++ "/" ++ (Text.Symbol.auxiliary i).name
   let sigNames := sigs.map fun (_, i) => Behavioral.signatureName i
   let fieldNames := fields.map fun (f, i) => Behavioral.fieldName f.owner i
   let sigMeta ← field n "signatures"
   let fieldMeta ← field n "fields"
   closed sigMeta sigNames
-  closed fieldMeta fieldNames
+  closed fieldMeta (fieldNames ++ scalarOwners.map scalarName)
   for (s, i) in sigs do
     let entry ← field sigMeta (Behavioral.signatureName i)
     closed entry ["mutable", "parent", "abstract"]
@@ -61,26 +62,49 @@ def target (v : IR.Structural.Layout k) (n : Node) : Except Diagnostic Temporal.
     if (← boolean (← field entry "mutable")) != schema.mutableFields[i]?.getD false ||
         (← natural (← field entry "arity")) != 2 then
       throw (badTrace entry "field metadata differs from the compiled schema")
+  for i in scalarOwners do
+    let entry ← field fieldMeta (scalarName i)
+    closed entry ["mutable", "arity"]
+    if !(← boolean (← field entry "mutable")) || (← natural (← field entry "arity")) != 2 then
+      throw (badTrace entry "scalar metadata differs from the compiled schema")
   let frames ← array (fun frame => do
     closed frame ["signatures", "fields"]
     let sn ← field frame "signatures"
     let fn ← field frame "fields"
     closed sn sigNames
-    closed fn fieldNames
+    closed fn (fieldNames ++ scalarOwners.map scalarName)
     let signatures ← sigNames.mapM fun name => do
       let rs ← rows labels 1 (← field sn name)
       return rs.flatten
     let relations ← fieldNames.mapM fun name => do rows labels 2 (← field fn name)
+    let values ← sigs.mapM fun (sig, i) => do
+      if !sig.scalar then return []
+      let vn ← field fn (scalarName i)
+      let rs ← array (fun row => do
+        let tuple ← array (fun item => pure item) row
+        let some xn := tuple[0]? | throw (badTrace row "invalid scalar tuple arity")
+        let some zn := tuple[1]? | throw (badTrace row "invalid scalar tuple arity")
+        unless tuple.size == 2 do throw (badTrace row "invalid scalar tuple arity")
+        let x ← label labels xn
+        let value ← string zn
+        let some z := value.toInt? | throw (badTrace row "invalid scalar integer")
+        unless toString z == value do throw (badTrace row "noncanonical scalar integer")
+        return (x, z)) vn
+      unique vn rs.toList
+      return rs.toList
     if signatures.head? != some (List.range labels.length) then
       -- The inventory is exactly the object pool, independent of tuple order.
       if !(Backend.Alloy.Behavioral.sameSet (signatures.headD []) (List.range labels.length)) then
         throw (badTrace sn "inventory differs from the shared object pool")
-    return { signatures, fields := relations : Backend.Alloy.Instance }) (← field n "frames")
+    return { signatures, fields := relations, values : Backend.Alloy.Instance }) (← field n "frames")
   if h : frames.size = length ∧ 0 < length ∧ loop < length then
     return { inventory := List.range labels.length, frames := frames.toList, loop
              nonempty := by simpa using h.1 ▸ h.2.1
              loopValid := by simpa using h.1 ▸ h.2.2 }
   else throw (badTrace n "empty, truncated or invalid-loop trace")
+
+def target (v : IR.Structural.Layout k) (n : Node) : Except Diagnostic Temporal.Lasso :=
+  targetSchema (Backend.Alloy.Behavioral.schema v) n
 
 -- [impl->req~compiler-temporal-decode~1]
 def decode (v : IR.Structural.Layout k) (file text : String) :

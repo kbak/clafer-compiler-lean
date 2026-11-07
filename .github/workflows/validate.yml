@@ -150,7 +150,7 @@ jobs:
           key: compiler-temporal-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/temporal-profile.json', 'scripts/oracles/temporal_build.py', 'scripts/oracles/TemporalExport.hs') }}
       - name: Restore verified PR113 exporter and sources
         id: pr113
-        if: (inputs.profile == 'full' || inputs.profile == 'reference')
+        if: inputs.profile != 'routine'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
@@ -217,11 +217,14 @@ jobs:
           python3 scripts/oracles/pr113.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_PR113_CACHE" "$RUNNER_TEMP/pr113-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-setup.log"
           echo "CLAFER_PR113_TOOLS=$RUNNER_TEMP/pr113-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Prepare c7a2fb7 source comparison tools
+        if: inputs.profile != 'routine'
+        run: |
           python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_PR113_C7_CACHE" "$RUNNER_TEMP/pr113-c7-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-c7-setup.log"
           echo "CLAFER_PR113_C7_TOOLS=$RUNNER_TEMP/pr113-c7-tools/tools.json" >> "$GITHUB_ENV"
       - name: Save verified PR113 exporter and sources
-        if: ((inputs.profile == 'full' || inputs.profile == 'reference')) && steps.pr113.outputs.cache-hit != 'true'
+        if: (inputs.profile == 'full' || inputs.profile == 'reference') && steps.pr113.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |

@@ -16,6 +16,7 @@ import unittest
 ISOLATED_GROUPS = {
     # This corpus runs exclusively, preserving its per-query solver budgets.
     '--pr113-worker': {'test_pr113_oracles'},
+    '--behavioral-source-worker': {'test_behavioral_source_cli', 'test_behavioral_source_comparison'},
     '--temporal-target-worker': {'test_alloy_temporal'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
     '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
@@ -89,11 +90,12 @@ if all(present):
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        # Start general regressions and the long temporal target worker early,
-        # so native behavioral and comparison tests can run alongside the target.
-        futures = [pool.submit(timed, 'remaining', run, remaining)]
+        # The full source corpus has its own process and two bounded solver
+        # workers. Reuse this pool so it shares the unchanged full-check budget.
+        futures = [pool.submit(timed, '--behavioral-source-worker', isolated, '--behavioral-source-worker'),
+                   pool.submit(timed, 'remaining', run, remaining)]
         futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS
-                       if flag != '--pr113-worker')
+                       if flag not in {'--pr113-worker','--behavioral-source-worker'})
         results.extend(future.result() for future in futures)
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)

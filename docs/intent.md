@@ -71,12 +71,18 @@ model/check/run requests with the complete partial-expression surface and rich
 structural core. Its concrete trace representation retains all ordinary identities
 and completes finite integer observations into the mathematical integer carrier.
 The component contract records the recursive preservation, scope premises and
-composed in-memory proof boundary. Source CLI integration and final qualification
-remain separate delivery gates.
+composed in-memory proof boundary. The [source CLI](behavioral-source.md) composes these APIs with explicit full-profile
+bounds and property commands. Final qualification and independent acceptance
+remain separate gates.
 The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input,
 solver-free native compilation, actual Analyzer trace decoding and exact
 three-way candidate comparison. Replay preserves complete frames and the loop;
 its paired-source and first-slice limits remain explicit.
+
+The [full source workflow](behavioral-source.md) adds runtime-only compilation,
+strict scalar trace decoding and retained exact-observation comparisons. Its
+executable finite source observer is a tested boundary, distinct from the existing
+kernel-checked first-slice checker and full preservation theorems.
 
 ## Delivery and selected language scope
 
@@ -115,6 +121,7 @@ and semantic acceptance require explicit review; see the
 
 - [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
+- [Behavioral source workflow](behavioral-source.md): native model/check/scenario commands, exact scalar observations and qualification boundaries.
 - [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, checked elaboration and range obligations.
 - [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
 - [Behavioral integration](behavioral.md): complete planned profile, trace assurance, task ownership and final integration gates.
