@@ -100,7 +100,10 @@ meaning independently of the still-missing full property elaborator.
 constant initializers in their enclosing scope and outgoing declaration transitions
 at the declaration itself. Each result carries its declaration of origin, generated
 expression, source span and a checked attachment rule. Initializers become
-presence-guarded equations; they acquire no lifetime anchor. Transitions retain
+presence-guarded equations; they acquire no lifetime anchor. Initializer heads use
+the retained declaration ID, so
+unrelated declarations with the same spelling cannot change their resolution;
+the authored right-hand side retains enclosing-scope lookup. Transitions retain
 `this` as their source, guards and the remainder of the chain. The original headers
 and ordinary property inventory remain available separately. Source-to-generated
 expression inventory is tested; the full composed source elaboration theorem is

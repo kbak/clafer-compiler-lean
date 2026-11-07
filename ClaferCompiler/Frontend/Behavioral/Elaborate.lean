@@ -36,6 +36,30 @@ def Elaborated.model {source : Document} (e : Elaborated source) :
   ⟨e.declarations.resolved.admitted, e.modifiers.declared,
     e.authored .constraint ++ e.generated, e.authored .assertion⟩
 
+/-- Generated initializer heads denote their declaration of origin, independently
+of other declarations with the same spelling. Only the authored right-hand side
+uses ordinary lexical lookup in the enclosing scope. -/
+-- [impl->req~compiler-behavioral-elaboration~1]
+def elaborateHeader {source : Document} (d : BoundDeclarations source)
+    (p : BoundHeaderProperty d.resolved.candidate.core) :
+    Except Diagnostic (Grouped.Formula d.resolved.count 0) := do
+  let budget := source.source.utf8ByteSize + 1
+  if p.kind = .transition then
+    return ← Expressions.elaborate source d.resolved.admitted p.owner budget p.expression
+  let some header := d.resolved.candidate.paths[p.declaration].bind (headerAt d.expanded)
+    | throw (Expressions.failure source p.expression "behavioral.initializer-origin")
+  let some (_, rhs) := header.initializer
+    | throw (Expressions.failure source p.expression "behavioral.initializer-origin")
+  let heads : SetExpr d.resolved.count 0 :=
+    if (d.resolved.candidate.core.get p.declaration).parent.isSome then
+      .thisStep (.child p.declaration)
+    else .extent p.declaration
+  let left := Values.Value.collection (.objects p.declaration) (.set heads)
+  let right ← Expressions.synthAt source d.resolved.admitted p.owner budget #v[] none rhs
+  let equation ← (Values.binary d.resolved.admitted "=" left right >>= Values.boolean).mapError
+    (Expressions.failure source p.expression)
+  return .implies (Values.present (.set heads)) equation
+
 -- [impl->req~compiler-behavioral-elaboration~1]
 def elaborate (profile : String) (source : Document) : Except Diagnostic (Elaborated source) := do
   let d ← bindDeclarations profile source
@@ -45,8 +69,7 @@ def elaborate (profile : String) (source : Document) : Except Diagnostic (Elabor
     Expressions.elaborate source d.resolved.admitted p.owner (source.source.utf8ByteSize + 1) p.expression
   let headers ← headerProperties d
   let headerBodies ← Vector.ofFnM fun i : Fin headers.length =>
-    Expressions.elaborate source d.resolved.admitted headers[i].owner
-      (source.source.utf8ByteSize + 1) headers[i].expression
+    elaborateHeader d headers[i]
   return ⟨d, modifiers, bodies, headers, headerBodies⟩
 
 structure ParsedModel where

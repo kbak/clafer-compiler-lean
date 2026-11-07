@@ -123,6 +123,27 @@ def surfaces : IO Unit := do
     let _ ← load ("A ?\nB ?\n[" ++ expr ++ "]\n")
 
 -- [utest->req~compiler-behavioral-elaboration~1]
+def initializerOrigins : IO Unit := do
+  for source in ["n -> int = 3\no\n  n\n", "abstract n -> int = 3\no\n  n\n"] do
+    let m ← load source
+    let e := m.elaborated
+    let [header] := e.headers | fail "initializer origin inventory"
+    let [property] := e.generated | fail "initializer property inventory"
+    unless property.owner == e.declarations.resolved.candidate.core.root do
+      fail "top-level initializer owner"
+    let d := header.declaration
+    match property.body with
+    | .implies (.atom (.primitive (.inhabited (.set (.thisStep (.child h))))))
+        (.atom (.primitive (.equal (.set (.step (.deref ref) (.thisStep (.child l)))) (.integer (.literal 3))))) =>
+      unless h == d && l == d && ref == d && (e.declarations.resolved.candidate.core.get d).parent.isSome do
+        fail "initializer resolved a same-spelled declaration instead of its origin"
+    | .implies (.atom (.primitive (.inhabited (.set (.extent h)))))
+        (.atom (.primitive (.equal (.set (.step (.deref ref) (.extent l))) (.integer (.literal 3))))) =>
+      unless h == d && l == d && ref == d && (e.declarations.resolved.candidate.core.get d).parent.isNone do
+        fail "initializer resolved a same-spelled declaration instead of its origin"
+    | _ => fail "initializer origin equation"
+
+-- [utest->req~compiler-behavioral-elaboration~1]
 def documents : IO Unit := do
   let m ← load "abstract R -> int\ninitial finalref finaltarget r : R *\n  assert [X (this = 2)]\nowner\n  n -> int = 3\n  start ? --> finish\n  finish ?\n  [initially some start]\nassert [sometime r]\n"
   let e := m.elaborated
@@ -179,6 +200,7 @@ def run : IO Unit := do
   captures
   arithmetic
   surfaces
+  initializerOrigins
   documents
   diagnostics
   IO.println "behavioral source expressions, captures, arithmetic, surfaces and requests passed"
