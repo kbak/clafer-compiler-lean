@@ -19,6 +19,13 @@ provides separate bounded tool evidence for the 0.5.7 candidate. It executes fre
 Haskell/Alloy queries and retains complete traces; it does not qualify downstream
 behavioral compilation, exact source-candidate replay or any new Lean theorem.
 
+The [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate) adds
+same-generation UID/Alloy correspondence, modifier-array validation, historical
+pattern/reference discrepancies and fresh explicit-model bounded comparisons.
+Its [tests](../tests/test_pr113_oracles.py) retain independent distinguishing
+witnesses and replay evidence. It establishes no exact-lasso equivalence or new
+Lean theorem; primary-pin adoption remains subject to independent review.
+
 The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
 the delivered `behavioral-core/1` API, exact interpretation theorems and
 [fixtures](behavioral-ir.md#fixtures-and-validation). It supplies no behavioral
@@ -30,6 +37,12 @@ normalization, grouped binder plans/counting and source model/check/run requests
 The implemented expression fragment has native integration tests; full expression
 coverage, independent authored-elaboration correctness, range composition and C7
 acceptance remain outstanding.
+
+The [temporal target](alloy-temporal.md) has separate admission, natural-time
+meaning and checked serialization. Its kernel laws and
+[Analyzer regressions](../tests/test_alloy_temporal.py) cover target constructs;
+source-to-target preservation and full behavioral qualification remain dependent
+work. This does not change the static feature inventory below.
 
 ## Reuse assessment
 

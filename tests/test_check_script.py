@@ -131,7 +131,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
             (root/'tests/test_comparison.py').write_text(good)
             (root/'tests/test_source_cli.py').write_text(good)
             (root/'tests/test_source_pipeline.py').write_text(good)
-            added = ('test_constraints', 'test_parser', 'test_resolution', 'test_qualification',
+            added = ('test_pr113_oracles', 'test_constraints', 'test_parser', 'test_resolution', 'test_qualification',
                      'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
                      'test_expressions', 'test_inherited', 'test_integer_arithmetic',
                      'test_structural_alloy', 'test_structural_ir', 'test_structural_representation')

@@ -14,6 +14,8 @@ import unittest
 
 
 ISOLATED_GROUPS = {
+    # Start the longest corpus immediately, alongside the existing groups.
+    '--pr113-worker': {'test_pr113_oracles'},
     '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
     '--frontend-worker': {'test_constraints', 'test_parser', 'test_resolution', 'test_qualification'},

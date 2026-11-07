@@ -62,9 +62,13 @@ public final class AlloyTemporalBridge {
             require(bounds.has(s.label), "missing identity scope: " + s.label);
             JsonObject bound = bounds.getAsJsonObject(s.label);
             int count = bound.get("count").getAsInt();
-            // Alloy silently adjusts a scope on one/lone signatures; disallow that.
-            require(s.isOne==null || count==1, "one signature scope: " + s.label);
-            require(s.isLone==null || count<=1, "lone signature scope: " + s.label);
+            // Static singleton scopes and temporal populations are different:
+            // one/lone var sigs may replace their atom across the whole trace.
+            require(s.isOne==null || (s.isVariable==null ? count==1 : count>=1),
+                "one signature scope: " + s.label);
+            require(s.isLone==null || s.isVariable!=null || count<=1,
+                "lone signature scope: " + s.label);
+            require(s.isSome==null || count>=1, "some signature scope: " + s.label);
             c = c.change(s, bound.get("exact").getAsBoolean(), count);
             sigs.put(s.label,s);
             declarations.put(s.label,Map.of("mutable",s.isVariable!=null,

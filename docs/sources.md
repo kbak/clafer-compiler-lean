@@ -514,11 +514,51 @@ tool/library choices and the [release comparison process](oracles.md#comparing-t
 requires explicit review of any later source bytes. The source register does not
 claim all behavioral rows or known comparison gaps are qualified by this corpus.
 
-Notable comparison gaps are corrected response-between and first-opener
+For the historical `af858ec` comparison, notable gaps are corrected response-between and first-opener
 precedence-after, the distinction between per-head `finalref` and target-image
 `finaltarget`, shared inherited-reference assignments, concrete supers, and
 mathematical arithmetic/definedness versus bounded backend behavior. C2/C9 must
 retain them in the comparison domain; no blanket 0.5.7 equivalence is asserted.
+
+### PR113 delta candidate
+
+The separate qualification profile pins
+[`9a0f16ed18bdfb5277bedcc6577731f4b422be77`](https://github.com/gsdlab/clafer/tree/9a0f16ed18bdfb5277bedcc6577731f4b422be77).
+It does not replace `af858ec` as the primary behavioral source or change the
+static comparison pin. Independent source/profile delta acceptance is pending.
+The [delta inventory](../tests/fixtures/pr113/delta.json) records both endpoints,
+all ten intervening commits and exact old/new hashes for all 40 changed source,
+build, documentation and test files outside generated regressions. The full
+951-file delta also includes 911 generated regression outputs; their aggregate
+inventory hash is retained, and those outputs are not fresh execution evidence.
+
+| Changed area | Qualification consequence |
+| --- | --- |
+| `UIDs`, `QNameUID`, `AlloyNames`, resolver and generator consumers (`b6c3861`) | Least-partially-qualified UIDs, apostrophe/copy suffixes and separate Alloy reserved/derived names require the captured forward map and renamed IR. HTML/graph names and Choco variables change too. |
+| `ResolverName`, `ResolverRoot`, `ResolverType`, `TypeSystem`, `Common`, optimizer | Explicit names still resolve/type-check; hierarchy traversal stops cycles; intersection/difference navigation and `noclafer` support expand. Redundant comparisons/navigation warn. Static `clafer` values remain outside the selected temporal domain. |
+| `ClaferArgs`, `Import`, `Clafer`, `ChocoModel`, `Explicit`, `Choco` | `--explicit` selects `-f -k -l --ss=none`; shared explicit printing lifts assertions and records scopes. Temporal explicit output carries `--tl`; temporal Choco solving and real/double explicit output remain unsupported. |
+| `Intclafer`, `Desugarer`, `AlloyLtl` (`b2875f3`, `8a12ae7`, `9a0f16e`) | Corrected response-between/first-opener formulas, parent-scoped target images and modifier arrays require independent distinguishing runs; both modifier orders are retained. |
+| Grammar/build/license | `src/clafer.cf`, `stack.yaml` and MIT license are unchanged. `clafer.cabal` exposes the new modules without adding dependencies. Stack generates the same dependency lock; it is not a tracked archive file. |
+| Test harness/docs/fixtures | Explicit outputs join regression checks; tests adopt new names and modifier expectations. The inherited-final fixture adds both orders; `noclafer` adds static laws; escapes adopt new names and an obsolete generated source is removed. These changes do not authorize broader native language support. |
+
+Archive SHA-256:
+`f401c77bd6ee17ed77483cfa8d2e89bb57913e99de46272de217694dda17c7b4`.
+Canonical source file/digest inventory SHA-256:
+`a847d0581c323889535eef91a262154128ddb69af6bb8bdc1e72a979a1b2b871`.
+Generated `stack.yaml.lock`: 1410 bytes, SHA-256
+`2bed95387bc9ad79df4f70de77a9c7e468125c10a09a68a42da233434b59acff`.
+The [candidate profile](../scripts/oracles/pr113-profile.json) and
+[oracle contract](oracles.md#pr113-delta-qualification-candidate) bind tools,
+licenses, fresh execution and proof boundaries.
+
+| Contract surface | Historical `af858ec` | Candidate `9a0f16e` | Remaining boundary |
+| --- | --- | --- | --- |
+| Static regression/capture | Original structural pin and receipts | Unchanged | No native source expansion |
+| UID and reference schema | `cN_` UIDs, scalar modifiers | LPQ UIDs, explicit Alloy map, modifier arrays | Candidate importer only; no shared schema weakening |
+| Response-between / precedence-after | Discrepancy witnesses reproduced | Selected corrected witnesses agree | No full pattern equivalence claim |
+| `finaltarget` / combined modifiers | Per-head equality / missing image conjunct | Image-preserving swap and both-conjunct witnesses agree | No general inherited-reference preservation theorem |
+| Temporal explicit output | No qualified explicit output | 64 temporal sources plus one static example, fresh fixed points and bounded queries | Exact lassos and Lean explicit-form proofs remain separate |
+| Primary source adoption | Retained | Pending independent delta review | No implicit release/main acceptance |
 
 The [official Alloy 6 reference](https://alloytools.org/alloy6.html) supplies the
 independent temporal construct guide: mutable signatures/fields, ordinary temporal
@@ -526,6 +566,19 @@ operators, lasso instances and explicit `steps`. Reuse the existing Alloy 6.2.0
 source/JAR identities above. C2/C3 must retain source-matched runtime options,
 temporal reference correspondence and actual Analyzer evidence; visiting the live
 reference is not a new immutable source pin or solver proof.
+
+The [temporal target correspondence](alloy-temporal.md#source-correspondence-and-reuse)
+uses the same immutable Alloy source revision. Inspected
+[`ScopeComputer`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/ScopeComputer.java),
+[`BoundsComputer`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/BoundsComputer.java)
+and [`TranslateAlloyToKodkod`](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/TranslateAlloyToKodkod.java)
+for trace-wide identity capacity/disjointness, mutable multiplicities, temporal
+operators and current `iden`. The live reference is explanatory; source locators
+and actual pinned runtime observations retain the correspondence boundary.
+Upstream `Behavioral/Lasso.lean` supplies the source-side history distinction,
+and candidate `AlloyLtl.hs` `initialConsts`/`appearsNow` supplies birth-guard context.
+No source truth is imported into target truth. Existing standard-library instruction-list folds, Parsec, bounds, names,
+source-map and oracle machinery are reused; no dependency or license pin changes.
 
 Workflow changes reuse the accepted upstream MIT `scripts/tickets.py` Ready mapping
 and live Project-ID test pattern, Python's standard library and existing Actions

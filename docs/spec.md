@@ -378,6 +378,21 @@ Haskell equivalence. Adoption of final 0.5.7 release bytes requires an immutable
 delta review, repeated corpus execution and explicit acceptance; preserve the
 candidate and static receipts.
 
+Qualify later PR113 bytes under the separate `behavioral-pr113-9a0f16e/v1`
+candidate profile. Retain the complete delta inventory, same-generation forward
+UID/Alloy mapping and renamed backend IR; reject incomplete, ambiguous or
+inconsistent mappings and mixed scalar/array modifier schemas. Exercise both
+modifier orders on direct and inherited references, swaps, target-image changes,
+head replacement, set-versus-bag multiplicity and corrected pattern witnesses.
+Keep the old revision's discrepancies executable. Freshly generate and recompile
+every registered temporal explicit model, including imported source closures,
+and retain both scope files, effective options and trace length. Pair original
+and explicit bounded runs/assertions using the original model's scopes and
+identical solver budgets. Printer fixed points and bounded outcome agreement
+are weaker than exact-lasso equivalence; they do not discharge C9 or the Lean
+explicit-form preservation task. This qualification does not adopt a new primary
+compiler pin; independent delta review remains required.
+
 Covers:
 - `intent~compiler-foundation~1`
 
@@ -434,6 +449,49 @@ official reference. Kernel-check constructor laws and independent truth tables,
 and compare representative equivalent formulas through the pinned real Analyzer.
 Keep formal target properties distinct from tested Analyzer correspondence and
 serialization/source preservation proofs. See the [target contract](alloy-core.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Independent Alloy temporal target
+
+`req~compiler-alloy-temporal-target~1`
+
+Provide a separate checked Alloy 6 temporal target for the selected behavioral
+profile. Define finite shared identity inventories, static and mutable declarations,
+current `univ`/`iden`, captured environments, relational prime and ordinary
+future/past truth independently of source truth and compilation. Facts begin at
+time zero; invariants require explicit `always`. Include next, strong/weak until,
+release and justified past-time birth guards. Type disjointness and identity scopes
+apply across the whole trace. Define nonempty lassos, valid loop indices, explicit
+step bounds including the closing edge, and representable signed integers.
+Preserve initial history when unfolding repeated frames. Reject malformed syntax,
+unsafe bounds and malformed lasso shape distinctly from candidate violation.
+Document the admitted target subset and future encoder responsibilities without
+reducing the behavioral source completion matrix. Kernel-check operator/lasso laws
+and retain actual pinned Analyzer positive/negative witnesses and their bounds.
+The [temporal target contract](alloy-temporal.md) states exact APIs and limits.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Checked temporal Alloy text
+
+`req~compiler-alloy-temporal-text~1`
+
+Serialize admitted temporal targets deterministically with explicit mutability,
+operator grouping, step/identity/integer scopes and hygienic names/source maps.
+Keep source labels out of executable text. Reuse the static identity namespace
+and map guarantees without changing static output. Validate complete reconstruction
+of emitted temporal text through an independent grammar before returning success;
+retain typed metadata/correspondence errors and the conditional successful-render
+proof boundary. Test actual Alloy parsing and bounded solving, distinguishing
+native/parser/solver evidence from kernel proofs or source preservation.
+See [temporal serialization](alloy-temporal.md#serialization-and-source-maps).
 
 Covers:
 - `intent~compiler-foundation~1`

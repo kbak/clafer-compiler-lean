@@ -1,0 +1,17 @@
+//# OPTIONS --tl=3
+final sig
+show ?
+x -> sig
+r_x ?
+x_ref ?
+a' ?
+a_prime ?
+left
+  same ?
+right
+  same ?
+abstract Empty
+[ no show ]
+assert [ some sig ]
+assert [ some show ]
+// Original MIT qualification fixture.

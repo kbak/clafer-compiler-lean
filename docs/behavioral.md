@@ -40,7 +40,7 @@ remain independent of noncomputable upstream definitions and proof-only imports.
 | Owner | Module family / planned interface | Required handoff |
 | --- | --- | --- |
 | [C2: comparison tools][C2] | `scripts/oracles`, separate temporal profile | Pinned Haskell/Alloy tools, explicit temporal options, paired receipts and known comparison gaps |
-| [C3: temporal target][C3] | `Backend/Alloy/Temporal`: syntax, meaning, bounds, text | Independent target admission/evaluation, checked serialization and actual Analyzer correspondence tests |
+| [C3: temporal target][C3] | [Temporal target APIs](alloy-temporal.md) in `Backend/Alloy/Temporal` | Independent infinite-trace interpretation, checked serialization, lasso bounds and actual Analyzer correspondence tests |
 | [C4: behavioral IR][C4] | `IR/Behavioral`, `SemanticsBridge/Behavioral` | Executable declarations, signed formulas/capture, interpretation and admission agreement |
 | [C5: first encoding][C5] | `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | Generated lifetime/identity facts, concrete trace representation and first-slice preservation |
 | [C6: structural prerequisites][C6] | [Structural library APIs and proofs](behavioral-structure.md) in `Frontend`, `IR` and `SemanticsBridge` | Richer inheritance/reference admission, defaults, typed atoms and finite integer observations |
