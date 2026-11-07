@@ -155,6 +155,14 @@ checked inherited/numeric data. It is not an executable checker of infinite sets
 The suite compares this justified observation boundary with the emitted target AST
 and actual pinned Analyzer. Haskell's M1 checker is not a fourth or widened oracle.
 
+The suite compiles the existing Lean harness once and starts its native binary
+for each candidate. Lake's `transImports` and `o.export` facets supply the pinned
+dependency closure; the suite does not implement a dependency resolver. Retained
+evidence includes the harness, generated C, linked object identities, binary hash
+and commands. Native execution remains an external testing boundary. Compilation
+setup has a 120-second command budget; every candidate retains its 45-second
+deadline, and the full validation scope retains its 600-second deadline.
+
 Focused standalone witnesses flip version ordering, display counts and parent
 navigation; other mutations omit a body or inherited group fact. Each replay
 retains source, bounds, complete candidate tables, scalar payloads, generated text,
