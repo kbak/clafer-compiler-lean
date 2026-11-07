@@ -167,8 +167,14 @@ class Runtime:
         directory.mkdir()
         pin,scopes=tc.pin(trace,integer_fields=[SCALAR],typed_aliases=True,positions=True)
         (directory/'model.als').write_text(text+'\n'+pin)
+        # The fixed trace already equates every static signature to these atoms.
+        # Give Alloy the implied exact populations before relational translation;
+        # loose upper bounds otherwise expand many irrelevant quantified choices.
+        tc.require(all(not s['mutable'] for s in trace['signatures'].values()),'static source signatures required')
+        populations={name:dict(count=len(rows),exact=True)
+                     for name,rows in trace['frames'][0]['signatures'].items()}
         request=dict(command_index=0,overall=1,bitwidth=p['bitwidth'],min_steps=trace['length'],
-                     max_steps=trace['length'],identities=p['scopes']|scopes)
+                     max_steps=trace['length'],identities=populations|scopes)
         answer=temporal.solve(self.runtime,self.api,directory,request,timeout=120,integer_fields=[SCALAR])
         oracle.write(directory/'result.json',answer)
         return answer

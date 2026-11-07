@@ -135,6 +135,16 @@ witness is decoded by the native full decoder and compared with one graph
 isomorphism across all frames, including scalar values. Per-frame renaming is
 never permitted. Negative candidates are independently fixed in the same way.
 
+The source target's signatures are static. After checking the candidate against
+the caller's bounds, the harness supplies their observed populations as exact
+Alloy scopes. Those cardinalities already follow from the fixed signature-table
+equations, including empty signatures; they add no restriction to that exact
+candidate query. The original compiler output and caller bounds remain in the
+bundle. This reuses the existing Analyzer scope API and request receipts so the
+translator can simplify bounds before expanding quantified formulas, without
+rewriting emitted formulas, changing solver options or increasing resource limits.
+Regressions cover both satisfied and violated candidates below loose upper bounds.
+
 The supplementary [finite source observer](../scripts/comparison/behavioral_observation.py)
 evaluates structural obligations, effective modifiers, strict partial expressions,
 both source signs, frozen environments and the time-zero/loop history directly.

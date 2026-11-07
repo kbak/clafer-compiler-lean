@@ -91,6 +91,22 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'changed replay inventory'):
             bs.replay(self.runtime,copied,self.output/'tampered-replay')
 
+    def test_exact_populations_preserve_loose_bounds_and_empty_signatures(self):
+        for present in (False,True):
+            c=case('A ?\n[some A]\n',2,[(1,1,0)] if present else [],[[1]] if present else [[]])
+            c['bounds']['objects']=3
+            c['bounds']['declarations'][1].update(size=2,exact=False)
+            output=self.output/('loose-bounds-'+str(present))
+            result=self.runtime.compare(c,output)
+            self.assertEqual(result,dict(status='complete',source='satisfied' if present else 'violated',
+                target='sat' if present else 'bounded_unsat',directions=[]))
+            product=bs.temporal.read(output/'compilation.json')
+            request=bs.temporal.read(output/'compiler/request.json')
+            trace=bs.temporal.read(output/'candidate.json')
+            self.assertEqual(product['scopes']['this/cc0']['count'],3)
+            for name,rows in trace['frames'][0]['signatures'].items():
+                self.assertEqual(request['identities'][name],dict(count=len(rows),exact=True))
+
     def test_strict_scalar_decoder_and_global_identity(self):
         c=case('A ?\nr ->> int *\n',3,[(1,1,0),(2,2,0)],[[1,2],[],[1,2]],values=[{2:-1},{},{2:1}],interval=(-1,1),loop=1)
         work=self.output/'decode';work.mkdir();p=self.runtime.compile(work,c);trace=bs.target(c['candidate'],p)
