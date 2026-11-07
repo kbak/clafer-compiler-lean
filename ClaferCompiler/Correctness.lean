@@ -1,6 +1,7 @@
 module
 
 public import ClaferCompiler.Correctness.InheritedViews
+public import ClaferCompiler.Correctness.Behavioral
 
 public import ClaferCompiler.Driver
 public import ClaferCompiler.Correctness.StructuralCorrectness

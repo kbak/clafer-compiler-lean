@@ -4,7 +4,8 @@
 
 This contract specifies the selected downstream work on `behavioral`, under the
 [behavioral roadmap][roadmap]. The [behavioral IR](behavioral-ir.md) and
-[structural handoff](behavioral-structure.md) record implemented library APIs and
+[structural handoff](behavioral-structure.md), and
+[first-slice encoding](behavioral-encoding.md) record implemented library APIs and
 their proof boundaries; the matrix below retains the full completion obligations.
 The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
@@ -42,7 +43,7 @@ remain independent of noncomputable upstream definitions and proof-only imports.
 | [C2: comparison tools][C2] | `scripts/oracles`, separate temporal profile | Pinned Haskell/Alloy tools, explicit temporal options, paired receipts and known comparison gaps |
 | [C3: temporal target][C3] | [Temporal target APIs](alloy-temporal.md) in `Backend/Alloy/Temporal` | Independent infinite-trace interpretation, checked serialization, lasso bounds and actual Analyzer correspondence tests |
 | [C4: behavioral IR][C4] | `IR/Behavioral`, `SemanticsBridge/Behavioral` | Executable declarations, signed formulas/capture, interpretation and admission agreement |
-| [C5: first encoding][C5] | `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | Generated lifetime/identity facts, concrete trace representation and first-slice preservation |
+| [C5: first encoding][C5] | [First-slice encoding APIs](behavioral-encoding.md) in `Backend/Alloy/Behavioral`, `Correctness/Behavioral` | Generated lifetime/identity facts, concrete trace representation and first-slice preservation |
 | [C6: structural prerequisites][C6] | [Structural library APIs and proofs](behavioral-structure.md) in `Frontend`, `IR` and `SemanticsBridge` | Richer inheritance/reference admission, defaults, typed atoms and finite integer observations |
 | [C7: full frontend][C7] | `Frontend/Behavioral` | Parsing, source spans, resolution, elaboration and preservation of every surface row below |
 | [C8: full encoding][C8] | Behavioral backend and correctness families | All source reductions, definedness, arithmetic and full-profile trace preservation |
@@ -222,7 +223,10 @@ explicit roles and capacity accounting and cannot affect source cardinalities.
 Repeated frames and the loop edge use this same map. Per-state arbitrary bijections
 would hide replacement and are insufficient.
 
-The following are required theorem shapes, **not existing downstream proofs**.
+The following are required theorem shapes for the complete profile. The
+[first-slice handoff](behavioral-encoding.md#kernel-boundaries) records the
+delivered in-memory fragment and its exact assumptions; it does not discharge
+the later frontend, primitive observation or serialized runtime obligations.
 `L` is an executable finite observation lasso; `unfold L` is its infinite trace.
 `ObservesTrace` states data/observation equations with no satisfaction premise.
 `FitsTrace` adds only explicit identity, observation, integer and temporal capacity

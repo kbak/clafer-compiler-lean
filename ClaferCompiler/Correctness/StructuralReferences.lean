@@ -73,13 +73,13 @@ theorem Formula_eval_implies_true (ha : Formula.Term a) (hb : Formula.Term b)
   change (do let x ← a.eval w i env; let y ← b.eval w i env; pure (!x || y)) = some true at h
   simpa [ht] using h
 
-theorem represented_keys {U : Type} (v : IR.Structural.Layout n)
+theorem represented_keys_facts {U : Type} (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
-    (r : Represents v s i) (scopes : List Scope) (w : Nat)
-    (h : Satisfies (target v scopes w) i) : s.Keys (interpret v.core) := by
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) : s.Keys (interpret v.core) := by
   intro d hd p t x y hpx hxt hpy hyt
-  have ty := represented_typed v s i r h.2.2.2.1
-  have refs := represented_references v s i r h.2.2.2.1
+  have ty := represented_typed v s i r h.declarations
+  have refs := represented_references v s i r h.declarations
   obtain ⟨hx, c, hc, hp⟩ := ty.1 d p x hpx
   have hr : ∃ target, (v.core.get d).reference = .set target := by
     cases he : (v.core.get d).reference with
@@ -88,7 +88,7 @@ theorem represented_keys {U : Type} (v : IR.Structural.Layout n)
     | set target => exact ⟨target, rfl⟩
   obtain ⟨target, hr⟩ := hr
   have hderef : (v.core.get d).reference.target = some target := by simp [hr, IR.Structural.Reference.target]
-  have hf := Module.fact_true _ _ h.2.2.2.2.2 _
+  have hf := h.facts _
     (List.mem_map.mpr ⟨_, set_key_generated v d c target hc hr, rfl⟩)
   have hu := (Formula.eval_all_true (.all _ (.all _ (.implies (.equal _ _) (.equal _ _))))
     w i [] _).mp hf [(r.objects p).val] (by simpa [head] using (r.heads c p).mp hp)
@@ -119,17 +119,31 @@ theorem represented_keys {U : Type} (v : IR.Structural.Layout n)
 
 /-- Every independent target model of the actual generated module satisfies all
 ten upstream structural clauses under its concrete representation equations. -/
+theorem represented_sound_facts {U : Type} [Fintype U] (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (w : Nat)
+    (h : FactModel v i w) :
+    Clafer.Semantics.StructuralSatisfies (interpret v.core) s :=
+  ⟨represented_typed v s i r h.declarations, represented_rooted_facts v s i r w h,
+    represented_inherits v s i r h.declarations, represented_abstracts_facts v s i r w h,
+    represented_parents_facts v s i r w h, represented_references v s i r h.declarations,
+    represented_keys_facts v s i r w h, represented_multiplicities_facts v s i r w h,
+    represented_groups_facts v s i r w h, represented_disjoint v s i r
+      h.schema h.declarations⟩
+
+theorem represented_keys {U : Type} (v : IR.Structural.Layout n)
+    (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
+    (r : Represents v s i) (scopes : List Scope) (w : Nat)
+    (h : Satisfies (target v scopes w) i) : s.Keys (interpret v.core) :=
+  represented_keys_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
+
 theorem represented_sound {U : Type} [Fintype U] (v : IR.Structural.Layout n)
     (s : Clafer.Semantics.Configuration (Fin n) U) (i : Instance)
     (r : Represents v s i) (scopes : List Scope) (w : Nat)
     (h : Satisfies (target v scopes w) i) :
     Clafer.Semantics.StructuralSatisfies (interpret v.core) s :=
-  ⟨represented_typed v s i r h.2.2.2.1, represented_rooted v s i r scopes w h,
-    represented_inherits v s i r h.2.2.2.1, represented_abstracts v s i r scopes w h,
-    represented_parents v s i r scopes w h, represented_references v s i r h.2.2.2.1,
-    represented_keys v s i r scopes w h, represented_multiplicities v s i r scopes w h,
-    represented_groups v s i r scopes w h, represented_disjoint v s i r
-      ((Bool.and_eq_true_iff.mp (Bool.and_eq_true_iff.mp h.1).1).1) h.2.2.2.1⟩
+  represented_sound_facts v s i r w (FactModel.ofSatisfies v i scopes w h)
+
 
 -- [proof->req~compiler-structural-correctness~1]
 /-- Soundness constructs decoding, representation and source satisfaction. No

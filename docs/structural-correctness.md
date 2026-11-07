@@ -40,6 +40,15 @@ layout to those existing source meanings. [Serialization](alloy-text.md) supplie
 parsing/printing separately; no parser or external decoding package is added. All reused dependencies retain their pinned revisions/licenses; this
 stage adds no package or native runtime dependency.
 
+The [behavioral live projection](behavioral-encoding.md#kernel-boundaries) reuses
+these proofs through `Structural.FactModel`: schema well-formedness, declaration
+truth and the actual generated fact values. `represented_sound_facts` needs no
+solver scope premise; the existing `represented_sound` theorem obtains that
+record from full static satisfaction. `signature_declarations_of_observations`
+likewise exposes the extent, coverage and hierarchy premises of the existing
+signature proof. Existing static theorem signatures and scope requirements are
+preserved; dynamic live extents are never equated with exact identity-pool scopes.
+
 ## Executable finite presentation
 
 `impl~compiler-structural-representation~1`

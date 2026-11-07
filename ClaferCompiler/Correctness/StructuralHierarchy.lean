@@ -28,6 +28,13 @@ def OccupiedEdge (s : Schema) (i : Instance) (x : Nat) (p c : Nat) : Prop :=
   ∃ d, s.signatures[c]? = some d ∧ d.parent = some p ∧
     x ∈ i.signatures[c]?.getD []
 
+/-- Occupied inheritance edges depend only on signature declarations, allowing
+behavioral layouts to reuse the static hierarchy proof with different fields. -/
+theorem occupiedEdge_signatures (s t : Schema) (i : Instance) (x : Nat)
+    (h : s.signatures = t.signatures) : OccupiedEdge s i x = OccupiedEdge t i x := by
+  funext p c
+  simp only [OccupiedEdge, h]
+
 theorem occupied_right_unique (s : Schema) (i : Instance) (x : Nat)
     (h : i.declarations s = true) : Relator.RightUnique (OccupiedEdge s i x) := by
   rintro p a b ⟨da, ha, hpa, hxa⟩ ⟨db, hb, hpb, hxb⟩

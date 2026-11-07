@@ -580,6 +580,15 @@ and candidate `AlloyLtl.hs` `initialConsts`/`appearsNow` supplies birth-guard co
 No source truth is imported into target truth. Existing standard-library instruction-list folds, Parsec, bounds, names,
 source-map and oracle machinery are reused; no dependency or license pin changes.
 
+The [first-slice encoding](behavioral-encoding.md#reuse-assessment) uses the same
+accepted source meaning and temporal target. Its explicit lifetime guards follow
+the pinned upstream signed denotation; Haskell `AlloyLtl.hs` remains comparison
+context for birth, cancellation and temporal syntax. Concrete global trace and
+live-snapshot transport are compiler proofs, not facts assumed from Haskell
+output. The [native/Analyzer corpus](behavioral-encoding.md#fixtures-and-validation)
+records emitted modules, complete witnesses and source/tool hashes independently
+of those kernel statements. No source or tool pin changes accompany this slice.
+
 Workflow changes reuse the accepted upstream MIT `scripts/tickets.py` Ready mapping
 and live Project-ID test pattern, Python's standard library and existing Actions
 conditions. The [reuse assessment](behavioral.md#static-separation-and-reuse)

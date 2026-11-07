@@ -242,6 +242,63 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Behavioral first-slice encoding
+
+`req~compiler-behavioral-encoding~1`
+
+Compile admitted `behavioral-core/1` documents to the independent temporal target
+with explicit object, declaration, step and integer bounds. Allocate one static
+identity/type/actual-parent inventory and mutable live/reference relations.
+Generate identity, lifetime and structural snapshot obligations, and preserve
+attachment ownership, both source signs, X/F/G/U/W, frozen sets and quantifiers.
+Retain the raw `one`/`lone` counting barrier. Return checked target syntax and
+source maps; compilation alone makes no satisfiability claim. Keep the static
+driver and its admission unchanged. The [encoding contract](behavioral-encoding.md)
+records the first-slice API and capacity costs.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral trace representation
+
+`req~compiler-trace-representation~1`
+
+Provide executable finite trace encoding and checked decoding, preserving one
+global identity bijection, root, fixed direct type and actual parent, each live
+extent, reference-head occurrences, all frames and the loop index. Representation
+contains data equations only. Distinct heads with equal referents remain distinct;
+per-state renaming cannot disguise replacement. Prove concrete representation
+and round-trip boundaries and derive decoding data from independent target facts.
+Do not substitute assumed source validity or target truth for these equations.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Behavioral first-slice correctness
+
+`req~compiler-behavioral-correctness~1`
+
+Prove signed formula and definedness preservation over the concrete trace
+representation. Derive source validity and attachments from the actual successful
+compiler output. Prove bounded completeness for representable source lassos with
+data-only identity, scope, step and integer-observation capacity assumptions.
+Connect live snapshots to the existing structural backend's emitted declarations
+and facts, reusing its soundness and completeness results. Distinguish these
+in-memory kernel statements from tested text serialization, native execution,
+Analyzer solving and witness replay. Retain distinguishing SAT/UNSAT fixtures for
+all core temporal operators, lifetime cancellation, identity replacement, frozen
+captures and missing invariants. Full-profile frontend/runtime qualification and
+arbitrary infinite-trace finite representability remain separate obligations.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Reproducible build and assurance bootstrap
 
 `req~compiler-build~1`
