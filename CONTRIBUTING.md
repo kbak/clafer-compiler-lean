@@ -147,8 +147,9 @@ The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
 CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another. The PR113 corpus uses a separate group scheduled first through
-the same bounded executor, so its queries overlap the other regressions. It rejects
+share another. The general behavioral suite and the PR113/source corpora start
+first through the same bounded executor. PR113 runs at most three independent
+cases concurrently, capped by available CPUs. The runner rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
 IntentBond runs the command in a fresh source snapshot. To reuse only the prepared

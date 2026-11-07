@@ -16,8 +16,8 @@ import unittest
 ISOLATED_GROUPS = {
     # Start the longest corpus immediately, alongside the existing groups.
     '--pr113-worker': {'test_pr113_oracles'},
-    '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
+    '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison'},
     '--frontend-worker': {'test_constraints', 'test_parser', 'test_resolution', 'test_qualification'},
     '--target-worker': {'test_alloy_core', 'test_alloy_text', 'test_expression_encoding',
         'test_expressions', 'test_inherited', 'test_integer_arithmetic',
@@ -72,10 +72,12 @@ if all(present):
     def isolated(flag):
         return subprocess.run([sys.executable, str(Path(__file__).resolve()), flag]).returncode == 0
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
-        futures = [pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS]
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        futures.append(pool.submit(timed, 'remaining', run, remaining))
+        # The general group includes the temporal target and native behavioral
+        # suites. Queue it early so it overlaps the two long oracle groups.
+        futures = [pool.submit(timed, 'remaining', run, remaining)]
+        futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS)
         results = [future.result() for future in futures]
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)
