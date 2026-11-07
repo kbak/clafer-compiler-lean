@@ -14,6 +14,8 @@ No rule has a successful compiler invocation as a premise. -/
 inductive Elaborates (v : IR.BehavioralStructural.Validated k) (owner : Fin k) :
     {n : Nat} → Context k n → Option (Value k n) → Expr → Value k n → Prop where
   | name (lookup : Names.Name v owner Γ cursor token.text a) : Elaborates v owner Γ cursor (.name token) a
+  | emptyNavigation (path : EmptyNavigation e)
+      (root : Names.Name v owner Γ cursor "noclafer" a) : Elaborates v owner Γ cursor e a
   | integer : Elaborates v owner Γ cursor (.integer token i) (.integer (.literal (Int.ofNat i)))
   | parens (body : Elaborates v owner Γ cursor e a) : Elaborates v owner Γ cursor (.parens e span) a
   | unary (body : Elaborates v owner Γ cursor e a) (operation : Unary v op.text a b) :
@@ -24,7 +26,8 @@ inductive Elaborates (v : IR.BehavioralStructural.Validated k) (owner : Fin k) :
       Elaborates v owner Γ cursor (.unary op e span) a
   | binary (left : Elaborates v owner Γ cursor e a) (right : Elaborates v owner Γ cursor f b)
       (operation : Binary v op.text a b c) : Elaborates v owner Γ cursor (.binary op e f span) c
-  | dot (spelling : op.text = ".") (left : Elaborates v owner Γ cursor e a)
+  | dot (spelling : op.text = ".") (ordinary : ¬ EmptyNavigation (.binary op e f span))
+      (left : Elaborates v owner Γ cursor e a)
       (right : Elaborates v owner Γ (some a) f b) : Elaborates v owner Γ cursor (.binary op e f span) b
   | quantified (legal : Binders.Legal names) (spelling : Binders.QuantifierSpelling op.text q)
       (domain : Elaborates v owner Γ cursor e a) (heads : Heads a type d)

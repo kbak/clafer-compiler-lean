@@ -131,6 +131,41 @@ serialization and constructor preservation proofs. No third-party source or
 new library is copied or introduced. The selected source inference boundary is
 documented in [constraint elaboration](constraints.md#empty-collection-literal).
 
+## Behavioral empty navigation and warnings
+
+The scoped source amendment `literal-empty-navigation/1`, selected in
+[the navigation and diagnostics task](https://github.com/kbak/clafer-compiler-lean/issues/85),
+adopts literal-rooted name-chain erasure from
+[`412f610981724bd6a53451189eb8cb98b466a6da`](https://github.com/gsdlab/clafer/commit/412f610981724bd6a53451189eb8cb98b466a6da).
+Its `Intermediate/ResolverName.hs` (`resolveNav`, `fromNoClafer`) removes the
+literal-rooted tail before lookup. `Intermediate/ResolverType.hs`
+(`resolveTPExp'`, `redundantExps`), `Language/Clafer.hs` and
+`test/Suite/TypeSystem.hs` change the four self-expression errors to positioned
+warnings. The exact [frontend policy](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings)
+is narrower than arbitrary tail erasure; ordinary arithmetic, Boolean, temporal
+and primitive-extent checks remain authoritative. Self-expression warnings are
+syntactic, nonfatal reports, with no simplification or claim of definedness.
+The CLI uses a separate successful warning protocol instead of Haskell statistics.
+
+This is a compiler source-elaboration convention. Alloy still resolves names in
+`none.unknown`; resolved `none.r` has empty relational meaning, while `A.none`
+is an invalid unary/unary join. The compiler emits its existing unary empty or
+strict cursor intersection instead of either unresolved Alloy syntax or an
+invalid join. Division and remainder still exclude possible zero divisors during
+range admission, including self-expressions. No upstream empty law, partial
+operation, temporal meaning or static-policy rule changes.
+
+The complete inspected `ResolverName.hs` and `ResolverType.hs` files are
+byte-identical at the qualified comparison revision
+`c7a2fb7d0ba601f52efeac459d12f859a40580fe`. The source comparison regressions use
+that pinned exporter and Alloy 6.2.0; the task retains the exact file comparison
+and direct Alloy probes as external evidence. Native/parser/warning behavior
+and bounded solver results remain tests. Source derivations and interpretation
+reuse existing kernel-checked terms and proofs. Independent candidate review is
+still required. The primary `behavioral-0.5.7-candidate/v1` reference remains
+`af858ec0fe3ce2ceacb7fd120947c058233086d6` with D1–D5; this amendment does not
+adopt the intervening release or replace any historical Haskell/oracle pin.
+
 ## Published source and locators
 
 Primary language reference: Bąk et al., *Clafer: unifying class and feature

@@ -170,3 +170,86 @@ class BehavioralSourceCLITests(unittest.TestCase):
             if code:
                 self.assertEqual(json.loads(result.stderr)['code'], code)
             self.assertEqual(json.loads(result.stderr)['primary']['file'], 'scenario.cfr')
+
+    # [utest->req~compiler-diagnostics~1]
+    # [utest->req~compiler-behavioral-elaboration~1]
+    def test_literal_empty_navigation_and_warning_locations(self):
+        source = 'P\r\n  résumé ?\r\nQ\r\n  résumé ?\r\n[no (noclafer).résumé.missing.parent.dref]\r\n'
+        result = self.compile(source=source, b=bounds(5), extra=['--format', 'json'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        p = json.loads(result.stdout)
+        warnings = [json.loads(line) for line in result.stderr.splitlines()]
+        self.assertEqual(len(warnings), 1)
+        w = warnings[0]
+        self.assertEqual(set(w), {'version', 'severity', 'code', 'phase', 'message', 'operator', 'primary'})
+        self.assertEqual((w['version'], w['severity'], w['code'], w['operator']),
+                         ('clafer-warning/1', 'warning', 'behavioral.empty-navigation', '.'))
+        first = source.index('(noclafer)')
+        last = source.index(']', first)
+        self.assertEqual(w['primary'], dict(kind='source', file='model.cfr', line=5, column=5,
+                         startByte=len(source[:first].encode()), endByte=len(source[:last].encode())))
+        direct = self.compile(source=source[:source.index('[no')] + '[no noclafer]\r\n',
+                              b=bounds(5), extra=['--format', 'json'])
+        self.assertEqual((direct.returncode, direct.stderr), (0, b''))
+        self.assertEqual(p['resolved']['constraints'][0]['body'],
+                         json.loads(direct.stdout)['resolved']['constraints'][0]['body'])
+        self.assertNotIn('warnings', p)
+
+    # [utest->req~compiler-diagnostics~1]
+    def test_self_expressions_warn_without_rewriting_or_changing_outputs(self):
+        source = 'A ?\n[A = (A)]\n[A != A]\n[no (A -- A)]\n[some (A ** A)]\n'
+        result = self.compile(source=source, b=bounds(2), extra=['--format', 'json'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        p = json.loads(result.stdout)
+        warnings = [json.loads(line) for line in result.stderr.splitlines()]
+        self.assertEqual([w['operator'] for w in warnings], ['=', '!=', '--', '**'])
+        self.assertEqual([w['primary']['line'] for w in warnings], [2, 3, 4, 5])
+        self.assertTrue(all(w['code'] == 'behavioral.redundant-expression' for w in warnings))
+        self.assertEqual(self.compile(source=source, b=bounds(2), extra=['--format', 'json']).stderr,
+                         result.stderr)
+        text = self.call(['compile-behavioral-source', 'model.cfr', '--bounds', 'bounds.json', '--output', '-'])
+        self.assertEqual((text.returncode, text.stdout), (0, p['alloy'].encode()))
+        self.assertEqual(text.stderr.count(b'warning [behavioral.redundant-expression]'), 4)
+        written = self.compile(source=source, b=bounds(2), output='out.als')
+        self.assertEqual((written.returncode, written.stdout, written.stderr), (0, b'', result.stderr))
+        self.assertEqual((self.work / 'out.als').read_text(), p['alloy'])
+        # Different names and different binder bodies must not produce syntactic-identity warnings.
+        plain = self.compile(source='A ?\nB ?\n[(some A) = (some B)]\n[(all x : A | some x) = (all y : A | some y)]\n',
+                             b=bounds(3))
+        self.assertEqual((plain.returncode, plain.stderr), (0, b''))
+
+    # [utest->req~compiler-diagnostics~1]
+    def test_warning_authored_inventory_and_scenarios(self):
+        source = 'abstract P\n  [this = this]\np : P ?\nassert [no noclafer.missing]\n'
+        (self.work / 'scenario.cfr').write_text('[no noclafer.unknown]\n')
+        result = self.compile(source=source, b=bounds(3), extra=['--scenario', 'scenario.cfr'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        warnings = [json.loads(line) for line in result.stderr.splitlines()]
+        self.assertEqual([(w['primary']['file'], w['primary']['line']) for w in warnings],
+                         [('model.cfr', 2), ('model.cfr', 4), ('scenario.cfr', 1)])
+        # Generated initializer/transition constraints must not duplicate authored warnings.
+        result = self.compile(source='r -> int = #(noclafer.unknown)\nA ? -[A = A]-> A\n', b=bounds(3))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([json.loads(line)['operator'] for line in result.stderr.splitlines()], ['.', '='])
+
+    # [utest->req~compiler-behavioral-elaboration~1]
+    def test_empty_navigation_preserves_rejections_and_zero_divisor_admission(self):
+        for expression in ['no (A -- A).missing', 'no (if some A then noclafer else noclafer).missing',
+                           'no noclafer.(A ++ missing)', 'no noclafer.int', 'no noclafer.(some missing)',
+                           '(noclafer.missing + (some A)) = 0']:
+            result = self.compile(source='A ?\n[' + expression + ']\n', b=bounds(2))
+            self.assertNotEqual(result.returncode, 0, (expression, result.stdout))
+            self.assertEqual(result.stdout, b'')
+            self.assertEqual(json.loads(result.stderr)['version'], 1)
+        for expression in ['(1 / 0) = (1 / 0)', '(1 % 0) != (1 % 0)',
+                           'noclafer.(1 / 0) = 0',
+                           'no (if 1 / 0 = 0 then A else A).(noclafer.missing)',
+                           'some A || (1 / 0) = (1 / 0)']:
+            result = self.compile(source='A ?\n[' + expression + ']\n', b=bounds(2))
+            self.assertEqual((result.returncode, result.stdout), (3, b''), (expression, result.stderr))
+            self.assertNotIn(b'clafer-warning', result.stderr)
+        # An earlier warning must not turn a later error into a partial successful result.
+        result = self.compile(source='A ?\n[A = A]\n[some missing]\n', b=bounds(2))
+        self.assertEqual((result.returncode, result.stdout), (2, b''))
+        self.assertEqual(json.loads(result.stderr)['code'], 'behavioral.unknown-name')
+        self.assertNotIn(b'clafer-warning', result.stderr)

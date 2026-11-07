@@ -87,6 +87,11 @@ strict scalar trace decoding and retained exact-observation comparisons. Its
 executable finite source observer is a tested boundary, distinct from the existing
 kernel-checked first-slice checker and full preservation theorems.
 
+The behavioral [literal-empty source policy and warnings](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings)
+make literal-rooted navigation explicit and provide nonfatal source reports.
+The static profile, arithmetic admission and strict partiality remain authoritative
+at their existing boundaries.
+
 ## Delivery and selected language scope
 
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) delivers:

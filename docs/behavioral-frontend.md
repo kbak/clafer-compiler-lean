@@ -298,6 +298,55 @@ and grouped-binder interpretation theorems connect the reductions to the pinned
 independent meanings. Parsing and native execution remain tested boundaries;
 these proofs do not establish target encoding or full-profile qualification.
 
+## Literal empty navigation and successful warnings
+
+The behavioral source policy `literal-empty-navigation/1` selects a parsed dot
+chain rooted at the literal `noclafer`. Parentheses may enclose the root or any
+subchain; tails contain navigation names and dots, including `parent`, `dref`
+and unknown or ambiguous names. For example, `noclafer.dref.unknown` and
+`(noclafer).(missing.parent)` elaborate as the unary empty literal without tail
+lookup. Primitive extent names `int`/`integer` remain excluded. Arithmetic,
+Boolean and temporal tails use ordinary elaboration and admission; malformed
+syntax still fails parsing. A computed empty collection is not this literal rule.
+The [static policy](constraints.md#empty-collection-literal) retains its lookup checks.
+
+`NamePath`, `EmptyPath` and `EmptyNavigation` in
+[`ExpressionCore`](../ClaferCompiler/Frontend/Behavioral/ExpressionCore.lean)
+define the syntax independently. Their recognizers carry derivations and have
+completeness proofs. `Elaborates.emptyNavigation` reuses `Names.Name.empty` or
+`emptyRelative`; the ordinary dot rule excludes this case. `certifiedAt` therefore
+preserves its source correspondence. With an enclosing navigation cursor, the
+result intersects that cursor with unary empty, retaining partiality. No declaration,
+edge, binary empty or integer value is fabricated. Existing expression preservation
+theorems apply to these existing terms; they do not prove parser correctness.
+
+[`Warnings`](../ClaferCompiler/Frontend/Behavioral/Warnings.lean) reports
+`behavioral.empty-navigation` once per maximal rewritten chain and
+`behavioral.redundant-expression` for identical operands of `=`, `!=`, `--`, `**`.
+Identity here is a sufficient syntactic check in the same lexical/cursor context:
+source positions and parentheses are ignored, while names, binders and operators
+are retained. It does not attempt alias or alpha equivalence. All four operations
+retain their ordinary IR and strict definedness; warnings never assert totality
+or satisfiability. Traversal uses authored properties and header operands, so
+inheritance and generated header constraints do not duplicate messages.
+
+`parseAndElaborateReport` adds a successful `Report` containing the original
+`ParsedModel` and warnings in source order. Existing `parseAndElaborate` and error
+results are unchanged. This API checks elaboration, not range admission;
+[`compileReport`](behavioral-source.md#successful-warning-protocol) reports only
+after successful full compilation. Warning collection and source locations are
+tested behavior, separate from the kernel-checked elaboration relation.
+
+Reuse: the existing `Names` empty rules, source spans, `Constraints.errorAt`,
+standard recursive traversals, `Option`, `List.mergeSort` and derived `BEq` supply
+the implementation. Static `Syntax.EmptyUnary` cannot consume the separate
+behavioral AST. Normalized copies of that AST suffice for syntactic identity;
+no dependent IR equality engine or generic diagnostic framework is needed.
+No new runtime/proof dependency or license cost is introduced. The
+[immutable source disposition](sources.md#behavioral-empty-navigation-and-warnings)
+records the Haskell/Alloy boundary. Native term tests, warning protocol tests and
+exact source/Haskell/Alloy observations cover both successful and rejected cases.
+
 ## Whole-expression range obligations
 
 [`Expression.Ranges.analyze`](../ClaferCompiler/IR/Behavioral/Ranges.lean) takes
