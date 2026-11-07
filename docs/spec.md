@@ -52,10 +52,12 @@ Only the standalone historical and PR113 reference qualification suites may run
 conditionally: their complete corpora are mandatory when a reference pin,
 adapter, fixture, test, shared helper, provisioning recipe, or execution policy
 changes. Missing or ambiguous dependency information requires the full suites.
-Run both complete reference suites on scheduled verification and manual dispatch,
-and retain a full source-matched IntentBond check before acceptance. The full
-local check before handoff remains mandatory. A deferred reference suite must be
-reported as not run on this candidate; previously accepted reference evidence is
+Run both complete reference suites on scheduled verification, manual dispatch,
+behavioral integration pushes and ready-for-review behavioral PRs. These hosted
+runs require both independent compiler and reference jobs against the same
+immutable candidate. Retain a full source-matched IntentBond check before
+acceptance. The full local check before handoff remains mandatory. A deferred
+reference suite must be reported as not run on this candidate; previously accepted reference evidence is
 bound to its exact inputs and is never described as fresh compiler validation.
 Keep compiler and reference jobs independent, with a required aggregate result
 that fails on every failed or missing mandatory job. Retain evidence; routine CI

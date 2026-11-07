@@ -33,10 +33,12 @@ def select(repo, event, base_ref, ref, action, baseline):
     result = dict(candidate=candidate, baseline=baseline, profile='routine', reference=False,
                   reason='static CI', reference_inputs=[])
     if event not in {'pull_request', 'push', 'schedule', 'workflow_dispatch'} or (event == 'pull_request' and not base_ref):
-        return dict(result, profile='full', reason='event or target classification unavailable')
+        return dict(result, profile='compiler', reference=True,
+                    reason='event or target classification unavailable')
     if (event in ('schedule', 'workflow_dispatch') or ref == 'refs/heads/behavioral'
             or (base_ref == 'behavioral' and action == 'ready_for_review')):
-        return dict(result, profile='full', reason='scheduled, manual, integration or acceptance qualification')
+        return dict(result, profile='compiler', reference=True,
+                    reason='scheduled, manual, integration or acceptance qualification')
     if base_ref != 'behavioral':
         return result
     result['profile'] = 'compiler'

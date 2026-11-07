@@ -46,22 +46,38 @@ class CIProfileTests(unittest.TestCase):
             result = select(*args, base)
             self.assertEqual(result['profile'], 'compiler')
             self.assertFalse(result['reference'])
+            # Full qualification must require both parallel jobs even for a
+            # compiler-only diff. Exercise the actual workflow output contract.
+            for event, ref, action in [('schedule', 'refs/heads/main', ''),
+                    ('workflow_dispatch', 'refs/heads/behavioral', ''),
+                    ('push', 'refs/heads/behavioral', ''),
+                    ('pull_request', 'refs/pull/1/merge', 'ready_for_review')]:
+                result = select(root, event, 'behavioral', ref, action, base)
+                self.assertEqual(result['profile'], 'compiler')
+                self.assertTrue(result['reference'], 'Both jobs are mandatory')
+            output, record = root/'outputs', root/'selection.json'
+            selected = subprocess.run([sys.executable, str(ROOT/'scripts/ci_profile.py'),
+                'select', '--repo', str(root), '--event', 'pull_request',
+                '--base-ref', 'behavioral', '--ref', 'refs/pull/1/merge',
+                '--action', 'ready_for_review', '--baseline', base,
+                '--output', str(output), '--record', str(record)],
+                capture_output=True, text=True)
+            self.assertEqual(selected.returncode, 0, selected.stderr)
+            values = dict(line.split('=', 1) for line in output.read_text().splitlines())
+            self.assertEqual(values, dict(candidate=git('rev-parse', 'HEAD'),
+                baseline=base, profile='compiler', reference='true'))
+            self.assertEqual(json.loads(record.read_text())['reference'], True)
             # Renaming an unknown dependency into a safe path must still rerun it.
             git('mv', 'base', 'ClaferCompiler.lean')
             git('commit', '-qm', 'rename')
             self.assertTrue(select(*args, base)['reference'])
             for missing in ('', 'f'*40):
                 self.assertTrue(select(*args, missing)['reference'])
-            for event, ref, action in [('schedule', 'refs/heads/main', ''),
-                    ('workflow_dispatch', 'refs/heads/behavioral', ''),
-                    ('push', 'refs/heads/behavioral', ''),
-                    ('pull_request', 'refs/pull/1/merge', 'ready_for_review')]:
-                result = select(root, event, 'behavioral', ref, action, base)
-                self.assertEqual(result['profile'], 'full')
-                self.assertFalse(result['reference'], 'Full profile already runs both corpora')
             self.assertEqual(select(root, 'pull_request', 'main', 'refs/pull/1/merge', '', base)['profile'], 'routine')
-            self.assertEqual(select(root, 'pull_request', '', '', '', base)['profile'], 'full')
-            self.assertEqual(select(root, 'unknown', '', '', '', base)['profile'], 'full')
+            for event in ('pull_request', 'unknown'):
+                result = select(root, event, '', '', '', base)
+                self.assertEqual(result['profile'], 'compiler')
+                self.assertTrue(result['reference'], 'Unknown inputs require both jobs')
 
     def test_profiles_preserve_policy_and_identify_their_actual_commands(self):
         original = (ROOT/'scope.json').read_bytes()
