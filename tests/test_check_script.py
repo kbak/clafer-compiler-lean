@@ -81,6 +81,24 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
         self.assertIn('[check] Kernel replay: exit 0,', result.stdout)
 
+    def test_compiler_profile_keeps_build_audit_kernel_and_compiler_regressions(self):
+        result, calls = self.run_check(args=['--compiler-ci'])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('audit completed', calls)
+        self.assertIn('kernel completed', calls)
+        self.assertIn('lake env python3 scripts/run_tests.py --compiler-ci', calls)
+        self.assertIn('standalone reference corpora were not run', result.stdout)
+        self.assertNotIn('All build', result.stdout)
+
+    def test_reference_profile_prepares_dependencies_without_claiming_compiler_gates(self):
+        result, calls = self.run_check(args=['--reference-ci'])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('python3 scripts/project_modules.py --dependencies', calls)
+        self.assertIn('python3 scripts/run_tests.py --reference-ci', calls)
+        self.assertNotIn('audit completed', calls)
+        self.assertNotIn('kernel completed', calls)
+        self.assertIn('compiler proof and runtime checks are separate', result.stdout)
+
     def test_required_failures_stop_the_check(self):
         for failure in ['scripts/check.py', 'scripts/project_modules.py', '--dependencies',
                         'build', 'build clafer-compiler', 'axiom_audit.lean', 'scripts/run_tests.py', 'leanchecker']:

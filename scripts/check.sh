@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-if [[ $# != 0 ]]; then
-  echo 'Usage: bash scripts/check.sh (all checks are mandatory)' >&2
+regression_args=()
+reference_ci=false
+if [[ $# == 1 && $1 == --compiler-ci ]]; then
+  regression_args=(--compiler-ci)
+elif [[ $# == 1 && $1 == --reference-ci ]]; then
+  reference_ci=true
+elif [[ $# != 0 ]]; then
+  echo 'Usage: bash scripts/check.sh [--compiler-ci | --reference-ci]' >&2
   exit 2
 fi
 export PYTHONDONTWRITEBYTECODE=1
@@ -37,6 +43,11 @@ fi
 
 lake env lean --version
 python3 scripts/project_modules.py --dependencies
+if $reference_ci; then
+  run_step 'Reference corpora' python3 scripts/run_tests.py --reference-ci
+  echo 'Reference qualification passed; compiler proof and runtime checks are separate.'
+  exit 0
+fi
 run_step 'Library and native build' lake build
 # Lake caches the executable, but not the response file used by native probes
 # and qualification. Relink from the restored objects to retain current local
@@ -53,10 +64,14 @@ run_step 'All module build' lake build "${modules[@]/#/+}"
 audit_status=0
 run_step 'Axiom audit' lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean || audit_status=$?
 test_status=0
-run_step 'All regression groups' lake env python3 scripts/run_tests.py || test_status=$?
+run_step 'Regression groups' lake env python3 scripts/run_tests.py "${regression_args[@]}" || test_status=$?
 kernel_status=0
 run_step 'Kernel replay' env LEAN_NUM_THREADS=2 lake env leanchecker --verbose ClaferCompiler Main tests || kernel_status=$?
 if (( audit_status != 0 )); then exit "$audit_status"; fi
 if (( test_status != 0 )); then exit "$test_status"; fi
 if (( kernel_status != 0 )); then exit "$kernel_status"; fi
-echo 'All build, native, import, kernel, axiom and regression gates passed.'
+if [[ ${#regression_args[@]} == 0 ]]; then
+  echo 'All build, native, import, kernel, axiom and regression gates passed.'
+else
+  echo 'Compiler CI passed; standalone reference corpora were not run in this profile.'
+fi
