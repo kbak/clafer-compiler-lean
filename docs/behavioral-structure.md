@@ -131,7 +131,9 @@ fold prefixes. `validateOperation` checks operand/result ranges and excludes
 possible zero divisors for a selected width in the existing 1–16-bit target range.
 It can reject safe expressions conservatively; it never uses a satisfying
 candidate to weaken the bound. Fold/observation clients check the returned ranges
-with `Interval.fits`; C7/C8 must compose these checks over the complete expression.
+with `Interval.fits`. The [frontend range pass](behavioral-frontend.md#whole-expression-range-obligations)
+composes these checks over complete expressions. Structural scope budgets and their
+connection to target admission remain explicit C8 obligations.
 Finite lists cannot stand in for arbitrary infinite or noninteger observations.
 
 ## Reuse and evidence

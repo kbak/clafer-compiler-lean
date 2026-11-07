@@ -1,170 +1,111 @@
 module
 
-public import ClaferCompiler.Frontend.Behavioral.Values
+public import ClaferCompiler.Frontend.Behavioral.ExpressionRules
 
 @[expose] public section
 namespace ClaferCompiler.Frontend.Behavioral.Expressions
-open IR.Behavioral Values
+open IR.Behavioral Values ValueRules
 
-def failure (doc : Document) (e : Expr) (code : String) : Diagnostic :=
-  Constraints.errorAt ⟨doc.file, doc.source, []⟩ e.span code
-    "Cannot elaborate this behavioral expression."
-    (if code.startsWith "behavioral.unsupported" || code == "behavioral.infinite-primitive-extent" ||
-      code == "behavioral.heterogeneous-parent-type" then .unsupported else .malformed)
-
-def push (Γ : Context k n) (name : Name) (type : Ty k) : Context k (n + 1) :=
-  Vector.ofFn fun i => if h : i.val = 0 then some (name, type)
-    else Γ[(⟨i.val - 1, by omega⟩ : Fin n)]
-
-/-- Only syntactic unions and parentheses split occurrence families. Other
-operators, including intersection and difference, keep ordinary set semantics. -/
-def AtomicOperand : Expr → Prop
-  | .binary op _ _ _ => ¬ (op.text = "++" ∨ op.text = ",")
-  | .parens _ _ => False
-  | _ => True
-
-instance (e : Expr) : Decidable (AtomicOperand e) := by
-  unfold AtomicOperand; split <;> infer_instance
-
-/-- Independent source rules for occurrence-preserving aggregate operands. -/
-inductive Operands : Expr → List Expr → Prop where
-  | atomic (h : AtomicOperand e) : Operands e [e]
-  | parens (body : Operands e xs) : Operands (.parens e span) xs
-  | union (spelling : op.text = "++" ∨ op.text = ",")
-      (left : Operands a xs) (right : Operands b ys) :
-      Operands (.binary op a b span) (xs ++ ys)
-
+/-- Every successful branch returns its derivation from `Elaborates`. The
+traversal budget affects only diagnostics, never the meaning of a successful tree.
+Signed normalization runs later, preserving the original strict domain. -/
+-- [impl->req~compiler-behavioral-elaboration~1]
 -- [proof->req~compiler-behavioral-elaboration~1]
-/-- Exhaustion never returns a collapsed occurrence family. Every successful
-split carries its derivation from the independent source rules above. -/
-def operandsAt : Nat → (e : Expr) → Option {xs // Operands e xs} :=
-  Nat.rec (fun _ => none) (fun _ next e => match e with
-    | .binary op a b span =>
-      if h : op.text = "++" ∨ op.text = "," then do
-        let a ← next a
-        let b ← next b
-        return ⟨a.val ++ b.val, .union h a.property b.property⟩
-      else some ⟨[.binary op a b span], .atomic h⟩
-    | .parens a _ => do
-      let a ← next a
-      return ⟨a.val, .parens a.property⟩
-    | e => if h : AtomicOperand e then some ⟨[e], .atomic h⟩ else none)
-
--- [impl->req~compiler-behavioral-elaboration~1]
-def aggregate (v : IR.BehavioralStructural.Validated k) (op : IR.BehavioralArithmetic.Fold)
-    (operands : List (Value k n)) : Except String (Value k n) := do
-  let terms ← operands.mapM fun operand => do
-    let (type, domain) ← heads operand
-    let body : Primitive.Integer k (n + 1) ← match type with
-      | .integers | .empty => pure (.extract (.set (.var 0)))
-      | .objects d =>
-        match IR.BehavioralSupport.referenceView v d with
-        | some r =>
-          if isInteger v r.target then pure (.extract (.set (.step (.deref d) (.var 0))))
-          else throw "behavioral.expected-integer"
-        | none => throw "behavioral.expected-integer"
-    pure (Primitive.Integer.fold op (.cons domain .nil) body)
-  let identity := if op == .sum then 0 else 1
-  let binary := if op == .sum then IR.BehavioralArithmetic.Binary.add else .multiply
-  return .integer (terms.foldl (fun acc term => .binary binary acc term) (.literal identity))
-
-def chain (arrow : Token) (source : Value k n) (guard : Option (Value k n))
-    (target : Value k n) : Except String (Value k n) := do
-  let arrow ← if arrow.text == "-->" then pure Surface.Transitions.Arrow.immediate
-    else if arrow.text == "-->>" then pure .eventual
-    else throw "behavioral.arrow"
-  let source ← boolean source
-  let guard ← guard.mapM boolean
-  let target ← match target with
-    | .chain rest => pure rest
-    | a => do pure ⟨[], ← boolean a⟩
-  return .chain ⟨⟨source, guard, arrow⟩ :: target.links, target.target⟩
-
-def pattern (kind : Token) (first : Value k n) (second : Option (Value k n))
-    (scope : Option Token) (opener closer : Option (Value k n)) : Except String (Value k n) := do
-  let p ← boolean first
-  let s ← second.mapM boolean
-  let q ← opener.mapM boolean
-  let r ← closer.mapM boolean
-  let pat ← match kind.text, s with
-    | "never", none => pure (.never p)
-    | "sometime", none => pure (.sometime p)
-    | "lonce", none => pure (.lonce p)
-    | "always", none => pure (.always p)
-    | "precede", some s => pure (.precede p s)
-    | "follow", some s => pure (.follow p s)
-    | _, _ => throw "behavioral.pattern-shape"
-  let sc ← match scope.map (·.text), q, r with
-    | none, none, none => pure .suffix
-    | some "before", none, some r => pure (.before r)
-    | some "after", some q, none => pure (.after q)
-    | some "between", some q, some r => pure (.between q r)
-    | some "after until", some q, some r => pure (.afterUntil q r)
-    | _, _, _ => throw "behavioral.scope-shape"
-  return .formula (Surface.Patterns.expand pat sc)
-
-/-- This frontend retains source polarity and attachment, and builds the raw
-formula. Signed normalization runs only after elaboration and keeps this domain.
-A successful result is not a proof of source elaboration correctness. -/
--- [impl->req~compiler-behavioral-elaboration~1]
-def synthAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : Fin k) : Nat →
-    {n : Nat} → Context k n → Option (Value k n) → Expr → Except Diagnostic (Value k n) :=
+def certifiedAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : Fin k) : Nat →
+    {n : Nat} → (Γ : Context k n) → (cursor : Option (Value k n)) → (e : Expr) →
+      Except Diagnostic {value // Elaborates v owner Γ cursor e value} :=
   Nat.rec (fun {_} _ _ e => .error (failure doc e "behavioral.expression-budget"))
-    (fun fuel next {_} Γ cursor e => do
+    (fun fuel next {_} Γ cursor e =>
       let lift := fun {α : Type} (a : Except String α) => a.mapError (failure doc e)
-      match e with
-      | .name token => lift (Values.name v owner Γ cursor token.text)
-      | .integer _ i => return .integer (.literal (Int.ofNat i))
-      | .parens a _ => next Γ cursor a
-      | .unary op a _ =>
-        if op.text == "sum" || op.text == "product" then
+      match (motive := ∀ source, Except Diagnostic {value // Elaborates v owner Γ cursor source value}) e with
+      | .name token => do
+        let result ← lift (Names.name v owner Γ cursor token.text)
+        return ⟨result.value, .name result.derivation⟩
+      | .integer _ i => .ok ⟨.integer (.literal (Int.ofNat i)), .integer⟩
+      | .parens a _ => do
+        let a ← next Γ cursor a
+        return ⟨a.val, .parens a.property⟩
+      | .unary op a _ => do
+        if hop : op.text = "sum" ∨ op.text = "product" then
           let some operands := operandsAt (fuel + 1) a
             | throw (failure doc e "behavioral.expression-budget")
-          let terms ← operands.val.mapM (next Γ cursor)
-          lift (aggregate v (if op.text == "sum" then .sum else .product) terms)
-        else lift (unary v op.text (← next Γ cursor a))
-      | .binary op a b _ =>
+          let terms ← Traversal.list (next Γ cursor) operands.val
+          let result ← lift (aggregateCertified v (if op.text == "sum" then .sum else .product) terms.val)
+          return ⟨result.val, .aggregate hop operands.property (elaboratesList terms.property) result.property⟩
+        else
+          let a ← next Γ cursor a
+          let result ← lift (MonadAttach.attach (unary v op.text a.val))
+          return ⟨result.val, .unary a.property (unary_sound v result.property)⟩
+      | .binary op a b _ => do
         let a ← next Γ cursor a
-        if op.text == "." then next Γ (some a) b
-        else lift (binary v op.text a (← next Γ cursor b))
-      | .quantified op disjoint names domain body _ =>
-        let (type, domain) ← lift (heads (← next Γ cursor domain))
-        let plan ← Binders.prepare Γ op names type
+        if hop : op.text = "." then
+          let b ← next Γ (some a.val) b
+          return ⟨b.val, .dot hop a.property b.property⟩
+        else
+          let b ← next Γ cursor b
+          let result ← lift (MonadAttach.attach (binary v op.text a.val b.val))
+          return ⟨result.val, .binary a.property b.property (binary_sound result.property)⟩
+      | .quantified op disjoint names domain body _ => do
+        let domain ← next Γ cursor domain
+        let heads ← lift (MonadAttach.attach (Values.heads domain.val))
+        let plan ← Binders.prepare Γ op names heads.val.1
         let q ← Binders.quantifier op
-        let body ← lift (boolean (← next plan.bodyContext none body))
-        return .formula (IR.Behavioral.Binders.elaborate q.val names.length disjoint.isSome domain body)
-      | .letSet _ binder value body _ =>
-        if Resolution.reserved binder.text then
+        let body ← next plan.bodyContext none body
+        let boolean ← lift (booleanCertified body.val)
+        return ⟨.formula (Expression.binders q.val names.length disjoint.isSome heads.val.2 boolean.val),
+          .quantified plan.legal q.property domain.property (heads_sound heads.property) body.property boolean.property⟩
+      | .letSet _ binder value body _ => do
+        if hb : Resolution.reserved binder.text = true then
           throw (Resolution.errorAt binder "behavioral.reserved-binder" "Reserved binder name.")
-        let (type, domain) ← lift (heads (← next Γ cursor (.name value)))
-        let body ← lift (boolean (← next (push Γ binder type) none body))
-        return .formula (.letSet domain body)
-      | .conditional _ condition yes no _ =>
-        let condition ← lift (boolean (← next Γ cursor condition))
+        else
+          let value ← next Γ cursor (.name value)
+          let heads ← lift (MonadAttach.attach (Values.heads value.val))
+          let body ← next (push Γ binder heads.val.1) none body
+          let boolean ← lift (booleanCertified body.val)
+          return ⟨.formula (.letSet heads.val.2 boolean.val), .letSet (Bool.eq_false_iff.mpr hb)
+            value.property (heads_sound heads.property) body.property boolean.property⟩
+      | .conditional _ condition yes no _ => do
+        let condition ← next Γ cursor condition
+        let boolean ← lift (booleanCertified condition.val)
         let yes ← next Γ cursor yes
         let no ← next Γ cursor no
-        -- Only the Boolean conditional has an accepted FormulaF constructor.
-        -- A collection branch must not be silently converted to presence here.
-        match yes, no with
-        | .formula _, .formula _ | .chain _, .formula _ | .formula _, .chain _ | .chain _, .chain _ =>
-          return .formula (.ite condition (← lift (boolean yes)) (← lift (boolean no)))
-        | _, _ => throw (failure doc e "behavioral.unsupported-value-conditional")
-      | .transition arrow a guard b _ =>
+        let result ← lift (MonadAttach.attach (Values.conditional v boolean.val yes.val no.val))
+        return ⟨result.val, .conditional condition.property boolean.property yes.property no.property
+          (conditional_sound result.property)⟩
+      | .transition arrow a guard b _ => do
         let a ← next Γ cursor a
-        let guard ← guard.mapM (next Γ cursor)
+        let guard ← Traversal.option (next Γ cursor) guard
         let b ← next Γ cursor b
-        lift (chain arrow a guard b)
-      | .pattern kind first second scope opener closer _ =>
+        let result ← lift (chainCertified arrow a.val guard.val b.val)
+        return ⟨result.val, .transition a.property (elaboratesOption guard.property) b.property result.property⟩
+      | .pattern kind first second scope opener closer _ => do
         let first ← next Γ cursor first
-        let second ← second.mapM (next Γ cursor)
-        let opener ← opener.mapM (next Γ cursor)
-        let closer ← closer.mapM (next Γ cursor)
-        lift (pattern kind first second scope opener closer))
+        let second ← Traversal.option (next Γ cursor) second
+        let opener ← Traversal.option (next Γ cursor) opener
+        let closer ← Traversal.option (next Γ cursor) closer
+        let result ← lift (patternCertified kind first.val second.val scope opener.val closer.val)
+        return ⟨result.val, .pattern first.property (elaboratesOption second.property) (elaboratesOption opener.property)
+          (elaboratesOption closer.property) result.property⟩)
+
+-- [impl->req~compiler-behavioral-elaboration~1]
+def synthAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : Fin k) (budget : Nat)
+    {n : Nat} (Γ : Context k n) (cursor : Option (Value k n)) (e : Expr) : Except Diagnostic (Value k n) :=
+  (certifiedAt doc v owner budget Γ cursor e).map Subtype.val
+
+def elaborateCertified (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : Fin k)
+    (budget : Nat) (e : Expr) : Except Diagnostic {formula // FormulaElaborates v owner e formula} := do
+  let value ← certifiedAt doc v owner budget #v[] none e
+  let boolean ← (booleanCertified value.val).mapError (failure doc e)
+  return ⟨boolean.val, ⟨value.val, value.property, boolean.property⟩⟩
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 def elaborate (doc : Document) (v : IR.BehavioralStructural.Validated k) (owner : Fin k)
-    (budget : Nat) (e : Expr) : Except Diagnostic (Grouped.Formula k 0) := do
-  let value ← synthAt doc v owner budget #v[] none e
-  (boolean value).mapError (failure doc e)
+    (budget : Nat) (e : Expr) : Except Diagnostic (Expression.Formula k 0) :=
+  (elaborateCertified doc v owner budget e).map Subtype.val
+
+-- [proof->req~compiler-behavioral-elaboration~1]
+theorem elaborate_sound (h : elaborate doc v owner budget e = .ok formula) : FormulaElaborates v owner e formula := by
+  obtain ⟨result, _, rfl⟩ := Traversal.map_success h
+  exact result.property
 
 end ClaferCompiler.Frontend.Behavioral.Expressions

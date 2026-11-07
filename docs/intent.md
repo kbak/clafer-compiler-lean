@@ -104,7 +104,7 @@ and semantic acceptance require explicit review; see the
 
 - [Requirements](spec.md): compiler, assurance and workflow obligations.
 - [Architecture](architecture.md): feature, interface, assurance and ownership contract.
-- [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, resolved reductions and outstanding coverage/proof obligations.
+- [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, checked elaboration and range obligations.
 - [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
 - [Behavioral integration](behavioral.md): complete planned profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.

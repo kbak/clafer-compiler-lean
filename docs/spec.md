@@ -201,8 +201,8 @@ direct and inherited references. Keep model/scenario selection and assertions
 distinct; reject unsupported objectives, escapes, domains and default initializers
 explicitly. Preserve static-profile temporal rejection. Record an independent
 grammar and distinguish tested recognition from proved elaboration. The
-[frontend inventory](behavioral-frontend.md) states current APIs and remaining
-composition obligations; parsing is not semantic admission.
+[frontend inventory](behavioral-frontend.md) states current APIs and their proof/testing
+boundaries; parsing is not semantic admission.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -225,8 +225,9 @@ agreement, beyond well-formed output; distinguish universal assertions, classica
 counterexample failure and existential scenarios. Grammar recognition, native
 execution and reference-tool outcomes remain separately tested boundaries.
 The [reduction inventory](behavioral-frontend.md#executable-reductions-and-proved-boundary)
-records supplied local theorems and the outstanding full source composition; local
-coverage does not establish completion of the full requirement.
+records source derivations, composed interpretation/normalization and complete
+range-check obligations, with explicit scope premises. Coverage does not replace
+source-matched qualification or independent semantic acceptance.
 
 Covers:
 - `intent~compiler-foundation~1`
