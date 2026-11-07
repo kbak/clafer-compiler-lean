@@ -217,7 +217,9 @@ truth and strict definedness; a model uses the inherited-reference observed trac
 [`Values`](../ClaferCompiler/Frontend/Behavioral/Values.lean) resolves nearest
 captured locals, contextual fields, enclosing scopes and unique global names.
 Field selection reuses the static independent `Field`/`Global` predicates;
-reference ownership uses the behavioral structural analysis. `this.parent`
+reference ownership uses the behavioral structural analysis. A reference cycle
+without a reachable target field still permits unique global-name lookup.
+`this.parent`
 retains direct fixed-identity navigation, while navigation from an observed set
 uses an ordinary step. The typed result distinguishes object heads, integer
 sets, integer scalars, empty sets, formulas and unexpanded transition chains.

@@ -44,6 +44,19 @@ def captures : IO Unit := do
   | .letSet _ (.quant .all _ (.letSet (.set (.var 0))
       (.quant .some _ (.quant .some _ (.next (.atom (.primitive (.equal (.set (.var 0)) (.set (.var 1)))))))))) => pure ()
   | _ => fail "group domain was resolved after introducing shadowing names"
+  let m ← load "abstract Node -> Node\n  [some Outside]\nn : Node\nOutside\n"
+  let outside ← idOf m "Outside"
+  match ← body m with
+  | .atom (.primitive (.inhabited (.set (.extent d)))) =>
+    unless d == outside do fail "reference cycle hid an unrelated global name"
+  | _ => fail "reference cycle changed global lookup into relative navigation"
+  let m ← load "abstract A -> B\n  [some item]\nabstract B -> A\n  item ?\nitem ?\n"
+  let b ← idOf m "B"
+  match ← body m with
+  | .atom (.primitive (.inhabited (.set (.step (.child child) (.thisStep (.deref _)))))) =>
+    unless (m.elaborated.declarations.resolved.candidate.core.get child).parent == some b do
+      fail "target field lost priority over a global name in a reference cycle"
+  | _ => fail "cyclic target field lookup lost its relative path"
   let m ← load "a\n  [X some this.parent]\n"
   match ← body m with
   | .next (.atom (.primitive (.inhabited (.set (.thisStep .parent))))) => pure ()
@@ -152,6 +165,7 @@ def documents : IO Unit := do
 def diagnostics : IO Unit := do
   for (source, code) in [
       ("A\n[X missing]\n", "behavioral.unknown-name"),
+      ("abstract Node -> Node\n  [some missing]\n", "behavioral.unknown-name"),
       ("A\n[1 + A = 2]\n", "behavioral.expected-integer"),
       ("A\n[one x; x : A | some x]\n", "behavioral.binder-group"),
       ("A\n[some int]\n", "behavioral.infinite-primitive-extent"),

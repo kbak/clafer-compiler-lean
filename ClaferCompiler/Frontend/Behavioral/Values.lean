@@ -93,6 +93,14 @@ def navigation (v : IR.BehavioralStructural.Validated k) : Nat →
     | some r => next r.target (navigateSet (.deref d) a) name
     | none => throw "behavioral.missing-navigation")
 
+/-- Bare-name fallback searches only the original context's reference chain.
+A cycle without a matching field does not hide a unique global declaration. -/
+def targetHasField (v : IR.BehavioralStructural.Validated k) (start : Fin k) (name : String) : Bool :=
+  (List.range (k + 1)).any fun depth =>
+    let target := depth.repeat (fun d => d.bind fun d =>
+      (IR.BehavioralSupport.referenceView v d).map (·.target)) (some start)
+    target.any fun d => decide (Constraints.HasField v.core.structural d name)
+
 -- [impl->req~compiler-behavioral-elaboration~1]
 def name (v : IR.BehavioralStructural.Validated k) (owner : Fin k) (Γ : Context k n)
     (cursor : Option (Value k n)) (text : String) : Except String (Value k n) := do
@@ -116,10 +124,8 @@ def name (v : IR.BehavioralStructural.Validated k) (owner : Fin k) (Γ : Context
         return ← navigation v (k + 1) d a text
       scope := (c.get d).parent.map fun p => (p, navigateSet .parent a)
   if let some r := IR.BehavioralSupport.referenceView v owner then
-    match navigation v (k + 1) r.target (navigateSet (.deref owner) .this) text with
-    | .ok a => return a
-    | .error code =>
-      if code != "behavioral.missing-navigation" then throw code
+    if targetHasField v r.target text then
+      return ← navigation v (k + 1) r.target (navigateSet (.deref owner) .this) text
   for d in List.finRange k do
     if Constraints.Global c text d then return .collection (classType v d) (.set (.extent d))
   if c.declarations.any (fun d => d.name == text) then throw "behavioral.ambiguous-name"
