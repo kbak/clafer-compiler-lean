@@ -245,10 +245,11 @@ python3 scripts/comparison/behavioral_haskell.py replay /tmp/haskell-case-UNIQUE
 ```
 
 The Haskell command returns nonzero for a discrepancy even when replay reproduces
-it. Compiler CI provisions the c7 exporter for these production-source comparisons;
+it. The required behavioral source CI job provisions the c7 exporter for these comparisons;
 standalone old/new reference corpora remain separately mandatory in full qualification.
-The full source corpus uses a separate process in the existing bounded regression
-worker pool, with two internal solver workers and explicit per-query limits.
+The full local check uses a separate process in the existing bounded regression
+worker pool. Hosted CI uses the [source profile](build.md#ci-profiles) on its own runner.
+Both paths use two internal solver workers and explicit per-query limits.
 Existing tests, required checks and the full deadline remain unchanged.
 
 | Reviewed delta | Disposition and retained evidence |

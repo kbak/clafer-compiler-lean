@@ -175,10 +175,12 @@ provisioning and validation.
 PRs outside `behavioral` and pushes to `main` run the Lean build, axiom audit, kernel replay,
 native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
 check before handoff. Every PR targeting `behavioral` runs all compiler regressions,
-including Haskell/Alloy comparisons, and fresh proof checks. Standalone historical
+including Haskell/Alloy comparisons, and fresh proof checks. The full behavioral
+source suite runs in its own required job to keep its two solver workers from
+competing with the temporal target suite and other regressions. Standalone historical
 and PR113 reference corpora run in a separate job when their inputs or unclassified
 paths change. Missing comparison baselines require that job. Compiler-only results
-explicitly identify the two reference suites as not run in that profile.
+identify the reference and behavioral source suites as executed separately.
 Marking a behavioral PR ready for review, pushing to `behavioral`, scheduled runs,
 and GitHub Actions → CI → Run workflow run the full suite. GitHub activates the
 daily schedule only after the workflow reaches the default branch; it checks

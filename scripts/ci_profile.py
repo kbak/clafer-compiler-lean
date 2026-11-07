@@ -64,7 +64,8 @@ def profile_scope(data, profile):
     if profile == 'full':
         return data
     commands = {'compiler': ['bash', 'scripts/check.sh', '--compiler-ci'],
-                'reference': ['bash', 'scripts/check.sh', '--reference-ci']}
+                'reference': ['bash', 'scripts/check.sh', '--reference-ci'],
+                'source': ['bash', 'scripts/check.sh', '--source-ci']}
     if profile not in commands:
         raise ValueError('Unknown qualification profile')
     scope = copy.deepcopy(scope)
@@ -84,7 +85,7 @@ def main():
     selection.add_argument('--record', type=Path, required=True)
     policy = commands.add_parser('scope')
     policy.add_argument('--input', type=Path, required=True)
-    policy.add_argument('--profile', choices=('full', 'compiler', 'reference'), required=True)
+    policy.add_argument('--profile', choices=('full', 'compiler', 'reference', 'source'), required=True)
     policy.add_argument('--output', type=Path, required=True)
     policy.add_argument('--record', type=Path, required=True)
     args = parser.parse_args()
@@ -99,7 +100,8 @@ def main():
         args.output.write_bytes(selected)
         result = dict(profile=args.profile, full_scope_sha256=digest(original),
                       selected_scope_sha256=digest(selected),
-                      reference_execution='not run' if args.profile == 'compiler' else 'required')
+                      reference_execution='required' if args.profile in ('full', 'reference') else 'not run',
+                      behavioral_source_execution='required' if args.profile in ('full', 'source') else 'not run')
     args.record.write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, sort_keys=True))
 
