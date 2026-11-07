@@ -117,53 +117,53 @@ def formulaStep (v : IR.Structural.Layout k) (fuel : Nat)
     sizeOf a < fuel + 1 → Translation :=
   match a with
   | .truth => fun _ => Translation.atomic .truth
-  | .atom a => fun h => Translation.atomic (atom v c a fuel (by simp only [IR.Behavioral.Formula.atom.sizeOf_spec] at h; omega))
-  | .not a => fun h => negation (recur c a (by simp only [IR.Behavioral.Formula.not.sizeOf_spec] at h; omega))
-  | .and a b => fun h => conjunction (recur c a (by simp only [IR.Behavioral.Formula.and.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.Formula.and.sizeOf_spec] at h; omega))
-  | .or a b => fun h => disjunction (recur c a (by simp only [IR.Behavioral.Formula.or.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.Formula.or.sizeOf_spec] at h; omega))
-  | .implies a b => fun h => implication (recur c a (by simp only [IR.Behavioral.Formula.implies.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.Formula.implies.sizeOf_spec] at h; omega))
-  | .iff a b => fun h => equivalence (recur c a (by simp only [IR.Behavioral.Formula.iff.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.Formula.iff.sizeOf_spec] at h; omega))
-  | .xor a b => fun h => negation (equivalence (recur c a (by simp only [IR.Behavioral.Formula.xor.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.Formula.xor.sizeOf_spec] at h; omega)))
+  | .atom a => fun h => Translation.atomic (atom v c a fuel (by simp only [IR.Behavioral.FormulaF.atom.sizeOf_spec] at h; omega))
+  | .not a => fun h => negation (recur c a (by simp only [IR.Behavioral.FormulaF.not.sizeOf_spec] at h; omega))
+  | .and a b => fun h => conjunction (recur c a (by simp only [IR.Behavioral.FormulaF.and.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.FormulaF.and.sizeOf_spec] at h; omega))
+  | .or a b => fun h => disjunction (recur c a (by simp only [IR.Behavioral.FormulaF.or.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.FormulaF.or.sizeOf_spec] at h; omega))
+  | .implies a b => fun h => implication (recur c a (by simp only [IR.Behavioral.FormulaF.implies.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.FormulaF.implies.sizeOf_spec] at h; omega))
+  | .iff a b => fun h => equivalence (recur c a (by simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec] at h; omega))
+  | .xor a b => fun h => negation (equivalence (recur c a (by simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec] at h; omega)) (recur c b (by simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec] at h; omega)))
   | .ite cond a b => fun h =>
-      let cond := recur c cond (by simp only [IR.Behavioral.Formula.ite.sizeOf_spec] at h; omega)
-      conjunction (implication cond (recur c a (by simp only [IR.Behavioral.Formula.ite.sizeOf_spec] at h; omega)))
-        (implication (negation cond) (recur c b (by simp only [IR.Behavioral.Formula.ite.sizeOf_spec] at h; omega)))
-  | .next a => fun h => (recur c a (by simp only [IR.Behavioral.Formula.next.sizeOf_spec] at h; omega)).map (next (parentPresent v c))
+      let cond := recur c cond (by simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec] at h; omega)
+      conjunction (implication cond (recur c a (by simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec] at h; omega)))
+        (implication (negation cond) (recur c b (by simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec] at h; omega)))
+  | .next a => fun h => (recur c a (by simp only [IR.Behavioral.FormulaF.next.sizeOf_spec] at h; omega)).map (next (parentPresent v c))
   | .eventually a => fun h =>
-      let a := recur c a (by simp only [IR.Behavioral.Formula.eventually.sizeOf_spec] at h; omega)
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.eventually.sizeOf_spec] at h; omega)
       let p := parentPresent v c
       ⟨eventually p a.raw, eventually p a.positive, always p a.negative⟩
   | .always a => fun h =>
-      let a := recur c a (by simp only [IR.Behavioral.Formula.always.sizeOf_spec] at h; omega)
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.always.sizeOf_spec] at h; omega)
       let p := parentPresent v c
       ⟨always p a.raw, always p a.positive, eventually p a.negative⟩
   | .strongUntil a b => fun h =>
-      let a := recur c a (by simp only [IR.Behavioral.Formula.strongUntil.sizeOf_spec] at h; omega)
-      let b := recur c b (by simp only [IR.Behavioral.Formula.strongUntil.sizeOf_spec] at h; omega)
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.strongUntil.sizeOf_spec] at h; omega)
+      let b := recur c b (by simp only [IR.Behavioral.FormulaF.strongUntil.sizeOf_spec] at h; omega)
       let p := parentPresent v c
       ⟨strongUntil p a.raw b.raw, strongUntil p a.positive b.positive,
         weakUntil p b.negative (.binary .conj a.negative b.negative)⟩
   | .weakUntil a b => fun h =>
-      let a := recur c a (by simp only [IR.Behavioral.Formula.weakUntil.sizeOf_spec] at h; omega)
-      let b := recur c b (by simp only [IR.Behavioral.Formula.weakUntil.sizeOf_spec] at h; omega)
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.weakUntil.sizeOf_spec] at h; omega)
+      let b := recur c b (by simp only [IR.Behavioral.FormulaF.weakUntil.sizeOf_spec] at h; omega)
       let p := parentPresent v c
       ⟨weakUntil p a.raw b.raw, weakUntil p a.positive b.positive,
         strongUntil p b.negative (.binary .conj a.negative b.negative)⟩
-  | .initially a => fun h => (recur c a (by simp only [IR.Behavioral.Formula.initially.sizeOf_spec] at h; omega)).map (initially (present v c))
-  | .finally a => fun h => (recur c a (by simp only [IR.Behavioral.Formula.finally.sizeOf_spec] at h; omega)).map (atEnd (present v c))
+  | .initially a => fun h => (recur c a (by simp only [IR.Behavioral.FormulaF.initially.sizeOf_spec] at h; omega)).map (initially (present v c))
+  | .finally a => fun h => (recur c a (by simp only [IR.Behavioral.FormulaF.finally.sizeOf_spec] at h; omega)).map (atEnd (present v c))
   | .letSet d a => fun h =>
-      freeze c.aliases (setAt v c fuel d (by simp only [IR.Behavioral.Formula.letSet.sizeOf_spec] at h; omega))
-        (fun value => recur (c.push value) a (by simp only [IR.Behavioral.Formula.letSet.sizeOf_spec] at h; omega))
+      freeze c.aliases (setAt v c fuel d (by simp only [IR.Behavioral.FormulaF.letSet.sizeOf_spec] at h; omega))
+        (fun value => recur (c.push value) a (by simp only [IR.Behavioral.FormulaF.letSet.sizeOf_spec] at h; omega))
   | .quant q d a => fun h =>
-      let domain := setAt v c fuel d (by simp only [IR.Behavioral.Formula.quant.sizeOf_spec] at h; omega)
-      let one := recur ((c.shift 1).push (.var 0)) a (by simp only [IR.Behavioral.Formula.quant.sizeOf_spec] at h; omega)
+      let domain := setAt v c fuel d (by simp only [IR.Behavioral.FormulaF.quant.sizeOf_spec] at h; omega)
+      let one := recur ((c.shift 1).push (.var 0)) a (by simp only [IR.Behavioral.FormulaF.quant.sizeOf_spec] at h; omega)
       match q with
       | .all => ⟨.all domain one.raw, .all domain one.positive, .exists_ domain one.negative⟩
       | .some => ⟨.exists_ domain one.raw, .exists_ domain one.positive, .all domain one.negative⟩
       | .no => ⟨.all domain (.unary .neg one.raw), .all domain one.negative,
           .exists_ domain one.positive⟩
       | .one | .lone =>
-          let two := recur ((c.shift 2).push (.var 0)) a (by simp only [IR.Behavioral.Formula.quant.sizeOf_spec] at h; omega)
+          let two := recur ((c.shift 2).push (.var 0)) a (by simp only [IR.Behavioral.FormulaF.quant.sizeOf_spec] at h; omega)
           let unique := Temporal.Formula.all (shift 1 domain)
             (.binary .implies two.raw (.equal (.var 0) (.var 1)))
           let counted := if q == .one then
