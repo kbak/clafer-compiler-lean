@@ -24,7 +24,11 @@ records their composition into full source-model assurance. The current theorem
 contracts are in [constraint encoding](expression-encoding.md) and
 [source pipeline assurance](pipeline.md#composed-assurance).
 Grammar-to-parser correspondence and native/serialized execution remain tested,
-unproved boundaries. Distinguish delivered guarantees from future work. Contract
+unproved boundaries. Maintain a [readable list of key proved properties](lessons.md#key-proved-properties)
+with each claim's significance, supported domain, essential assumptions, exact
+declaration/source link and authoritative component contract. Distinguish upstream
+semantic results, compiler proofs and execution/comparison evidence; link the
+companion semantics list or its pending task. Distinguish delivered guarantees from future work. Contract
 adoption precedes dependent manual intake; planning tickets do not start
 implementation. Publish the compiler source under MIT and provide public issue
 and pull-request workflows that do not require access to the maintainer Project.
@@ -46,7 +50,7 @@ handoff. Retain evidence outside source. Exit 4 means automation passed with
 semantic review pending, never approval. The full local check remains mandatory.
 On PRs outside `behavioral` and pushes to `main`, hosted CI builds every Lean module, audits
 axioms, replays the kernel, checks scope identity and tests the native source/IR
-CLI. Every behavioral PR additionally checks traceability and runs all compiler
+CLI. Every PR targeting `behavioral` additionally checks traceability and runs all compiler
 regressions, including native execution and external source/target comparisons.
 Only the standalone historical and PR113 reference qualification suites may run
 conditionally: their complete corpora are mandatory when a reference pin,
@@ -96,7 +100,7 @@ statuses manually after accepted closure, reopening, dependency or scope changes
 not-planned closure is not acceptance. Parent/sub-issue membership groups scope,
 not readiness. The helper accepts `track --status ready` and uses live Project
 field/option IDs without claiming dependency automation. Behavioral feature PRs
-target `behavioral`; close their issues explicitly only after accepted integration
+target `main`; close their issues only after accepted integration
 and refresh affected statuses. Preserve the main controls and report behavioral
 protection gaps separately from CI results.
 
@@ -1392,7 +1396,8 @@ Needs: impl, utest
 
 `impl~scaffold-boundary~1`
 
-[README](../README.md), [intent](intent.md), [security policy](../SECURITY.md), and
+[README](../README.md), [intent](intent.md), the
+[key proved properties](lessons.md#key-proved-properties), [security policy](../SECURITY.md), and
 [license](../LICENSE) describe the current boundary. GitHub visibility is an
 external setting: verify it separately before reporting repository publication.
 

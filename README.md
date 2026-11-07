@@ -39,8 +39,8 @@ see the [static](docs/pipeline.md#composed-assurance) and
 Parser and external execution limits are described under
 [assurance and validation](#assurance-and-validation).
 
-See [what the experiment establishes](docs/lessons.md) for the main findings,
-potential reuse and evidence-based comparison with the Haskell compiler.
+See the [key proved properties](docs/lessons.md#key-proved-properties) for readable
+guarantees, assumptions and theorem links, followed by reuse and comparison findings.
 
 ## Supported scope
 

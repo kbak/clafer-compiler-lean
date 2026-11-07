@@ -132,7 +132,7 @@ and semantic acceptance require explicit review; see the
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.
 - [Source pipeline](pipeline.md): integrated compilation, full-model proofs and complete telematics.
 - [Qualification](qualification.md): feature inventory, benchmarks and candidate review.
-- [Results and reuse](lessons.md): established guarantees, reuse and limits of the Haskell comparison.
+- [Key proved properties and reuse](lessons.md#key-proved-properties): readable guarantees, assumptions, exact theorem links and proof/execution boundaries; reuse and Haskell comparison findings.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.

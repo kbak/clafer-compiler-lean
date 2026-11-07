@@ -14,7 +14,7 @@ record acceptance and dependencies.
 Do not implement compiler features until their owning task is selected and its
 dependencies are accepted. Candidate acceptance requires independent review;
 behavioral implementation requires its own selected task and explicit profile.
-Behavioral feature PRs target `behavioral`; preserve the static regression baseline.
+Feature PRs target `main`; preserve the static regression baseline.
 Keep imports one-way from compiler to semantics; use both pinned semantics and
 Haskell sources as described in the source register. Do not silently resolve a
 discrepancy by changing upstream meanings or broadening language support.
