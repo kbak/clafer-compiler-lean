@@ -117,5 +117,35 @@ class PR113FusionTests(unittest.TestCase):
                 self.assertEqual(calls[0][1],calls[1][1])
                 self.assertEqual(calls[2][1],calls[3][1])
 
+    def test_new_profile_requires_real_well_formed_warning_receipts(self):
+        for warnings in (None, {}, {'schema':'clafer-alloy-warnings/1','warnings':[]},
+                         {'schema':'clafer-alloy-warnings/1','warnings':[{'message':'incomplete'}]}):
+            with self.subTest(warnings=warnings),tempfile.TemporaryDirectory() as scratch:
+                def solve(runtime, api, directory, request, **kwargs):
+                    oracle.write(directory/'inspection.json', {})
+                    if warnings is not None: oracle.write(directory/'warnings.json',warnings)
+                    return dict(status='ok',outcome='bounded_unsat')
+                with patch.object(temporal,'solve',side_effect=solve), \
+                        patch.object(pr113,'validate_inspection'):
+                    result=pr113.query(dict(candidate='c7a2fb7',runtime={},api={}),
+                        dict(alloy='model',backend='tmp.als'),self.request,Path(scratch)/'query')
+                accepted=warnings=={'schema':'clafer-alloy-warnings/1','warnings':[]}
+                self.assertEqual('ok' if accepted else 'error',result['status'])
+                if not accepted: self.assertIsNone(result['outcome'])
+
+    def test_explicit_fixed_point_rejects_whitespace_only_difference(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            directory=Path(scratch);build=directory/'build.json';build.write_text('{}')
+            original=dict(status='captured',explicit='[a.b]\n',names={},trace_length=4)
+            changed=dict(original,explicit='[a . b]\n')
+            with patch.object(pr113,'inputs',return_value={}), \
+                    patch.object(pr113,'capture',side_effect=[original,changed]), \
+                    patch.object(pr113,'query') as query:
+                result=pr113.run_case({'build':build},{'entry':'input.cfr'},directory/'evidence')
+            self.assertEqual('error',result['status'])
+            self.assertFalse(result['fixed_point'])
+            self.assertIn('Explicit corpus fixed point failed',result['detail'])
+            query.assert_not_called()
+
 
 if __name__=='__main__': unittest.main()

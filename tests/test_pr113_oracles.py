@@ -197,3 +197,245 @@ class PR113Oracles(unittest.TestCase):
             self.assertEqual('generated',g['outputs']['JSON']['status'])
             for mode in ('Alloy','Choco','Clafer'): self.assertEqual('unsupported',g['outputs'][mode]['status'])
             self.assertFalse((self.output/name/'original-query-0').exists())
+
+
+# [utest->req~compiler-temporal-oracles~1]
+class PR113C7Oracles(PR113Oracles):
+    """Same complete corpus and independent witnesses under the successor profile."""
+    @classmethod
+    def setUpClass(cls):
+        for name in ('CLAFER_PR113_C7_TOOLS','CLAFER_PR113_TOOLS','CLAFER_TEMPORAL_TOOLS'):
+            if not os.environ.get(name): raise RuntimeError('Prepare and set '+name+'; no skipped candidate gates')
+        cls.tools = pr113.load_tools(os.environ['CLAFER_PR113_C7_TOOLS'])
+        cls.previous = pr113.load_tools(os.environ['CLAFER_PR113_TOOLS'])
+        cls.tools['old'] = temporal.load_tools(os.environ['CLAFER_TEMPORAL_TOOLS'])
+        parent = oracle.external(os.environ.get('CLAFER_ORACLE_EVIDENCE',tempfile.gettempdir()))
+        parent.mkdir(parents=True,exist_ok=True)
+        cls.output = Path(tempfile.mkdtemp(prefix='pr113-c7-',dir=parent))
+        print('PR113 c7 oracle evidence: '+str(cls.output),flush=True)
+        cls.cases = pr113.read(pr113.corpus(cls.tools))['cases']
+        def run(case):
+            return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
+        cpus = len(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else (os.cpu_count() or 1)
+        with ThreadPoolExecutor(max_workers=max(1,min(2,cpus))) as pool:
+            cls.results = dict(pool.map(run,cls.cases))
+        oracle.write(cls.output/'summary.json',cls.results)
+
+    def test_complete_inventory_and_source_delta(self):
+        source = self.tools['build'].parent/'compiler'
+        upstream = {c['entry'] for c in self.cases if c['origin']=='haskell'}
+        self.assertEqual({p.name for p in (source/'test/positive').glob('tmp_*.cfr')} |
+                         {'explicit_dref_navigation.cfr'},upstream)
+        self.assertEqual(66,len(upstream))
+        old_cases = pr113.read(pr113.CORPUS)['cases']
+        self.assertTrue({c['id'] for c in old_cases} <= {c['id'] for c in self.cases})
+        delta = pr113.read(pr113.CORPUS.parent/'c7-delta.json')
+        self.assertEqual(4,len(delta['commits']))
+        self.assertEqual(delta['base'],self.previous['tools']['profile']['haskell_commit'])
+        self.assertEqual(delta['candidate'],self.tools['tools']['profile']['haskell_commit'])
+        self.assertEqual(240,len(delta['reviewed_sources'])+len(delta['generated_regressions']))
+        for entry in delta['reviewed_sources']+delta['generated_regressions']:
+            for which,tree in [('base',self.previous['build'].parent/'compiler'),('candidate',source)]:
+                path = tree/entry['path']
+                with self.subTest(path=entry['path'],revision=which):
+                    if entry[which] is None: self.assertFalse(path.exists())
+                    else: self.assertEqual(entry[which],oracle.digest(path))
+
+    def test_fresh_corpus_fixed_points_and_bounded_queries(self):
+        warnings = {}
+        for case in self.cases:
+            name = case['id']
+            with self.subTest(case=name):
+                result = self.results[name]
+                self.assertEqual(case.get('expected_status','ok'),result['status'],result)
+                if result['status'] not in ('ok','discrepancy'):
+                    self.assertFalse(result['checks'])
+                    continue
+                self.assertTrue(result['fixed_point'])
+                self.assertEqual(result['status']=='ok',result['agreement'])
+                if 'expected' in case: self.assertTrue(result['expected_match'])
+                if 'old_expected' in case: self.assertEqual(case['old_expected'],result['historical']['outcome'])
+                if len(result['checks'])>1: self.assertTrue(result['assertions_nonvacuous'])
+                g = self.generation(name)
+                for n,check in enumerate(result['checks']):
+                    a = pr113.read(self.output/name/('original-query-'+str(n))/'request.json')
+                    b = pr113.read(self.output/name/('explicit-query-'+str(n))/'request.json')
+                    self.assertEqual(dict(a,command_index=check['explicit_index']),b)
+                    self.assertEqual(protocol.request(g,check['original_index'],
+                        scopes=case.get('scopes'),steps=case.get('steps')),a)
+                    for form in ('original','explicit'):
+                        query = self.output/name/(form+'-query-'+str(n))
+                        messages = pr113.read(query/'warnings.json')['warnings']
+                        warnings[str(query.relative_to(self.output))] = messages
+                        self.assertFalse(self.unused_root_warnings(self.generation(name,form)['alloy'],messages),messages)
+                        expected = '--solve-static-c7' if g['backend']=='als' else '--solve-c7'
+                        self.assertEqual(['AlloyPR113Inspect',expected],pr113.read(query/'runtime.json')['command'][-2:])
+        oracle.write(self.output/'warning-summary.json',warnings)
+
+    def test_union_endpoints_type_products_and_ownership_mutations(self):
+        for name,field,targets in [('tmp_final_inherited_reference','this/motor7/motor7_ref',
+                                    ['this/spare','this/gas']),
+                                  ('explicit_dref_navigation','this/u/u_ref',['this/p','this/fast'])]:
+            g = self.generation(name)
+            observed = pr113.read(self.output/name/'original/inspection.json')
+            self.assertEqual(targets,observed['fields'][field]['targets'])
+            for mutation in ('remove','add','substitute','navigation','owner','product','product_remove','arity'):
+                bad = copy.deepcopy(observed); f = bad['fields'][field]
+                if mutation=='remove': f['targets'].pop()
+                if mutation=='add': f['targets'].append('this/root')
+                if mutation=='substitute': f['targets'][0]=f['owner']
+                if mutation=='navigation': f['targets'][0]='this/garage.r_spare'
+                if mutation=='owner': f['owner']=targets[0]
+                if mutation=='product': f['columns']=[[f['owner'],f['owner']]]
+                if mutation=='product_remove': f['columns']=[[f['owner'],targets[-1]]]
+                if mutation=='arity': f['arity']=1
+                with self.subTest(case=name,mutation=mutation),self.assertRaises(ValueError):
+                    protocol.layout(g,bad)
+        g = self.generation('union-live-good')
+        ref = protocol.declarations(g['post_analysis'])['link']['_reference']['_ref']
+        for mutation in ('operator','binding','navigation_owner','signature'):
+            bad=copy.deepcopy(ref)
+            if mutation=='operator': bad['_exp']['_op']='--'
+            elif mutation=='binding': bad['_exp']['_exps'][1]['_exp']['_binding']['tag']='LocalBind'
+            elif mutation=='navigation_owner':
+                bad['_exp']['_exps'][0]['_exp']['_exps'][0] = copy.deepcopy(bad['_exp']['_exps'][1])
+            else: bad['_exp']['_exps'][1]['_exp']['_sident']='r_other'
+            with self.subTest(mutation=mutation),self.assertRaises(ValueError):
+                protocol.reference_targets(bad,protocol.declarations(g['post_analysis']),g['names'])
+
+    def test_exact_navigation_bytes_and_target_restrictions(self):
+        compact,spaced = self.generation('navigation-compact'),self.generation('navigation-spaced')
+        self.assertNotEqual(compact['files'],spaced['files'])
+        self.assertEqual(compact['explicit'],spaced['explicit'])
+        self.assertIn('owner.link.dref',compact['explicit'])
+        self.assertNotIn(' . ',compact['explicit'])
+        # The restriction is independently retained in the explicit source, not inferred from field syntax.
+        for name in ('tmp_final_inherited_reference','explicit_dref_navigation','union-live-good'):
+            explicit=self.generation(name)['explicit']
+            self.assertIn('++',explicit);self.assertIn(' in ',explicit)
+        self.assertEqual(['sat'],[c['original_outcome'] for c in self.results['union-live-good']['checks']])
+        dead=self.results['union-dead-target']
+        self.assertEqual('discrepancy',dead['status'])
+        self.assertEqual(('sat','bounded_unsat'),(dead['checks'][0]['original_outcome'],
+                                               dead['checks'][0]['explicit_outcome']))
+        frames=self.trace('union-dead-target')['frames']
+        self.assertGreaterEqual(len(frames),2)
+        target=frames[0]['fields']['this/box/r_nested'][0][1]
+        self.assertTrue(all(not f['fields']['this/box/r_nested'] for f in frames[1:]))
+        self.assertTrue(all([t for _,t in f['fields']['this/link/link_ref']]==[target] for f in frames))
+        self.assertTrue(all(f['fields']['this/owner/r_link'] for f in frames))
+        self.assertEqual('malformed',self.results['union-wrong-target']['status'])
+        self.assertIn("Function '=' cannot be performed",self.results['union-wrong-target']['detail'])
+        self.assertFalse((self.output/'union-wrong-target/original-query-0').exists())
+
+    def test_root_binding_nested_guards_and_source_maps(self):
+        import re
+        g=self.generation('root-binding'); text=g['alloy']
+        self.assertNotIn('all self_ : root',text)
+        self.assertIn('always (root = root)',text)
+        self.assertIn('always (no root)',text)
+        self.assertIn('always (lone root.@r_thisThing)',text)
+        self.assertIn('all self_ : owner | always (self_ in alive_owner implies',text)
+        self.assertIn('self_.@r_child',text)
+        self.assertIn('alive_thisThing',text)
+        self.assertNotIn('rootThing',text)
+        self.assertEqual(g['source_map'],g['backend_map'])
+        # Retained physical Alloy spans must still select their attributed expression after bindTo.
+        entries=re.findall(r'Span \(Pos (\d+) (\d+)\) \(Pos (\d+) (\d+)\),IrPExp \{pUid = "([^"]+)"\}',g['source_map'])
+        self.assertTrue(entries)
+        pids={}
+        def visit(value):
+            if isinstance(value,list):
+                for x in value: visit(x)
+            elif isinstance(value,dict):
+                if value.get('_pid'): pids[value['_pid']]=value
+                for x in value.values(): visit(x)
+        visit(g['post_analysis'])
+        selected=[];lines=text.splitlines()
+        for line,col,end_line,end_col,pid in entries:
+            self.assertIn(pid,pids)
+            line,col,end_line,end_col=map(int,(line,col,end_line,end_col))
+            self.assertTrue(1<=line<=end_line<=len(lines))
+            if line==end_line: selected.append(lines[line-1][col-1:end_col-1])
+        self.assertIn('root = root',selected)
+        self.assertTrue(any('self_.@r_child' in x for x in selected))
+
+    @staticmethod
+    def unused_root_warnings(text,messages):
+        lines=text.splitlines()
+        return [w for w in messages if 'unused' in w['message'].lower()
+                and lines[w['line']-1][w['column']-1:w['end_column']]=='self_'
+                and 'all self_ : root' in lines[w['line']-1]]
+
+    def test_old_root_binders_warning_control_and_matched_queries(self):
+        for name in ('root-binding','root-recurrence','root-initially','root-recurring'):
+            case=next(c for c in self.cases if c['id']==name)
+            directory=self.output/('previous-'+name)
+            g=pr113.capture(self.previous,pr113.inputs(case,self.tools),case['entry'],directory)
+            self.assertIn('all self_ : root',g['alloy'])
+            original=self.generation(name)
+            for n,check in enumerate(self.results[name]['checks']):
+                request=protocol.request(original,check['original_index'])
+                result=pr113.query(self.tools,g,request,directory/('query-'+str(n)),inspection=True)
+                self.assertEqual('ok',result['status'],result)
+                self.assertEqual(check['original_outcome'],result['outcome'])
+                warnings=pr113.read(directory/('query-'+str(n))/'warnings.json')['warnings']
+                self.assertTrue(self.unused_root_warnings(g['alloy'],warnings),warnings)
+        # Removing outer always admits the one-time event trace, contrary to root recurrence.
+        g=copy.deepcopy(self.generation('root-recurrence'))
+        request=protocol.request(g,0)
+        needle='fact { always (eventually (some alive_event)) }'
+        self.assertEqual(1,g['alloy'].count(needle))
+        g['alloy']=g['alloy'].replace(needle,'fact { eventually (some alive_event) }')
+        directory=self.output/'missing-root-always';directory.mkdir()
+        (directory/'model.als').write_text(g['alloy'])
+        result=temporal.solve(self.tools['runtime'],self.tools['api'],directory,request,inspection=True)
+        oracle.write(directory/'result.json',result)
+        self.assertEqual(('ok','sat'),(result['status'],result.get('outcome')))
+        frames=result['trace']['frames']
+        self.assertTrue(frames[0]['fields']['this/root/r_event'])
+        self.assertTrue(all(not f['fields']['this/root/r_event'] for f in frames[1:]))
+
+    def test_retained_root_navigation_failure_has_no_solver_claim(self):
+        result=pr113.read(self.output/'root-navigation-unsupported/original-query-0/result.json')
+        self.assertEqual(('error','parse',None),(result['status'],result['stage'],result['outcome']))
+        self.assertIn('legal relational join',result['detail'])
+        self.assertEqual('error',pr113.replay(self.tools,self.output/'root-navigation-unsupported',
+                         self.output/'root-navigation-replay')['status'])
+
+    def test_analyzer_union_syntax_is_closed_and_integer_columns_are_bounded(self):
+        import subprocess
+        runtime=self.tools['runtime']
+        for index,(expression,accepted) in enumerate((('A',True),('A + B',True),
+                ('A + (B + C)',True),('A & B',False),('A - B',False),('A.r',False))):
+            directory=self.output/('endpoint-syntax-'+str(index));directory.mkdir()
+            (directory/'model.als').write_text('sig A { r: set B }\nsig B {}\nsig C {}\n'
+                +'sig R { ref: set '+expression+' }\nrun {} for 3\n')
+            command=[str(runtime['java']),'-cp',os.pathsep.join(map(str,(runtime['classes'],runtime['jar']))),
+                     'AlloyPR113Inspect','--inspect-c7']
+            with (directory/'stdout.log').open('wb') as out,(directory/'stderr.log').open('wb') as err:
+                result=subprocess.run(command,cwd=directory,stdout=out,stderr=err,timeout=30)
+            oracle.write(directory/'execution.json',dict(command=command,returncode=result.returncode))
+            with self.subTest(expression=expression): self.assertEqual(accepted,result.returncode==0)
+        bundle=self.output/'explicit_dref_navigation/original-query-0'
+        result=pr113.read(bundle/'result.json');request=pr113.read(bundle/'request.json')
+        inspected=pr113.read(bundle/'inspection.json')
+        fields={k for k,f in inspected['fields'].items() if f['targets']==['Int']}
+        self.assertTrue(fields)
+        for atom in ('foreign','128','-129','01'):
+            trace=copy.deepcopy(result['trace']);field=next(iter(fields))
+            trace['frames'][0]['fields'][field][0][1]=atom
+            with self.subTest(atom=atom),self.assertRaises(ValueError):
+                temporal.validate_trace(trace,request,integer_fields=fields)
+
+    def test_historical_explicit_bytes_and_new_union_replay(self):
+        case=next(c for c in self.cases if c['id']=='navigation-compact')
+        g=pr113.capture(self.previous,pr113.inputs(case,self.tools),case['entry'],self.output/'historical-navigation')
+        current=self.generation(case['id'])
+        self.assertIn(' . ',g['explicit'])
+        self.assertNotEqual(g['explicit'],current['explicit'])
+        # Preserve and execute both historical bytes and new bytes without normalizing the comparison.
+        again=pr113.capture(self.previous,{'explicit.cfr':g['explicit'].encode()},'explicit.cfr',self.output/'historical-navigation-explicit')
+        self.assertEqual(g['explicit'],again['explicit'])
+        self.assertEqual('ok',pr113.replay(self.tools,self.output/'union-live-good',self.output/'union-replay')['status'])
+        self.assertEqual('discrepancy',pr113.replay(self.tools,self.output/'union-dead-target',self.output/'union-discrepancy-replay')['status'])

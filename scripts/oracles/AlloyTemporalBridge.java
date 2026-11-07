@@ -39,19 +39,21 @@ public final class AlloyTemporalBridge {
             "max_steps", c.maxprefix, "scopes", scopes, "formula", c.formula.toString());
     }
     // [impl->req~compiler-temporal-oracles~1]
-    static void execute(JsonObject r, Function<CompModule,Map<String,Object>> inspection) throws Exception {
+    static void execute(JsonObject r, Function<CompModule,Map<String,Object>> inspection,
+                        A4Reporter reporter, boolean temporalRequired) throws Exception {
         require(Runtime.version().feature()==17, "Java 17 required");
         stage("parse");
-        CompModule model = CompUtil.parseEverything_fromFile(new A4Reporter(), null, "model.als");
+        CompModule model = CompUtil.parseEverything_fromFile(reporter, null, "model.als");
         if (inspection != null)
             Files.writeString(Path.of("inspection.json"), JSON.toJson(inspection.apply(model)));
         int index = r.get("command_index").getAsInt();
         require(index>=0 && index<model.getAllCommands().size(), "command index");
         Command original = model.getAllCommands().get(index);
+        boolean temporalModel = CompUtil.isTemporalModel(model.getAllReachableSigs(),original);
         out.put("original_command", command(original));
         int min = r.get("min_steps").getAsInt(), max = r.get("max_steps").getAsInt();
         Command c = new Command(original.pos, original.nameExpr, original.label, original.check,
-            r.get("overall").getAsInt(), r.get("bitwidth").getAsInt(), 0, min, max,
+            r.get("overall").getAsInt(), r.get("bitwidth").getAsInt(), 0, temporalModel ? min : -1, temporalModel ? max : -1,
             original.expects, List.of(), List.of(), original.commandKeyword, original.formula, null);
         JsonObject bounds = r.getAsJsonObject("identities");
         Map<String,Sig> sigs = new TreeMap<>();
@@ -83,8 +85,9 @@ public final class AlloyTemporalBridge {
             }
         }
         require(sigs.keySet().equals(bounds.keySet()), "unknown identity scopes");
-        require(c.minprefix==min && c.maxprefix==max && min>0 && max>=min, "step bounds");
-        require(CompUtil.isTemporalModel(model.getAllReachableSigs(),c), "temporal model required");
+        require(temporalModel ? c.minprefix==min && c.maxprefix==max && min>0 && max>=min
+            : min==1 && max==1, "step bounds");
+        require(!temporalRequired || temporalModel, "temporal model required");
         A4Options options = new A4Options();
         options.solver=SATFactory.get("sat4j");
         require(options.solver.isPresent() && !options.solver.unbounded(), "SAT4J unavailable");
@@ -99,11 +102,11 @@ public final class AlloyTemporalBridge {
                 effective.put(f.getName(),f.getName().equals("solver") ? options.solver.id() : f.get(options));
         out.put("options",effective); out.put("command",command(c));
         stage("solver");
-        A4Solution solution=TranslateAlloyToKodkod.execute_command(new A4Reporter(),model.getAllReachableSigs(),c,options);
+        A4Solution solution=TranslateAlloyToKodkod.execute_command(reporter,model.getAllReachableSigs(),c,options);
         out.put("outcome",solution.satisfiable()?"sat":"bounded_unsat");
         stage("trace");
         if (solution.satisfiable()) {
-            int length=solution.getTraceLength(), loop=solution.getLoopState();
+            int length=solution.getTraceLength(), loop=temporalModel ? solution.getLoopState() : 0;
             require(length>0 && loop>=0 && loop<length && length<=max, "lasso shape");
             List<Object> frames=new ArrayList<>();
             Set<String> inventory=new TreeSet<>();
@@ -124,8 +127,12 @@ public final class AlloyTemporalBridge {
         out.put("status","ok"); stage("complete");
     }
     static void run(Function<CompModule,Map<String,Object>> inspection) throws Exception {
+        run(inspection, new A4Reporter(), true);
+    }
+    static void run(Function<CompModule,Map<String,Object>> inspection,
+                    A4Reporter reporter, boolean temporalRequired) throws Exception {
         out.put("schema","clafer-temporal-solver/1"); out.put("outcome",null);
-        try {execute(JsonParser.parseString(Files.readString(Path.of("request.json"))).getAsJsonObject(), inspection);}
+        try {execute(JsonParser.parseString(Files.readString(Path.of("request.json"))).getAsJsonObject(), inspection, reporter, temporalRequired);}
         catch (OutOfMemoryError e) {out.put("status","resource_limit"); out.put("detail",e.toString());}
         catch (IllegalArgumentException e) {out.put("status","malformed"); out.put("detail",e.toString());}
         catch (Throwable e) {out.put("status","error"); out.put("detail",e.toString()); e.printStackTrace(System.err);}

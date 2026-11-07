@@ -1,0 +1,10 @@
+//# OPTIONS --tl=4
+abstract Target
+box ?
+  nested : Target
+other : Target
+wrong : Target
+owner
+  link -> box.nested ++ other
+[ initially (box && owner.link.dref = box.nested && X G (box && owner.link.dref = other)) ]
+// Original MIT qualification fixture.

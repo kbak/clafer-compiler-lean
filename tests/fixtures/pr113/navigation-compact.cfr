@@ -1,0 +1,6 @@
+//# OPTIONS --tl=4
+final owner
+  target
+  link -> target
+[ owner.link.dref = owner.target ]
+// Original MIT qualification fixture.

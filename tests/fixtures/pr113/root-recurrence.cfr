@@ -1,0 +1,5 @@
+//# OPTIONS --tl=4
+event ?
+[ initially (event && X G no event) ]
+[ F event ]
+// Original MIT qualification fixture.

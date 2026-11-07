@@ -418,6 +418,114 @@ Lean explicit-form preservation task. Hash receipts are unsigned identity
 records, and replay reruns the compiler and bounded query; it may choose another
 witness. Acceptance and any primary-pin amendment require independent review.
 
+## PR113 union and root-binding candidate
+
+`behavioral-pr113-c7a2fb7/v1` is a separate comparison candidate selected by
+[union and root-binding qualification](https://github.com/kbak/clafer-compiler-lean/issues/95).
+The [immutable profile](../scripts/oracles/pr113-c7-profile.json) and
+[complete four-commit delta](../tests/fixtures/pr113/c7-delta.json) preserve
+`behavioral-pr113-9a0f16e/v1`, the original temporal profile and the static pin.
+Existing receipts replay with the source revision recorded in their bundle;
+new receipts require matching current adapters and freshly prepared tools.
+
+Reuse: the revision-parameterized PR113 builder, exporter, capture, query and
+replay paths serve both candidates. The Haskell exporter calls the pinned public
+static or temporal generator, explicit printer and source-map APIs. Python's
+standard library supplies processes, JSON, hashes and archives. Analyzer
+`ExprBinary.Op.PLUS`, signature hierarchy, `Type.fold` and `A4Reporter.warning`
+provide union inspection and diagnostics. No dependency, solver, generic parser
+or source semantic definition is added. These remain tested external boundaries;
+original code and fixtures are MIT, with upstream fixture notices retained in
+the external tool bundle.
+
+```sh
+python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-c7-build-UNIQUE /tmp/clafer-pr113-c7-tools-UNIQUE
+export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py suite --tools "$CLAFER_PR113_C7_TOOLS" \
+  --old-tools "$CLAFER_TEMPORAL_TOOLS" /tmp/clafer-pr113-c7-suite-UNIQUE
+python3 scripts/oracles/pr113.py replay --tools "$CLAFER_PR113_C7_TOOLS" \
+  --old-tools "$CLAFER_TEMPORAL_TOOLS" \
+  /tmp/clafer-pr113-c7-suite-UNIQUE/union-live-good /tmp/clafer-pr113-c7-replay-UNIQUE
+```
+
+The [candidate inventory](../tests/fixtures/pr113/c7-inventory.json) retains the
+entire earlier corpus, updates the inherited-final fixture to the exact new
+source, and adds static `explicit_dref_navigation`, root binding/recurrence,
+union membership and compact/spaced navigation witnesses. Both source spellings
+must produce identical canonical explicit bytes; each explicit output is compared
+byte-for-byte with its fresh recompilation. Historical explicit bytes remain
+revision-specific. This is no normalization theorem or exact-lasso equivalence.
+
+Reference endpoints are derived recursively from resolved declaration IDs,
+containment navigation and union operands. Arbitrary target expressions, local
+binders, wrong owners and field-navigation expressions in signature positions
+are rejected. The expected endpoint list is checked independently of the
+Analyzer's actual binary type products. Abstract-cover folding is compared using
+disjoint hierarchy regions; concrete ancestors retain their residual region.
+It cannot equate every sibling with the same top ancestor. Target restrictions
+remain source constraints. A disjoint wrong target is rejected by Haskell type
+checking. The dead-target witness exposes a retained discrepancy: the original
+union output is SAT while its explicit recompile is bounded UNSAT. In the two-state
+witness the reference head stays live and points to the same `nested` atom after
+its owning `box` disappears. The original `refConsts` uses `findIClafer` on the
+rendered union type and omits the live-target constraint when that lookup fails.
+The explicit source widens the field to `Target` and retains a membership
+constraint. Pinned `Structural.Valid.target_live` rules out the original witness.
+The inventory requires this exact discrepancy and replay, not agreement; live
+union-target soundness is an unresolved candidate limitation. No upstream source
+or independent definition is changed to make the comparison pass.
+
+The static fixture explicitly selects `als`; temporal cases retain `tmp.als`.
+Only the selected new profile accepts static captures and integer reference
+fields. Static output has no synthetic root or parent fields and observes one
+state, with no Analyzer `steps` scope. Object scopes and signed bitwidth `8`
+remain matched across original and explicit output. Integer atoms are admitted
+only in inspected `Int` reference columns and within the signed budget. No
+static Lean admission or historical capture guard is broadened.
+
+Every new-profile query records `warnings.json`, including exact callback text
+and source positions. Empty diagnostics are explicit receipts; missing/malformed
+receipts invalidate a successful query. Parsing and solving retain errors and
+stages separately from completed SAT, bounded UNSAT and assertion counterexamples.
+The old quantified-root forms provide actual unused-binder warning controls at
+matched identity/step/integer budgets. The generated direct-root forms retain
+`always`; removing it admits the one-time event trace rejected by recurrence.
+Nested constraints/assertions retain per-instance live guards. Forward source-map
+re-emission is exact, and mapped spans are tested after root/self substitution.
+The warning summary reports this registered corpus, separately from the upstream
+changelog's claim concerning 27 models.
+
+Independent meaning comes from pinned `Properties.Constraint.root_holds` and
+`Anchors.root_recurrence`, under singleton/permanent-root assumptions. The later
+upstream `PatternExamples.root_attachment_not_initially` is a useful related
+witness but is absent from the installed semantic pin; no unaccepted dependency
+is imported to obtain it. The local distinguishing trace checks the same
+attachment distinction. None of these facts assumes Haskell preservation.
+
+Another known limitation: a top-level `this.item` navigation emits the ill-typed Alloy
+join `root.alive_item`. The registered `root-navigation-unsupported` case retains
+the actual parser failure and emitted bytes. Direct root `this` equality and
+nested `this.child` are separately tested; the broader root-navigation case is
+not qualified by those successes. Real/double explicit output and temporal Choco
+solving remain unsupported.
+
+The library capture does not invoke upstream `clafer -v` or `make test`.
+`8298fbd` changes CLI output-tool failure propagation and explicit recompilation;
+this harness independently checks process results, exact fixed points and
+complete command coverage. The upstream positive runner still returns zero for
+invalid `JOBS` after an `xargs -P` error with an empty failure list. Its status
+is not qualification evidence. This repository retains at most two concurrent
+cases and each query's 30-second/512-MiB budget. Missing tools, interrupted
+processes, malformed inputs and timeouts remain failures, never skipped gates.
+
+Candidate acceptance, primary-pin adoption, full assertion/encoder correctness,
+normalization and later release deltas remain separate review obligations. The
+source/tool disposition and exact-text/warning evidence are inputs to the
+[trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79) and
+[explicit-form](https://github.com/kbak/clafer-compiler-lean/issues/86) tasks.
+
 ## Implementation and test links
 
 `impl~compiler-pr113-oracle-tools~1`

@@ -70,6 +70,7 @@ jobs:
           echo "CLAFER_CAPTURE_CACHE=$RUNNER_TEMP/clafer-capture" >> "$GITHUB_ENV"
           echo "CLAFER_TEMPORAL_CACHE=$RUNNER_TEMP/clafer-temporal" >> "$GITHUB_ENV"
           echo "CLAFER_PR113_CACHE=$RUNNER_TEMP/clafer-pr113" >> "$GITHUB_ENV"
+          echo "CLAFER_PR113_C7_CACHE=$RUNNER_TEMP/clafer-pr113-c7" >> "$GITHUB_ENV"
           echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       # Lake validates source/options/import traces; proof and test results are never cached.
       - name: Cache Lean build artifacts
@@ -159,7 +160,13 @@ jobs:
             ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
             ${{ runner.temp }}/clafer-pr113/compiler
             !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
-          key: compiler-pr113-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/pr113-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
+            ${{ runner.temp }}/clafer-pr113-c7/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
+            ${{ runner.temp }}/clafer-pr113-c7/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113-c7/compiler
+            !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
+          key: compiler-pr113-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/pr113-profile.json', 'scripts/oracles/pr113-c7-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
       - name: Prepare static comparison tools and runtime isolation
         if: inputs.profile != 'routine'
         run: |
@@ -210,6 +217,9 @@ jobs:
           python3 scripts/oracles/pr113.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_PR113_CACHE" "$RUNNER_TEMP/pr113-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-setup.log"
           echo "CLAFER_PR113_TOOLS=$RUNNER_TEMP/pr113-tools/tools.json" >> "$GITHUB_ENV"
+          python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_PR113_C7_CACHE" "$RUNNER_TEMP/pr113-c7-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-c7-setup.log"
+          echo "CLAFER_PR113_C7_TOOLS=$RUNNER_TEMP/pr113-c7-tools/tools.json" >> "$GITHUB_ENV"
       - name: Save verified PR113 exporter and sources
         if: ((inputs.profile == 'full' || inputs.profile == 'reference')) && steps.pr113.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -221,6 +231,12 @@ jobs:
             ${{ runner.temp }}/clafer-pr113/compiler.tar.gz
             ${{ runner.temp }}/clafer-pr113/compiler
             !${{ runner.temp }}/clafer-pr113/compiler/.stack-work
+            ${{ runner.temp }}/clafer-pr113-c7/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
+            ${{ runner.temp }}/clafer-pr113-c7/compiler.tar.gz
+            ${{ runner.temp }}/clafer-pr113-c7/compiler
+            !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
           key: ${{ steps.pr113.outputs.cache-primary-key }}
       - name: Check scope against the baseline
         id: scope
@@ -330,6 +346,11 @@ jobs:
             ${{ runner.temp }}/oracle-tools/
             ${{ runner.temp }}/pr113-tools/
             ${{ runner.temp }}/pr113-setup.log
+            ${{ runner.temp }}/pr113-c7-tools/
+            ${{ runner.temp }}/pr113-c7-setup.log
+            ${{ runner.temp }}/clafer-pr113-c7/build.json
+            ${{ runner.temp }}/clafer-pr113-c7/build.log
+            ${{ runner.temp }}/clafer-pr113-c7/source-files.json
             ${{ runner.temp }}/clafer-pr113/build.json
             ${{ runner.temp }}/clafer-pr113/build.log
             ${{ runner.temp }}/clafer-pr113/source-files.json

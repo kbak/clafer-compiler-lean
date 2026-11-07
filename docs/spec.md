@@ -462,6 +462,21 @@ are weaker than exact-lasso equivalence; they do not discharge C9 or the Lean
 explicit-form preservation task. This qualification does not adopt a new primary
 compiler pin; independent delta review remains required.
 
+Qualify `c7a2fb7` separately as `behavioral-pr113-c7a2fb7/v1`, retaining both
+historical profiles. Derive union field endpoints from captured resolved target
+expressions and the forward UID map; check ownership, arity, hierarchy and actual
+Analyzer type products. Admit only the selected direct, containment-navigation
+and union forms, preserving the structural importer's expression-target rejection.
+Include the static navigation fixture with explicit backend and integer handling.
+Keep exact original/explicit bytes, fixed points, original scopes and matched
+bounded queries. Record actual warning callbacks, including an old unused-root
+binder positive control; warnings are neither counterexamples nor tool failures.
+Check root cardinalities, constraints and assertions retain `always` and bind
+`this` to the singleton permanent root; nested instances retain their live guards.
+Retain source-map spans and identifier boundaries. Distinguish recurrence from
+`initially` with positive/negative traces and a removed-`always` mutant. Document
+unsupported captures and parse failures without changing independent semantics.
+
 Covers:
 - `intent~compiler-foundation~1`
 
