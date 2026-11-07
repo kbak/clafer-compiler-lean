@@ -319,7 +319,121 @@ Keep this candidate and static profile intact. Before adopting release bytes:
    the complete static and temporal qualification after an accepted update;
    preserve historical receipts for the old candidate.
 
+## PR113 delta qualification candidate
+
+`behavioral-pr113-9a0f16e/v1` selects the immutable later Haskell revision in the
+[source register](sources.md#pr113-delta-candidate). It is a qualification
+candidate awaiting independent review. The primary behavioral pin, old temporal
+profile, static profile and their capture/replay code remain unchanged.
+
+Reuse assessment: `temporal.py` supplies duplicate-key JSON parsing, bridge
+compilation, bounded solving and complete trace validation; `temporal_build.py`
+supplies retained build diagnostics. The pinned semantics runtime supplies
+verified downloads and Java provisioning. Python's standard library supplies
+processes, hashes and archives. The new Haskell adapter calls `readModel`,
+`generate`, `alloyNames`, `toAlloyNames`, `astrModule`, `isDynamicModule`,
+`genAlloyLtlModule`, `genExplicitModule` and the scope metadata APIs. A separate
+builder binds the new revision and exporter without altering historical build
+identities. A small Analyzer inspector adds declaration/field inspection through
+public AST APIs; the existing temporal solver bridge is reused unchanged.
+No additional packages, Lean dependencies, solver or printer are introduced.
+These external adapters are tested, unproved boundaries. Original adapters and
+local fixtures are MIT; upstream fixtures stay in the external archive with its
+MIT notice. Existing Alloy/SAT4J license obligations remain unchanged.
+
+```sh
+python3 scripts/oracles/pr113.py prepare --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-build-UNIQUE /tmp/clafer-pr113-tools-UNIQUE
+export CLAFER_PR113_TOOLS=/tmp/clafer-pr113-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py suite --tools "$CLAFER_PR113_TOOLS" \
+  --old-tools "$CLAFER_TEMPORAL_TOOLS" /tmp/clafer-pr113-suite-UNIQUE
+python3 scripts/oracles/pr113.py replay --tools "$CLAFER_PR113_TOOLS" \
+  --old-tools "$CLAFER_TEMPORAL_TOOLS" \
+  /tmp/clafer-pr113-suite-UNIQUE/direct-swap-target /tmp/clafer-pr113-replay-UNIQUE
+```
+
+The [profile](../scripts/oracles/pr113-profile.json) pins source archive/tree,
+Stack/GHC and generated dependency lock. Each capture retains the registered
+source import closure, effective options, original JSON/Alloy, explicit text,
+original and explicit scope files, post-analysis IR, backend input, renamed IR
+and complete forward UID/name map from the same compilation. Re-emitting the
+captured backend input through the library must reproduce `generate`'s complete
+Alloy bytes; the explicit printer call must reproduce its explicit bytes.
+Schema checks require modifier arrays, reject legacy scalar fields mixed into
+this revision, and check global bindings, declaration identities and injectivity.
+The Analyzer's actual signature hierarchy, field ownership, declared endpoints
+and types must match the captured map. No name is reconstructed by removing a
+prefix. Historical comparisons match unique authored declaration paths between
+revisions, retaining that correspondence and both build receipts.
+
+The [inventory](../tests/fixtures/pr113/inventory.json) includes all 64 temporal
+upstream `tmp_` sources and the static `tmp_TrafficLight5` example, plus original
+witnesses. Each source is freshly generated, its explicit text is recompiled,
+and the second explicit output must be byte-identical. All run/assertion
+commands are matched, including lifted nested assertions whose command order
+changes. Assertions require a satisfiable paired model run at the same budgets;
+the `names` fixture also demands a real counterexample to a false assertion.
+The scope-identity upstream example remains bounded UNSAT at its original
+inferred scope; that result is not a completeness claim.
+
+Original and explicit queries use the **original generation's** inferred scopes
+(default `1`) or the local witness's registered identity capacities. The explicit
+model's `--ss=none` defaults never replace those scopes. Both use signed bitwidth
+`8`, overall scope `1`, `1..trace_length` steps, the captured `--tl` value, SAT4J,
+identical options and the existing 30-second/512-MiB resource limits. Source
+pragmas are read by the pinned importer. Local witnesses use 3 or 4 steps;
+upstream fixtures retain their effective trace lengths. All fields, frames,
+loop index, commands and runtime identities are retained. Real/double explicit
+output, temporal Choco solving, malformed inputs, tool failures and timeouts
+remain distinct from completed SAT or bounded UNSAT.
+
+| Distinguishing obligation | Registered evidence |
+| --- | --- |
+| Each reference conjunct, direct and inherited, in both orders | Two continuing heads swap targets: `finaltarget` permits it, both modifiers reject it. Replaced heads change the image: `finalref` permits it, both modifiers reject it. |
+| Head identity versus image | Both modifiers permit replacing a head while retaining its target; `final` forbids replacement. |
+| Target set versus bag multiplicity | Three replaced heads change target counts from `{A,A,B}` to `{A,B,B}`. Both orders preserve the image `{A,B}` and permit this; `final` forbids replacement. Tests inspect live head identities and reference tuples. |
+| Response-between | `q`, then `p`, then no response, then `r` forever: the old revision permits the trace and the candidate rejects it. |
+| First-opener precedence | `q,p,q,s` with the last state looping: an `initially`-attached pattern rejects the trace in the candidate and accepts it in the old revision. |
+| Attachment | A response at the first opener can satisfy the `initially`-attached precedence pattern; a later opener followed by `p` without a new response violates the implicitly always-attached constraint. |
+| Naming and schema | Reserved/derived-name collisions, apostrophe collisions, repeated nested names, an empty abstract extent, mapping/field mutations and missing/scalar/mixed/unknown modifier arrays. |
+
+Old/new runs preserve discrepancy directions, including the old stronger
+`finaltarget` and its missing combined image constraint. Accepted pinned
+`PatternExamples` and surface obligations supply hand-checked expectations;
+no unaccepted upstream adapter or witness change is consumed. The tests inspect
+actual distinguishing traces without requiring a particular atom naming.
+
+These checks establish printer fixed points, complete paired command coverage
+and bounded run/check outcome agreement. They do not enumerate equal trace sets,
+prove exact-lasso equivalence, or implement source-to-Alloy transport. Those
+remain [C9 obligations](behavioral.md#ownership-and-interfaces) and the separate
+Lean explicit-form preservation task. Hash receipts are unsigned identity
+records, and replay reruns the compiler and bounded query; it may choose another
+witness. Acceptance and any primary-pin amendment require independent review.
+
 ## Implementation and test links
+
+`impl~compiler-pr113-oracle-tools~1`
+
+The [candidate driver](../scripts/oracles/pr113.py),
+[builder](../scripts/oracles/pr113_build.py),
+[closed protocol](../scripts/oracles/pr113_protocol.py),
+[Haskell capture](../scripts/oracles/PR113Export.hs) and
+[Analyzer inspector](../scripts/oracles/AlloyPR113Inspect.java) implement the
+revision-specific capture, naming, explicit-roundtrip and replay contract above.
+
+Covers:
+- `req~compiler-temporal-oracles~1`
+
+`utest~compiler-pr113-oracle-regressions~1`
+
+[Candidate tests](../tests/test_pr113_oracles.py) execute the complete inventory,
+check independent modifier/pattern witnesses and meaningful assertions, mutate
+schemas/mappings/fields and every indexed artifact, and freshly replay a paired
+revision discrepancy. CI provisions this profile alongside both historical gates.
+
+Covers:
+- `req~compiler-temporal-oracles~1`
 
 `impl~compiler-temporal-oracle-tools~1`
 

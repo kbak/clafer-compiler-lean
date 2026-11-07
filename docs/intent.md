@@ -55,6 +55,9 @@ Its finite execution evidence complements the independent M1 preservation proofs
 The separate [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
 reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
 they do not implement behavioral compilation or prove source preservation.
+The separate [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate)
+qualifies later Haskell naming, modifiers, patterns and explicit output through
+fresh bounded comparisons while preserving both historical profiles.
 The separate [temporal target](alloy-temporal.md) supplies independent target
 meaning and checked serialization for the behavioral encoder.
 

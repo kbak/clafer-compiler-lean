@@ -1,0 +1,9 @@
+//# OPTIONS --tl=4
+abstract Target
+final left : Target
+final right : Target
+abstract Link -> Target
+final owner
+  finaltarget finalref head : Link 2
+[ initially ((all h : owner.head | all t : h.dref | X (h in owner.head && h.dref != t))) ]
+// Original MIT qualification fixture.
