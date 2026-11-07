@@ -1,0 +1,5 @@
+//# OPTIONS --tl=4
+item ?
+[ initially some item ]
+[ this.item in this.item ]
+// Original MIT qualification fixture; retained upstream parse failure.

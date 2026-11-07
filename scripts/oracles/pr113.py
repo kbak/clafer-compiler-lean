@@ -19,10 +19,19 @@ CORPUS = oracle.ROOT / 'tests/fixtures/pr113/inventory.json'
 read = temporal.read
 
 
+def candidate(tools):
+    return tools.get('candidate', '9a0f16e')
+
+
+def corpus(tools):
+    return CORPUS if candidate(tools) == '9a0f16e' else CORPUS.parent/'c7-inventory.json'
+
+
 def identity():
     paths = [Path(__file__), HERE/'pr113_build.py', HERE/'pr113_protocol.py',
              HERE/'pr113-profile.json', HERE/'PR113Export.hs', HERE/'AlloyPR113Inspect.java', CORPUS,
-             CORPUS.parent/'delta.json']
+             CORPUS.parent/'delta.json', CORPUS.parent/'c7-inventory.json',
+             CORPUS.parent/'c7-delta.json', HERE/'pr113-c7-profile.json']
     paths += list(CORPUS.parent.glob('*.cfr'))
     return dict(temporal.identity(), **{str(p.relative_to(oracle.ROOT)):oracle.digest(p) for p in paths})
 
@@ -33,19 +42,20 @@ def inspector(runtime, api):
         str(HERE/'AlloyPR113Inspect.java')]
     subprocess.run(command, check=True, capture_output=True, timeout=60, env=api['alloy_runtime'].java_env())
     return dict(source=oracle.digest(HERE/'AlloyPR113Inspect.java'),
-                binary=oracle.digest(runtime['classes']/'AlloyPR113Inspect.class'))
+                binary=oracle.digest(runtime['classes']/'AlloyPR113Inspect.class'),
+                warnings=oracle.digest(runtime['classes']/'AlloyPR113Inspect$Warnings.class'))
 
 
 # [impl->req~compiler-temporal-oracles~1]
-def prepare(static_tools, build_cache, output):
+def prepare(static_tools, build_cache, output, candidate='9a0f16e'):
     output = oracle.external(output)
     output.mkdir(parents=True, exist_ok=False)
     api = oracle.adapters()
     _, _, alloy = oracle.load_tools(static_tools, api)
-    receipt = build.prepare(build_cache, api)
+    receipt = build.prepare(build_cache, api, candidate)
     runtime = temporal.compile_bridge(alloy, output/'classes', api)
     inspection = inspector(runtime, api)
-    tools = dict(schema='clafer-pr113-tools/1', profile=build.profile(),
+    tools = dict(schema='clafer-pr113-tools/1', profile=build.profile(candidate),
         build=str(receipt), build_identity=oracle.digest(receipt),
         static_tools=str(oracle.external(static_tools)), static_tools_identity=oracle.digest(static_tools),
         temporal_bridge=runtime['temporal_bridge'], inspector=inspection)
@@ -61,13 +71,14 @@ def prepare(static_tools, build_cache, output):
 def load_tools(path):
     t = read(oracle.external(path))
     protocol.closed(t, 'schema profile build build_identity static_tools static_tools_identity temporal_bridge inspector', 'tools')
-    protocol.require(t['schema']=='clafer-pr113-tools/1' and t['profile']==build.profile(), 'Wrong PR113 tools/profile')
+    selected = build.candidate_for(t['profile']['haskell_commit'])
+    protocol.require(t['schema']=='clafer-pr113-tools/1' and t['profile']==build.profile(selected), 'Wrong PR113 tools/profile')
     for key in ('alloy_version','alloy_jar_sha256','java_major','solver','options','resources'):
         protocol.require(t['profile'][key]==temporal.temporal_build.profile()[key],
                          'Reused temporal solver profile differs: '+key)
     receipt = oracle.external(t['build'])
-    protocol.require(oracle.digest(receipt)==t['build_identity'] and build.valid(receipt.parent), 'Changed PR113 build')
-    build.sources(receipt.parent)
+    protocol.require(oracle.digest(receipt)==t['build_identity'] and build.valid(receipt.parent, selected), 'Changed PR113 build')
+    build.sources(receipt.parent, selected)
     protocol.require(oracle.digest(t['static_tools'])==t['static_tools_identity'], 'Changed provisioning receipt')
     api = oracle.adapters()
     _, _, alloy = oracle.load_tools(t['static_tools'], api)
@@ -75,7 +86,8 @@ def load_tools(path):
     runtime = temporal.compile_bridge(alloy,scratch/'classes',api)
     runtime['inspector'] = inspector(runtime,api)
     protocol.require(runtime['temporal_bridge']==t['temporal_bridge'] and runtime['inspector']==t['inspector'], 'Changed PR113 bridge')
-    return dict(build=receipt, exporter=receipt.parent/'clafer-pr113-capture',runtime=runtime,api=api,tools=t)
+    runtime['pr113_candidate'] = selected
+    return dict(candidate=selected, build=receipt, exporter=receipt.parent/'clafer-pr113-capture',runtime=runtime,api=api,tools=t)
 
 
 def inputs(case, tools):
@@ -90,14 +102,14 @@ def inputs(case, tools):
     return result
 
 
-def capture(tools, files, entry, output):
+def capture(tools, files, entry, output, *, backend=None):
     output.mkdir(parents=True,exist_ok=False)
     input_dir = output/'inputs'
     input_dir.mkdir()
     for name,data in files.items():
         protocol.require(Path(name).name==name, 'Invalid input filename')
         (input_dir/name).write_bytes(data)
-    command = [str(tools['exporter']),entry]
+    command = [str(tools['exporter']), *(['--static'] if backend == 'als' else []), entry]
     oracle.write(output/'capture-command.json',dict(command=command,cwd='inputs'))
     with (output/'generation.json').open('wb') as out, (output/'capture.stderr').open('wb') as err:
         process = subprocess.run(command,cwd=input_dir,stdout=out,stderr=err,timeout=30)
@@ -106,6 +118,8 @@ def capture(tools, files, entry, output):
     if g['status']!='captured':
         return g
     protocol.generation(g)
+    protocol.require(g['compiler_commit'] == build.profile(candidate(tools))['haskell_commit'], 'Wrong capture revision')
+    protocol.require(g['backend']==(backend or 'tmp.als'), 'Capture backend differs from selection')
     for name,key in [('model.als','alloy'),('model.json','json'),('explicit.cfr','explicit'),
                      ('original.cfr-scope','original_scopes'),('explicit.cfr-scope','explicit_scopes')]:
         (output/name).write_text(g[key])
@@ -129,8 +143,12 @@ def inspect(tools, g, output, query_directory=None):
         for source,destination in [('stdout.log','inspect.stdout'),('stderr.log','inspect.stderr')]:
             shutil.copyfile(query_directory/source,output/destination)
         observed = query_directory/'inspection.json'
-        if not observed.is_file() and read(query_directory/'result.json')['status']=='timeout':
-            raise subprocess.TimeoutExpired(runtime['command'],runtime['timeout_seconds'])
+        if not observed.is_file():
+            failed = read(query_directory/'result.json')
+            if failed['status']=='timeout':
+                raise subprocess.TimeoutExpired(runtime['command'],runtime['timeout_seconds'])
+            raise ValueError('Analyzer inspection failed: '+failed['status']+' during '+
+                             failed.get('stage','unknown')+'; see query result.json')
         shutil.copyfile(observed,output/'inspection.json')
     observed = read(output/'inspection.json')
     validate_inspection(g,observed)
@@ -165,8 +183,23 @@ def validate_inspection(g, observed):
 def query(tools, generation, request, directory, *, inspection=False):
     directory.mkdir()
     (directory/'model.als').write_text(generation['alloy'])
-    result = temporal.solve(tools['runtime'],tools['api'],directory,request,
-        inspection=inspection,**build.profile()['resources'])
+    selected = candidate(tools)
+    inspection = inspection or selected == 'c7a2fb7'
+    runtime = dict(tools['runtime'], static_backend=generation.get('backend') == 'als')
+    result = temporal.solve(runtime,tools['api'],directory,request,
+        inspection=inspection,**build.profile(selected)['resources'])
+    if selected == 'c7a2fb7' and result['status'] == 'ok':
+        try:
+            diagnostics = read(directory/'warnings.json')
+            protocol.closed(diagnostics, 'schema warnings', 'warning receipt')
+            protocol.require(diagnostics['schema']=='clafer-alloy-warnings/1' and
+                type(diagnostics['warnings']) is list, 'Invalid warning receipt')
+            for warning in diagnostics['warnings']:
+                protocol.closed(warning, 'message line column end_line end_column', 'warning')
+                protocol.require(type(warning['message']) is str and all(type(warning[k]) is int
+                    for k in ('line','column','end_line','end_column')), 'Invalid warning fields')
+        except (OSError,ValueError,KeyError,TypeError) as error:
+            result = dict(result,status='error',outcome=None,detail='Invalid warnings: '+str(error))
     if inspection and result['status']=='ok':
         try:
             validate_inspection(generation,read(directory/'inspection.json'))
@@ -232,15 +265,17 @@ def run_case(tools, case, output):
     output.mkdir(parents=True,exist_ok=False)
     oracle.write(output/'case.json',case)
     oracle.write(output/'source-identity.json',identity())
-    oracle.write(output/'profile.json',build.profile())
+    oracle.write(output/'profile.json',build.profile(candidate(tools)))
     shutil.copyfile(tools['build'],output/'build.json')
     result = dict(status='error', checks=[])
     try:
-        original = capture(tools,inputs(case,tools),case['entry'],output/'original')
+        original = capture(tools,inputs(case,tools),case['entry'],output/'original',
+            **({'backend':case['backend']} if 'backend' in case else {}))
         if original['status']!='captured':
             result.update(status=original['status'],detail=original.get('detail'),outputs=original.get('outputs'))
         else:
-            explicit = capture(tools,{'explicit.cfr':original['explicit'].encode()},'explicit.cfr',output/'explicit')
+            explicit = capture(tools,{'explicit.cfr':original['explicit'].encode()},'explicit.cfr',output/'explicit',
+                **({'backend':case['backend']} if 'backend' in case else {}))
             protocol.require(explicit['status']=='captured','Explicit recompile failed: '+str(explicit))
             result['fixed_point'] = original['explicit']==explicit['explicit']
             protocol.require(result['fixed_point'],'Explicit corpus fixed point failed')
@@ -277,6 +312,9 @@ def run_case(tools, case, output):
                 if not result['agreement']: result['status']='discrepancy'
                 if 'expected' in case:
                     result['expected_match'] = [c['original_outcome'] for c in result['checks']]==case['expected']
+                    if 'expected_explicit' in case:
+                        result['expected_match'] = result['expected_match'] and [c['explicit_outcome']
+                            for c in result['checks']]==case['expected_explicit']
                     if not result['expected_match']: result['status']='unexpected_outcome'
                 result['assertions_nonvacuous'] = all(c['original_outcome']=='sat' and c['explicit_outcome']=='sat'
                     for c in result['checks'][:1]) if len(result['checks']) > 1 else None
@@ -299,13 +337,13 @@ def replay(tools, bundle, output):
         path = (bundle/name).resolve()
         protocol.require(path.is_relative_to(bundle) and oracle.digest(path)==digest,'Replay artifact changed: '+name)
     protocol.require(read(bundle/'source-identity.json')==identity(),'Replay adapter source changed')
-    protocol.require(read(bundle/'profile.json')==build.profile(),'Replay revision/profile changed')
+    protocol.require(read(bundle/'profile.json')==build.profile(candidate(tools)),'Replay revision/profile changed')
     protocol.require(oracle.digest(bundle/'build.json')==oracle.digest(tools['build']), 'Replay build changed')
     if (bundle/'historical').exists():
         protocol.require('old' in tools and oracle.digest(bundle/'historical/build.json')==oracle.digest(tools['old']['build']),
                          'Historical replay build changed')
     case = read(bundle/'case.json')
-    protocol.require(case in read(CORPUS)['cases'], 'Replay fixture is not registered')
+    protocol.require(case in read(corpus(tools))['cases'], 'Replay fixture is not registered')
     result = run_case(tools,case,output)
     protocol.require(result['status']==case.get('expected_status','ok'), 'Fresh replay did not complete')
     for mode in ('original','explicit'):
@@ -326,6 +364,7 @@ def main():
     p = sub.add_parser('prepare')
     p.add_argument('--static-tools',required=True,type=Path)
     p.add_argument('--build-cache',required=True,type=Path)
+    p.add_argument('--candidate',choices=build.PROFILES,default='9a0f16e')
     p.add_argument('output',type=Path)
     for name in ('run','suite','replay'):
         p = sub.add_parser(name)
@@ -336,12 +375,12 @@ def main():
         p.add_argument('output',type=Path)
     args = cli.parse_args()
     if args.command=='prepare':
-        print(prepare(args.static_tools,args.build_cache,args.output)); return 0
+        print(prepare(args.static_tools,args.build_cache,args.output,args.candidate)); return 0
     tools = load_tools(args.tools)
     if args.old_tools: tools['old'] = temporal.load_tools(args.old_tools)
     if args.command=='replay':
         print(json.dumps(replay(tools,args.bundle,args.output))); return 0
-    cases = read(CORPUS)['cases']
+    cases = read(corpus(tools))['cases']
     if args.command=='run': cases = [c for c in cases if c['id']==args.case]
     protocol.require(bool(cases),'Unknown PR113 case')
     ok = True

@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, CPP #-}
 -- Original MIT adapter. All compiler algorithms are calls into the pinned library.
 module Main where
 import Data.Aeson (Value, object, (.=), encode)
@@ -10,6 +10,7 @@ import qualified Language.Clafer as C
 import qualified Language.Clafer.ClaferArgs as A
 import Language.Clafer.Common (createUidIClaferMap, isDynamicModule, GEnv(..))
 import Language.Clafer.Generator.AlloyNames (alloyNames, toAlloyNames)
+import qualified Language.Clafer.Generator.Alloy as Static
 import Language.Clafer.Generator.AlloyLtl (genAlloyLtlModule)
 import Language.Clafer.Generator.Explicit (genExplicitModule)
 import Language.Clafer.Import (readModel, modelText, ModelFile(..))
@@ -17,6 +18,13 @@ import Language.Clafer.Intermediate.Intclafer
 import Language.Clafer.Intermediate.StringAnalyzer (astrModule)
 import Language.Clafer.QNameUID (deriveQNameMaps)
 import Language.Clafer.JSONMetaData (generateJSONScopes)
+
+revision :: String
+#ifdef CANDIDATE_C7
+revision = "c7a2fb7d0ba601f52efeac459d12f859a40580fe"
+#else
+revision = "9a0f16ed18bdfb5277bedcc6577731f4b422be77"
+#endif
 
 options :: A.ClaferArgs
 options = A.claferDefaults { A.mode = [A.JSON, A.Alloy, A.AlloyLtl, A.Clafer, A.Choco],
@@ -48,7 +56,7 @@ capture args files = C.runClafer args $ do
   let cargs = C.args env
       result = M.mapKeys show (M.map output outputs)
       common = ["schema" .= ("clafer-pr113-generation/1" :: String),
-        "compiler_commit" .= ("9a0f16ed18bdfb5277bedcc6577731f4b422be77" :: String),
+        "compiler_commit" .= revision,
         "effective_options" .= show cargs, "trace_length" .= A.trace_len cargs,
         "files" .= [object ["path" .= modelFilePath f, "text" .= modelFileText f] | f <- files],
         "post_analysis" .= im, "outputs" .= result]
@@ -62,7 +70,8 @@ capture args files = C.runClafer args $ do
           scopesA = [(M.findWithDefault u u names, n) | (u,n) <- scopes]
           -- Reproduce generate's backend invocation on its captured input and require
           -- complete output equality downstream; no guessed inverse name transformation.
-          backend = fst $ genAlloyLtlModule cargs{A.mode=[A.Alloy,A.AlloyLtl]}
+          backendResult = (if C.extension a == "als" then Static.genModule else genAlloyLtlModule)
+            cargs{A.mode=if C.extension a == "als" then [A.Alloy] else [A.Alloy,A.AlloyLtl]}
             (renamed, envA) scopesA (C.otherTokens env)
           static = not (isDynamicModule im)
           explicit = genExplicitModule (im,genv) scopes (A.minint cargs,A.maxint cargs)
@@ -73,17 +82,25 @@ capture args files = C.runClafer args $ do
           "explicit_observed" .= fst explicit, "explicit_scopes" .= snd explicit,
           "original_scopes" .= generateJSONScopes (deriveQNameMaps im) scopes,
           "scopes" .= scopes, "backend_input" .= input, "backend_ir" .= renamed,
-          "backend_alloy" .= backend,
+          "backend_alloy" .= fst backendResult,
+#ifdef CANDIDATE_C7
+          "source_map" .= show (C.mappingToAlloy a), "backend_map" .= show (snd backendResult),
+#endif
           "names" .= M.fromList [(_uid c, M.findWithDefault (_uid c) (_uid c) names) | c <- rows input]]
     _ -> object $ common ++ ["status" .= ("unsupported" :: String)]
 
 main :: IO ()
 main = do
   hSetEncoding stdout utf8
-  paths <- getArgs
+  argv <- getArgs
+  let (selected, paths) = case argv of
+#ifdef CANDIDATE_C7
+        "--static":rest -> (options{A.mode=[A.JSON,A.Alloy,A.Clafer,A.Choco]},rest)
+#endif
+        _ -> (options,argv)
   case paths of
     [path] -> do
-      model <- readModel options{A.file=path}
+      model <- readModel selected{A.file=path}
       B.putStrLn $ encode $ case model of
         Left err -> object ["status" .= ("malformed" :: String), "detail" .= err]
         Right (args, files) -> case capture args files of

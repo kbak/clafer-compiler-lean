@@ -1,0 +1,15 @@
+//# OPTIONS --tl=4
+thisThing ?
+[ initially (no thisThing || some thisThing) ]
+owner 2
+  child ?
+  [ this.child in this.child ]
+  [ no child || some child ]
+  assert [ this.child in this.child ]
+  assert [ no child || some child ]
+[ this = this ]
+[ no thisThing || some thisThing ]
+assert [ this = this ]
+assert [ no thisThing || some thisThing ]
+assert [ no this ]
+// Original MIT qualification fixture.

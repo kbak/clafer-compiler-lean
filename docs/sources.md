@@ -567,6 +567,37 @@ licenses, fresh execution and proof boundaries.
 | Temporal explicit output | No qualified explicit output | 64 temporal sources plus one static example, fresh fixed points and bounded queries | Exact lassos and Lean explicit-form proofs remain separate |
 | Primary source adoption | Retained | Pending independent delta review | No implicit release/main acceptance |
 
+### PR113 union and root-binding delta
+
+The successor candidate pins
+[`c7a2fb7d0ba601f52efeac459d12f859a40580fe`](https://github.com/gsdlab/clafer/tree/c7a2fb7d0ba601f52efeac459d12f859a40580fe)
+without replacing either prior profile. Its [delta inventory](../tests/fixtures/pr113/c7-delta.json)
+records all four commits and all 240 changed files: 11 source, fixture, build and
+documentation files, and 229 generated regressions (164 explicit, 63 Alloy,
+one HTML and one graph). Generated outputs are source inventory, not fresh
+execution evidence. `src/clafer.cf`, `clafer.cabal`, `stack.yaml` and the MIT
+license are unchanged; Stack generates the same pinned lockfile.
+
+| Commit | Inspected boundary and disposition |
+| --- | --- |
+| `2c8022631fa5f214df32b40e28af5d642ba87212` | Static `Alloy.getTarget` and temporal `AlloyLtl.refType` emit signature unions for nested reference targets. The updated inherited fixture adds `garage.spare ++ gas`; explicit source retains target membership. |
+| `8298fbd8a7701351268615824d10140f02205299` | `Clafer.runValidate` propagates tool failures, `validateClafer` recompiles explicit output, and help/docs describe the CLI effect. Counterexamples remain completed results; the library exporter does not call this CLI validation path. |
+| `67324c57e7ccf3ac95b41c0607b865d845c33e48` | `Explicit.exExp` prints compact dot navigation, `diff-regressions.sh` uses exact comparison, and the positive runner parallelizes models. Its invalid-worker false-success remains a known infrastructure gap; this repository supervises its own complete runs. |
+| `c7a2fb7d0ba601f52efeac459d12f859a40580fe` | `AlloyLtl.forEveryInstance` binds root directly while retaining `always`; `bindTo` preserves token boundaries and `Concat` traces. Nested live guards are retained. Warnings are measured through Analyzer callbacks rather than inferred from the changelog. |
+
+Archive SHA-256:
+`8308153e08ea84828766bfb2b23851dfa01d362665c3fee3a739950412a99b63`.
+Canonical source inventory SHA-256:
+`82ec8f4eea219a567dd36b13eaede0223240fa73438bb46a18ce89b281df0bcf`.
+The [profile](../scripts/oracles/pr113-c7-profile.json) binds these identities,
+Stack/GHC, Alloy 6.2.0 and the unchanged lock hash. The
+[oracle contract](oracles.md#pr113-union-and-root-binding-candidate) records reuse,
+closed union correspondence, exact output, warning evidence, static/backend
+separation, the retained top-level `this.item` parser failure and the live-union-target
+soundness discrepancy (original SAT versus explicit bounded UNSAT). No native Lean
+expression-valued reference support or upstream resolved-import change is adopted.
+Independent candidate review and any later release delta remain required.
+
 The [official Alloy 6 reference](https://alloytools.org/alloy6.html) supplies the
 independent temporal construct guide: mutable signatures/fields, ordinary temporal
 operators, lasso instances and explicit `steps`. Reuse the existing Alloy 6.2.0

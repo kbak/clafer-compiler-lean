@@ -128,7 +128,10 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
                '-XX:ReservedCodeCacheSize=64m','-XX:CompressedClassSpaceSize=64m']
     command = [str(runtime['java']), *options, '-cp', os.pathsep.join(
         map(str,(runtime['classes'],runtime['jar'])))]
-    command += ['AlloyPR113Inspect', '--solve'] if inspection else ['AlloyTemporalBridge']
+    flag = '--solve'
+    if runtime.get('pr113_candidate') == 'c7a2fb7':
+        flag = '--solve-static-c7' if runtime.get('static_backend') else '--solve-c7'
+    command += ['AlloyPR113Inspect', flag] if inspection else ['AlloyTemporalBridge']
     address = heap_mb+2048
     receipt = dict(identity=runtime['identity'],
         bridge=runtime['temporal_bridge'], command=command, timeout_seconds=timeout,
@@ -161,7 +164,11 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
             if result['options'] != expected:
                 raise ValueError('Unexpected effective solver options')
             if result['outcome']=='sat':
-                validate_trace(result['trace'],request)
+                integer_fields = set()
+                if runtime.get('pr113_candidate')=='c7a2fb7' and runtime.get('static_backend'):
+                    observed = read(directory/'inspection.json')
+                    integer_fields = {k for k,f in observed['fields'].items() if f['targets']==['Int']}
+                validate_trace(result['trace'],request,integer_fields=integer_fields)
             if inspection:
                 try:
                     observed = read(directory/'inspection.json')
@@ -177,7 +184,7 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
         return interrupted(directory,'error','Invalid solver output: '+str(error))
 
 
-def validate_trace(trace, request):
+def validate_trace(trace, request, *, integer_fields=()):
     n,loop,frames=trace['length'],trace['loop'],trace['frames']
     if type(n) is not int or type(loop) is not int or not 0<=loop<n or len(frames)!=n:
         raise ValueError('Malformed lasso')
@@ -208,7 +215,13 @@ def validate_trace(trace, request):
             raise ValueError('Trace field inventory changed')
         for name,spec in trace['fields'].items():
             rows=frame['fields'][name]
-            if any(len(row)!=spec['arity'] or any(atom not in union for atom in row) for row in rows):
+            def admitted(i, atom):
+                if atom in union: return True
+                if name not in integer_fields or i!=1: return False
+                try: value = int(atom)
+                except (TypeError,ValueError): return False
+                return str(value)==atom and -(2**(request['bitwidth']-1)) <= value < 2**(request['bitwidth']-1)
+            if any(len(row)!=spec['arity'] or any(not admitted(i,atom) for i,atom in enumerate(row)) for row in rows):
                 raise ValueError('Malformed or foreign field tuple')
             if not spec['mutable'] and rows!=frames[0]['fields'][name]:
                 raise ValueError('Immutable field changed')

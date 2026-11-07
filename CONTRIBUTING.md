@@ -109,6 +109,10 @@ python3 scripts/oracles/pr113.py prepare \
   --static-tools "$CLAFER_ORACLE_TOOLS" \
   --build-cache /tmp/clafer-pr113-build-UNIQUE /tmp/clafer-pr113-tools-UNIQUE
 export CLAFER_PR113_TOOLS=/tmp/clafer-pr113-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-pr113-c7-build-UNIQUE /tmp/clafer-pr113-c7-tools-UNIQUE
+export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
 ```
 
 This fetches source and an optional Mathlib cache, builds the upstream dependency,

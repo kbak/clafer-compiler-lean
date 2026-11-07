@@ -1,0 +1,44 @@
+{
+  "alloy_jar_sha256": "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d",
+  "alloy_version": "6.2.0",
+  "bounds": {
+    "bitwidth": 8,
+    "max_steps": 10,
+    "min_steps": 1,
+    "overall": 1
+  },
+  "compiler_archive_sha256": "8308153e08ea84828766bfb2b23851dfa01d362665c3fee3a739950412a99b63",
+  "ghc": "9.6.7",
+  "haskell_commit": "c7a2fb7d0ba601f52efeac459d12f859a40580fe",
+  "haskell_version": "0.5.7",
+  "java_major": 17,
+  "options": {
+    "coreGranularity": 0,
+    "coreMinimization": 2,
+    "decompose_mode": 0,
+    "decompose_threads": 1,
+    "inferPartialInstance": false,
+    "noOverflow": true,
+    "originalFilename": "model.als",
+    "recordKodkod": false,
+    "skolemDepth": 0,
+    "solverDirectory": "",
+    "symmetry": 0,
+    "tempDirectory": ".",
+    "unrolls": -1
+  },
+  "profile": "behavioral-pr113-c7a2fb7/v1",
+  "resolver": "lts-22.44",
+  "resources": {
+    "heap_mb": 512,
+    "timeout": 30
+  },
+  "schema": "clafer-temporal-oracle-profile/1",
+  "solver": "sat4j",
+  "source_tree_sha256": "82ec8f4eea219a567dd36b13eaede0223240fa73438bb46a18ce89b281df0bcf",
+  "stack": "3.11.1",
+  "stack_lock": {
+    "bytes": 1410,
+    "sha256": "2bed95387bc9ad79df4f70de77a9c7e468125c10a09a68a42da233434b59acff"
+  }
+}
