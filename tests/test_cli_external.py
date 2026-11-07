@@ -159,3 +159,13 @@ class CLIExternalTests(unittest.TestCase):
         self.run_recorded('host-source',[self.exe,'compile-source','two-values.cfr','--bounds',
                            'two-values.bounds.json','--output','source-host.als'],cwd=work)
         self.assertEqual((work/'source-isolated.als').read_bytes(),(work/'source-host.als').read_bytes())
+
+        # [utest->req~compiler-behavioral-cli~1]
+        for name in ['input.json', 'bounds.json']:
+            shutil.copyfile(ROOT/'tests/fixtures/behavioral-cli'/name,work/('behavioral-'+name))
+        for label,exe,prefix in [('isolated','/compiler',command),('host',self.exe,[])]:
+            self.run_recorded('behavioral-'+label,[*prefix,exe,'compile-behavioral-ir',
+                'behavioral-input.json','--bounds','behavioral-bounds.json',
+                '--output','behavioral-'+label+'.json','--format','json'],cwd=work)
+        self.assertEqual((work/'behavioral-isolated.json').read_bytes(),(work/'behavioral-host.json').read_bytes())
+        self.assertEqual(json.loads((work/'behavioral-isolated.json').read_bytes())['profile'],'behavioral-core/1')

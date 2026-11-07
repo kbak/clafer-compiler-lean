@@ -1,0 +1,137 @@
+{
+  "version": "clafer-behavioral-ir/1",
+  "profile": "behavioral-core/1",
+  "structure": {
+    "version": "clafer-ir/1",
+    "profile": "m1-effective",
+    "root": 0,
+    "declarations": [
+      {
+        "id": 0,
+        "name": "root",
+        "origin": "root",
+        "parent": null,
+        "super": null,
+        "reference": {
+          "kind": "basic"
+        },
+        "isAbstract": false,
+        "localBounds": {
+          "lower": 0,
+          "upper": "*"
+        },
+        "groupBounds": {
+          "lower": 0,
+          "upper": "*"
+        },
+        "source": null,
+        "authored": null
+      },
+      {
+        "id": 1,
+        "name": "machine",
+        "origin": "user",
+        "parent": 0,
+        "super": null,
+        "reference": {
+          "kind": "basic"
+        },
+        "isAbstract": false,
+        "localBounds": {
+          "lower": 0,
+          "upper": 1
+        },
+        "groupBounds": {
+          "lower": 0,
+          "upper": "*"
+        },
+        "source": null,
+        "authored": null
+      },
+      {
+        "id": 2,
+        "name": "ctx",
+        "origin": "user",
+        "parent": 1,
+        "super": null,
+        "reference": {
+          "kind": "basic"
+        },
+        "isAbstract": false,
+        "localBounds": {
+          "lower": 0,
+          "upper": 1
+        },
+        "groupBounds": {
+          "lower": 0,
+          "upper": "*"
+        },
+        "source": null,
+        "authored": null
+      },
+      {
+        "id": 3,
+        "name": "error",
+        "origin": "user",
+        "parent": 2,
+        "super": null,
+        "reference": {
+          "kind": "basic"
+        },
+        "isAbstract": false,
+        "localBounds": {
+          "lower": 0,
+          "upper": 1
+        },
+        "groupBounds": {
+          "lower": 0,
+          "upper": "*"
+        },
+        "source": null,
+        "authored": null
+      }
+    ],
+    "parentRanks": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "superRanks": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "unused": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "attachments": [
+    {
+      "id": 40,
+      "owner": 2,
+      "kind": "constraint",
+      "body": [
+        "eventually",
+        [
+          "atom",
+          [
+            "inhabited",
+            [
+              "thisStep",
+              [
+                "child",
+                3
+              ]
+            ]
+          ]
+        ]
+      ],
+      "source": null
+    }
+  ]
+}

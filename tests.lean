@@ -13,5 +13,6 @@ public import ClaferCompiler.SemanticsBridge.Behavioral.Binders
 public import ClaferCompiler.SemanticsBridge.Behavioral.Properties
 
 public import tests.BehavioralElaborationNative
+public import tests.TemporalComparisonNative
 
 public section

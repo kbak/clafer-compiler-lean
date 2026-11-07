@@ -52,6 +52,14 @@ exercise compiler-generated modules, counterexamples and native witness replay.
 These are separate from the full-profile qualification gate and the static
 inventory below.
 
+The [resolved temporal runtime](temporal-comparison.md) supplies actual-output
+decoding, verified finite source evaluation and exact three-way trace fixing.
+Its corpus distinguishes cancellation and source negation, replacement under a
+surviving parent, reappearance, frozen captures and loop edges. Decoder mutations,
+injected discrepancies, replay tampering and runtime isolation test the external
+boundaries. This is first-slice evidence with manually paired source/IR formulas;
+it does not qualify the full source frontend or later Haskell profiles.
+
 ## Reuse assessment
 
 The existing mandatory check already inventories every Lean module, builds the
