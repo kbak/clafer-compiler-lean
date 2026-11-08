@@ -5,6 +5,11 @@ and produces [typed static expressions](expressions.md). It retains authored
 source locations and the backend's independent definedness, finite-observation
 and overflow obligations.
 
+The behavioral compiler separately selects
+[literal-rooted empty navigation and warnings](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings).
+That source amendment does not relax this static elaborator's missing/ambiguous
+navigation checks or change its regression baseline.
+
 ## Reuse assessment
 
 The elaborator reuses `Frontend.Surface`, `Resolution.Candidate`, the source

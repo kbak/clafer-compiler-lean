@@ -159,6 +159,36 @@ def compile (file source boundsFile boundsText : String) (query : Query := .mode
       message := "generated temporal text failed checked reconstruction" : Diagnostic }
   return ⟨p, r, b, fuel, out.val, rendered.text, rendered.mappings, encoded.json, out.property⟩
 
+/-- Additive reporting API; the compiled product and its closed schema are unchanged. -/
+structure Report where
+  product : Product
+  warnings : List Frontend.Behavioral.Warning
+
+-- [impl->req~compiler-diagnostics~1]
+-- [impl->req~compiler-behavioral-integration~1]
+def compileReport (file source boundsFile boundsText : String) (query : Query := .model)
+    (objects bitwidth : Option Nat := none) : Except Diagnostic Report := do
+  let product ← compile file source boundsFile boundsText query objects bitwidth
+  let scenarioWarnings ← match query with
+    | .run s => do
+      let doc ← Frontend.Behavioral.parseBehavioral IR.BehavioralStructural.profile s.file s.text
+        |>.mapError Diagnostic.ofSource
+      pure (Frontend.Behavioral.Warnings.document doc)
+    | _ => pure []
+  return ⟨product, Frontend.Behavioral.Warnings.document product.parsed.source ++ scenarioWarnings⟩
+
+-- [impl->req~compiler-diagnostics~1]
+def warningJson (w : Frontend.Behavioral.Warning) : Json :=
+  Json.mkObj [("version", toJson "clafer-warning/1"), ("severity", toJson "warning"),
+    ("code", toJson w.code), ("phase", toJson "elaboration"), ("message", toJson w.message),
+    ("operator", toJson w.operator), ("primary", Json.mkObj [
+      ("kind", toJson "source"), ("file", toJson w.primary.file),
+      ("startByte", toJson w.primary.startByte), ("endByte", toJson w.primary.endByte),
+      ("line", toJson w.line), ("column", toJson w.column)])]
+
+def warningText (w : Frontend.Behavioral.Warning) : String :=
+  s!"{w.primary.file}:{w.line}:{w.column}: warning [{w.code}]: {w.message}"
+
 def constraintJson (m : IR.Structural.Core k) (c : Behavioral.Full.Constraint k) : Json :=
   Json.mkObj [("owner", toJson (m.get c.owner).id), ("source", sourceSpanJson c.source)]
 

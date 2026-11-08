@@ -51,6 +51,7 @@ class BehavioralElaborationTests(unittest.TestCase):
             'ClaferCompiler.Frontend.Behavioral.Modifiers',
             'ClaferCompiler.Frontend.Behavioral.Headers',
             'ClaferCompiler.IR.Behavioral.Properties',
+            'ClaferCompiler.Frontend.Behavioral.Warnings',
             'ClaferCompiler.Frontend.Behavioral.Elaborate',
             'tests.BehavioralElaborationNative',
         ], 'tests.BehavioralElaborationNative',

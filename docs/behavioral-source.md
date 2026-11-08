@@ -101,6 +101,32 @@ fields, noncanonical integer tokens, missing scopes and wrong versions/profiles
 are errors. Source failures retain UTF-8 byte offsets and line/column diagnostics;
 range failures identify the offending authored body when available.
 
+## Successful warning protocol
+
+`Driver.BehavioralSource.compileReport` adds a `Report` with the existing `Product`
+and a list of `Frontend.Behavioral.Warning`. It collects authored-model warnings
+after full compilation, followed by warnings from the selected scenario. Each
+document is ordered by source start byte, with enclosing expressions first on
+ties. Assertions are part of the authored inventory even when not selected.
+Scenario source is parsed again for reporting after its request has succeeded;
+the established request/product APIs and closed compilation schema stay unchanged.
+
+The CLI writes successful warnings to stderr and returns exit `0`. Alloy or JSON
+stdout and output files contain only the existing compilation product. Under
+`--diagnostics json`, stderr is newline-delimited JSON with one `clafer-warning/1`
+record per warning: `version`, `severity` (`warning`), `code`, `phase`
+(`elaboration`), `message`, `operator` and `primary`. The primary location has
+`kind` (`source`), logical `file`, zero-based half-open UTF-8 `startByte`/`endByte`
+and one-based `line`/scalar `column`. Text mode prints the location, warning code
+and message. Codes, severity, operators and locations are stable; English wording
+is not. The [frontend contract](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings)
+defines the two warning codes and exact detection policy.
+
+Warnings appear only after successful compilation and output writing. Failures
+retain the existing single error protocol and exit category, without partial
+warning output. `--version` identifies the source policy and warning schema.
+Static source and resolved-IR commands retain their existing behavior.
+
 ## Composition and assurance
 
 `Driver.BehavioralSource.compile` calls the actual parser/elaborator, property
