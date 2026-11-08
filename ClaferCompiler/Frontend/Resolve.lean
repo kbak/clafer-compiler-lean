@@ -1,6 +1,7 @@
 module
 
 public import ClaferCompiler.Frontend.Defaults
+public import ClaferCompiler.IR.StructuralNormalization
 
 @[expose] public section
 namespace ClaferCompiler.Frontend.Resolution
@@ -230,11 +231,23 @@ def constraints (doc : Document) (c : Candidate n) (i : Fin n) : List (List Expr
     else (c.paths[i].bind (childrenAt doc)).getD []
   es.filterMap (fun e => match e with | .constraint bodies span => some (bodies, span) | _ => none)
 
+-- [impl->req~compiler-resolved-normalization~1]
 /-- Explicit effective-only M1 projection. Parentless local slots have no parent
 fiber and are normalized to unrestricted; authored records remain unchanged. -/
 def m1Core (c : Candidate n) : Core n :=
-  { c.core with declarations := c.core.declarations.map (fun d =>
-      if d.parent.isNone && d.isAbstract then { d with localBounds := {} } else d) }
+  Normalization.normalize c.core
+
+-- [proof->req~compiler-resolved-normalization~1]
+/-- Exact equality with the source projection's original transformation. -/
+theorem m1Core_eq (c : Candidate n) : m1Core c =
+    { c.core with declarations := c.core.declarations.map (fun d =>
+      if d.parent.isNone && d.isAbstract then { d with localBounds := {} } else d) } := by
+  unfold m1Core Normalization.normalize
+  congr 1
+  apply Vector.ext
+  intro i hi
+  simp only [Vector.getElem_map, Normalization.declaration]
+  split <;> rfl
 
 def toM1 (doc : Document) (e : Elaborated doc) : Except Diagnostic (Validated e.count) := do
   let c := e.candidate

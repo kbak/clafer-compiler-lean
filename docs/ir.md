@@ -58,6 +58,102 @@ AST. Keyword provenance and authored elaboration are retained by the separate
 effective-core interpretation is sufficient for M1; building
 an AST here would invent missing authored/default information.
 
+## Resolved structural normalization
+
+[`IR.Structural.Normalization`](../ClaferCompiler/IR/StructuralNormalization.lean)
+provides a library pass over the existing resolved tables. `normalize` sets
+`localBounds` to `0..*` exactly when a declaration is parentless and abstract.
+For example, an admitted unused abstract chain with `0..0` slots becomes an
+unrestricted chain while retaining the original checked `unused` flags. Its
+normal form is the independently stated `NormalForm` field predicate.
+This canonicalizes one semantically irrelevant slot, not all equivalent models.
+
+`normalize : Core n → Core n` is a pure projection and does not admit its input.
+`admitted : Validated n → Validated n` is total and preserves the exact certificate.
+`checked : Core n → Certificate n → Except Diagnostic (Validated n)` first runs
+the existing `validate` on the original input. It preserves every validation
+error, so a bad abstract interval or missing unused certificate cannot disappear
+through rewriting. Raw IDs, metadata spans, version/profile and JSON decoding
+retain their existing validation boundaries. The typed-core API does not add
+checks beyond `validate`.
+
+The pass retains declaration count/order, identities and names, root, origins,
+parent/super/reference edges, reference mode, abstractness, group bounds, source
+spans and authored metadata. Parented local bounds and the concrete root's local
+slot are unchanged. An authored `0..0` observation may therefore coexist with a
+normalized effective `0..*` slot; the authored record remains opaque provenance.
+Full structural equality includes that metadata. No fields are discarded for
+comparison and no byte-equality, source-parser or JSON round-trip claim is made.
+Solver scopes and options are not inputs to this library pass. Existing ID-keyed
+scopes need no remapping because IDs and declaration order are unchanged.
+
+The [source resolver](resolution.md) reuses `normalize` in `m1Core`.
+`Frontend.Resolution.m1Core_eq` proves exact equality with its previous field
+projection. That source conversion continues to check source correspondence
+before projection and exact M1 admission afterward. It does not use the new
+checked typed-M1 API, which would reject some pre-projection source slots.
+The source conversion's domain and diagnostics remain unchanged.
+
+### Reuse and evidence
+
+The implementation extracts the existing `m1Core` rule and reuses `Core`,
+`Declaration`, `Certificate`, `Validated`, `validate`, and Std vector mapping
+and equality. Pinned upstream `Configuration.Multiplicities` constrains only
+actual parent fibers; `StructuralSatisfies` supplies independent whole-model
+meaning. Existing native fixtures, linking and unittest infrastructure supply
+runtime coverage. Alloy printers handle a different output language; Haskell
+explicit-output qualification cannot establish this Lean IR theorem. No new
+library, runtime or license dependency is introduced; existing MIT code and
+Apache-2.0 Lean primitives suffice.
+
+`impl~compiler-resolved-normalization~1`
+
+The runtime module above implements `NormalForm`, `normalize`, `admitted` and
+`checked`; `Frontend.Resolution.m1Core` uses the same projection.
+
+Covers:
+- `req~compiler-resolved-normalization~1`
+
+`proof~compiler-resolved-normalization~1`
+
+The runtime module proves `normal_form`, `fixed` and `idempotent` for every
+`Core n`. `declaration_preserves`, `get_normalize` and `root_preserved` expose
+exact unchanged data. `unchanged` preserves whole parented or concrete rows,
+and `admitted_certificate` preserves certificate data. `core_checked` and
+`support_checked` retain the original
+certificate guards. `admitted_fixed`, `admitted_idempotent`, `checked_admitted`,
+`checked_fixed` and `checked_again` establish successful fixed points on admitted
+inputs. `checked_success` gives normal form and unchanged successful rechecking
+for every successful checked result; `checked_error` preserves every original
+typed validation error.
+
+The [normalization bridge](../ClaferCompiler/SemanticsBridge/StructuralNormalization.lean)
+proves `multiplicities_iff` and `satisfies_iff` for the same upstream configuration
+in both directions, without finiteness, admission or satisfaction premises.
+`admitted_domain` supplies upstream well-formedness and support for validated
+output. First-pass semantic preservation is independent of idempotence. These
+proofs do not extend behavioral source normalization or prove native execution.
+
+Covers:
+- `req~compiler-resolved-normalization~1`
+
+`utest~compiler-resolved-normalization~1`
+
+[Kernel witnesses](../tests/StructuralNormalization.lean) and
+[native tests](../tests/StructuralNormalizationNative.lean) check a nontrivial
+unused abstract chain with arbitrary IDs, a nonzero root index, repeated and
+punctuation-heavy names, set/bag references and retained provenance. Independent
+expected output checks the first pass; the second must preserve the entire core
+and certificate. Invalid interval and missing-unused witnesses would pass if
+rewriting preceded admission; the checked API must reject them. Tests preserve
+parented abstract bounds in the pure projection and reuse existing typed
+admission fixtures. The [native runner](../tests/test_structural_ir.py) executes
+these checks in the mandatory regression suite. Source parsing and native
+execution retain their existing tested boundaries.
+
+Covers:
+- `req~compiler-resolved-normalization~1`
+
 ## Developer interchange contract
 
 [clafer-ir-1.schema.json](../schemas/clafer-ir-1.schema.json) specifies the JSON

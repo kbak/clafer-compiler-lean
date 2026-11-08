@@ -15,7 +15,7 @@ class BehavioralElaborationTests(unittest.TestCase):
             'ClaferCompiler.Frontend.Defaults',
             'ClaferCompiler.IR.BehavioralStructural',
             'ClaferCompiler.Frontend.Behavioral.Parser',
-            'ClaferCompiler.Frontend.Resolve',
+            'ClaferCompiler.Frontend.Resolve', 'ClaferCompiler.IR.StructuralNormalization',
             'ClaferCompiler.IR.Behavioral.Syntax',
             'ClaferCompiler.IR.Expr',
             'ClaferCompiler.IR.ExprBounds',

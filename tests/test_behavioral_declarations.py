@@ -9,6 +9,7 @@ class BehavioralDeclarationsTests(unittest.TestCase):
         result = run_native(self, [
             'ClaferCompiler.IR.Structural', 'ClaferCompiler.Frontend.Surface',
             'ClaferCompiler.Frontend.Defaults', 'ClaferCompiler.Frontend.Resolve',
+            'ClaferCompiler.IR.StructuralNormalization',
             'ClaferCompiler.IR.BehavioralStructural',
             'ClaferCompiler.Frontend.BehavioralResolution',
             'ClaferCompiler.Frontend.BehavioralDeclarations',

@@ -136,7 +136,7 @@ and semantic acceptance require explicit review; see the
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
-- [IR](ir.md): executable declarations and exact upstream admission proofs.
+- [IR](ir.md): executable declarations, resolved structural normalization and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
 - [Behavioral encoding](behavioral-encoding.md): temporal lowering, global identities, snapshot correspondence and bounded evidence.
 - [Temporal comparison and resolved CLI](temporal-comparison.md): strict schemas, exact lassos, verified evaluation, replay and runtime boundaries.

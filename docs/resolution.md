@@ -105,7 +105,10 @@ existing exact M1 admission. Integer primitives and inherited ordinary fields ar
 therefore rejected by that conversion. It normalizes only parentless abstract
 local slots to `0..*`, since there is no parent fiber; source effective/authored
 records remain available in the original candidate. The admitted result preserves
-all other fields and metadata. No v1 schema or backend guard changes.
+all other fields and metadata. The projection reuses the
+[resolved structural normalizer](ir.md#resolved-structural-normalization);
+`m1Core_eq` proves equality with the existing transformation. No v1 schema or
+backend guard changes.
 
 ## Proof and runtime boundary
 
