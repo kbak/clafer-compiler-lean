@@ -28,7 +28,8 @@ class ConstraintTests(unittest.TestCase):
         cls.output = Path(tempfile.mkdtemp(prefix='constraints-', dir=parent))
         print(f'Constraint evidence: {cls.output}', flush=True)
         cls.serial = 0
-        cls.modules = ['tests.ConstraintsNative', 'ClaferCompiler.IR.Structural', 'ClaferCompiler.IR.Expr',
+        cls.modules = ['tests.ConstraintsNative', 'ClaferCompiler.IR.Structural',
+                       'ClaferCompiler.IR.StructuralNormalization', 'ClaferCompiler.IR.Expr',
                        *(f'ClaferCompiler.Frontend.{m}' for m in
                          ['Surface', 'Lexer', 'Parser', 'Defaults', 'Resolve', 'ConstraintsSupport',
                           'ConstraintsRules', 'ConstraintsNames', 'ConstraintsCoercions', 'ConstraintsOps', 'Constraints'])]

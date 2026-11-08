@@ -11,7 +11,7 @@ class BehavioralStructuralTests(unittest.TestCase):
             'ClaferCompiler.IR.Structural',
             'ClaferCompiler.Frontend.Surface', 'ClaferCompiler.Frontend.Defaults',
             'ClaferCompiler.Frontend.Lexer', 'ClaferCompiler.Frontend.Parser',
-            'ClaferCompiler.Frontend.Resolve',
+            'ClaferCompiler.Frontend.Resolve', 'ClaferCompiler.IR.StructuralNormalization',
             'ClaferCompiler.IR.Expr', 'ClaferCompiler.IR.ExprBounds',
             'ClaferCompiler.IR.ExprObservation',
             'ClaferCompiler.IR.BehavioralStructural',
