@@ -22,6 +22,7 @@ def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-sourc
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
   ++ "\nbehavioral-source: behavioral-0.5.7-candidate/v1; clafer-behavioral-bounds/2"
+  ++ "\nbehavioral-source-policy: literal-empty-navigation/1; warnings: clafer-warning/1"
 
 def usage : String := "usage: clafer-compiler --version | --help\n" ++
   "       clafer-compiler compile-ir INPUT --bounds BOUNDS --output OUTPUT\n" ++
@@ -213,21 +214,24 @@ def run (args : List String) : IO UInt32 := do
       | .ok bounds =>
         let query ← behavioralQuery opts
         let result := if opts.behavioralSource then
-          (query.bind fun q => BehavioralSource.compile (logicalFile opts.input) input
+          (query.bind fun q => BehavioralSource.compileReport (logicalFile opts.input) input
             (logicalFile opts.bounds) bounds q opts.objects opts.bitwidth).map (fun p =>
-              if opts.formatJson then p.json.compress ++ "\n" else p.text)
+              (if opts.formatJson then p.product.json.compress ++ "\n" else p.product.text, p.warnings))
         else if opts.behavioral then
           (Behavioral.compileText (logicalFile opts.input) input (logicalFile opts.bounds)
             bounds opts.objects opts.bitwidth).map (fun p =>
-              if opts.formatJson then p.json.compress ++ "\n" else p.text)
+              (if opts.formatJson then p.json.compress ++ "\n" else p.text, []))
         else if opts.source then
-          (compileSource (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (·.text)
-        else (compileText (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (·.text)
+          (compileSource (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (fun p => (p.text, []))
+        else (compileText (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.objects opts.bitwidth).map (fun p => (p.text, []))
         match result with
         | .error d => emitDiagnostic json d
         | .ok result =>
           try
-            writeOutput opts.output result
+            writeOutput opts.output result.1
+            for w in result.2 do
+              (← IO.getStderr).putStrLn (if json then (BehavioralSource.warningJson w).compress
+                else BehavioralSource.warningText w)
             return 0
           catch _ => emitDiagnostic json {
             code := "io.write", phase := "io", category := .operational, file := logicalFile opts.output

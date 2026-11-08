@@ -22,6 +22,13 @@ source truth. The Lake dependency pins accepted upstream main; its
 Haskell/Alloy comparison pins and regression corpus. Candidate acceptance still
 requires independent review.
 
+The scoped compiler source amendment
+[`literal-empty-navigation/1`](sources.md#behavioral-empty-navigation-and-warnings)
+adds literal-rooted name-chain erasure and nonfatal self-expression warnings.
+Its exact syntax, reporting and strict-domain boundaries are specified by the
+[frontend contract](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings).
+It preserves the primary profile pin, D1–D5 and all temporal meanings.
+
 Covers:
 - `req~compiler-behavioral-profile~1`
 

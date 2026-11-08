@@ -36,12 +36,19 @@ def certifiedAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owne
           let a ← next Γ cursor a
           let result ← lift (MonadAttach.attach (unary v op.text a.val))
           return ⟨result.val, .unary a.property (unary_sound v result.property)⟩
-      | .binary op a b _ => do
-        let a ← next Γ cursor a
+      | .binary op a b span => do
         if hop : op.text = "." then
-          let b ← next Γ (some a.val) b
-          return ⟨b.val, .dot hop a.property b.property⟩
+          match emptyNavigationAt (fuel + 1) (.binary op a b span) with
+          | none => throw (failure doc e "behavioral.expression-budget")
+          | some (.isTrue path) =>
+            let root ← lift (Names.name v owner Γ cursor "noclafer")
+            return ⟨root.value, .emptyNavigation path root.derivation⟩
+          | some (.isFalse ordinary) =>
+            let left ← next Γ cursor a
+            let right ← next Γ (some left.val) b
+            return ⟨right.val, .dot hop ordinary left.property right.property⟩
         else
+          let a ← next Γ cursor a
           let b ← next Γ cursor b
           let result ← lift (MonadAttach.attach (binary v op.text a.val b.val))
           return ⟨result.val, .binary a.property b.property (binary_sound result.property)⟩

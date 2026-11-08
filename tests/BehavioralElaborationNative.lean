@@ -316,6 +316,35 @@ def separateScenarios : IO Unit := do
           fail "scenario attachment or span changed"
       | _ => fail "scenario count changed"
 
+-- [utest->req~compiler-behavioral-elaboration~1]
+-- [utest->req~compiler-diagnostics~1]
+def emptyNavigationWarnings : IO Unit := do
+  for expression in ["noclafer.missing", "(noclafer).missing.parent.dref",
+      "noclafer.(missing.parent)", "(noclafer.missing).other", "noclafer.field",
+      "noclafer.this", "noclafer.noclafer"] do
+    let source := "P\n  field\nQ\n  field\n[no " ++ expression ++ "]\n"
+    let .ok report := parseAndElaborateReport IR.BehavioralStructural.profile "empty.cfr" source
+      | fail ("literal empty chain rejected: " ++ expression)
+    match ← body report.model with
+    | .not (.atom (.primitive (.inhabited (.set .empty)))) => pure ()
+    | _ => fail "literal navigation did not elaborate to unary empty"
+    unless report.warnings.length == 1 &&
+        report.warnings.all (·.code == "behavioral.empty-navigation") do
+      fail "maximal literal navigation must report once"
+  let m ← load "A ?\n[no (if 1 / 0 = 0 then A else A).(noclafer.missing)]\n"
+  match ← body m with
+  | .not (.atom (.primitive (.inhabited (.inter (.ite _ _ _) (.set .empty))))) => pure ()
+  | _ => fail "literal-tail rewrite erased partial cursor"
+  let m ← load "A ?\n[(1 / 0) = (1 / 0)]\n"
+  match ← body m with
+  | .atom (.primitive (.equal (.integer (.binary .divide _ _)) (.integer (.binary .divide _ _)))) => pure ()
+  | _ => fail "self equality was simplified before range admission"
+  let .ok report := parseAndElaborateReport IR.BehavioralStructural.profile "warnings.cfr"
+      "A ?\n[A = (A)]\n[A != A]\n[no (A -- A)]\n[some (A ** A)]\n"
+    | fail "self expressions rejected"
+  unless report.warnings.map (·.operator) == ["=", "!=", "--", "**"] do
+    fail "four nonfatal warnings must follow source order"
+
 def run : IO Unit := do
   captures
   arithmetic
@@ -327,6 +356,7 @@ def run : IO Unit := do
   correctedPatternAttachments
   separateScenarios
   diagnostics
+  emptyNavigationWarnings
   IO.println "behavioral source expressions, captures, arithmetic, surfaces and requests passed"
 
 end ClaferCompiler.Tests.BehavioralElaboration

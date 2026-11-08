@@ -2,6 +2,7 @@ module
 
 public import ClaferCompiler.Frontend.Behavioral.Parser
 public import ClaferCompiler.Frontend.Behavioral.Expressions
+public import ClaferCompiler.Frontend.Behavioral.Warnings
 public import ClaferCompiler.Frontend.Behavioral.Modifiers
 public import ClaferCompiler.Frontend.Behavioral.Headers
 public import ClaferCompiler.IR.Behavioral.Properties
@@ -108,6 +109,17 @@ structure ParsedModel where
 def parseAndElaborate (profile file source : String) : Except Diagnostic ParsedModel := do
   let doc ← parseBehavioral profile file source
   return ⟨doc, ← elaborate profile doc⟩
+
+/-- Reporting is additive: the existing parsed-model API and error type stay
+unchanged. Warnings are available only after the entire model elaborates. -/
+structure Report where
+  model : ParsedModel
+  warnings : List Warning
+
+-- [impl->req~compiler-diagnostics~1]
+def parseAndElaborateReport (profile file source : String) : Except Diagnostic Report := do
+  let model ← parseAndElaborate profile file source
+  return ⟨model, Warnings.document model.source⟩
 
 /-- An assertion index selects its full authored property. The request never
 source-negates its body; counterexamples negate complete property satisfaction. -/

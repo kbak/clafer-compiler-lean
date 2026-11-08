@@ -91,6 +91,34 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'changed replay inventory'):
             bs.replay(self.runtime,copied,self.output/'tampered-replay')
 
+    # [utest->req~compiler-behavioral-elaboration~1]
+    # [utest->req~compiler-diagnostics~1]
+    def test_empty_navigation_and_self_expression_outcomes(self):
+        tools = bh.pr113.load_tools(os.environ['CLAFER_PR113_C7_TOOLS'])
+        rows = [
+            ('unknown', 'no noclafer.missing', True),
+            ('nested', 'no (noclafer).(missing.parent.dref)', True),
+            ('empty-false', 'some noclafer.missing', False),
+            ('equal', 'A = (A)', True),
+            ('not-equal', 'A != A', False),
+            ('difference', 'no (A -- A)', True),
+            ('intersection', 'some (A ** A)', True),
+            ('safe-division', '(1 / 1) = (1 / 1)', True),
+            ('temporal', 'X no noclafer.missing', True),
+        ]
+        for name, expression, satisfied in rows:
+            c = case('A ?\n[' + expression + ']\n', 2, [(1, 1, 0)], [[1]])
+            with self.subTest(name=name):
+                result = self.runtime.compare(c, self.output / ('empty-self-' + name))
+                self.assertEqual(result, dict(status='complete',
+                    source='satisfied' if satisfied else 'violated',
+                    target='sat' if satisfied else 'bounded_unsat', directions=[]))
+                reference = bh.compare(self.runtime, tools, c, self.output / ('haskell-empty-self-' + name))
+                self.assertEqual(reference['directions'], [], reference)
+        c = case('P ?\n  field ?\nQ ?\n  field ?\n[no noclafer.field]\n', 5, [], [[]])
+        result = self.runtime.compare(c, self.output / 'empty-ambiguous')
+        self.assertEqual((result['source'], result['target'], result['directions']), ('satisfied', 'sat', []))
+
     def test_exact_populations_preserve_loose_bounds_and_empty_signatures(self):
         for present in (False,True):
             c=case('A ?\n[some A]\n',2,[(1,1,0)] if present else [],[[1]] if present else [[]])

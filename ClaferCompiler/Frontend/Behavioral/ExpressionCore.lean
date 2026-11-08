@@ -51,4 +51,80 @@ def operandsAt : Nat → (e : Expr) → Option {xs // Operands e xs} :=
       return ⟨a.val, .parens a.property⟩
     | e => if h : AtomicOperand e then some ⟨[e], .atomic h⟩ else none)
 
+/-- Only parsed navigation names form the skipped tail. Primitive extents keep
+ their existing rejection; scalar/formula expressions are not navigation names. -/
+inductive NamePath : Expr → Prop where
+  | name (ordinary : Resolution.integerName token.text = false) : NamePath (.name token)
+  | parens (body : NamePath e) : NamePath (.parens e span)
+  | dot (spelling : op.text = ".") (left : NamePath a) (right : NamePath b) :
+      NamePath (.binary op a b span)
+
+/-- A literal syntactic root, never a computed empty collection or an empty type. -/
+inductive EmptyPath : Expr → Prop where
+  | literal (spelling : token.text = "noclafer") : EmptyPath (.name token)
+  | parens (body : EmptyPath e) : EmptyPath (.parens e span)
+  | dot (spelling : op.text = ".") (left : EmptyPath a) (right : NamePath b) :
+      EmptyPath (.binary op a b span)
+
+inductive EmptyNavigation : Expr → Prop where
+  | dot (spelling : op.text = ".") (left : EmptyPath a) (right : NamePath b) :
+      EmptyNavigation (.binary op a b span)
+
+-- [impl->req~compiler-behavioral-elaboration~1]
+-- [proof->req~compiler-behavioral-elaboration~1]
+/-- A bounded decision carries either the path derivation or its negation.
+Exhaustion is separate from a negative decision and cannot select ordinary dot. -/
+def namePathAt : Nat → (e : Expr) → Option (Decidable (NamePath e)) :=
+  Nat.rec (fun _ => none) (fun _ next e => match e with
+    | .name token => some <| if h : Resolution.integerName token.text = false then
+        .isTrue (.name h) else .isFalse (by intro p; cases p; contradiction)
+    | .parens e _ => do
+        match ← next e with
+        | .isTrue h => return .isTrue (.parens h)
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+    | .binary op a b _ =>
+        if h : op.text = "." then do
+          match ← next a with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue left =>
+            match ← next b with
+            | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+            | .isTrue right => return .isTrue (.dot h left right)
+        else some (.isFalse (by intro p; cases p; contradiction))
+    | .integer .. | .unary .. | .quantified .. | .letSet .. | .conditional .. | .transition .. | .pattern .. =>
+        some (.isFalse (by intro p; cases p)))
+
+def emptyPathAt : Nat → (e : Expr) → Option (Decidable (EmptyPath e)) :=
+  Nat.rec (fun _ => none) (fun fuel next e => match e with
+    | .name token => some <| if h : token.text = "noclafer" then
+        .isTrue (.literal h) else .isFalse (by intro p; cases p; contradiction)
+    | .parens e _ => do
+        match ← next e with
+        | .isTrue h => return .isTrue (.parens h)
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+    | .binary op a b _ =>
+        if h : op.text = "." then do
+          match ← next a with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue left =>
+            match ← namePathAt fuel b with
+            | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+            | .isTrue right => return .isTrue (.dot h left right)
+        else some (.isFalse (by intro p; cases p; contradiction))
+    | .integer .. | .unary .. | .quantified .. | .letSet .. | .conditional .. | .transition .. | .pattern .. =>
+        some (.isFalse (by intro p; cases p)))
+
+def emptyNavigationAt (fuel : Nat) : (e : Expr) → Option (Decidable (EmptyNavigation e))
+  | .binary op a b _ =>
+      if h : op.text = "." then do
+        match ← emptyPathAt fuel a with
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+        | .isTrue left =>
+          match ← namePathAt fuel b with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue right => return .isTrue (.dot h left right)
+      else some (.isFalse (by intro p; cases p; contradiction))
+  | .name .. | .integer .. | .parens .. | .unary .. | .quantified .. | .letSet .. |
+      .conditional .. | .transition .. | .pattern .. => some (.isFalse (by intro p; cases p))
+
 end ClaferCompiler.Frontend.Behavioral.Expressions

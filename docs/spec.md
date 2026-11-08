@@ -238,6 +238,15 @@ records source derivations, composed interpretation/normalization and complete
 range-check obligations, with explicit scope premises. Coverage does not replace
 source-matched qualification or independent semantic acceptance.
 
+Select behavioral `literal-empty-navigation/1`: a parsed literal `noclafer` root
+with parenthesized or nested dot/name tails, including `parent`, `dref` and
+unknown/ambiguous names, elaborates as unary empty without tail lookup. Exclude
+primitive extents and arbitrary expression tails from the shortcut. Preserve
+partial enclosing cursors and every ordinary check outside it. Keep the independent
+source rule and successful elaboration certificate aligned. The
+[exact syntax and warning policy](behavioral-frontend.md#literal-empty-navigation-and-successful-warnings)
+does not change static lookup, temporal meanings or upstream profile pins.
+
 Covers:
 - `intent~compiler-foundation~1`
 
@@ -1073,6 +1082,17 @@ The [native driver](cli.md) serializes source diagnostics and supplies IR-only
 locations and process exits for both commands. No source coordinates are invented
 for developer IR. The resolver prioritizes declaration/name checks, edge resolution, inheritance and
 realization ranks, then independent source correspondence validation.
+
+Behavioral successful-report APIs additionally return nonfatal warnings for literal
+empty navigation and syntactically identical operands of `=`, `!=`, `--`, `**`.
+Preserve ordinary operations, typing, range admission and strict definedness.
+Use stable warning severity/codes/operators and authored source locations, with
+one navigation warning per maximal skipped chain. The CLI emits separate
+`clafer-warning/1` records on stderr under `--diagnostics json`, or located text,
+while preserving exit `0`, compilation output schemas and existing error APIs.
+Failures do not emit partial warnings. The
+[warning protocol](behavioral-source.md#successful-warning-protocol) fixes ordering
+and compatibility; the static profile retains its established behavior.
 
 Covers:
 - `intent~compiler-foundation~1`
