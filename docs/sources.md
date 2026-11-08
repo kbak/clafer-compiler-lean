@@ -81,6 +81,22 @@ at `8a300bff11af2f458af70d56394f1899815455e9` preserves the paper-era numeric
 are [upstream default evolution](https://github.com/kbak/clafer-semantics/issues/118)
 and [compiler adoption](https://github.com/kbak/clafer-compiler-lean/issues/61).
 
+## Resolved structural normalization
+
+The [resolved normalizer](ir.md#resolved-structural-normalization) reuses the
+existing source-to-M1 projection. At the installed semantics pin,
+[`Configuration.Multiplicities` and `StructuralSatisfies`](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/Clafer/Semantics/Structural.lean)
+justify leaving parentless abstract local slots unrestricted: local multiplicity
+constrains only actual parent fibers. The compiler proves equivalence for the
+same configuration, retaining independent upstream meaning and all identities.
+The accepted c7 comparison's
+[`Explicit.exClafer`](https://github.com/gsdlab/clafer/blob/c7a2fb7d0ba601f52efeac459d12f859a40580fe/src/Language/Clafer/Generator/Explicit.hs#L66-L77)
+prints `0..*` for abstract cards. The Lean pass retains its existing narrower
+parentless condition; it does not adopt that printer's full transformation.
+Haskell explicit-output qualification remains separate finite evidence; this pass
+does not print source text or adopt a new comparison profile. No semantic pin,
+source fixture, license or dependency changes are required.
+
 ## Constraint name lookup policy
 
 The [constraint frontend](constraints.md#api-and-lookup) adopts ancestor-before-target

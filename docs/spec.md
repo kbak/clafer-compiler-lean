@@ -716,6 +716,41 @@ Covers:
 
 Needs: impl, proof, utest
 
+## Resolved structural normalization
+
+`req~compiler-resolved-normalization~1`
+
+Canonicalize the effective local bound of every parentless abstract declaration
+in the existing resolved structural `Core` to `0..*`. Define normal form
+independently by that field condition. Preserve declaration count/order, IDs,
+names, origins, parent/super/reference edges, set/bag mode, abstractness, group
+bounds, root and source/authored metadata exactly. Preserve all other local
+bounds, including the concrete root's slot. Equality is full in-memory structural
+equality, including metadata; this is not a canonical form of all equivalent
+models or a source/text serialization contract.
+
+Provide a total operation on validated M1 values retaining the exact certificate,
+and a checked typed-core API that validates the original input before rewriting.
+Preserve original admission failures, including invalid intervals, unsupported
+zero-bound abstracts and invalid certificates. Prove output normal form,
+fixation of every normal-form core, idempotence, M1 admission preservation,
+successful checked normalization of admitted normal forms, and equivalence of
+upstream structural satisfaction for the same configuration. Reuse the operation
+in source-to-M1 conversion with a proof of equality to its existing projection.
+
+Retain positive and negative kernel/native witnesses for nontrivial abstract
+chains, stable identities/references/provenance, parented bounds, repeated names,
+already-normal inputs and admission-before-normalization. Solver scopes remain
+caller-owned and ID-keyed; this API neither consumes nor changes them. Source
+parsing, UID generation, byte equality, behavioral normalization and Haskell
+execution remain outside this contract. See the
+[resolved normalization contract](ir.md#resolved-structural-normalization).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
 ## Independent static Alloy target
 
 `req~compiler-alloy-core~1`

@@ -3,6 +3,7 @@ module
 public import ClaferCompiler.IR.Inherited
 
 public import ClaferCompiler.IR.Structural
+public import ClaferCompiler.IR.StructuralNormalization
 public import ClaferCompiler.IR.ExprObservation
 public import ClaferCompiler.IR.Behavioral
 

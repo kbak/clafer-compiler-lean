@@ -26,7 +26,7 @@ class ResolutionTests(unittest.TestCase):
         cls.modules = ['tests.ResolveNative', 'ClaferCompiler.Frontend.Resolve',
                        'ClaferCompiler.Frontend.Defaults', 'ClaferCompiler.Frontend.Parser',
                        'ClaferCompiler.Frontend.Lexer', 'ClaferCompiler.Frontend.Surface',
-                       'ClaferCompiler.IR.Structural']
+                       'ClaferCompiler.IR.Structural', 'ClaferCompiler.IR.StructuralNormalization']
         cls.source = {str(p.relative_to(ROOT)): oracle.digest(p) for p in
                       [*(ROOT / (m.replace('.', '/') + '.lean') for m in cls.modules),
                        ROOT / 'ClaferCompiler/SemanticsBridge/Resolution.lean', Path(__file__)]}

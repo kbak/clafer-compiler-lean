@@ -15,7 +15,7 @@ class BehavioralBinderTests(unittest.TestCase):
             'ClaferCompiler.IR.Behavioral.Grouped',
             'ClaferCompiler.IR.Behavioral.Binders',
             'ClaferCompiler.Frontend.Surface', 'ClaferCompiler.Frontend.Defaults',
-            'ClaferCompiler.Frontend.Resolve',
+            'ClaferCompiler.Frontend.Resolve', 'ClaferCompiler.IR.StructuralNormalization',
             'ClaferCompiler.Frontend.Behavioral.Surface',
             'ClaferCompiler.Frontend.Behavioral.Binders',
             'tests.BehavioralBindersNative'],
