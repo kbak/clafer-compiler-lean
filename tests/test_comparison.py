@@ -17,9 +17,9 @@ oracle = comparison.oracle
 
 def bag_candidate():
     return dict(objects=[0,1,2,3], root=0,
-                members=[['root',0], ['c0_Target',1], ['c0_refs',2], ['c0_refs',3]],
-                containment=[['c0_Target',[0,1]], ['c0_refs',[0,2]], ['c0_refs',[0,3]]],
-                references=[['c0_refs',[2,1]], ['c0_refs',[3,1]]])
+                members=[['root',0], ['Target',1], ['refs',2], ['refs',3]],
+                containment=[['Target',[0,1]], ['refs',[0,2]], ['refs',[0,3]]],
+                references=[['refs',[2,1]], ['refs',[3,1]]])
 
 
 # [utest->req~compiler-differential~1]
@@ -36,7 +36,8 @@ class ComparisonTests(unittest.TestCase):
         cls.runtime = comparison.Runtime(tools, cls.output / 'runtime')
         cls.bundles = {}
         items = json.loads(oracle.CORPUS.read_text())['fixtures']
-        for name in ('bag','set','groups','overlap','inheritance','cycles','shadowing'):
+        for name in ('bag','set','groups','overlap','inheritance','cycles','shadowing',
+                     'collisions','renamed-inheritance'):
             item = next(i for i in items if i['id'] == name)
             source = oracle.fixture_path(item)
             capture = cls.output / ('capture-' + name)
@@ -45,7 +46,7 @@ class ComparisonTests(unittest.TestCase):
             if r['status'] != 'admitted': raise RuntimeError(r)
             cls.bundles[name] = capture / 'capture'
         capture = cls.output / 'capture-tiny'
-        r = oracle.capture_case(ROOT / 'tests/fixtures/comparison/tiny.cfr', {'root':1,'c0_A':1},
+        r = oracle.capture_case(ROOT / 'tests/fixtures/comparison/tiny.cfr', {'root':1,'A':1},
             capture, cls.runtime.api, cls.runtime.exporter, cls.runtime.build)
         if r['status'] != 'admitted': raise RuntimeError(r)
         cls.bundles['tiny'] = capture / 'capture'
@@ -69,18 +70,18 @@ class ComparisonTests(unittest.TestCase):
             r = self.compare('bag', candidate, mutation, mutation=mutation)
             self.assertEqual(r['category'], category, r)
         too_many = dict(objects=[0,1,2,3],root=0,
-            members=[['root',0], *[['c0_Target',n] for n in (1,2,3)]],
-            containment=[['c0_Target',[0,n]] for n in (1,2,3)], references=[])
+            members=[['root',0], *[['Target',n] for n in (1,2,3)]],
+            containment=[['Target',[0,n]] for n in (1,2,3)], references=[])
         self.assertEqual(self.compare('bag',too_many,'cardinality-negative')['category'], 'agree_violates')
         self.assertEqual(self.compare('bag',too_many,'drop-cardinality',mutation='drop-cardinality')['category'],
                          'compiler_accepts_checker_rejects')
-        group = dict(objects=[0,1],root=0,members=[['root',0],['c0_box',1]],
-                     containment=[['c0_box',[0,1]]],references=[])
+        group = dict(objects=[0,1],root=0,members=[['root',0],['box',1]],
+                     containment=[['box',[0,1]]],references=[])
         self.assertEqual(self.compare('groups',group,'group-negative')['category'], 'agree_violates')
         self.assertEqual(self.compare('groups',group,'drop-group',mutation='drop-group')['category'],
                          'compiler_accepts_checker_rejects')
-        overlap = dict(objects=[0,1],root=0,members=[['root',0],['c0_x',1],['c0_y',1]],
-                       containment=[['c0_x',[0,1]],['c0_y',[0,1]]],references=[])
+        overlap = dict(objects=[0,1],root=0,members=[['root',0],['x',1],['y',1]],
+                       containment=[['x',[0,1]],['y',[0,1]]],references=[])
         self.assertEqual(self.compare('overlap',overlap,'overlap-negative')['category'], 'agree_violates')
         r = self.compare('overlap',overlap,'drop-disjointness',mutation='drop-disjointness')
         self.assertEqual(r['category'], 'compiler_accepts_checker_rejects', r)
@@ -129,18 +130,18 @@ class ComparisonTests(unittest.TestCase):
     def test_inheritance_cycles_and_shadowed_names(self):
         fixtures = {
             'inheritance': dict(objects=[0,1],root=0,
-                members=[['root',0],['c0_Base',1],['c0_Middle',1],['c0_left',1]],
-                containment=[['c0_left',[0,1]]],references=[]),
+                members=[['root',0],['Base',1],['Middle',1],['left',1]],
+                containment=[['left',[0,1]]],references=[]),
             'cycles': dict(objects=[0,1,2],root=0,
-                members=[['root',0],['c0_a',1],['c0_b',2]],
-                containment=[['c0_a',[0,1]],['c0_b',[0,2]]],
-                references=[['c0_a',[1,2]],['c0_b',[2,1]]]),
+                members=[['root',0],['a',1],['b',2]],
+                containment=[['a',[0,1]],['b',[0,2]]],
+                references=[['a',[1,2]],['b',[2,1]]]),
             'shadowing': dict(objects=[0,1,2,3,4,5],root=0,
-                members=[['root',0],['c0_left',1],['c0_right',2],['c0_Base',3],
-                         ['c0_same',3],['c1_same',4],['c0_links',5]],
-                containment=[['c0_left',[0,1]],['c0_right',[0,2]],['c0_same',[1,3]],
-                             ['c1_same',[2,4]],['c0_links',[2,5]]],
-                references=[['c0_links',[5,3]]])}
+                members=[['root',0],['left',1],['right',2],['Base',3],
+                         ['left__same',3],['right__same',4],['links',5]],
+                containment=[['left',[0,1]],['right',[0,2]],['left__same',[1,3]],
+                             ['right__same',[2,4]],['links',[2,5]]],
+                references=[['links',[5,3]]])}
         for name,c in fixtures.items():
             r=self.compare(name,c,name,bitwidth=10)
             self.assertEqual(r['category'],'agree_satisfies',r)
@@ -174,3 +175,48 @@ class ComparisonTests(unittest.TestCase):
             result=comparison.solve(self.runtime,timed,1,512)
         self.assertEqual(result['status'],'timeout')
         self.assertIsNone(result.get('outcome'))
+
+    def test_057_names_and_unused_abstracts(self):
+        p = self.runtime.api['protocol']
+        core, meta = p.import_bundle(self.bundles['collisions'])
+        ids = {d['uid']: i + 1 for i, d in enumerate(core['declarations'])}
+        value = dict(objects=[0, *ids.values()], root=0,
+            members=[['root',0], *[[u,i] for u,i in ids.items()]],
+            containment=[[d['uid'],[0 if d['parent']=='root' else ids[d['parent']],ids[d['uid']]]]
+                         for d in core['declarations']],
+            references=[['sig',[ids['sig'],ids['x']]]])
+        self.assertEqual(meta['signatures']['sig'], 'sig_1')
+        self.assertIn('a_prime', ids)
+        self.assertIn('a_prime__2', ids)
+        for label, candidate, expected in [
+                ('names-positive', value, 'agree_satisfies'),
+                ('names-missing-ref', dict(value, references=[]), 'agree_violates')]:
+            result = self.compare('collisions', candidate, label, bitwidth=10)
+            self.assertEqual(result['category'], expected, result)
+        decoded = p.loads((self.output/'names-positive/decoded.json').read_bytes())
+        self.assertIsNotNone(self.runtime.relation.isomorphism(value, decoded))
+        layout = p.loads((self.output/'names-positive/layout.json').read_bytes())
+        # Native numeric names and Haskell's renamed symbols both decode to UIDs.
+        self.assertEqual(set(layout['maps']), {'root', *ids})
+        self.assertNotEqual(layout['maps']['sig']['signature'], meta['signatures']['sig'])
+        field = layout['fields'][layout['maps']['sig']['references']]
+        self.assertEqual(field['owner'], layout['maps']['sig']['signature'])
+        self.assertEqual(field['target'], layout['maps']['x']['signature'])
+        replay = comparison.replay(self.runtime, self.output/'names-positive', self.output/'names-replay')
+        self.assertEqual(replay['category'], 'agree_satisfies', replay)
+
+        value = dict(objects=[0,1,2,3],root=0,
+            members=[['root',0],['plus',1],['x',1],['refs',2],['refs',3]],
+            containment=[['x',[0,1]],['refs',[0,2]],['refs',[0,3]]],
+            references=[['refs',[2,1]],['refs',[3,1]]])
+        receipt = p.loads((self.bundles['renamed-inheritance']/'generation.json').read_bytes())
+        self.assertEqual(receipt['scopes'], [['sig',0]])
+        self.assertIn('0 sig_1', receipt['alloy'])
+        unused = dict(objects=[0,1],root=0,members=[['root',0],['sig',1]],
+                      containment=[],references=[])
+        for label, candidate, expected in [
+                ('renamed-inheritance-positive', value, 'agree_satisfies'),
+                ('renamed-inheritance-missing-ref', dict(value, references=value['references'][:1]), 'agree_violates'),
+                ('unused-abstract-negative', unused, 'agree_violates')]:
+            result = self.compare('renamed-inheritance', candidate, label)
+            self.assertEqual(result['category'], expected, result)

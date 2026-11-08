@@ -21,10 +21,10 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/f00e5dacb07eed51026f69fcf699683210d394d3) | `f00e5dacb07eed51026f69fcf699683210d394d3` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
-| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea) | `6750e6f591b2131549122c13dee94d3d2257eaea` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/LICENSE). External tool, not production runtime dependency. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/bbf81e44beca6eb6c4ff3f0e87516b15be59676e) | `bbf81e44beca6eb6c4ff3f0e87516b15be59676e` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/f6ca5b887d7bacc09915c6fc0278064c8371beac) | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
-| Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | Initial external validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/scripts/verification/AlloyBridge.java) |
+| Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
 
 The [oracle tooling](oracles.md) checks the Alloy distribution SHA-256
@@ -42,16 +42,26 @@ A source citation is not a redistribution license.
 
 The behavioral planning sources are registered [separately below](#behavioral-sources).
 The installed semantics pin supplies both the static and behavioral libraries.
-The Haskell 0.5.4 and Alloy static comparison identities remain unchanged; see
-[the dependency delta](#behavioral-dependency-delta).
+The sole structural comparison uses merged Haskell 0.5.7. Upstream's
+[compiler profile](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/compiler_profile.py)
+records archive SHA-256 `51e5c8d47c1e8bf05ca89a8432176c25cb1e6df589aeb36386bcf7627ee3d954`,
+source-tree SHA-256 `5ed4d4fdc704f198e311e4d6055b59b98789dcf10ff652305c3c863c167f03ca`,
+`generic-aeson-0.5.7/1` and `clafer-generation/2`. Its capture/import/runtime and
+comparison adapters supply strict modifier arrays, paired source/backend maps,
+name-safe candidate pinning and decoding, and validated zero scopes for unused
+abstracts. The single-file capture emits spans without filenames; raw CLI exports
+cannot replace the paired generation receipt. These adapters remain outside the
+kernel proof boundary.
 
-The pinned Haskell reference is 0.5.4. Its apostrophe UID escaping and `opt`
-default fix are adopted through the upstream capture adapter, whose strict
-position/option schemas remain outside the proof boundary. The single-file
-capture API emits spans without filenames; raw CLI exports are not substituted
-for paired receipts. Upstream's
-[compatibility assessment](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/resolved-ir-comparison.md#compiler-054-compatibility)
-records the exact changes and immutable source evidence.
+The downstream transport already uses original UIDs and independent numeric
+native IDs. Fixture bounds and candidates use the freshly captured 0.5.7 UIDs.
+The benchmark reuses Haskell `AlloyNames.alloyNames`/`toAlloyNames` and
+`ScopeAnalysis.withEmptyAbstracts`, rebuilding the consumed map as the public
+compiler does. Existing unittest, replay, mutation and shrinking infrastructure
+suffices; no new parser, legacy adapter, library or license dependency is needed.
+New source features such as `:=`, comprehensions, reverse references and closures
+remain outside this migration. Behavioral source and comparison profiles retain
+their independent pins and known deviations.
 
 This compiler's `Defaults` makes `opt` children optional; its oracle regression
 requires agreement at `0..1`. Numeric groups follow the explicitly adopted
@@ -60,7 +70,12 @@ Haskell rejects unreachable concrete groups, while the independent source meanin
 can admit an empty context; this remains a difference in the accepted source domain.
 The inspected grammar, lexer and parser boundary hashes are recorded in
 [parser sources](parser.md#sources-and-comparison).
-Historical evidence remains tied to its original adapters and source identities.
+Historical 0.5.4 evidence remains tied to its original adapters and source
+identities. Replay it from compiler revision
+`46c874e339b1bc8b82c57a25d00d3b01ad0240aa` (or its recorded earlier revision),
+semantics `f00e5dacb07eed51026f69fcf699683210d394d3` and Haskell
+`6750e6f591b2131549122c13dee94d3d2257eaea`, using the matching original receipts.
+Do not relabel these artifacts as 0.5.7 evidence.
 
 ## Adopted child-default policy
 
@@ -69,7 +84,7 @@ makes unannotated children optional (`0..1`) under all keyword groups and numeri
 groups except exactly `0..*`. Numeric `0..*` and absent unrestricted groups give
 `1..1`; explicit child bounds override defaults, and inherited group provenance
 is preserved. The concrete implementation evidence is
-[`ResolverInheritance.analyzeCard`, lines 221–230](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/ResolverInheritance.hs#L221-L230).
+[`ResolverInheritance.analyzeCard`](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Intermediate/ResolverInheritance.hs#L222).
 This selected agreement does not adopt Haskell's other abstractness, relocation,
 empty-group or counting behavior.
 
@@ -110,8 +125,8 @@ The upstream `sosym` checkpoint remains frozen. Both that checkpoint and the
 current upstream semantics consume resolved expressions and implement neither
 textual name-resolution order; no semantics dependency update is needed here.
 
-The pinned Haskell `6750e6f591b2131549122c13dee94d3d2257eaea`
-[`ResolverName.resolveName`](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/ResolverName.hs)
+The pinned Haskell `f6ca5b887d7bacc09915c6fc0278064c8371beac`
+[`ResolverName.resolveName`](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Intermediate/ResolverName.hs)
 tries `resolveDescendants`, `resolveAncestor`, `resolveTargetChild`, then
 `resolveTopLevel`. `resolveImmName` handles qualified navigation separately.
 The later [S9 discussion](https://github.com/gsdlab/clafer/blob/2d857da/doc/static-semantics-errata.md#s9-name-resolution-beyond-the-papers-rules-clarification)
@@ -221,8 +236,8 @@ source-register references, not imported requirement IDs.
 | S2 | [Syntax](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Syntax.lean): `Defaults`, `GroupCard.childDefault`, `AST.WellFormed`; [Compile contract](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/compile.md) | Resolved/defaulted input, distinct IDs/names, role and attachment identity. Positive-map support is an additional Compile precondition, not a universal source-language restriction. |
 | S3 | [Inherited realization](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/inherited-realization.md), [Realization core](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Semantics/Realization.lean): `Core.Selected`, `View`, `Satisfies` | Selected explicit abstracts, ordinary fields, realization ranks, original links and Appendix 6 d01–d26/c01–c12; does not expand M1's finite checker. |
 | S4 | [Typed core](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Constraints/Typing.lean): every `Expr`, `Arithmetic`, `SetOp` constructor; [denotation](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/constraint-denotation.md), [preservation](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/constraint-preservation.md) | Independent partial meanings, finite cardinality operands and exact integer singleton extraction. Mathematical integer realization is not Alloy's bounded Int. |
-| S5 | Haskell [grammar](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/clafer.cf), [desugarer](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/Desugarer.hs), [inheritance resolver](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/ResolverInheritance.hs) | Constructor/surface inventory and compatibility guide. The architecture's whitelist excludes behavior and wider static extensions. Defaults are selected from S2, with discrepancies retained. |
-| S6 | Haskell [IR](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Intermediate/Intclafer.hs), [static Alloy generator](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Language/Clafer/Generator/Alloy.hs), [positive fixtures](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea/test/positive), [regressions](https://github.com/gsdlab/clafer/tree/6750e6f591b2131549122c13dee94d3d2257eaea/test/regression) | Comparison evidence for the [oracle tooling](oracles.md) and [candidate comparisons](comparison.md). Same-generation JSON/Alloy receipt required by the upstream [import contract](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/resolved-import.md); equal filenames/hashes of source alone do not pair outputs. |
+| S5 | Haskell [grammar](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/clafer.cf), [desugarer](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Intermediate/Desugarer.hs), [inheritance resolver](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Intermediate/ResolverInheritance.hs) | Constructor/surface inventory and compatibility guide. The architecture's whitelist excludes behavior and wider static extensions. Defaults are selected from S2, with discrepancies retained. |
+| S6 | Haskell [IR](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Intermediate/Intclafer.hs), [static Alloy generator](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Generator/Alloy.hs), [positive fixtures](https://github.com/gsdlab/clafer/tree/f6ca5b887d7bacc09915c6fc0278064c8371beac/test/positive), [regressions](https://github.com/gsdlab/clafer/tree/f6ca5b887d7bacc09915c6fc0278064c8371beac/test/regression) | Comparison evidence for the [oracle tooling](oracles.md) and [candidate comparisons](comparison.md). Same-generation JSON/Alloy receipt required by the upstream [import contract](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/docs/resolved-import.md); equal filenames/hashes of source alone do not pair outputs. |
 | S7 | [Official Alloy reference](https://alloytools.org/spec.html), especially Commands, Integer Expressions and signature/field semantics; [pinned A4Options](https://github.com/AlloyTools/org.alloytools.alloy/blob/794226dd07b536fe35c5ca44b529417183cd629b/org.alloytools.alloy.core/src/main/java/edu/mit/csail/sdg/translator/A4Options.java) | Independent target guide. Finite scopes, signed bitwidth and overflow behavior must be modeled explicitly. The live reference is not immutable; the [target contract](alloy-core.md) records construct-by-construct correspondence and retained source identity against the pinned distribution. |
 | S8 | [Bounded comparison](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/bounded-comparison.md), [complete telematics](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/telematics.md) | Exact-candidate/mutation policy and complete model inventory. Haskell Telematics fixtures differ from the printed model and cannot replace its twelve-body/final-selection inventory. |
 
@@ -233,7 +248,7 @@ common-target disjointness; parentless abstract heads without fabricated parents
 ordinary inherited fields versus explicit abstract types; and ordinary set
 intersection. Preserve the documented empty-group and group-counting
 mismatches with Haskell; current keyword and numeric child defaults agree with
-the 0.5.4 reference on the tested common domain.
+the 0.5.7 reference on the tested common domain.
 A discrepancy may be a compiler bug, a semantic defect,
 a language-version difference or a harness error. Minimize it, retain both
 outputs/options and the expected independent meaning, search existing issues,
@@ -274,7 +289,7 @@ Haskell source were copied. Parser reconstruction is a successful-render theorem
 Analyzer correspondence and total successful renderability are not kernel proofs.
 The [parser reuse assessment](alloy-text.md#parser-reuse-assessment) selects the
 pinned Lean standard-library Parsec implementation for this candidate and inspects Haskell's
-[grammar build rules](https://github.com/gsdlab/clafer/blob/6750e6f591b2131549122c13dee94d3d2257eaea/src/Makefile).
+[grammar build rules](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Makefile).
 The Haskell main frontend uses BNFC/Happy and Alex; its Parsec dependency alone
 does not identify the main parser's implementation. `Std.Internal.Parsec` is
 imported from the pinned toolchain under its Apache-2.0 license; no library source
@@ -744,8 +759,9 @@ move out of `Compile/GroupSupport.lean` and are re-exported there with unchanged
 bodies (the ambient universe is generalized). Other pre-existing nonbehavioral
 Lean changes are comment-only. No moving branch is a dependency.
 
-The toolchain, manifest transitive revisions, static verification adapters,
-Haskell 0.5.4 capture pin and Alloy distribution/bridge bytes are unchanged. The
+At this historical dependency delta, the toolchain, manifest transitive revisions,
+static verification adapters, Haskell 0.5.4 capture pin and Alloy distribution/bridge
+bytes were unchanged. The
 oracle profile and fixture inventory identify the installed semantics revision;
 fixture contents and expected static outcomes are retained. External tool receipts
 must be prepared for that revision rather than relabeling older evidence. The
@@ -864,8 +880,8 @@ S7 explicitly accepts `behavioral-0.5.7-candidate/v1` with Haskell
 `af858ec0fe3ce2ceacb7fd120947c058233086d6` and D1–D5. This source integration
 retains that immutable prerelease disposition. It does not adopt a moving
 release or relabel the separately qualified PR113 comparison candidates.
-The static Haskell 0.5.4 and Alloy 6.2.0 pins and their expected corpus outcomes
-are unchanged; fresh tool receipts bind their reuse to the installed semantics source.
+At the S7 checkpoint, the static Haskell 0.5.4 and Alloy 6.2.0 pins and their expected corpus outcomes
+were unchanged; fresh tool receipts bound their reuse to that semantics source.
 
 
 ### Full source observation adapter
@@ -892,15 +908,14 @@ retains this limitation without changing source semantics.
 ## Accepted semantics-main dependency
 
 The installed dependency is immutable upstream main
-`f00e5dacb07eed51026f69fcf699683210d394d3`, accepted through
-[semantic main integration](https://github.com/kbak/clafer-semantics/issues/130).
-Against the qualified S7 pin above, existing source definitions and theorem
-statements used by the compiler are unchanged. `Formula.domainFormula_agrees`
-combines identical quantifier and capture proof branches. Added modifier and
-root-attachment witnesses, source-import checks, trace tags and current source
-contracts strengthen upstream qualification. The static `DPGraph` edits and
-verification-adapter changes are comments only. Lake, Lean, Mathlib, licenses,
-static fixture bytes and Haskell/Alloy pins are unchanged.
+`bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, accepted through
+[structural comparison adoption](https://github.com/kbak/clafer-semantics/pull/166).
+Relative to `f00e5dacb07eed51026f69fcf699683210d394d3`, the complete Lean source
+tree, toolchain and inherited Lake dependencies are unchanged. The delta changes
+external structural adapters, fixture candidates, tests and documentation.
+`AlloyBridge` validates original zero scopes and collision-safe candidate names;
+the Alloy distribution, solver and Java profile are unchanged. The Haskell source
+and toolchain notices retain the same MIT and external dependency boundaries.
 
 The optional `Clafer.Behavioral` source entrypoint remains separate from
 `Clafer.Behavioral.FiniteComposition`. Full preservation continues to require
@@ -918,4 +933,4 @@ live-union-target disagreement and root-navigation rejection. The upstream
 [source ledger](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/sources.md)
 classifies subsequent `eb2f653a02979d0db35451ed6abf131eaf7c355a` and
 `8cfa0f3740f1cfb515f9862bc8993b826fa08a67` as build, documentation and negative-fixture
-changes. No runtime qualification or final-release adoption of those bytes is claimed.
+changes. These entries do not adopt final-release bytes as the behavioral source or comparison profile.

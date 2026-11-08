@@ -20,8 +20,8 @@
     },
     {
       "bounds": {
-        "c0_Target": 3,
-        "c0_refs": 3,
+        "Target": 3,
+        "refs": 3,
         "root": 1
       },
       "categories": [
@@ -40,8 +40,8 @@
     },
     {
       "bounds": {
-        "c0_Target": 3,
-        "c0_refs": 3,
+        "Target": 3,
+        "refs": 3,
         "root": 1
       },
       "categories": [
@@ -60,9 +60,9 @@
     },
     {
       "bounds": {
-        "c0_Target": 3,
-        "c0_box": 3,
-        "c0_refs": 3,
+        "Target": 3,
+        "box": 3,
+        "refs": 3,
         "root": 1
       },
       "categories": [
@@ -82,11 +82,11 @@
     },
     {
       "bounds": {
-        "c0_Base": 3,
-        "c0_Middle": 3,
-        "c0_Unused": 3,
-        "c0_left": 3,
-        "c0_right": 3,
+        "Base": 3,
+        "Middle": 3,
+        "Unused": 3,
+        "left": 3,
+        "right": 3,
         "root": 1
       },
       "categories": [
@@ -105,9 +105,9 @@
     },
     {
       "bounds": {
-        "c0_a": 3,
-        "c0_b": 3,
-        "c0_child": 3,
+        "a": 3,
+        "b": 3,
+        "child": 3,
         "root": 1
       },
       "categories": [
@@ -126,13 +126,13 @@
     },
     {
       "bounds": {
-        "c0_Base": 3,
-        "c0_Unused": 3,
-        "c0_left": 3,
-        "c0_links": 3,
-        "c0_right": 3,
-        "c0_same": 3,
-        "c1_same": 3,
+        "Base": 3,
+        "Unused": 3,
+        "left": 3,
+        "left__same": 3,
+        "links": 3,
+        "right": 3,
+        "right__same": 3,
         "root": 1
       },
       "categories": [
@@ -151,11 +151,11 @@
     },
     {
       "bounds": {
-        "c0_A": 3,
-        "c0_a": 3,
-        "c0_multisetRefToA": 3,
-        "c0_setRefToA": 3,
-        "root": 1
+        "A": 3,
+        "a": 3,
+        "multisetRefToA": 3,
+        "root": 1,
+        "setRefToA": 3
       },
       "categories": [
         "set/bag"
@@ -173,9 +173,9 @@
     },
     {
       "bounds": {
-        "c0_x": 3,
-        "c0_y": 3,
-        "root": 1
+        "root": 1,
+        "x": 3,
+        "y": 3
       },
       "categories": [
         "structural"
@@ -193,9 +193,9 @@
     },
     {
       "bounds": {
-        "c0_Base": 3,
-        "c0_child": 3,
-        "c0_instance": 3,
+        "Base": 3,
+        "child": 3,
+        "instance": 3,
         "root": 1
       },
       "categories": [
@@ -214,8 +214,8 @@
     },
     {
       "bounds": {
-        "c0_value": 3,
-        "root": 1
+        "root": 1,
+        "value": 3
       },
       "categories": [
         "numeric"
@@ -266,8 +266,68 @@
       "notice": "LICENSE",
       "origin": "compiler",
       "path": "tests/fixtures/oracles/temporal.cfr"
+    },
+    {
+      "bounds": {
+        "a_prime": 1,
+        "a_prime__2": 1,
+        "alive_x": 1,
+        "assertAt_3_5": 1,
+        "box": 1,
+        "child": 1,
+        "ib_candidate": 1,
+        "ib_candidate_": 1,
+        "ib_obj_0": 1,
+        "p_x": 1,
+        "plus": 1,
+        "r_x": 1,
+        "root": 1,
+        "show": 1,
+        "sig": 1,
+        "x": 1,
+        "x_ref": 1
+      },
+      "categories": [
+        "name-collision",
+        "nesting"
+      ],
+      "expected": "admitted",
+      "id": "collisions",
+      "identity": {
+        "bytes": 196,
+        "sha256": "3c6923db6632d317ecc87f43d772f393f2b579fb60db450daf2ad91b9036591d"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "semantics",
+      "path": "tests/fixtures/comparison/collisions.cfr"
+    },
+    {
+      "bounds": {
+        "plus": 1,
+        "refs": 2,
+        "root": 1,
+        "sig": 1,
+        "x": 1
+      },
+      "categories": [
+        "name-collision",
+        "leaf-inheritance",
+        "unused-abstract",
+        "set/bag"
+      ],
+      "expected": "admitted",
+      "id": "renamed-inheritance",
+      "identity": {
+        "bytes": 60,
+        "sha256": "eb1e217ef0f85c76660cd08e93e598955c7fa18e9cdfc363dd8c5a6a72ad5eb2"
+      },
+      "license": "MIT",
+      "notice": "LICENSE",
+      "origin": "compiler",
+      "path": "tests/fixtures/oracles/renamed-inheritance.cfr"
     }
   ],
   "schema": "clafer-oracle-corpus/1",
-  "semantics_commit": "f00e5dacb07eed51026f69fcf699683210d394d3"
+  "semantics_commit": "bbf81e44beca6eb6c4ff3f0e87516b15be59676e"
 }

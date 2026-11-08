@@ -255,7 +255,7 @@ directories; measurement output is never checked into Git:
 
 ```sh
 python3 scripts/qualification.py runtime --out /tmp/qualification-runtime \
-  --haskell-work /tmp/qualification-haskell/6750e6f591b2131549122c13dee94d3d2257eaea \
+  --haskell-work /tmp/qualification-haskell/f6ca5b887d7bacc09915c6fc0278064c8371beac \
   --warmup 1 --samples 5
 python3 scripts/qualification.py builds --candidate HEAD --out /tmp/qualification-builds
 ```
@@ -273,7 +273,9 @@ has exact scope 1; Haskell's root is virtual. The nonprimitive budget is one plu
 the sum of all user upper scopes, so it adds no hidden restriction. Every source
 byte and bound is retained. Haskell uses static generation with `keep_unused`,
 no scope inference, no statistics and no solver. Its public generator receives
-all original UID scopes and Int width; it is not timed through the receipt audit.
+the original UID scopes after `withEmptyAbstracts` and the pinned Alloy-name
+mapping, plus Int width. The receipt preserves source UIDs and backend symbols
+separately; generation is not timed through the capture receipt audit.
 The integer fixture and complete telematics model additionally exercise the Lean
 stages; they are not mislabeled as common-domain Haskell comparisons.
 
