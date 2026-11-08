@@ -72,62 +72,59 @@ inductive EmptyNavigation : Expr → Prop where
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 -- [proof->req~compiler-behavioral-elaboration~1]
-def namePath : (e : Expr) → Option {_u : Unit // NamePath e}
-  | .name token => if h : Resolution.integerName token.text = false then some ⟨(), .name h⟩ else none
-  | .parens e _ => do let body ← namePath e; return ⟨(), .parens body.property⟩
-  | .binary op a b _ => if h : op.text = "." then do
-      let left ← namePath a
-      let right ← namePath b
-      return ⟨(), .dot h left.property right.property⟩
-    else none
-  | _ => none
+/-- A bounded decision carries either the path derivation or its negation.
+Exhaustion is separate from a negative decision and cannot select ordinary dot. -/
+def namePathAt : Nat → (e : Expr) → Option (Decidable (NamePath e)) :=
+  Nat.rec (fun _ => none) (fun _ next e => match e with
+    | .name token => some <| if h : Resolution.integerName token.text = false then
+        .isTrue (.name h) else .isFalse (by intro p; cases p; contradiction)
+    | .parens e _ => do
+        match ← next e with
+        | .isTrue h => return .isTrue (.parens h)
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+    | .binary op a b _ =>
+        if h : op.text = "." then do
+          match ← next a with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue left =>
+            match ← next b with
+            | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+            | .isTrue right => return .isTrue (.dot h left right)
+        else some (.isFalse (by intro p; cases p; contradiction))
+    | .integer .. | .unary .. | .quantified .. | .letSet .. | .conditional .. | .transition .. | .pattern .. =>
+        some (.isFalse (by intro p; cases p)))
 
-def emptyPath : (e : Expr) → Option {_u : Unit // EmptyPath e}
-  | .name token => if h : token.text = "noclafer" then some ⟨(), .literal h⟩ else none
-  | .parens e _ => do let body ← emptyPath e; return ⟨(), .parens body.property⟩
-  | .binary op a b _ => if h : op.text = "." then do
-      let left ← emptyPath a
-      let right ← namePath b
-      return ⟨(), .dot h left.property right.property⟩
-    else none
-  | _ => none
+def emptyPathAt : Nat → (e : Expr) → Option (Decidable (EmptyPath e)) :=
+  Nat.rec (fun _ => none) (fun fuel next e => match e with
+    | .name token => some <| if h : token.text = "noclafer" then
+        .isTrue (.literal h) else .isFalse (by intro p; cases p; contradiction)
+    | .parens e _ => do
+        match ← next e with
+        | .isTrue h => return .isTrue (.parens h)
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+    | .binary op a b _ =>
+        if h : op.text = "." then do
+          match ← next a with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue left =>
+            match ← namePathAt fuel b with
+            | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+            | .isTrue right => return .isTrue (.dot h left right)
+        else some (.isFalse (by intro p; cases p; contradiction))
+    | .integer .. | .unary .. | .quantified .. | .letSet .. | .conditional .. | .transition .. | .pattern .. =>
+        some (.isFalse (by intro p; cases p)))
 
-def emptyNavigation : (e : Expr) → Option {_u : Unit // EmptyNavigation e}
-  | .binary op a b _ => if h : op.text = "." then do
-      let left ← emptyPath a
-      let right ← namePath b
-      return ⟨(), .dot h left.property right.property⟩
-    else none
-  | _ => none
-
--- [proof->req~compiler-behavioral-elaboration~1]
-theorem namePath_complete (h : NamePath e) : (namePath e).isSome = true := by
-  induction h with
-  | name h => simp [namePath, h]
-  | parens h ih =>
-    rename_i body span
-    cases he : namePath body <;> simp_all [namePath]
-  | dot h left right ihl ihr =>
-    rename_i a b op span
-    cases ha : namePath a <;> cases hb : namePath b <;> simp_all [namePath]
-
-theorem emptyPath_complete (h : EmptyPath e) : (emptyPath e).isSome = true := by
-  induction h with
-  | literal h => simp [emptyPath, h]
-  | parens h ih =>
-    rename_i body span
-    cases he : emptyPath body <;> simp_all [emptyPath]
-  | dot h left right ih =>
-    rename_i a b op span
-    have hr := namePath_complete right
-    cases ha : emptyPath a <;> cases hb : namePath b <;> simp_all [emptyPath]
-
-theorem emptyNavigation_complete (h : EmptyNavigation e) : (emptyNavigation e).isSome = true := by
-  cases h with
-  | dot h left right =>
-    rename_i a b op span
-    have hl := emptyPath_complete left
-    have hr := namePath_complete right
-    cases ha : emptyPath a <;> cases hb : namePath b <;> simp_all [emptyNavigation]
+def emptyNavigationAt (fuel : Nat) : (e : Expr) → Option (Decidable (EmptyNavigation e))
+  | .binary op a b _ =>
+      if h : op.text = "." then do
+        match ← emptyPathAt fuel a with
+        | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+        | .isTrue left =>
+          match ← namePathAt fuel b with
+          | .isFalse h => return .isFalse (by intro p; cases p; contradiction)
+          | .isTrue right => return .isTrue (.dot h left right)
+      else some (.isFalse (by intro p; cases p; contradiction))
+  | .name .. | .integer .. | .parens .. | .unary .. | .quantified .. | .letSet .. |
+      .conditional .. | .transition .. | .pattern .. => some (.isFalse (by intro p; cases p))
 
 end ClaferCompiler.Frontend.Behavioral.Expressions

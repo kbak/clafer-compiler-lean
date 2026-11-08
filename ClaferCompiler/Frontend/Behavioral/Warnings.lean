@@ -17,27 +17,39 @@ structure Warning where
 
 namespace Warnings
 
-def token (t : Token) : Token := ⟨t.text, ⟨"", 0, 0⟩, 0, 0, 0⟩
+def optionalToken : Option Token → List String
+  | none => ["none"]
+  | some t => ["some", t.text]
 
-/-- Syntactic identity in the same lexical/cursor context. Retain every name,
-binder and operator; only source positions and parentheses are irrelevant.
+/-- Prefix encoding of authored syntax, ignoring positions and parentheses.
+Constructor arities, optional markers and binder counts delimit every field.
+Standard list/string equality avoids a second recursive expression equality.
 This is neither alpha equivalence nor a semantic simplifier. -/
-def shape : Expr → Expr
-  | .name t => .name (token t)
-  | .integer t i => .integer (token t) i
-  | .parens a _ => shape a
-  | .unary op a _ => .unary (token op) (shape a) ⟨"", 0, 0⟩
-  | .binary op a b _ => .binary (token op) (shape a) (shape b) ⟨"", 0, 0⟩
-  | .quantified op disjoint names a b _ =>
-      .quantified (token op) (disjoint.map token) (names.map token) (shape a) (shape b) ⟨"", 0, 0⟩
-  | .letSet op binder value body _ => .letSet (token op) (token binder) (token value) (shape body) ⟨"", 0, 0⟩
-  | .conditional op a b c _ => .conditional (token op) (shape a) (shape b) (shape c) ⟨"", 0, 0⟩
-  | .transition op a b c _ => .transition (token op) (shape a)
-      (match b with | none => none | some e => some (shape e)) (shape c) ⟨"", 0, 0⟩
-  | .pattern op a b scope c d _ =>
-      .pattern (token op) (shape a) (match b with | none => none | some e => some (shape e))
-        (scope.map token) (match c with | none => none | some e => some (shape e))
-        (match d with | none => none | some e => some (shape e)) ⟨"", 0, 0⟩
+def shapeAt : Nat → Expr → Option (List String) :=
+  Nat.rec (fun _ => none) (fun _ next e =>
+    let optional := fun a => match a with
+      | none => some ["none"]
+      | some e => (next e).map ("some" :: ·)
+    match e with
+    | .name t => some ["name", t.text]
+    | .integer t i => some ["integer", t.text, toString i]
+    | .parens a _ => next a
+    | .unary op a _ => do return ["unary", op.text] ++ (← next a)
+    | .binary op a b _ => do return ["binary", op.text] ++ (← next a) ++ (← next b)
+    | .quantified op disjoint names a b _ => do
+      return ["quantified", op.text] ++ optionalToken disjoint ++ [toString names.length] ++
+        names.map (·.text) ++ (← next a) ++ (← next b)
+    | .letSet op binder value body _ => do return ["let", op.text, binder.text, value.text] ++ (← next body)
+    | .conditional op a b c _ => do return ["conditional", op.text] ++ (← next a) ++ (← next b) ++ (← next c)
+    | .transition op a b c _ => do return ["transition", op.text] ++ (← next a) ++ (← optional b) ++ (← next c)
+    | .pattern op a b scope c d _ => do
+      return ["pattern", op.text] ++ (← next a) ++ (← optional b) ++ optionalToken scope ++
+        (← optional c) ++ (← optional d))
+
+def sameExpression (fuel : Nat) (a b : Expr) : Bool :=
+  match shapeAt fuel a, shapeAt fuel b with
+  | some a, some b => a == b
+  | _, _ => false
 
 def warningAt (doc : Document) (e : Expr) (code operator message : String) : Warning :=
   let d := Constraints.errorAt ⟨doc.file, doc.source, []⟩ e.span code message
@@ -47,37 +59,39 @@ def warningAt (doc : Document) (e : Expr) (code operator message : String) : War
 -- [impl->req~compiler-behavioral-elaboration~1]
 /-- Call only after successful elaboration. A rewritten maximal chain emits one
 warning; its discarded names cannot create additional expression warnings. -/
-def expression (doc : Document) (e : Expr) : List Warning :=
-  if (Expressions.emptyNavigation e).isSome then
-    [warningAt doc e "behavioral.empty-navigation" "."
-      "Navigation starting at literal noclafer is empty; tail names are not resolved."]
-  else
-    match e with
-    | .name _ | .integer _ _ => []
-    | .parens a _ | .unary _ a _ | .letSet _ _ _ a _ => expression doc a
-    | .binary op a b _ =>
-        let own := if ["=", "!=", "--", "**"].contains op.text && shape a == shape b then
-          [warningAt doc e "behavioral.redundant-expression" op.text
-            "Both operands are the same expression; ordinary typing and definedness still apply."] else []
-        own ++ expression doc a ++ expression doc b
-    | .quantified _ _ _ a b _ => expression doc a ++ expression doc b
-    | .conditional _ a b c _ => expression doc a ++ expression doc b ++ expression doc c
-    | .transition _ a b c _ => expression doc a ++
-        (match b with | none => [] | some e => expression doc e) ++ expression doc c
-    | .pattern _ a b _ c d _ => expression doc a ++
-        (match b with | none => [] | some e => expression doc e) ++
-        (match c with | none => [] | some e => expression doc e) ++
-        (match d with | none => [] | some e => expression doc e)
-termination_by structural e
+def expressionAt (doc : Document) : Nat → Expr → List Warning :=
+  Nat.rec (fun _ => []) (fun fuel next e =>
+    if (match Expressions.emptyNavigationAt (fuel + 1) e with
+        | some (.isTrue _) => true | _ => false) then
+      [warningAt doc e "behavioral.empty-navigation" "."
+        "Navigation starting at literal noclafer is empty; tail names are not resolved."]
+    else
+      match e with
+      | .name _ | .integer _ _ => []
+      | .parens a _ | .unary _ a _ | .letSet _ _ _ a _ => next a
+      | .binary op a b _ =>
+          let own := if ["=", "!=", "--", "**"].contains op.text && sameExpression (fuel + 1) a b then
+            [warningAt doc e "behavioral.redundant-expression" op.text
+              "Both operands are the same expression; ordinary typing and definedness still apply."] else []
+          own ++ next a ++ next b
+      | .quantified _ _ _ a b _ => next a ++ next b
+      | .conditional _ a b c _ => next a ++ next b ++ next c
+      | .transition _ a b c _ => next a ++ b.toList.flatMap next ++ next c
+      | .pattern _ a b _ c d _ => next a ++ (b.toList ++ c.toList ++ d.toList).flatMap next)
 
-def element (doc : Document) : Element → List Warning
-  | .property _ bodies _ => bodies.flatMap (expression doc)
-  | .enumeration _ _ _ => []
-  | .declaration h children _ =>
-      h.initializer.toList.flatMap (fun (_, e) => expression doc e) ++
-      h.transition.toList.flatMap (fun (_, guard, target) =>
-        guard.toList.flatMap (expression doc) ++ expression doc target) ++
-      children.flatMap (element doc)
+def expression (doc : Document) (e : Expr) : List Warning := expressionAt doc (64 + 8 * doc.source.utf8ByteSize) e
+
+def elementAt (doc : Document) : Nat → Element → List Warning :=
+  Nat.rec (fun _ => []) (fun _ next e => match e with
+    | .property _ bodies _ => bodies.flatMap (expression doc)
+    | .enumeration _ _ _ => []
+    | .declaration h children _ =>
+        h.initializer.toList.flatMap (fun (_, e) => expression doc e) ++
+        h.transition.toList.flatMap (fun (_, guard, target) =>
+          guard.toList.flatMap (expression doc) ++ expression doc target) ++
+        children.flatMap next)
+
+def element (doc : Document) (e : Element) : List Warning := elementAt doc (64 + 8 * doc.source.utf8ByteSize) e
 
 /-- Sort by source start, retaining preorder for equal starts. Generated header
 constraints and inherited expansions do not duplicate authored warnings. -/

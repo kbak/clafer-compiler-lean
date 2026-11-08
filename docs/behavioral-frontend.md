@@ -312,8 +312,8 @@ The [static policy](constraints.md#empty-collection-literal) retains its lookup 
 
 `NamePath`, `EmptyPath` and `EmptyNavigation` in
 [`ExpressionCore`](../ClaferCompiler/Frontend/Behavioral/ExpressionCore.lean)
-define the syntax independently. Their recognizers carry derivations and have
-completeness proofs. `Elaborates.emptyNavigation` reuses `Names.Name.empty` or
+define the syntax independently. Their bounded decisions carry positive or negative derivations;
+exhaustion is a diagnostic and cannot select the ordinary dot rule. `Elaborates.emptyNavigation` reuses `Names.Name.empty` or
 `emptyRelative`; the ordinary dot rule excludes this case. `certifiedAt` therefore
 preserves its source correspondence. With an enclosing navigation cursor, the
 result intersects that cursor with unary empty, retaining partiality. No declaration,
@@ -338,10 +338,18 @@ after successful full compilation. Warning collection and source locations are
 tested behavior, separate from the kernel-checked elaboration relation.
 
 Reuse: the existing `Names` empty rules, source spans, `Constraints.errorAt`,
-standard recursive traversals, `Option`, `List.mergeSort` and derived `BEq` supply
+the existing `Nat.rec` traversal pattern, `Option`, `List.mergeSort` and
+list/string equality supply
 the implementation. Static `Syntax.EmptyUnary` cannot consume the separate
-behavioral AST. Normalized copies of that AST suffice for syntactic identity;
+behavioral AST. A delimited prefix list of constructor/name/operator tokens suffices for syntactic identity;
 no dependent IR equality engine or generic diagnostic framework is needed.
+The pinned Lean code generator does not compile the nested `Expr.rec` directly;
+ordinary nested structural recursion and derived expression equality generate
+helpers excluded by the project's audit. These traversals therefore reuse
+`Nat.rec` with the existing source-size allocation. A recognizer must return a
+checked decision before elaboration continues; syntax comparison requires two
+successful prefix encodings and never equates exhausted results. Warning traversal
+uses authored documents whose syntax depth is bounded by their source size.
 No new runtime/proof dependency or license cost is introduced. The
 [immutable source disposition](sources.md#behavioral-empty-navigation-and-warnings)
 records the Haskell/Alloy boundary. Native term tests, warning protocol tests and

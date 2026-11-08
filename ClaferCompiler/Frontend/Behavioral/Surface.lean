@@ -22,7 +22,6 @@ inductive Expr where
   | pattern (kind : Token) (first : Expr) (second : Option Expr)
       (scope : Option Token) (opener closer : Option Expr) (span : SourceSpan)
   | parens (body : Expr) (span : SourceSpan)
-  deriving BEq
 
 def Expr.span : Expr → SourceSpan
   | .name t | .integer t _ => t.span

@@ -38,17 +38,14 @@ def certifiedAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owne
           return ⟨result.val, .unary a.property (unary_sound v result.property)⟩
       | .binary op a b span => do
         if hop : op.text = "." then
-          match hnav : emptyNavigation (.binary op a b span) with
-          | some path =>
+          match emptyNavigationAt (fuel + 1) (.binary op a b span) with
+          | none => throw (failure doc e "behavioral.expression-budget")
+          | some (.isTrue path) =>
             let root ← lift (Names.name v owner Γ cursor "noclafer")
-            return ⟨root.value, .emptyNavigation path.property root.derivation⟩
-          | none =>
+            return ⟨root.value, .emptyNavigation path root.derivation⟩
+          | some (.isFalse ordinary) =>
             let left ← next Γ cursor a
             let right ← next Γ (some left.val) b
-            have ordinary : ¬ EmptyNavigation (.binary op a b span) := by
-              intro h
-              have complete := emptyNavigation_complete h
-              simp [hnav] at complete
             return ⟨right.val, .dot hop ordinary left.property right.property⟩
         else
           let a ← next Γ cursor a
