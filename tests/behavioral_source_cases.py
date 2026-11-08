@@ -51,6 +51,28 @@ def case_status(satisfied): return 'satisfied' if satisfied else 'violated'
 
 
 def features():
+    for name,expression,good in (
+        ('singleton','X (one root)',True),
+        ('empty','X (no root)',False),
+        ('capture','all r : root | X (r = root)',True),
+        ('union','X ((root ++ A.parent) = root)',True)):
+        yield 'root-'+name,['B06','B07','B09'],case_status(good),case(
+            'A ?\n['+expression+']\n',2,[(1,1,0)],[[1],[]])
+    for present in (False,True):
+        for name,expression in (('navigation','some root.A'),('parent','A.parent = root')):
+            yield f'root-{name}-{present}',['B06','B09'],case_status(present),case(
+                'A ?\n[initially X ('+expression+')]\n',2,[(1,1,0)],[[],[1] if present else []])
+    for good in (False,True):
+        expression='root.P = this.parent && root = this.parent.parent' if good else 'no root.P'
+        yield 'root-nested-'+str(good),['B06','B09','B15'],case_status(good),case(
+            'P\n  A\n    [X ('+expression+')]\n',3,[(1,1,0),(2,2,1)],[[1,2]])
+        expression='some root.P' if good else 'no root.P'
+        source='P\n  A\n    assert [X ('+expression+')]\n'
+        yield 'root-check-'+str(good),['B06','B27'],case_status(not good),case(
+            source,3,[(1,1,0),(2,2,1)],[[1,2]],query=dict(kind='check',assertion=0))
+        yield 'root-scenario-'+str(good),['B06','B28'],case_status(good),case(
+            'P\n  A\n',3,[(1,1,0),(2,2,1)],[[1,2]],
+            query=dict(kind='scenario',owner=2,source='[X ('+expression+')]'))
     ids=[(1,1,0),(2,2,1),(3,3,2)]
     for name,body,live,loop,good in (
         ('next','X error',[[1,2],[1,2,3]],1,True),

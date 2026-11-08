@@ -15,7 +15,7 @@ inductive Elaborates (v : IR.BehavioralStructural.Validated k) (owner : Fin k) :
     {n : Nat} → Context k n → Option (Value k n) → Expr → Value k n → Prop where
   | name (lookup : Names.Name v owner Γ cursor token.text a) : Elaborates v owner Γ cursor (.name token) a
   | emptyNavigation (path : EmptyNavigation e)
-      (root : Names.Name v owner Γ cursor "noclafer" a) : Elaborates v owner Γ cursor e a
+      (literal : Names.Name v owner Γ cursor "noclafer" a) : Elaborates v owner Γ cursor e a
   | integer : Elaborates v owner Γ cursor (.integer token i) (.integer (.literal (Int.ofNat i)))
   | parens (body : Elaborates v owner Γ cursor e a) : Elaborates v owner Γ cursor (.parens e span) a
   | unary (body : Elaborates v owner Γ cursor e a) (operation : Unary v op.text a b) :

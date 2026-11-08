@@ -83,21 +83,23 @@ inductive Name (v : IR.BehavioralStructural.Validated k) (owner : Fin k) (Γ : C
   | emptyRelative : Name v owner Γ (some (.collection type a)) "noclafer"
       (.collection .empty (.inter a (.set .empty)))
   | this : Name v owner Γ none "this" (.collection (.objects owner) (.set .this))
+  | root : Name v owner Γ none "root"
+      (.collection (.objects v.core.structural.root) (.set .root))
   | local (lookup : Binders.Lookup Γ name) :
       Name v owner Γ none name (.collection lookup.type (.set (.var lookup.index)))
   | special (spelling : name = "parent" ∨ name = "dref") (path : Navigate v owner (.set .this) name type term) :
       Name v owner Γ none name (.collection type term)
-  | contextual (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "parent" ∧ name ≠ "dref")
+  | contextual (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "root" ∧ name ≠ "parent" ∧ name ≠ "dref")
       (scope : ScopePath v owner depth d a) (notRoot : d ≠ v.core.structural.root)
       (nearest : Constraints.NoContext v.core.structural owner name depth)
       (hasField : Constraints.HasField v.core.structural d name)
       (path : Navigate v d (.set a) name type term) : Name v owner Γ none name (.collection type term)
-  | target (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "parent" ∧ name ≠ "dref")
+  | target (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "root" ∧ name ≠ "parent" ∧ name ≠ "dref")
       (contextAbsent : Constraints.NoContext v.core.structural owner name (k + 1))
       (reference : IR.BehavioralSupport.referenceView v owner = some r) (reachable : Reachable v r.target name)
       (path : Navigate v r.target (.set (navigateSet (.deref owner) .this)) name type term) :
       Name v owner Γ none name (.collection type term)
-  | global (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "parent" ∧ name ≠ "dref")
+  | global (localAbsent : NoLocal Γ name) (ordinary : name ≠ "this" ∧ name ≠ "root" ∧ name ≠ "parent" ∧ name ≠ "dref")
       (contextAbsent : Constraints.NoContext v.core.structural owner name (k + 1))
       (targetAbsent : ¬ HasTarget v owner name) (unique : Constraints.Global v.core.structural name d) :
       Name v owner Γ none name (.collection (classType v d) (.set (.extent d)))
