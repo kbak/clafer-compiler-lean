@@ -195,10 +195,79 @@ class OracleTests(unittest.TestCase):
         out.mkdir()
         (out / "original.als").write_text("var sig A {}\npred show {}\nrun show for 1\n")
         (out / "comparison.als").write_text("var sig A {}\npred ib_candidate {}\nrun ib_candidate for 5\n")
-        result = self.api["alloy_runtime"].solve(self.alloy, out, {})
+        result = self.api["alloy_runtime"].solve(self.alloy, out, dict(original_scopes={}))
         self.assertEqual("error", result["status"], result)
         self.assertIn("temporal", result["detail"])
         self.assertIsNone(result["outcome"])
+
+    def test_057_receipts_and_modifier_arrays_are_strict(self):
+        bundle = self.captures['bag'][0] / 'capture'
+        receipt = self.p.loads((bundle/'generation.json').read_bytes())
+        self.assertEqual(receipt['schema'], 'clafer-generation/2')
+        original = self.p.loads((bundle/'analyzed.json').read_bytes())
+        for slot, field in [('_modifiers','_finalReferences'), ('_reference','_refModifiers')]:
+            self.assertEqual(original['iModule']['_mDecls'][1]['_iClafer'][slot][field], [])
+            for value, category in [(None,'malformed'), ('FinalRef','malformed'),
+                                    (['Unknown'],'malformed'), ([True],'malformed'),
+                                    (['FinalRef'],'unsupported'), (['FinalTarget'],'unsupported'),
+                                    (['FinalRefTarget'],'unsupported')]:
+                with self.subTest(field=field, value=value):
+                    document = copy.deepcopy(original)
+                    document['iModule']['_mDecls'][1]['_iClafer'][slot][field] = value
+                    with self.assertRaises(self.p.Rejection) as error:
+                        self.p.decode_ir(document)
+                    self.assertEqual(error.exception.category, category)
+            document = copy.deepcopy(original)
+            del document['iModule']['_mDecls'][1]['_iClafer'][slot][field]
+            with self.assertRaisesRegex(self.p.Rejection, 'fields'):
+                self.p.decode_ir(document)
+        document = copy.deepcopy(original)
+        document['iModule']['_mDecls'][1]['_iClafer']['_reference']['_refModifier'] = None
+        with self.assertRaisesRegex(self.p.Rejection, 'fields'):
+            self.p.decode_ir(document)
+
+        for name, change, code in [
+                ('bag', lambda g: g.update(schema='clafer-generation/1'), 'generation_version'),
+                ('collisions', lambda g: g['alloy_names'].pop(), 'alloy_name_coverage'),
+                ('collisions', lambda g: g['consumed_map'].pop(), 'backend_consumed_map'),
+                ('renamed-inheritance', lambda g: g['scopes'].clear(), 'empty_abstract_scopes'),
+                ('renamed-inheritance', lambda g: g['scopes'][0].__setitem__(1, 1), 'empty_abstract_scopes')]:
+            with self.subTest(fixture=name, code=code):
+                bundle = self.captures[name][0] / 'capture'
+                changed = self.p.loads((bundle/'generation.json').read_bytes())
+                change(changed)
+                changed = self.p.seal_receipt(changed)
+                with self.assertRaisesRegex(self.p.Rejection, code):
+                    self.p.validate_generation(changed, (bundle/'input.cfr').read_bytes(),
+                        (bundle/'analyzed.json').read_bytes(), (bundle/'model.als').read_bytes())
+
+    def test_historical_static_profile_cannot_be_relabelled(self):
+        bundle = self.captures['bag'][0] / 'capture'
+        for i, change in enumerate([
+                dict(compiler_commit='6750e6f591b2131549122c13dee94d3d2257eaea'),
+                dict(compiler_version='0.5.4'), dict(export_schema='generic-aeson-0.5.4/1')]):
+            with self.subTest(change=change):
+                target = self.output/f'historical-manifest-{i}'
+                shutil.copytree(bundle, target)
+                manifest = self.p.loads((target/'manifest.json').read_bytes())
+                oracle.write(target/'manifest.json', dict(manifest, **change))
+                with self.assertRaisesRegex(self.p.Rejection, 'unsupported:version'):
+                    self.p.import_bundle(target)
+        target = self.output/'historical-build'
+        shutil.copytree(bundle, target)
+        build = self.p.loads((target/'build.json').read_bytes())
+        build['compiler_commit'] = '6750e6f591b2131549122c13dee94d3d2257eaea'
+        oracle.write(target/'build.json', build)
+        manifest = self.p.loads((target/'manifest.json').read_bytes())
+        manifest['inputs']['build.json'] = oracle.digest(target/'build.json')
+        oracle.write(target/'manifest.json', manifest)
+        with self.assertRaisesRegex(self.p.Rejection, 'unsupported:build_identity'):
+            self.p.import_bundle(target)
+        tools = self.p.loads(Path(os.environ['CLAFER_ORACLE_TOOLS']).read_bytes())
+        tools['semantics'] = 'f00e5dacb07eed51026f69fcf699683210d394d3'
+        oracle.write(self.output/'historical-tools.json', tools)
+        with self.assertRaisesRegex(ValueError, 'semantics pin'):
+            oracle.load_tools(self.output/'historical-tools.json', self.api)
 
     def test_actual_process_timeout_is_not_unsat(self):
         out = self.output / "timeout"
@@ -281,6 +350,7 @@ class OracleTests(unittest.TestCase):
         self.assertEqual("clafer-oracle-profile/1", profile["schema"])
         self.assertEqual(oracle.SEMANTICS, profile["semantics_commit"])
         self.assertEqual(self.p.PIN, profile["haskell_commit"])
+        self.assertEqual(self.p.VERSION, profile["haskell_version"])
         self.assertEqual(self.api["alloy_runtime"].JAR_SHA, profile["alloy_jar_sha256"])
         for field, key in (("stack", "stack_version"), ("ghc", "ghc_version"), ("resolver", "resolver")):
             self.assertEqual(profile[field], build[key])

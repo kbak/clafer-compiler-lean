@@ -20,7 +20,7 @@ The pinned Haskell `ResolverInheritance.hs`, `ResolverName.hs`, `Desugarer.hs`
 and `Intclafer.hs` supply comparison behavior, not a production
 runtime or authority for silently changing the adopted default rules. The explicit
 upstream numeric-group evolution is recorded in the [source register](sources.md).
-The adopted keyword and numeric child defaults agree with the 0.5.4 reference on
+The adopted keyword and numeric child defaults agree with the 0.5.7 reference on
 the tested common domain. General Haskell expression
 navigation, nested explicit abstracts and relocation exceed this source profile.
 

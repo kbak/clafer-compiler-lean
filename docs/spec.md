@@ -593,12 +593,16 @@ Needs: impl, proof, utest
 `req~compiler-oracles~1`
 
 Reuse the immutable upstream capture/import/comparison adapters with the pinned
-Haskell library, Stack/GHC/dependency profile, Lean semantics and Alloy 6.2.0 JAR.
+Haskell 0.5.7 library, Stack/GHC/dependency profile, Lean semantics and Alloy 6.2.0 JAR.
 Retain source and tool hashes, same-generation IR/Alloy receipts, actual Java
 vendor/build, effective static SAT4J options, explicit per-UID scopes and signed
 bitwidth. Run the actual tools on positive and negative candidates; preserve
 reference occurrences. The initial profile uses Java 17 and upstream bitwidths
 1–16 with independent range admission. Reject temporal source/backend dispatch.
+Require the paired UID-to-Alloy map, strict modifier arrays and zero scopes for
+unused abstracts. Reject stale generation/version/build receipts. Preserve old
+0.5.4 evidence with its original compiler revision and tools; the current runtime
+has one structural profile. Behavioral comparison profiles remain independent.
 
 Run the finite checker only after its guarded constraint-free admission. Keep
 inherited fields, primitive integer references and expressions unsupported;
@@ -1013,6 +1017,10 @@ honest deletion-minimality bounds. Detect injected occurrence collapse, omitted
 cardinality/group/disjointness enforcement and swapped endpoints. Keep malformed,
 unsupported, timeout/resource and tool failure outcomes separate from completed
 agreement. Finite comparisons do not replace the independent backend preservation proofs.
+Include reserved/derived-name collisions, qualified names, apostrophe collisions,
+renamed inherited references and unused abstracts on positive and violating
+candidates. Preserve original source UIDs through the separate Haskell and native
+symbol maps and exact decoding.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -1086,7 +1094,7 @@ group other than exactly `0..*`; numeric `0..*` gives `1..1`. Authored bounds
 override it. Preserve this distinction through inheritance, including `opt`
 versus numeric `0..*`. Effective abstractness is the explicit flag or the parent's
 effective flag. Kernel-prove agreement with pinned `Clafer.Defaults` and test
-child-default agreement with Haskell 0.5.4 on the common domain, including
+child-default agreement with Haskell 0.5.7 on the common domain, including
 finite/unbounded numeric groups, the unrestricted exception and overrides.
 This is the adopted language evolution from Appendix 3, not a paper correction.
 Require actual source/native/Alloy witnesses in which a numeric `1..1` group

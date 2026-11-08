@@ -16,6 +16,8 @@ import qualified Language.Clafer.ClaferArgs as A
 import qualified Language.Clafer.Common as G
 import qualified Language.Clafer.Intermediate.Intclafer as I
 import qualified Language.Clafer.Generator.Alloy as Alloy
+import Language.Clafer.Generator.AlloyNames (alloyNames, toAlloyNames)
+import Language.Clafer.Intermediate.ScopeAnalysis (withEmptyAbstracts)
 
 data Bounds = Bounds Int (M.Map String Integer)
 instance FromJSON Bounds where
@@ -54,12 +56,18 @@ main = do
         Right (names, actual, im, g, tokens) -> do
           unless (length names == M.size actual && M.keys actual == M.keys sizes) $
             fail "scope map must name each unique source declaration exactly once"
-          let scopes = ("Int", fromIntegral width) : [(actual M.! name, size) | (name, size) <- M.toList sizes]
-              text = fst (Alloy.genModule options (im, g) scopes tokens)
+          let sourceScopes = withEmptyAbstracts im [(actual M.! name, size) | (name, size) <- M.toList sizes]
+              renames = alloyNames im
+              rename u = M.findWithDefault u u renames
+              backend = toAlloyNames renames im
+              backendG = if M.null renames then g else g{G.uidClaferMap = G.createUidIClaferMap backend}
+              scopes = ("Int", fromIntegral width) : [(rename u, size) | (u, size) <- sourceScopes]
+              text = fst (Alloy.genModule options (backend, backendG) scopes tokens)
               bytes = T.encodeUtf8 (T.pack text)
           B.writeFile output bytes
           BL.putStrLn $ encode $ object ["output_bytes" .= B.length bytes,
-            "scopes" .= scopes, "names" .= actual, "bitwidth" .= width,
+            "scopes" .= scopes, "names" .= M.map rename actual,
+            "source_uids" .= actual, "bitwidth" .= width,
             "effective_options" .= show options,
             "mode" .= ("static Alloy, no inference, no solver" :: String)]
     _ -> fail "expected INPUT BOUNDS OUTPUT"

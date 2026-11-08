@@ -63,6 +63,9 @@ Source, post-analysis IR, effective defaults and same-generation Haskell Alloy
 remain paired. The adapter maps captured UIDs to sequential numeric input IDs,
 including a real synthetic root, and reuses the captured ranks/unused flags.
 This adapter is test infrastructure, not the [production JSON/IR CLI](cli.md).
+The 0.5.7 receipt independently maps these source UIDs to Haskell Alloy symbols.
+Native `cc` symbols come from numeric IDs; neither path identifies declarations
+by display names. Qualified and apostrophe-collision UIDs survive exact decoding.
 
 Each supplied candidate is sent unchanged to the upstream verified checker and
 the Haskell comparison. The native backend compiles the same imported effective
@@ -75,6 +78,9 @@ inherited extents or impose extra constraints on a fitting candidate. Every nati
 signature has an explicit scope; its overall/sequence defaults have no unscoped
 user signature or sequence expression to bound. Both actual commands and all
 solver options are retained, including this layout difference.
+The original Haskell command's zero scopes for unused abstracts are validated
+separately from the candidate's manual upper bounds. An unused-abstract atom
+remains a semantic violation that reaches all three checks.
 
 The two independent solver processes execute concurrently after native compilation;
 the shared checker is accessed sequentially. Each process retains its own timeout,
@@ -111,8 +117,9 @@ python3 scripts/comparison/compare.py minimize --tools "$CLAFER_ORACLE_TOOLS" \
 ```
 
 The committed tiny source has four candidates at upper scope one, all of which
-are checked. Six bag candidates use seed 120021. Inheritance and shadowing use
-width 10 to satisfy the existing conservative range argument; the small fixtures
+are checked. Six bag candidates use seed 120021. Inheritance, shadowing and the
+larger collision fixture use width 10 to satisfy the existing conservative range
+argument; the small fixtures
 use width 8. These test sizes do not restrict the comparison API.
 
 The upstream labelled-table domain keeps a fresh singleton root, all membership

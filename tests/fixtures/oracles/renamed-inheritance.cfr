@@ -1,0 +1,4 @@
+abstract sig
+abstract plus
+x : plus 0..1
+refs ->> plus 0..2

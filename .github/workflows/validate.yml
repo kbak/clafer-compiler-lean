@@ -128,7 +128,7 @@ jobs:
             ${{ runner.temp }}/clafer-capture/*/clafer-capture
             ${{ runner.temp }}/clafer-capture/*/build.json
             ${{ runner.temp }}/clafer-capture/*/builder.sha256
-          key: compiler-exporter-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/Export.hs', '.lake/packages/clafer/scripts/verification/build.py', '.lake/packages/clafer/scripts/verification/runtime.py', '.lake/packages/clafer/scripts/verification/protocol.py') }}
+          key: compiler-exporter-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/Export.hs', '.lake/packages/clafer/scripts/verification/build.py', '.lake/packages/clafer/scripts/verification/runtime.py', '.lake/packages/clafer/scripts/verification/protocol.py', '.lake/packages/clafer/scripts/verification/compiler_profile.py') }}
       - name: Cache pinned Alloy download
         if: inputs.profile != 'routine'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

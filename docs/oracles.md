@@ -9,8 +9,8 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 ## Tools and profile
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
-[source register](sources.md) pin Haskell `6750e6f591b2131549122c13dee94d3d2257eaea`,
-semantics `5182c8f5884eddfd8bff8a26b493a8550f0162b6`, Lean 4.35.0 and Alloy 6.2.0
+[source register](sources.md) pin Haskell `f6ca5b887d7bacc09915c6fc0278064c8371beac`,
+semantics `bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.6.7, `lts-22.44`, and its pinned
 `json-builder` and `StringMap` Git dependencies. The upstream builder checks the
@@ -34,11 +34,22 @@ completeness bounds.
 Pinned `Language/Clafer.hs` can dispatch Alloy generation to a temporal backend.
 The upstream exporter audits source AST/tokens before erasure, calls `generate`
 once for JSON and Alloy, and retains post-analysis/post-string IR, consumed UID
-map, effective options and fragments. Import requires backend `als`, the exact
-options, paired bytes and state hashes. Temporal source and a mutated temporal
+map, source-to-Alloy name map, renamed backend IR, effective options and fragments.
+Import requires backend `als`, the exact options, paired bytes and state hashes.
+Temporal source and a mutated temporal
 receipt are rejected. The real Alloy bridge also rejects temporal ASTs and
 requires static trace bounds `-1`, rather than relying on the runtime instance's
 `isTemporal()` flag. No ordinary separate CLI exports substitute for this receipt.
+
+The sole structural profile uses `generic-aeson-0.5.7/1` and
+`clafer-generation/2`. Empty `_finalReferences` and `_refModifiers` arrays are
+required; malformed fields and nonempty behavioral modifiers fail explicitly.
+The receipt binds source UIDs to injective Alloy symbols and validates the
+original command's zero scopes for unused abstracts. Capture, candidate pinning,
+scope checking and witness decoding reuse the upstream implementation. Old
+0.5.4 artifacts are replayed at their original compiler-repository revision with
+its original tools; current tooling rejects them. The independently pinned
+behavioral suites reuse Java/Alloy provisioning through fresh static tool receipts.
 
 ## Provision, capture, compare and replay
 
@@ -104,7 +115,8 @@ execution and witness parsing. Tests do not extend kernel proofs to these tools.
 
 The inventory verifies immutable bytes before execution. Fixtures stay in the
 pinned semantics dependency; no Haskell or semantics fixtures are copied here.
-Four small rejection sources are original compiler-repository MIT fixtures.
+Four rejection sources and `renamed-inheritance` are original compiler-repository
+MIT fixtures.
 
 | Inventory IDs | Use | Finite checker boundary |
 | --- | --- | --- |
@@ -114,12 +126,13 @@ Four small rejection sources are original compiler-repository MIT fixtures.
 | `inheritance` | Leaf abstracts, subtype chains and unused abstract | Admitted guarded inheritance, without inherited fields |
 | `cycles` | Cyclic reference targets | Admitted; no containment/super cycle is introduced |
 | `shadowing` | Repeated display names in different nesting contexts | Admitted by distinct compiler UIDs, not names |
+| `collisions`, `renamed-inheritance` | Reserved/derived Alloy names, apostrophe collisions, renamed inheritance/reference targets and zero-scoped abstracts | Admitted; positive and violating candidates in the three-way suite |
 | `inherited-field` | Abstract with an inherited child | Unsupported `abstract_fragment`; no checker verdict |
 | `numeric` | Primitive integer reference | Unsupported `type_metadata`; no checker verdict |
 | `expression` | Hard Boolean constraint | Rejected by the source audit before capture |
 | `temporal` | Initial modifier | Rejected by the source audit before capture |
 
-All 13 sources execute the real exporter and all nine admitted captures reach
+All 15 sources execute the real exporter and all eleven admitted captures reach
 Lean admission. Three exact-candidate comparisons and one replay exercise the
 real solver. This is a reproducible smoke corpus, not exhaustive verification of
 all admitted candidates or the broader M2 semantics. The full upstream search and
