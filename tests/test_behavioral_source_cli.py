@@ -89,6 +89,20 @@ class BehavioralSourceCLITests(unittest.TestCase):
             self.assertEqual((result.returncode, result.stdout), (2, b''))
             self.assertEqual(json.loads(result.stderr)['code'], code)
 
+    # [utest->req~compiler-behavioral-elaboration~1]
+    def test_root_property_attachments(self):
+        source = 'P\n  A\n    [X (root = this.parent.parent)]\n    assert [X (this.parent = root.P)]\n'
+        checked = self.product(source=source, extra=['--assertion', '0'])
+        self.assertEqual(checked['command'], {'kind': 'check', 'assertion': 0})
+        self.assertEqual(checked['constraints'][0]['owner'], 2)
+        self.assertEqual(checked['assertions'][0]['owner'], 2)
+        (self.work / 'scenario.cfr').write_text('[X (one root)]\n')
+        for owner in (0, 2):
+            run = self.product(source=source,
+                               extra=['--scenario', 'scenario.cfr', '--owner', str(owner)])
+            self.assertEqual(run['scenario'][0]['owner'], owner)
+            self.assertEqual(run['scenario'][0]['source']['file'], 'scenario.cfr')
+
     def test_empty_model_numeric_scenario_and_inherited_references(self):
         (self.work / 'scenario.cfr').write_text('[all x : 0 | some x]\n')
         p = self.product(source='', b=bounds(1, objects=1), extra=['--scenario', 'scenario.cfr'])

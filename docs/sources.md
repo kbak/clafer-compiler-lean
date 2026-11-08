@@ -812,6 +812,19 @@ Its guide's general nesting suggestion must be qualified for grouped `no`,
 Finite probes (15 direct Alloy cases and four Haskell-generated cases) corroborate
 this distinction without establishing general elaboration correctness.
 
+Explicit behavioral `root` follows PR113
+[`ResolverName.mkPath`](https://github.com/gsdlab/clafer/blob/c7a2fb7d0ba601f52efeac459d12f859a40580fe/src/Language/Clafer/Intermediate/ResolverName.hs),
+which binds it globally, and
+[`ResolverRoot.resolveRootModule`](https://github.com/gsdlab/clafer/blob/c7a2fb7d0ba601f52efeac459d12f859a40580fe/src/Language/Clafer/Intermediate/ResolverRoot.hs),
+which preserves that value in temporal models. The compiler reuses its synthetic
+root, `SetExpr.root` (interpreted by the pinned `Environment.lean` as the global
+root singleton), collection navigation and existing preservation results;
+no new primitive or library is needed. Native exact observations and the pinned
+Haskell comparison cover singleton presence, temporal navigation, optional-child
+parents, captures and nested property ownership. The source rule belongs to the
+reviewed elaboration contract; these finite comparisons do not prove general
+Haskell equivalence or change the static profile.
+
 Value elaboration additionally follows pinned `Intermediate/ResolverType.hs`
 (`resolveTPExp`, `addSome`) and `Intermediate/TypeSystem.hs`
 (`getIfThenElseType`) for Boolean presence coercion and conditional typing.

@@ -51,7 +51,8 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         selected=[]
         for name,rows,expected,c in features():
             if name.startswith(('inherited-bag','inherited-set','group-','modifier-False-',
-                                'equation-','property-check','controller-','identity-budget-')):
+                                'equation-','property-check','controller-','identity-budget-')) or (
+                    name.startswith('root-') and c['query']['kind'] != 'scenario'):
                 selected.append((name,c))
             if name.startswith('modifier-True-'):
                 # Reference inherited from an abstract; both modifiers authored

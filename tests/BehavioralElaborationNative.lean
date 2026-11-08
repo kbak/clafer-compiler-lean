@@ -67,6 +67,29 @@ def captures : IO Unit := do
   | .next (.atom (.primitive (.inhabited (.set (.step .parent (.union .this .empty)))))) => pure ()
   | _ => fail "ordinary observed this became fixed-identity navigation"
 
+-- [utest->req~compiler-behavioral-elaboration~1]
+def roots : IO Unit := do
+  for source in ["A ?\n[X some root]\n", "A ?\n  [X some root]\n",
+      "P\n  A ?\n    [X some root]\n"] do
+    let m ← load source
+    match ← body m with
+    | .next (.atom (.primitive (.inhabited (.set .root)))) => pure ()
+    | _ => fail "root must denote the global identity rather than the enclosing owner"
+  let m ← load "A ?\n  [X some root.A]\n"
+  let a ← idOf m "A"
+  match ← body m with
+  | .next (.atom (.primitive (.inhabited (.set (.step (.child d) .root))))) =>
+    unless d == a do fail "root navigation changed its selected field"
+  | _ => fail "root navigation must observe the field at evaluation time"
+  let m ← load "A ?\n  [let r = root in X (r = root)]\n"
+  match ← body m with
+  | .letSet (.set .root) (.next (.atom (.primitive (.equal (.set (.var 0)) (.set .root))))) => pure ()
+  | _ => fail "root capture lost the lexical slot"
+  for source in ["root ?\n", "A ?\n[all root : A | some root]\n",
+      "A ?\n[some A.root]\n"] do
+    let .error _ := parseAndElaborate IR.BehavioralStructural.profile "root.cfr" source
+      | fail "root became a user declaration, binder or relative field"
+
 def foldCount : Nat → Expression.Integer k n → Nat :=
   Nat.rec (fun _ => 0) (fun _ next e => match e with
     | .binary _ a b => next a + next b
@@ -347,6 +370,7 @@ def emptyNavigationWarnings : IO Unit := do
 
 def run : IO Unit := do
   captures
+  roots
   arithmetic
   surfaces
   values

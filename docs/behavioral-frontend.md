@@ -232,7 +232,13 @@ captured locals, contextual fields, enclosing scopes and unique global names.
 Field selection reuses the static independent `Field`/`Global` predicates;
 reference ownership uses the behavioral structural analysis. A reference cycle
 without a reachable target field still permits unique global-name lookup.
-`this.parent`
+The reserved absolute name `root` denotes the synthetic root singleton in every
+lexical context; nested `this` still denotes the attached owner. Its checked
+`Names.Name.root` rule reuses the existing object collection and `SetExpr.root` semantics.
+`root.A` uses ordinary navigation and observes the top-level field at the current
+evaluation time. Capturing `root` keeps its singleton identity while later
+navigation observes the later field. `root` cannot name a declaration, binder or
+relative child. `this.parent`
 retains direct fixed-identity navigation, while navigation from an observed set
 uses an ordinary step. The typed result distinguishes object heads, integer
 sets, integer scalars, empty sets, formulas and unexpanded transition chains.

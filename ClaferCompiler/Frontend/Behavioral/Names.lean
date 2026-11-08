@@ -81,13 +81,15 @@ def absolute (v : IR.BehavioralStructural.Validated k) (owner : Fin k) (Γ : Con
   let c := v.core.structural
   if hn : name = "this" then
     return ⟨.collection (.objects owner) (.set .this), by subst name; exact .this⟩
+  if hn : name = "root" then
+    return ⟨.collection (.objects c.root) (.set .root), by subst name; exact .root⟩
   if hn : name = "parent" ∨ name = "dref" then
     let b ← navigation v (k + 1) owner (.set .this) name
     return ⟨.collection b.type b.term, .special hn b.derivation⟩
   if let some found := Binders.lookup Γ name then
     return ⟨.collection found.type (.set (.var found.index)), .local found⟩
   if hl : NoLocal Γ name then
-    if hn : name ≠ "this" ∧ name ≠ "parent" ∧ name ≠ "dref" then
+    if hn : name ≠ "this" ∧ name ≠ "root" ∧ name ≠ "parent" ∧ name ≠ "dref" then
       for p in scopes v owner n do
         if hp : p.declaration ≠ c.root then
           if hc : Constraints.NoContext c owner name p.depth then
