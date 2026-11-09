@@ -1,35 +1,27 @@
 # Check Alloy instances, from small examples to telematics
 
-The demonstration runs the existing exact-candidate regressions and retains their
-evidence outside the repository. It supports the [Java rewrite baseline](https://github.com/kbak/clafer-compiler-lean/issues/115)
-and the later [Choco adapter](https://github.com/kbak/clafer-compiler-lean/issues/114).
-It adds no compiler language or checker domain.
-
-## Reuse and execution boundary
-
-The runner uses Python's `argparse` and `unittest`, the existing
-[three-way comparisons](comparison.md), and the
-[source pipeline suite](../tests/test_source_pipeline.py). The latter already
-links the Lean `PipelineNative` harness using Lake, decodes Analyzer XML, checks
-inherited structure and numeric representation, evaluates each body and pins exact
-candidate tables for replay. The pinned upstream `capture`, `comparison` and
-`relation` adapters already preserve source UIDs, paired Haskell exports and atom
-isomorphisms. No replacement parser, solver wrapper or normalization API is needed.
-The optional explicit export uses the existing PR113 capture adapter. Reuse adds
-no library dependency or license cost; project/upstream code remains MIT and the
-external tool notices remain in the [provisioned bundles](oracles.md).
+Run three examples: two references sharing a target, a version comparison, and
+complete static telematics. Each checks a concrete candidate and keeps the inputs,
+solver results and replay data outside the repository. These examples provide a
+baseline for the [Java rewrite](https://github.com/kbak/clafer-compiler-lean/issues/115)
+and [Choco adapter](https://github.com/kbak/clafer-compiler-lean/issues/114).
 
 ## Run the demonstration
 
 Complete [dependency and comparison-tool setup](../CONTRIBUTING.md#setup-and-validation)
 first. `CLAFER_ORACLE_TOOLS` must point to the current structural tools file.
-Build the native compiler and harnesses, then choose a new external directory:
+Run these commands from the repository root:
 
 ```sh
 lake build
 lake build +tests.ComparisonNative +tests.PipelineNative
-python3 scripts/demo_instances.py /tmp/clafer-instance-demo-UNIQUE
+demo_dir=$(mktemp -d)
+python3 scripts/demo_instances.py "$demo_dir/run"
 ```
+
+The commands below reuse `$demo_dir` in the same shell. `mktemp` creates a workspace
+in the system temporary directory; use a persistent directory outside the repository
+instead if you need to keep the results. The runner requires a new `run/` directory.
 
 The runner stops on failures or skipped checks. It runs the small structural
 examples before the richer source suite, prints the expected outcomes and records
@@ -42,6 +34,39 @@ The paired source fixtures are `Target 0..2` followed by either
 `refs ->> Target 0..3` or `refs -> Target 0..3`. Both use the admitted M1 capture
 domain. The candidate has root `0`, target `1`, and distinct reference heads `2`
 and `3`, each owned by the root and pointing to target `1`.
+
+Dashed arrows show containment; solid arrows show references. The numbers are
+object identities, so heads `2` and `3` remain distinct even when they share a target.
+
+```mermaid
+flowchart LR
+  subgraph shared["Shared target: bag passes, set fails"]
+    direction TB
+    r0["Root 0"]
+    h2["Reference head 2"]
+    h3["Reference head 3"]
+    t1["Target 1"]
+    r0 -.-> h2
+    r0 -.-> h3
+    r0 -.-> t1
+    h2 --> t1
+    h3 --> t1
+  end
+  subgraph distinct["Distinct targets: set passes"]
+    direction TB
+    cr0["Root 0"]
+    ch2["Reference head 2"]
+    ch3["Reference head 3"]
+    ct1["Target 1"]
+    ct4["Target 4"]
+    cr0 -.-> ch2
+    cr0 -.-> ch3
+    cr0 -.-> ct1
+    cr0 -.-> ct4
+    ch2 --> ct1
+    ch3 --> ct4
+  end
+```
 
 | Candidate | Verified checker | Haskell Alloy | Native Alloy |
 | --- | --- | --- | --- |
@@ -66,11 +91,12 @@ They deliberately damage the generated target; they are sensitivity checks,
 not discovered compiler defects. Malformed, unsupported and failed comparisons
 are never agreement.
 
-Replay any retained three-way case using a new output directory:
+Replay the bag case from this run. `three-way-*` matches the single directory
+created by the structural suite; the replay writes to a new sibling directory:
 
 ```sh
 python3 scripts/comparison/compare.py replay --tools "$CLAFER_ORACLE_TOOLS" \
-  /tmp/three-way-RESULT/bag /tmp/bag-replay-UNIQUE
+  "$demo_dir"/run/three-way-*/bag "$demo_dir/bag-replay"
 ```
 
 ## Version order, with one failed obligation
@@ -111,7 +137,7 @@ The standalone compilation step is:
 ```sh
 .lake/build/bin/clafer-compiler compile-source tests/fixtures/constraints/telematics.cfr \
   --bounds tests/fixtures/pipeline/telematics.bounds.json \
-  --output /tmp/telematics-UNIQUE.als
+  --output "$demo_dir/telematics.als"
 ```
 
 Compilation emits Alloy and runs no solver. The demonstration's source stage
@@ -151,6 +177,20 @@ When `CLAFER_PR113_C7_TOOLS` is set, the runner also retains a supplementary
 Its own tool/source identity is retained separately. That historical export is
 neither a current M1 receipt nor a new native explicit-source parser. Without
 those tools the summary records `not_requested`; it does not report agreement.
+
+## Reuse and execution boundary
+
+The runner uses Python's `argparse` and `unittest`, the existing
+[three-way comparisons](comparison.md), and the
+[source pipeline suite](../tests/test_source_pipeline.py). The latter already
+links the Lean `PipelineNative` harness using Lake, decodes Analyzer XML, checks
+inherited structure and numeric representation, evaluates each body and pins exact
+candidate tables for replay. The pinned upstream `capture`, `comparison` and
+`relation` adapters preserve source UIDs, paired Haskell exports and atom
+isomorphisms. The optional explicit export uses the existing PR113 capture adapter.
+No new parser, solver wrapper, normalization API or library dependency is needed.
+Project/upstream code remains MIT; external tool notices are in the
+[provisioned bundles](oracles.md).
 
 ## Contract for another backend
 
