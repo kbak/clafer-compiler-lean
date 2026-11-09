@@ -13,6 +13,9 @@ The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) reta
 all B01–B32 obligations. Component inventories distinguish first-slice evidence
 from the full frontend/encoder and source workflow. Every candidate still needs
 source-matched full checks and independent review.
+The [instance-check walkthrough](instance-checks.md) runs small positive/negative
+structural candidates and the complete static source model while retaining these
+qualification and proof/execution boundaries.
 The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
 provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
 Haskell/Alloy queries and retains complete traces; it does not qualify downstream

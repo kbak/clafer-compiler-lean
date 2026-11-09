@@ -5,6 +5,8 @@ text and strict external instance decoding to the pinned Lean and Haskell
 oracles. It tests identical finite candidates across all three interpretations.
 The [structural preservation proofs](structural-correctness.md) establish the
 separate universal in-memory results.
+The [instance-check walkthrough](instance-checks.md) runs the existing small
+positive/negative comparisons before the separate full telematics source path.
 
 ## Reuse and boundaries
 

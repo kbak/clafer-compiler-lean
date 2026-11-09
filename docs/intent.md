@@ -142,6 +142,7 @@ and semantic acceptance require explicit review; see the
 - [Key proved properties and reuse](lessons.md#key-proved-properties): readable guarantees, assumptions, exact theorem links and proof/execution boundaries; reuse and Haskell comparison findings.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
+- [Instance-check walkthrough](instance-checks.md): runnable bag/set, version and complete telematics checks, evidence and backend handoff.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations, resolved structural normalization and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
