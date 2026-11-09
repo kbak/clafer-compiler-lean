@@ -251,8 +251,9 @@ python3 scripts/comparison/temporal_compare.py walkthrough \
   --tools "$CLAFER_TEMPORAL_TOOLS"
 ```
 
-The generated witness follows this path. Each missing-event or loop mutation
-below also goes through source checking, exact target comparison and fresh replay.
+The generated witness follows this path. The `event-never`, `loop-edge` and
+`altered-loop` cases below also go through source checking, exact target
+comparison and fresh replay.
 
 ```mermaid
 flowchart TD
