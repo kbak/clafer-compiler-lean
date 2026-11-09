@@ -745,6 +745,16 @@ temporal operators. No Haskell source, tool revision, semantic pin or dependency
 license changes. The newer PR113 profile and original-versus-explicit models are
 not admitted by this adapter; their qualification remains separate.
 
+The [generated-trace walkthrough](temporal-comparison.md#generated-trace-walkthrough)
+uses that same historical profile and the existing `behavioral-cli/case.json`
+source/IR pair. Its eventuality and loop-edge cases follow the installed upstream
+`docs/behavioral-formulas.md` and `docs/behavioral-verification.md` contracts
+(behavioral paper §5 Definitions 2–5 and §6.2, with the accepted errata).
+The native `Verification.toSet_eq`, `lower_eq`, `sourceLasso_tables` and
+`attached_correct` correspondence remains unchanged. Fresh raw Analyzer output,
+decoded lassos and exact replay bundles are external execution evidence; no new
+semantic pin, Haskell release qualification or full-source observer is introduced.
+
 ## Behavioral dependency delta
 
 The earlier accepted revision `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`

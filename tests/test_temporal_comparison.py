@@ -89,6 +89,51 @@ class TemporalComparisonTests(unittest.TestCase):
         for name,body,surface,live,loop,expected in cases:
             with self.subTest(name=name):self.compare(name,fixture(body,surface,live=live,loop=loop),expected)
 
+    def test_generated_trace_walkthrough(self):
+        case=tc.temporal.read(ROOT/'tests/fixtures/behavioral-cli/case.json')
+        output=self.output/'walkthrough'
+        result=tc.walkthrough(self.runtime,case,output)
+        self.assertEqual(result['status'],'complete',result)
+        self.assertEqual(result['generation'],dict(status='ok',outcome='sat',source='satisfied'))
+        self.assertEqual(result['rejections'],dict(truncated='malformed',metadata='malformed',loop='malformed'))
+        raw=tc.temporal.read(output/'generation/result.json')['trace']
+        supplied=tc.temporal.read(output/'generation/generated-trace.json')
+        self.assertEqual(raw,supplied,'checker must receive the actual Analyzer output')
+        self.assertFalse((output/'generation/fixed-trace.json').exists())
+        self.assertNotIn('tc_Clock',(output/'generation/model.als').read_text())
+        decoded=tc.temporal.read(output/'generation/candidate.json')
+        self.assertIsNotNone(tc.isomorphism(decoded,case['candidate']))
+        for name,truth in [('event-later',True),('event-never',False),('loop-edge',True),('altered-loop',False)]:
+            with self.subTest(name=name):
+                r=result['cases'][name]
+                self.assertEqual(r['source'],'satisfied' if truth else 'violated')
+                self.assertEqual(r['directions'],[])
+                self.assertEqual(r['targets'],{target:dict(status='ok',outcome='sat' if truth else 'bounded_unsat')
+                                              for target in ('compiler','haskell')})
+                self.assertEqual(tc.temporal.read(output/(name+'-replay')/'result.json'),r)
+                checked=tc.temporal.read(output/name/'source-result.json')
+                self.assertEqual(checked['structural'],'satisfied')
+                self.assertEqual(checked['attachments'],[dict(id=40,satisfied=truth)])
+        loop=tc.temporal.read(output/'loop-edge/case.json')
+        broken=tc.temporal.read(output/'altered-loop/case.json')
+        self.assertEqual(loop['candidate']['loop'],1)
+        self.assertEqual(broken['candidate']['loop'],2)
+        broken['candidate']['loop']=1
+        self.assertEqual(loop,broken,'only the final successor changes')
+        persistent={r['id'] for r in decoded['identities'] if r['type'] in (0,1,2)}
+        self.assertTrue(all(persistent <= set(f['live']) for f in loop['candidate']['frames']))
+        tc.validate_bundle(output)
+
+    def test_walkthrough_operational_failure_is_not_unsat(self):
+        case=tc.temporal.read(ROOT/'tests/fixtures/behavioral-cli/case.json')
+        with patch.object(tc.temporal,'solve',return_value=dict(status='timeout')), \
+                patch.object(self.runtime,'check') as check, patch.object(self.runtime,'compare') as compare:
+            result=tc.walkthrough(self.runtime,case,self.output/'walkthrough-timeout')
+        self.assertEqual(result['status'],'inconclusive')
+        self.assertEqual(result['generation'],dict(status='timeout',outcome=None))
+        self.assertEqual(result['cases'],{})
+        check.assert_not_called();compare.assert_not_called()
+
     def test_reference_occurrences(self):
         for mode,expected in [('bag','satisfied'),('set','violated')]:
             with self.subTest(mode=mode):
@@ -140,6 +185,9 @@ class TemporalComparisonTests(unittest.TestCase):
         altered('duplicate',lambda t:t['inventory'].append(t['inventory'][0]))
         altered('duplicate-tuple',lambda t:t['frames'][0]['signatures']['this/cc0'].append(t['frames'][0]['signatures']['this/cc0'][0]))
         altered('parent',lambda t:t['frames'][1]['fields']['this/cc0/cc1'].pop())
+        error_sig=next(row['signature'] for row in tc.temporal.read(d/'compilation.json')['declarations']
+                       if row['id']==3)
+        altered('static-type',lambda t:t['frames'][1]['signatures'][error_sig].clear())
         altered('schema',lambda t:t['fields']['this/cc0/cc1'].update(mutable=True))
         altered('unknown-table',lambda t:t['frames'][0]['fields'].update(unknown=[]))
         altered('arity',lambda t:t['frames'][0]['fields']['this/cc0/cc1'][0].append(t['inventory'][0]))

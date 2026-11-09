@@ -472,6 +472,13 @@ and revision; historical discrepancies do not qualify a newer generator. Paired
 source/IR formula agreement is a reviewed fixture premise until full frontend
 qualification. The [comparison contract](temporal-comparison.md) records this
 boundary and the distinguishing lifetime/identity/loop tests.
+Provide a runnable generated-trace walkthrough in this same profile: pass actual
+external Analyzer output through strict decoding into the verified evaluator,
+then compare and freshly replay satisfying, missing-event and loop-edge mutations
+against both targets. Retain the reviewed source/IR pair, raw and decoded traces,
+explicit identity/step bounds and exact identities externally. Keep machine and
+context present in these examples to exclude lifetime cancellation. Checking
+these lassos does not establish generator completeness or unbounded UNSAT.
 
 Covers:
 - `intent~compiler-foundation~1`
