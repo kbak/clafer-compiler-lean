@@ -83,6 +83,9 @@ The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input
 solver-free native compilation, actual Analyzer trace decoding and exact
 three-way candidate comparison. Replay preserves complete frames and the loop;
 its paired-source and first-slice limits remain explicit.
+The [generated-trace walkthrough](temporal-comparison.md#generated-trace-walkthrough)
+illustrates verified checking with an actual Analyzer witness, missing events and
+an obligation whose witness lies across the loop edge.
 
 The [full source workflow](behavioral-source.md) adds runtime-only compilation,
 strict scalar trace decoding and retained exact-observation comparisons. Its
