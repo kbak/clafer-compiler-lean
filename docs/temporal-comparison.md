@@ -46,6 +46,13 @@ and external tools retain the notices in the [source register](sources.md).
 Native execution, JSON decoding, serialization and SAT solving remain tested
 boundaries, separately from kernel-checked in-memory correspondence.
 
+The generated-trace walkthrough composes these same APIs: `temporal.solve`,
+`Runtime.check`, `Runtime.compare` and `replay_case`, with the existing
+`behavioral-cli/case.json` fixture. A short scenario selects an illustrative
+Analyzer run; it needs neither another model checker nor another trace protocol.
+Python's existing standard-library orchestration suffices. The verified total-set
+adapter remains authoritative; the full-source Python observer is not used.
+
 Exact witness comparison reuses the pinned static `relation.isomorphism`: tag
 memberships and reference relations by frame index and keep static type/parent
 rows in the same graph. Its single global bijection then preserves every frame;
@@ -232,6 +239,114 @@ reduction described above and writes a replayable `minimal` bundle. Test-only
 `reject-all` and `drop-attachments` mutations are explicit settings retained in
 replay; they test detection of both directions without claiming real compiler
 defects.
+
+## Generated-trace walkthrough
+
+After the [pinned tool setup](../CONTRIBUTING.md#setup-and-validation), run from
+the repository root, choosing a fresh external output directory:
+
+```sh
+python3 scripts/comparison/temporal_compare.py walkthrough \
+  tests/fixtures/behavioral-cli/case.json /tmp/temporal-walkthrough-UNIQUE \
+  --tools "$CLAFER_TEMPORAL_TOOLS"
+```
+
+The generated witness follows this path. The `event-never`, `loop-edge` and
+`altered-loop` cases below also go through source checking, exact target
+comparison and fresh replay.
+
+```mermaid
+flowchart TD
+    A["Analyzer-generated witness"] --> B["Strict native decoding"]
+    B --> C["Verified source checking"]
+    C --> D["Exact compiler/Haskell comparisons"]
+    D --> E["Fresh replay"]
+```
+
+This fixed example uses the existing [source/IR pair](../tests/fixtures/behavioral-cli/case.json):
+
+```clafer
+machine ?
+  ctx ?
+    error ?
+    [ F error ]
+```
+
+The constraint belongs to `ctx`, beside its `error` child. The pairing is explicit:
+declarations `0/1/2/3` denote `root/machine/ctx/error`; attachment `40` has owner
+`2` and body `["eventually", ["atom", ["inhabited", ["thisStep", ["child", 3]]]]]`.
+Thus `error` navigates from the current `ctx` to its live children; it is not a
+global event in a different context. This is a manual source/IR correspondence
+premise for review, not a theorem about parsing Haskell source.
+
+All examples keep the same root, machine and context present in every frame.
+Parent cancellation therefore cannot discharge the eventuality. The static pool
+contains four identities, exactly one per declaration, including the `error`
+identity when absent. The bitwidth is `8`; it bounds structural counts and adds no
+arithmetic observation. Each query has exact stored-frame bounds (`2..2` or
+`3..3` below). Frame and loop indices are zero-based.
+
+| Example | `error` present by frame | Final edge | Source check | Both exact targets |
+| --- | --- | --- | --- | --- |
+| `event-later` | no, yes | `1 → 1` | satisfied | SAT |
+| `event-never` | no, no | `1 → 1` | violated | bounded UNSAT |
+| `loop-edge` | no, yes, no | `2 → 1` | satisfied | SAT |
+| `altered-loop` | no, yes, no | `2 → 2` | violated | bounded UNSAT |
+
+The generator query compiles the paired IR and invokes the external Analyzer
+without candidate tables or the exact-fixing clock. Its retained `scenario.als`
+keeps machine/context present, requires no initial error and a permanent error
+from the next frame. With exactly two frames those observations force loop `1`.
+These scenario restrictions select one witness; they do not establish that the
+compiler can generate every satisfying trace. The Analyzer chooses the atoms,
+types and parent tables, and its actual raw output goes directly through the
+strict native decoder and independent evaluator. The decoded result then becomes
+the supplied candidate for exact compiler/Haskell comparison.
+
+`event-never` removes the event from that decoded trace without deleting its
+identity. `loop-edge` appends an event-free frame and loops back to frame `1`.
+The attachment is checked at every live context/time: the obligation at frame `2`
+can reach its witness only across the loop edge. `altered-loop` changes only that
+edge, leaving the context alive forever without another event. An event earlier
+in the finite prefix cannot discharge this later obligation.
+
+The frames are identical in these two cases; only the final edge changes.
+Machine and context remain alive throughout.
+
+```mermaid
+flowchart LR
+    subgraph Valid["loop-edge: satisfied"]
+        A0["0: no error"] --> A1["1: error"]
+        A1 --> A2["2: no error"]
+        A2 -->|loop| A1
+    end
+    subgraph Invalid["altered-loop: violated"]
+        B0["0: no error"] --> B1["1: error"]
+        B1 --> B2["2: no error"]
+        B2 -->|loop| B2
+    end
+```
+
+Under `walkthrough/`, `generation/` retains the compilation, scenario, request,
+raw `solver.json`/`result.json`, JVM receipts/stdout/stderr, checker input/output and
+decoded `candidate.json`. Each named example is an ordinary hashed comparison
+bundle with paired Haskell source/IR/Alloy, generation receipt, bounds, source and
+tool identities, exact target queries and full observations. A sibling `*-replay/`
+is a fresh verified replay of that bundle. The top-level `runtime.json` and
+`evidence-index.json` bind the complete walkthrough; the command's JSON summary
+keeps source verdicts and target outcomes separate. The existing `replay` command
+can rerun any individual named bundle. No historical receipt qualifies new bytes.
+
+The walkthrough also submits truncated frames, changed field metadata and an
+out-of-range loop from the actual raw witness, requiring `malformed` each time.
+The wider regression corpus separately checks static parents/types, repeated
+reference heads, one global renaming and rejection of stuttering. This basic
+fixture has no references; it does not substitute for that reference corpus.
+Unsupported inputs and operational failures cannot become bounded UNSAT or a
+successful walkthrough. Checking these supplied lassos establishes neither
+generator completeness nor unbounded UNSAT. The proof and native/serialized
+boundaries below apply unchanged; no full-arithmetic or Python-observer assurance
+is claimed.
 
 ## Proof and test boundaries
 

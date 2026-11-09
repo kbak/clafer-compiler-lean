@@ -44,6 +44,7 @@ def source_identity():
              ROOT/'scripts/oracles/oracle.py', ROOT/'scripts/oracles/pr113_protocol.py',
              ROOT/'scripts/oracles/AlloyTemporalBridge.java', ROOT/'scripts/oracles/temporal-profile.json',
              ROOT/'tests/TemporalComparisonNative.lean', ROOT/'tests/test_temporal_comparison.py',
+             ROOT/'tests/fixtures/behavioral-cli/case.json',
              ROOT/'lean-toolchain', ROOT/'lakefile.toml', ROOT/'lake-manifest.json']
     return {str(p.relative_to(ROOT)): oracle.digest(p) for p in paths}
 
@@ -489,6 +490,88 @@ def replay(tools, bundle, output):
     return replay_case(runtime,bundle,Path(output)/'case')
 
 
+# [impl->req~compiler-temporal-comparison~1]
+# [impl->req~compiler-temporal-decode~1]
+def walkthrough(runtime, case, output):
+    """Run the reviewed eventuality fixture, starting with actual Analyzer output.
+
+    This is a fixed example using the existing checker/comparison/replay APIs,
+    not a new source adapter. No candidate tables enter the generation query.
+    """
+    require(case == temporal.read(ROOT/'tests/fixtures/behavioral-cli/case.json'),
+            'walkthrough requires the reviewed behavioral-cli/case.json fixture')
+    output=oracle.external(output);output.mkdir(parents=True,exist_ok=False)
+    oracle.write(output/'runtime.json',runtime.identity)
+    generation=output/'generation';generation.mkdir()
+    oracle.write(generation/'case.json',case)
+    product=runtime.compile(generation,case['document'],case['bounds'])
+    names={d['id']:symbol(d['signature']) for d in product['declarations']}
+    live=names[0]+'.@cc5'
+    # Select an illustrative run: permanent machine/context, initially no event,
+    # then a permanent event. Distinct live observations force the two-state loop
+    # to close at frame 1. The Analyzer chooses atoms and structural tables.
+    scenario=(f'\nfact walkthrough {{\n'
+              f'  always (({names[1]} + {names[2]}) in {live})\n'
+              f'  no ({names[3]} & {live})\n'
+              f'  after always ({names[3]} in {live})\n}}\n')
+    (generation/'scenario.als').write_text(scenario)
+    (generation/'model.als').write_text(product['alloy']+scenario)
+    request=dict(command_index=0,overall=1,bitwidth=product['bitwidth'],
+                 min_steps=2,max_steps=2,identities=product['scopes'])
+    solver=temporal.solve(runtime.tools['runtime'],runtime.tools['api'],generation,request)
+    oracle.write(generation/'result.json',solver)
+    result=dict(status='inconclusive',generation=dict(status=solver['status'],outcome=solver.get('outcome')),
+                cases={},rejections={},directions=[])
+    if solver['status']=='ok' and solver['outcome']=='sat':
+        checked=runtime.check(generation,solver['trace'],'generated')
+        oracle.write(generation/'source-result.json',checked)
+        result['generation']['source']=checked['status']
+        require(checked['status']=='satisfied','generated witness failed independent source checking')
+        candidate=checked['trace']
+        require(isomorphism(candidate,case['candidate']) is not None,
+                'generated witness differs from the illustrated event-later lasso')
+        oracle.write(generation/'candidate.json',candidate)
+        # Corrupt the raw external output, not reconstructed candidate tables.
+        for name in ('truncated','metadata','loop'):
+            bad=copy.deepcopy(solver['trace'])
+            if name=='truncated':bad['frames'].pop()
+            elif name=='metadata':bad['fields']['this/cc0/cc1']['mutable']=True
+            else:bad['loop']=bad['length']
+            rejected=runtime.check(generation,bad,'reject-'+name)
+            result['rejections'][name]=rejected['status']
+            require(rejected['status']=='malformed','corrupt external trace accepted: '+name)
+        event_ids={r['id'] for r in candidate['identities'] if r['type']==3}
+        later=copy.deepcopy(case);later['candidate']=candidate
+        never=copy.deepcopy(later)
+        for frame in never['candidate']['frames']:
+            frame['live']=[x for x in frame['live'] if x not in event_ids]
+        loop=copy.deepcopy(later)
+        loop['candidate']['frames'].append(copy.deepcopy(candidate['frames'][0]))
+        loop['candidate'].update(length=3,loop=1)
+        loop['bounds'].update(minSteps=3,maxSteps=3)
+        broken=copy.deepcopy(loop);broken['candidate']['loop']=2
+        examples=(('event-later',later,'satisfied'),('event-never',never,'violated'),
+                  ('loop-edge',loop,'satisfied'),('altered-loop',broken,'violated'))
+        for name,example,expected in examples:
+            bundle=output/name
+            comparison=runtime.compare(example,bundle)
+            result['cases'][name]=comparison
+            if comparison['status']!='complete':
+                result['status']=comparison['status']
+                break
+            require(comparison['source']==expected and not comparison['directions'],
+                    'unexpected walkthrough verdict: '+name)
+            outcome='sat' if expected=='satisfied' else 'bounded_unsat'
+            require(all(t==dict(status='ok',outcome=outcome) for t in comparison['targets'].values()),
+                    'unexpected target outcome: '+name)
+            replay_case(runtime,bundle,output/(name+'-replay'))
+        else:result['status']='complete'
+    oracle.write(output/'result.json',result)
+    oracle.write(output/'evidence-index.json',{str(p.relative_to(output)):oracle.digest(p)
+        for p in sorted(output.rglob('*')) if p.is_file()})
+    return result
+
+
 def reductions(case):
     """Single live/reference-row deletions at the original identity/step bounds."""
     for t,frame in enumerate(case['candidate']['frames']):
@@ -529,14 +612,15 @@ def minimize(runtime,bundle,output):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['run','replay','minimize'])
+    p.add_argument('command',choices=['run','replay','minimize','walkthrough'])
     p.add_argument('input',type=Path);p.add_argument('output',type=Path)
     p.add_argument('--tools',required=True,type=Path)
     args=p.parse_args()
     if args.command=='replay':result=replay(args.tools,args.input,args.output)
     else:
         runtime=Runtime(args.tools,args.output/'runtime')
-        result=(minimize(runtime,args.input,args.output/'reduction') if args.command=='minimize' else
+        result=(walkthrough(runtime,temporal.read(args.input),args.output/'walkthrough') if args.command=='walkthrough' else
+                minimize(runtime,args.input,args.output/'reduction') if args.command=='minimize' else
                 runtime.compare(temporal.read(args.input),args.output/'case'))
     print(json.dumps(result,sort_keys=True))
     return 0 if result['status']=='complete' and (result.get('deletion_minimal') or not result['directions']) else 1
