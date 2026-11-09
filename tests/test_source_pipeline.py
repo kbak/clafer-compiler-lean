@@ -36,7 +36,7 @@ def schema(directory):
     return dict(signatures=sigs, fields=fields)
 
 
-def witness(path, spec):
+def witness(path, spec, *, labels_path=None):
     """Read Alloy XML's explicit signature tree, preserving opaque atom names."""
     instance = ET.parse(path).getroot().find('instance')
     sigs = {int(s.attrib['label'].removeprefix('this/cc')) // 4:
@@ -52,6 +52,8 @@ def witness(path, spec):
         return sorted(set(result))
     atoms = extent(0)
     labels = {a: i for i, a in enumerate(atoms)}
+    if labels_path is not None:
+        oracle.write(labels_path, labels)
     signatures = [[labels[a] for a in extent(i)] for i in range(len(sigs))]
     fields = [[] for _ in spec['fields']]
     values = [[] for _ in sigs]
@@ -208,9 +210,9 @@ def main : List String → IO Unit
             folder = output / label
             folder.mkdir()
             manifest = []
-            for i, (text, expected) in enumerate(items):
+            for i, (text, expected, case) in enumerate(items):
                 (folder / f'case_{i}.als').write_text(text)
-                manifest.append(dict(id=f'case_{i}', expected=expected, reference=False))
+                manifest.append(dict(id=f'case_{i}', expected=expected, reference=False, label=case))
             oracle.write(folder / 'manifest.json', manifest)
             run(label, [runtime['java'], '-Xmx512m', '-cp', classpath,
                         'AlloyArithmeticBridge', folder], folder)
@@ -218,9 +220,10 @@ def main : List String → IO Unit
 
         telematics = (ROOT / 'tests/fixtures/constraints/telematics.cfr').read_text()
         telematics_bounds = json.loads((ROOT / 'tests/fixtures/pipeline/telematics.bounds.json').read_text())
+        version_bounds = bounds([1,1,1,2],3,3)
+        version_bounds['integers'][0].update(lower=1, upper=3)
         definitions = [
-            ('telematics', telematics, telematics_bounds, 'none'),
-            ('version', 'a -> int\nb -> int\n[a >= b]\n', bounds([1,1,1,2],3,3), 'none'),
+            ('version', 'a -> int\nb -> int\n[a >= b]\n', version_bounds, 'none'),
             ('display', 'box\n  item *\n[#box.item = 2]\n', bounds([1,1,2,0],4,3), 'none'),
             ('parent', 'abstract Node\n  child -> Node\n    [this = parent]\nleft : Node\nright : Node\n',
              bounds([1,2,2,1,1,0],5,5), 'none'),
@@ -237,21 +240,36 @@ def main : List String → IO Unit
             ('empty-navigation', 'a\n  x *\n[no noclafer.x]\n',
              bounds([1,1,1,0],3,3), 'none'),
             ('inherited', 'abstract Base\n  xor choice\n    a\n    b\nitem : Base\n',
-             bounds([1,1,1,0,0,1],3), 'drop-inherited-group')]
+             bounds([1,1,1,0,0,1],3), 'drop-inherited-group'),
+            ('telematics', telematics, telematics_bounds, 'none')]
         prepared = native_many([('seed-'+name, source, limits, None, mutation)
                                 for name, source, limits, mutation in definitions])
-        seed = solve('seed-analyzer', [(p.joinpath('generated.als').read_text(), True) for p in prepared])
+        seed_texts = []
+        for (name, _, _, _), prep in zip(definitions, prepared):
+            text = prep.joinpath('generated.als').read_text()
+            if name == 'telematics':
+                cli_text = prep / 'cli.als'
+                run('telematics-cli', [executable, 'compile-source', prep / 'model.cfr',
+                                      '--bounds', prep / 'bounds.json', '--output', cli_text])
+                text = cli_text.read_text()
+                self.assertEqual(text, prep.joinpath('generated.als').read_text())
+            seed_texts.append((text, True, name))
+        seed = solve('seed-analyzer', seed_texts)
         checks, results, evaluations, calls = [], [], [], []
         for index, ((name, source, limits, _), prep) in enumerate(zip(definitions, prepared)):
             spec = schema(prep)
-            c = witness(seed / f'case_{index}.xml', spec)
+            c = witness(seed / f'case_{index}.xml', spec, labels_path=prep / 'atom-labels.json')
             mapping = {d: (s, h-1, r-1) for d,s,h,r in rows(prep / 'mapping.rows')}
             if name == 'version':
-                # The exact positive has a=1 and b=0, so reversing order changes truth.
+                # a is the display version, b its ECU version. Preserve identities.
                 scalar = mapping[3][0]
-                c['values'][scalar] = [[a, z] for z, a in enumerate(c['signatures'][scalar])]
+                c['values'][scalar] = [[a, z+2] for z, a in enumerate(c['signatures'][scalar])]
                 for d, z in [(1,1),(2,0)]:
                     c['fields'][mapping[d][2]] = [[c['signatures'][mapping[d][0]][0], c['values'][scalar][z][0]]]
+                negative = copy.deepcopy(c)
+                negative['values'][scalar][1][1] = 1
+                calls.extend([(label, source, limits, negative, 'none') for label in
+                              ('version-value-negative', 'version-value-replay')])
             if name == 'omitted':
                 scalar = mapping[2][0]
                 c['values'][scalar][0][1] = 1
@@ -283,19 +301,38 @@ def main : List String → IO Unit
                 self.assertTrue(all(line.endswith(' true') for line in observed[3:]))
                 self.assertEqual(rows(original/'bodies.rows'), [[i,o] for i,o in enumerate([0,0,0,1,11,15,15,19,19,19,19,19])])
             original_text = original.joinpath('generated.als').read_text() + pin(c, spec)
-            checks.append((original_text, expected))
+            checks.append((original_text, expected, name+'-original'))
             if name == 'telematics':
-                results.append(dict(name=name, original=expected, bodies=12))
+                results.append(dict(name=name, original=expected, bodies=12,
+                                    final_selection_bodies=[0,1,2], native_cli=True))
                 continue
+            if name == 'version':
+                self.assertEqual(observed, ['target true', 'inherited true',
+                                             'numeric true', 'body 0 true'])
+                for label in ('version-value-negative', 'version-value-replay'):
+                    rejected = output / label
+                    self.assertEqual(rejected.joinpath('evaluation.rows').read_text().splitlines(),
+                                     ['target false', 'inherited true', 'numeric true', 'body 0 false'])
+                    self.assertEqual(rejected.joinpath('model.cfr').read_bytes(),
+                                     original.joinpath('model.cfr').read_bytes())
+                    negative = json.loads(rejected.joinpath('candidate.json').read_text())
+                    self.assertEqual(negative['signatures'], c['signatures'])
+                    self.assertEqual(negative['fields'], c['fields'])
+                    checks.append((rejected.joinpath('generated.als').read_text()+pin(negative,spec), False, label))
+                self.assertEqual((output/'version-value-negative/tables.rows').read_bytes(),
+                                 (output/'version-value-replay/tables.rows').read_bytes())
+                results.append(dict(name='version-value', display=3, ecu=2, accepted=True,
+                                    changed_display=1, rejected=True, failed_body=0,
+                                    inherited=True, numeric=True, replay=True))
             changed, replay = output / (name+'-mutated'), output / (name+'-replay')
             self.assertEqual(changed.joinpath('evaluation.rows').read_text().splitlines()[0],
                              'target '+str(not expected).lower())
             changed_text = changed.joinpath('generated.als').read_text() + pin(c, spec)
-            checks.append((changed_text, not expected))
+            checks.append((changed_text, not expected, name+'-mutated'))
             # Exact replay retains source, bounds, all tuples and scalar payloads.
             self.assertEqual(replay.joinpath('generated.als').read_bytes(), changed.joinpath('generated.als').read_bytes())
             self.assertEqual(replay.joinpath('evaluation.rows').read_bytes(), changed.joinpath('evaluation.rows').read_bytes())
-            checks.append((replay.joinpath('generated.als').read_text()+pin(c,spec), not expected))
+            checks.append((replay.joinpath('generated.als').read_text()+pin(c,spec), not expected, name+'-replay'))
             # Enumerate every object deletion. Each violates an explicit exact
             # original-declaration scope, so none remains a fitting candidate.
             # This is minimality under object deletion with these fixed bounds,
@@ -346,15 +383,20 @@ def main : List String → IO Unit
             self.assertEqual(evaluated.joinpath('evaluation.rows').read_text().splitlines(),
                              ['target ' + str(expected).lower(),
                               'inherited ' + str(expected).lower(), 'numeric true'])
-            checks.append((evaluated.joinpath('generated.als').read_text() + pin(c, spec), expected))
+            checks.append((evaluated.joinpath('generated.als').read_text() + pin(c, spec), expected, label))
             cli_text = evaluated / 'cli.als'
             run(label + '-cli', [executable, 'compile-source', evaluated / 'model.cfr',
                                  '--bounds', evaluated / 'bounds.json', '--output', cli_text])
-            checks.append((cli_text.read_text() + pin(c, spec), expected))
+            checks.append((cli_text.read_text() + pin(c, spec), expected, label+'-cli'))
             results.append(dict(name=label, accepted=expected, exact_counts=[1, 1, a, b],
                                 native_cli=True))
         solve('exact-analyzer', checks)
         oracle.write(output / 'results.json', results)
+        print('Version: display 3 / ECU 2 passes; display 1 / ECU 2 fails body 0 '
+              '(a >= b), with inherited structure and numeric representation valid.\n'
+              'Telematics: production source CLI, decoded Analyzer instance, inherited '
+              'and numeric checks, all 12 bodies including final selections 0/1/2 pass.',
+              flush=True)
         oracle.write(output / 'evidence-index.json', {str(p.relative_to(output)): oracle.digest(p)
                      for p in sorted(output.rglob('*')) if p.is_file()})
 

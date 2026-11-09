@@ -124,7 +124,11 @@ Install the pinned checker in an environment outside the source tree:
 python3 -m venv ../clafer-compiler-tools
 ../clafer-compiler-tools/bin/pip install -r requirements/intentbond.txt
 ../clafer-compiler-tools/bin/ib install-oft
+source ../clafer-compiler-tools/bin/activate
 ```
+
+Activate this environment before checking so child Python regressions can import
+the same pinned IntentBond package.
 
 Before editing, capture `git rev-parse HEAD` as `BASE_COMMIT`. Read the
 [development skill at the pinned revision](https://github.com/kbak/intentbond/blob/f9b4f9e40722dc6a83067ac9e62480159322dd09/intentbond/skills/intentbond/SKILL.md)

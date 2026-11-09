@@ -436,6 +436,12 @@ dependency pin or trusted scope policy changes.
 
 ## Source pipeline composition
 
+The [instance-check walkthrough](instance-checks.md) reuses S1's admitted structural
+comparisons and S3/S4's extended observation path, with the existing original
+telematics fixture. Its optional explicit export retains the separate registered
+PR113 `c7a2fb7` identity; it does not repin current structural capture or extend
+the M1 adapter. See the walkthrough's reuse assessment and table/body inventory.
+
 The pinned S3 `Realization.Satisfies` and S4 `IntegerBinding` jointly require an
 infinite rooted primitive domain. The complete S8 telematics `Input`,
 `Configuration`, `Satisfaction` and `Compiled` modules supply the independent

@@ -54,6 +54,8 @@ class ComparisonTests(unittest.TestCase):
     def compare(self, name, candidate, label, **kwargs):
         result = comparison.compare(self.runtime, self.bundles[name],
             self.runtime.api['protocol'].encoded(candidate), self.output / label, **kwargs)
+        if result['category'].startswith('agree_'):
+            self.assertTrue(result['complete'], result)
         return result
 
     def test_actual_decode_and_negative_mutations(self):
@@ -64,6 +66,15 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(len(self.runtime.relation.occurrences(decoded)), 2)
         self.assertEqual(len({row[1][0] for row in decoded['references']}), 2)
         self.assertEqual(self.compare('set', candidate, 'set')['category'], 'agree_violates')
+        distinct = copy.deepcopy(candidate)
+        distinct['objects'].append(4)
+        distinct['members'].append(['Target', 4])
+        distinct['containment'].append(['Target', [0, 4]])
+        distinct['references'][1] = ['refs', [3, 4]]
+        self.assertEqual(self.compare('set', distinct, 'set-distinct')['category'],
+                         'agree_satisfies')
+        print('Bag: two heads sharing one target pass. Set: the same candidate fails '
+              'target uniqueness; distinct targets pass.', flush=True)
         for mutation, category in [('collapse-occurrence','pin_decode_failure'),
                                    ('swap-endpoints','checker_accepts_compiler_rejects'),
                                    ('reject-all','checker_accepts_compiler_rejects')]:

@@ -1029,6 +1029,10 @@ renamed inherited references and unused abstracts on positive and violating
 candidates. Preserve original source UIDs through the separate Haskell and native
 symbol maps and exact decoding.
 
+Provide a runnable [instance-check walkthrough](instance-checks.md) showing
+repeated-target bag acceptance, rejection of the identical set candidate and a
+passing distinct-target set control, within this same comparison domain.
+
 Covers:
 - `intent~compiler-foundation~1`
 
@@ -1405,6 +1409,12 @@ constraint and missing inherited-group mutations; retain bounded minimized repla
 witnesses and state their reduction order. Preserve complete source/candidate,
 original maps, scalar rows, commands, tool/source identities and external outcomes.
 These finite tests complement the composed proofs, not certify the external tools.
+
+The [instance-check walkthrough](instance-checks.md) shall run a standalone version
+`3 >= 2` success and `1 >= 2` rejection with all other obligations valid, then
+the complete native source example. Identify final selections within the twelve
+bodies, retain exact replay tables and explain the input contract for another
+backend without widening the guarded Haskell comparison domain.
 
 Covers:
 - `intent~compiler-foundation~1`
