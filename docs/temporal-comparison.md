@@ -251,6 +251,17 @@ python3 scripts/comparison/temporal_compare.py walkthrough \
   --tools "$CLAFER_TEMPORAL_TOOLS"
 ```
 
+The generated witness follows this path. Each missing-event or loop mutation
+below also goes through source checking, exact target comparison and fresh replay.
+
+```mermaid
+flowchart TD
+    A["Analyzer-generated witness"] --> B["Strict native decoding"]
+    B --> C["Verified source checking"]
+    C --> D["Exact compiler/Haskell comparisons"]
+    D --> E["Fresh replay"]
+```
+
 This fixed example uses the existing [source/IR pair](../tests/fixtures/behavioral-cli/case.json):
 
 ```clafer
@@ -297,6 +308,23 @@ The attachment is checked at every live context/time: the obligation at frame `2
 can reach its witness only across the loop edge. `altered-loop` changes only that
 edge, leaving the context alive forever without another event. An event earlier
 in the finite prefix cannot discharge this later obligation.
+
+The frames are identical in these two cases; only the final edge changes.
+Machine and context remain alive throughout.
+
+```mermaid
+flowchart LR
+    subgraph Valid["loop-edge: satisfied"]
+        A0["0: no error"] --> A1["1: error"]
+        A1 --> A2["2: no error"]
+        A2 -->|loop| A1
+    end
+    subgraph Invalid["altered-loop: violated"]
+        B0["0: no error"] --> B1["1: error"]
+        B1 --> B2["2: no error"]
+        B2 -->|loop| B2
+    end
+```
 
 Under `walkthrough/`, `generation/` retains the compilation, scenario, request,
 raw `solver.json`/`result.json`, JVM receipts/stdout/stderr, checker input/output and
