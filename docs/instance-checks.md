@@ -1,42 +1,38 @@
-# Check Alloy instances, from small examples to telematics
+# Check whether an instance satisfies a model
 
-Run three examples: two references sharing a target, a version comparison, and
-complete static telematics. Each checks a concrete candidate and keeps the inputs,
-solver results and replay data outside the repository. These examples provide a
-baseline for the [Java rewrite](https://github.com/kbak/clafer-compiler-lean/issues/115)
-and [Choco adapter](https://github.com/kbak/clafer-compiler-lean/issues/114).
+A Clafer model describes allowed configurations: which objects can exist, how
+they relate, and which rules their values must obey. An **instance** is one
+concrete configuration. An Alloy-based generator searches for instances; the
+Lean checker independently asks whether a particular candidate satisfies the
+model's semantics.
 
-## Run the demonstration
+This guide starts with relationships between objects, adds a rule about values,
+then checks both in a vehicle electronics model. Passing and deliberately failing
+examples show what the checker detects. Read the examples first, then
+[run them](#run-the-demonstration) to inspect the results yourself.
 
-Complete [dependency and comparison-tool setup](../CONTRIBUTING.md#setup-and-validation)
-first. `CLAFER_ORACLE_TOOLS` must point to the current structural tools file.
-Run these commands from the repository root:
+## Two references to the same object
 
-```sh
-lake build
-lake build +tests.ComparisonNative +tests.PipelineNative
-demo_dir=$(mktemp -d)
-python3 scripts/demo_instances.py "$demo_dir/run"
+A reference points from one object to another. Clafer lets us choose whether
+several references under the same owner may point to the same target. The
+**bag** form, `->>`, permits this; the **set** form, `->`, requires distinct
+targets. This small model uses the bag form:
+
+```clafer
+Target 0..2
+refs ->> Target 0..3
 ```
 
-The commands below reuse `$demo_dir` in the same shell. `mktemp` creates a workspace
-in the system temporary directory; use a persistent directory outside the repository
-instead if you need to keep the results. The runner requires a new `run/` directory.
+The ranges allow zero to two `Target` objects and zero to three `refs` objects.
+Consider one target and two references pointing to it. That fits the ranges and
+is valid for the bag. Changing only `->>` to `->` makes the same configuration
+invalid. Giving the two references different targets makes the set valid again.
 
-The runner stops on failures or skipped checks. It runs the small structural
-examples before the richer source suite, prints the expected outcomes and records
-the actual test logs and evidence locations. `--part structural` or `--part source`
-runs one stage. These focused runs do not replace full IntentBond qualification.
+Each `refs` object has its own identity, called a **reference head**. Sharing a
+target does not make two heads one object. In the diagram, root `0` is the common
+container, heads `2` and `3` are the references, and object `1` is their target.
 
-## Two reference heads: bag and set
-
-The paired source fixtures are `Target 0..2` followed by either
-`refs ->> Target 0..3` or `refs -> Target 0..3`. Both use the admitted M1 capture
-domain. The candidate has root `0`, target `1`, and distinct reference heads `2`
-and `3`, each owned by the root and pointing to target `1`.
-
-Dashed arrows show containment; solid arrows show references. The numbers are
-object identities, so heads `2` and `3` remain distinct even when they share a target.
+Dashed arrows show containment; solid arrows show references.
 
 ```mermaid
 flowchart LR
@@ -68,18 +64,86 @@ flowchart LR
   end
 ```
 
+The checker and two Alloy translations agree below. Haskell Alloy is produced by
+the reference Haskell compiler; native Alloy by this Lean compiler. Each solver
+query fixes the **same candidate**: SAT means that candidate is allowed; UNSAT
+means it is rejected, not that the whole model has no valid instances.
+
 | Candidate | Verified checker | Haskell Alloy | Native Alloy |
 | --- | --- | --- | --- |
 | Bag, two heads sharing target `1` | satisfies | SAT | SAT |
 | Set, the identical candidate | violates | UNSAT | UNSAT |
 | Set control, head `2` targets `1`, head `3` targets new object `4` | satisfies | SAT | SAT |
 
-The rejected set violates per-owner target uniqueness. It still has two distinct
-heads: neither decoding nor checking collapses them. The control adds target `4`
-with its own membership and root-containment rows. All other obligations hold.
-These are exact-candidate solver queries; UNSAT rejects that fixed candidate.
+Only target uniqueness fails in the rejected set. The passing set adds target
+`4` and changes head `3` to point to it; all other rules still hold.
 
-This stage exercises the receipt-producing Haskell **static Alloy** generator
+## A rule about version numbers
+
+Relationships alone do not express every requirement. Suppose a display's version
+must be at least the version of its server, an electronic control unit (ECU).
+We can isolate that rule with two integer values:
+
+```clafer
+a -> int
+b -> int
+[a >= b]
+```
+
+Here `a` stands for the display version and `b` for the ECU version; the brackets
+state the rule. With `a = 3` and `b = 2`, the candidate passes because `3 >= 2`.
+Changing only `a` to `1` makes it fail because `1 >= 2` is false. The objects and
+their relationships remain valid: the failure is specifically in the value rule.
+
+This is the numeric part of `[version >= server.version]` in the larger example
+below. The small model supplies the two values directly; the larger one also has
+to follow the display's `server` reference to find the ECU's version.
+
+## Complete static telematics
+
+Telematics here is a vehicle electronics configuration with control units,
+displays and options. It combines the ideas above: displays refer to servers,
+their versions must be compatible, and choices such as a second channel affect
+which components are required. **Static** means we check one configuration;
+changes over time belong to the [trace walkthrough](temporal-comparison.md#generated-trace-walkthrough).
+
+The complete model selects a dual channel, extra displays and a large size. The
+exercise generates a configuration and checks all twelve rules together,
+including the version rule we just examined. This tests whether the pieces still
+agree when combined in a larger model.
+
+## Run the demonstration
+
+Complete [dependency and comparison-tool setup](../CONTRIBUTING.md#setup-and-validation)
+first. `CLAFER_ORACLE_TOOLS` must point to the current structural tools file.
+Run these commands from the repository root:
+
+```sh
+lake build
+lake build +tests.ComparisonNative +tests.PipelineNative
+demo_dir=$(mktemp -d)
+python3 scripts/demo_instances.py "$demo_dir/run"
+```
+
+The commands below reuse `$demo_dir` in the same shell. `mktemp` creates a workspace
+in the system temporary directory; use a persistent directory outside the repository
+instead if you need to keep the results. The runner requires a new `run/` directory.
+
+The runner stops on failures or skipped checks. It runs the small structural
+examples before the richer source suite, prints the expected outcomes and records
+the actual test logs and evidence locations. `--part structural` or `--part source`
+runs one stage. These focused runs do not replace full IntentBond qualification.
+
+## Inspect and replay the results
+
+The runner prints the location of each result bundle. The details below connect
+those files to the examples and identify which compilation and checking paths
+each exercise covers.
+
+### Reference examples
+
+These fixtures use the admitted M1 structural comparison domain. This stage
+exercises the receipt-producing Haskell **static Alloy** generator
 and the native **resolved structural IR** encoder, serializer and Analyzer
 decoder. It does not exercise the native source frontend or temporal generator.
 See `capture-bag/`, `capture-set/`, `bag/`, `set/`, and `set-distinct/` in the printed
@@ -99,23 +163,13 @@ python3 scripts/comparison/compare.py replay --tools "$CLAFER_ORACLE_TOOLS" \
   "$demo_dir"/run/three-way-*/bag "$demo_dir/bag-replay"
 ```
 
-## Version order, with one failed obligation
+### Version example
 
-The existing standalone witness is:
-
-```clafer
-a -> int
-b -> int
-[a >= b]
-```
-
-Here `a` represents the display version and `b` the ECU version selected by its
-server. It isolates the comparison in telematics' `[version >= server.version]`;
-it does not add a new server-navigation fixture. With `a = 3`, `b = 2`, the
-inherited checker, numeric checks, body `0`, native target evaluator and exact
-Analyzer query pass. Changing only the scalar value for `a` to `1` makes body `0`
-false and the exact target query UNSAT. Structure and numeric representation
-remain valid; the declared interval `[1,3]` admits both candidates.
+The declared integer interval `[1,3]` admits both candidates. For `a = 3`,
+`b = 2`, inherited structure, numeric representation, constraint body `0`, the
+native target evaluator and the exact Analyzer query all pass. With `a = 1`,
+structure and numeric checks still pass, but body `0` and target evaluation are
+false, and the exact query is UNSAT. This isolates one failed obligation.
 
 Inspect `version-original/` and `version-value-negative/` in the source evidence.
 Both retain source, bounds, complete `candidate.json`, `tables.rows`, mappings,
@@ -123,7 +177,7 @@ body owners and `evaluation.rows`. `version-value-replay/` repeats the rejection
 The separate comparator-reversal, display-count, parent-navigation, omitted-body
 and omitted-inherited-group regressions remain part of the same run.
 
-## Complete static telematics
+### Complete model
 
 The source stage compiles the complete [source fixture](../tests/fixtures/constraints/telematics.cfr)
 with its [declared bounds](../tests/fixtures/pipeline/telematics.bounds.json) through
