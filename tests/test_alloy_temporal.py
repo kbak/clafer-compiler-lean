@@ -105,10 +105,10 @@ class AlloyTemporalTests(unittest.TestCase):
         def solve(case):
             path, case_dir, request = case
             scalar_fields = path.with_suffix('.integer-fields').read_text().splitlines()
-            # Nested scoped patterns expand several lifetime operators. Preserve
-            # every witness while allowing the pinned solver to finish them.
+            # Full-profile expression expansion needs room for Alloy's parsed
+            # types as well as bounded solving; retain every original witness.
             result = temporal.solve(runtime, api, case_dir, request, timeout=120,
-                                    integer_fields=scalar_fields)
+                                    heap_mb=1024, integer_fields=scalar_fields)
             oracle.write(case_dir / 'result.json', result)
             return result
 

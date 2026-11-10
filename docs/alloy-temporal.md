@@ -233,8 +233,10 @@ The temporal oracle bridge applies the pinned Analyzer's different static/mutabl
 Every generated module is parsed and solved by the actual pinned Alloy 6.2.0
 runtime with SAT4J and `noOverflow`. Python's standard `ThreadPoolExecutor`,
 already used by the PR113 corpus, runs at most two independent cases at once.
-Each case keeps its own fresh JVM, evidence directory and unchanged process
-deadline; assertions run on the main test thread. This adds no dependency or
+Each case keeps its own fresh JVM and evidence directory, with a 120-second
+deadline, 1024 MiB heap and 3072 MiB address-space limit. The heap accommodates
+the parsed types of expanded full-profile expressions; the runtime receipt
+records these limits. Assertions run on the main test thread. This adds no dependency or
 solver protocol. Named semantic cases have independently chosen
 SAT/bounded-UNSAT expectations, and selected SAT traces are inspected. The test
 checks the original parsed bounds before the bridge's command override, retaining
