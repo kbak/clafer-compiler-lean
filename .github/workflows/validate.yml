@@ -193,6 +193,29 @@ jobs:
             ${{ runner.temp }}/clafer-capture/*/build.json
             ${{ runner.temp }}/clafer-capture/*/builder.sha256
           key: ${{ steps.exporter.outputs.cache-primary-key }}
+      - name: Set up Choco Java runtime
+        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Prepare Choco instance tools
+        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        run: |
+          git clone https://github.com/gsdlab/chocosolver.git "$RUNNER_TEMP/choco-source"
+          git -C "$RUNNER_TEMP/choco-source" checkout --detach 253b1de60e4d87435874db81a5151dca53ee1871
+          pin=$(python3 -c 'import json; print(json.load(open("scripts/oracles/profile.json"))["haskell_commit"])')
+          python3 scripts/comparison/choco_build.py --static-tools "$CLAFER_ORACLE_TOOLS" \
+            --capture-cache "$CLAFER_CAPTURE_CACHE/$pin" --choco-source "$RUNNER_TEMP/choco-source" \
+            --java-home "$JAVA_HOME" --maven-cache "$RUNNER_TEMP/choco-maven" \
+            "$RUNNER_TEMP/choco-tools" 2>&1 | tee "$RUNNER_TEMP/choco-setup.log"
+          echo "CLAFER_CHOCO_TOOLS=$RUNNER_TEMP/choco-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Restore Alloy Java runtime
+        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '17'
       - name: Prepare temporal comparison tools
         if: inputs.profile != 'routine'
         run: |
@@ -349,6 +372,11 @@ jobs:
             ${{ runner.temp }}/dependency-setup.log
             ${{ runner.temp }}/oracle-setup.log
             ${{ runner.temp }}/oracle-tools/
+            ${{ runner.temp }}/choco-setup.log
+            ${{ runner.temp }}/choco-tools/tools.json
+            ${{ runner.temp }}/choco-tools/*-command.json
+            ${{ runner.temp }}/choco-tools/*.log
+            ${{ runner.temp }}/choco-tools/notices/
             ${{ runner.temp }}/pr113-tools/
             ${{ runner.temp }}/pr113-setup.log
             ${{ runner.temp }}/pr113-c7-tools/

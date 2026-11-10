@@ -146,6 +146,7 @@ and semantic acceptance require explicit review; see the
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
 - [Instance-check walkthrough](instance-checks.md): runnable bag/set, version and complete telematics checks, evidence and backend handoff.
+- [Choco instance checks](choco.md): explicit-model generation, occurrence-preserving extraction and checked candidate replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations, resolved structural normalization and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.

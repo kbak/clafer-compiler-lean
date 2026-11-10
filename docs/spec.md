@@ -1038,6 +1038,41 @@ Covers:
 
 Needs: impl, utest
 
+## Generated Choco instance checks
+
+`req~compiler-choco-instances~1`
+
+Check actual instances from the pinned Choco Java explicit frontend through the
+existing guarded structural candidate protocol and Lean checker. Admit the
+original source with the unchanged structural Haskell profile before explicit
+generation. Retain exact explicit bytes, scope sidecar, effective options and
+matching analyzed source from the same generation. Validate the complete parsed
+declaration mapping, bounds and reference modes before decoding.
+
+Preserve declaration/local-ID pairs, the whole object carrier, a distinguished
+synthetic root, complete membership and containment tables and distinct reference
+heads. Reject missing or unknown metadata, duplicate identities and dangling
+endpoints; keep well-formed semantic violations available to the checker. Include
+empty tables in the retained transport. External parsing, extraction and native
+execution are tested boundaries; this adapter adds no proof of Choco.
+
+Run the [small exercise](choco.md): two bag heads sharing one target pass, the
+identical supplied set candidate fails, and a set with distinct targets passes.
+Keep the set generator's insufficient-scope result separate from candidate checking.
+Exercise occurrence collapse and a missing reference, unsupported source,
+malformed exports, tool failure and timeout. Retain generated, decoded and checked
+counts and every verdict without filtering rejected instances. Reuse exact Alloy
+candidate comparison and replay; preserve sources, tool identities, raw output,
+maps, bounds and verdicts in external bundles. Checking returned instances does
+not establish completeness or validate a generator's UNSAT claim. Full configured
+qualification executes Choco and the existing regression/kernel gates; acceptance
+requires independent review of this mapping.
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, utest
+
 ## Authored static source parsing
 
 `req~compiler-parser~1`

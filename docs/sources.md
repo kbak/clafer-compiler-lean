@@ -77,6 +77,28 @@ semantics `f00e5dacb07eed51026f69fcf699683210d394d3` and Haskell
 `6750e6f591b2131549122c13dee94d3d2257eaea`, using the matching original receipts.
 Do not relabel these artifacts as 0.5.7 evidence.
 
+## Choco instance source
+
+The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/253b1de60e4d87435874db81a5151dca53ee1871)
+is pinned to `253b1de60e4d87435874db81a5151dca53ee1871` (Clafer backend `0.5.7`,
+Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco.md#adapter-assessment)
+records the reuse and representation boundary. `frontend/ExplicitParser.java`,
+`scope/ScopeFile.java`, `instance/InstanceClafer.java`, `instance/InstanceModel.java`
+and `compiler/ClaferSolutionMap.java`, under `src/main/java/org/clafer/`, provide
+the parsed metadata and original declaration/local-ID object identity.
+
+The companion explicit exporter uses S5's unchanged structural capture options
+and source audit, and `Generator.Explicit.genExplicitModule` on that same pinned
+Haskell library. It records actual explicit bytes and scope sidecar together;
+the paired capture's analyzed IR, JSON and Alloy must match. No historical PR113
+receipt is relabeled as this current structural generation. The source directive
+is generated after admission, never removed from an authored input to bypass it.
+
+The external provisioning receipt pins the built JAR and bridge/exporter hashes,
+actual Java vendor/build, JDK module image, Maven version and runtime dependency
+JAR hashes. Maven POMs, licenses and notices are retained externally. This is an
+external generator-checking profile; it adds no compiler backend or kernel theorem.
+
 ## Adopted child-default policy
 
 The selected [upstream policy](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/sources.md#current-child-default-policy)

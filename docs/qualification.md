@@ -16,6 +16,10 @@ source-matched full checks and independent review.
 The [instance-check walkthrough](instance-checks.md) runs small positive/negative
 structural candidates and the complete static source model while retaining these
 qualification and proof/execution boundaries.
+The [Choco exercise](choco.md) checks actual generated structural instances,
+supplied semantic violations, strict declaration/identity decoding and exact
+candidate replay. Its Java/Haskell extraction boundary is tested, not proved;
+bounded exhaustion is not a checker verdict or a completeness result.
 The [temporal oracle corpus](oracles.md#temporal-fixture-and-witness-inventory)
 provides separate bounded tool evidence for the 0.5.7 candidate. It executes fresh
 Haskell/Alloy queries and retains complete traces; it does not qualify downstream
@@ -186,6 +190,7 @@ contract; benchmark measurements retain their own configuration and source ident
 | Resolved identities, ranks, containment, effective local/group intervals | [IR admission equivalence](ir.md), [structural preservation](structural-correctness.md) | [IR](../tests/test_structural_ir.py), [structural](../tests/Structural.lean), [global/local mutations](../tests/StructuralCorrectness.lean) |
 | Parentless abstract local-bound normalization | [Resolved normal form, fixed points and structural satisfaction equivalence](ir.md#resolved-structural-normalization) | [Kernel witnesses](../tests/StructuralNormalization.lean), [native preservation and rejection](../tests/StructuralNormalizationNative.lean) |
 | Root, abstract cover, declaration disjointness, ownership, set/bag occurrences, cyclic references | [M1 concrete representation, soundness/completeness](structural-correctness.md) | [Exact three-way comparison and mutations](../tests/test_comparison.py), [native reference-head checks](../tests/test_cli_external.py) |
+| Actual Choco structural instances, source/explicit metadata and reference-head identity | [External adapter boundary](choco.md); existing guarded checker, no new proof | [Generated bag/set controls, semantic negatives, malformed exports and replay](../tests/test_choco_instances.py) |
 | Ordinary inherited fields, explicit abstract families, group overrides and contextual views | [Selected realization and preservation](inherited-realization.md) | [Inherited fixtures](../tests/Inherited.lean), [native owner/group mutations](../tests/InheritedNative.lean), [full-source mutations](../tests/test_source_pipeline.py) |
 | Authored names/IDs/spans, layout/braces, comments, Unicode, defaults, forward/lexical/global lookup | [Parser boundary](parser.md), [checked resolution and upstream-default agreement](resolution.md) | [Parser grammar/precedence and rejection corpus](../tests/test_parser.py), [defaults/ambiguity/cycles/identity](../tests/test_resolution.py) |
 | Integer references and finite observations of mathematical integers | [Observation/range proofs](expressions.md), [full-model completion](pipeline.md) | [Distinct integers, zero observed carrier and primitive parent](../tests/test_source_cli.py), [carrier counterexample](../tests/PipelineLimits.lean) |

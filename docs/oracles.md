@@ -539,6 +539,17 @@ source/tool disposition and exact-text/warning evidence are inputs to the
 [trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79) and
 [explicit-form](https://github.com/kbak/clafer-compiler-lean/issues/86) tasks.
 
+## Choco instance tooling
+
+The [Choco adapter](choco.md) provisions the pinned Java explicit frontend,
+solver and Haskell explicit printer separately from the Alloy runtime. It admits
+original source through this structural profile, checks parsed declaration
+metadata, preserves reference-head identities and sends returned candidates to
+the same checker and exact Alloy comparisons. Tool versions, dependency notices,
+source hashes, explicit bytes, scopes and raw exports remain in external bundles.
+The required regression group executes actual Choco; absent tools fail the check.
+Choco scope rejection, bounded exhaustion and candidate verdicts remain distinct.
+
 ## Implementation and test links
 
 `impl~compiler-pr113-oracle-tools~1`

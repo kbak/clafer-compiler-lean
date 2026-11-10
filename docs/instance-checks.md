@@ -194,7 +194,8 @@ Project/upstream code remains MIT; external tool notices are in the
 
 ## Contract for another backend
 
-A Choco adapter must supply the original source/profile and declared bounds,
+The [Choco adapter](choco.md) implements the guarded structural part of this
+contract. A backend adapter must supply the original source/profile and declared bounds,
 resolved declaration and body/owner identities, a distinguished root, the whole
 finite nonprimitive object carrier, every declaration extent, original containment
 and reference rows, inherited views of those same identities, and total functional

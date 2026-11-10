@@ -1,0 +1,8 @@
+abstract Base
+left : Base
+  leaf ?
+right
+  leaf ?
+refs ->> Base 2..2
+a -> b
+b -> a
