@@ -1,5 +1,28 @@
 # Check generated Choco instances
 
+Generated instances and separately supplied candidates use the same admitted
+source model and checker. The diagram shows the generated-instance path, with
+the one-target set model's scope rejection kept separate from candidate verdicts.
+
+```mermaid
+flowchart TD
+  source["Original source and bounds"] --> capture["Guarded Haskell capture"]
+  capture --> explicit["Matching explicit model and scope file"]
+  explicit --> choco["Choco generation"]
+  choco --> metadata["Validate exported declaration metadata"]
+  capture -.->|Admitted core and bounds| metadata
+  metadata -->|Returned instances| decode["Decode identities and complete tables"]
+  decode --> checker["Lean candidate checker"]
+  supplied["Separately supplied candidate"] --> checker
+  checker --> exact["Exact Haskell and native Alloy comparisons"]
+  exact --> evidence["Retained evidence and fresh replay"]
+  metadata -->|Insufficient scope| rejected["scope_rejected<br/>0 generated / decoded / checked"]
+  rejected --> evidence
+```
+
+The zero counts describe the generated-instance path. The supplied shared-target
+set candidate is still checked separately and receives a violating verdict.
+
 ## Adapter assessment
 
 The selected structural adapter reuses the accepted Haskell 0.5.7 capture,
@@ -16,6 +39,24 @@ At Choco revision `253b1de60e4d87435874db81a5151dca53ee1871`, the API probe for
 | `Target` | `0` | none |
 | `refs` | `0` | (`Target`, `0`) |
 | `refs` | `1` | (`Target`, `0`) |
+
+Each node below pairs its Choco `(declaration UID, local ID)` with the assigned
+checker object ID. The adapter adds the synthetic root. Dashed arrows show
+containment; solid arrows show references. Heads `2` and `3` remain distinct
+while sharing target `1`.
+
+```mermaid
+flowchart LR
+  root["Added synthetic root<br/>checker object 0"]
+  head0["(refs, 0)<br/>checker object 2"]
+  head1["(refs, 1)<br/>checker object 3"]
+  target["(Target, 0)<br/>checker object 1"]
+  root -.-> head0
+  root -.-> head1
+  root -.-> target
+  head0 --> target
+  head1 --> target
+```
 
 `InstanceClafer.getType()` and `getId()` identify an occurrence together;
 `getChildren()` supplies containment and `getRef()` returns the target object.
