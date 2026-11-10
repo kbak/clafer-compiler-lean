@@ -1,0 +1,7 @@
+{
+  "objects": [0, 1, 2, 3],
+  "root": 0,
+  "members": [["root", 0], ["Target", 1], ["refs", 2], ["refs", 3]],
+  "containment": [["Target", [0, 1]], ["refs", [0, 2]], ["refs", [0, 3]]],
+  "references": [["refs", [2, 1]], ["refs", [3, 1]]]
+}

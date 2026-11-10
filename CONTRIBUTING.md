@@ -114,6 +114,10 @@ python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
 export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
 ```
 
+Full qualification also requires the [Choco instance tools](docs/choco.md#setup),
+including a Java 21 JDK and Maven. Export `CLAFER_CHOCO_TOOLS` after provisioning.
+Their Java 21 runtime is separate from the existing Alloy Java 17 profile.
+
 This fetches source and an optional Mathlib cache, builds the upstream dependency,
 then provisions the [comparison tools](docs/oracles.md), requiring GMP headers
 (`libgmp-dev` on Ubuntu). Cache download failure falls back to source compilation. Missing
