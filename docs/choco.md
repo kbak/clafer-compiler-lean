@@ -1,216 +1,107 @@
-# Check generated Choco instances
+# Check Choco's generated instances
 
-A generator proposes configurations that should satisfy a Clafer model. This
-guide checks actual output from the Java Choco backend against the independent
-Clafer semantics in Lean. It is a practical next step after the
-[instance-check walkthrough](instance-checks.md): the same checking idea now
-receives its candidates from a different generator.
+The [instance guide](instance-checks.md) checks configurations against Clafer's
+formal rules and two Alloy translations. We can also ask a different generator
+to produce configurations, then apply the same semantic checker. This guide
+uses the Java Choco backend.
 
-Choco reads an **explicit model**, in which the Haskell compiler has already
-resolved names and made implicit information explicit. An adapter translates
-Choco's returned objects and links into the checker's input. Preserving those
-objects and links is essential: checking a changed configuration would tell us
-nothing about the generator's actual answer.
+## What each tool contributes
 
-## The example
+Haskell first resolves the Clafer model and produces an **explicit model**: names
+and omitted defaults have been worked out. Choco's Java parser reads that model,
+and Choco searches for configurations. The Lean checker then checks each returned
+configuration against the formal Clafer rules.
 
-Start with one target and exactly two references to it:
+The adapter between Choco and the checker preserves the objects, their types,
+containment and references. That matters because checking a changed configuration
+would tell us nothing about Choco's actual answer. We also ask both Alloy
+translations about the same candidate, as in the instance guide.
+
+## Two displays, one control unit
+
+Use a dashboard display and a passenger display connected to a control unit.
+This time the model requires exactly two displays:
 
 ```clafer
-Target
-refs ->> Target 2..2
+ControlUnit
+display ->> ControlUnit 2..2
 ```
 
-`->>` is a bag reference: two distinct `refs` objects may point to the same
-`Target`. Choco generates that configuration and the checker accepts it. Those
-two reference objects, called **heads**, must remain distinct during translation.
-The demonstration also supplies damaged copies to check that losing a head or
-its target link causes rejection.
+Choco returns a configuration with both displays using the same unit:
 
-Changing `->>` to the set form `->` requires distinct targets for the two heads.
-With room for only one target, Choco rejects the requested search bounds before
-generation. We therefore also submit the shared-target candidate directly to
-the checker to see its rejection. Allowing two targets gives a passing set case.
-
-The [results table](#run-and-inspect) keeps generation outcomes and candidate
-verdicts separate. Checking returned instances tests those answers; it does not
-prove that the generator finds every valid instance.
-
-## Setup
-
-Complete the [existing dependency and oracle setup](../CONTRIBUTING.md#setup-and-validation).
-Keep the structural capture build cache: the companion needs the pinned Haskell
-library as well as the capture executable. Install Maven and a Java 21 **JDK**;
-a Java runtime without `javac` is insufficient. Keep Alloy on its provisioned
-Java 17 runtime. All paths below are external work directories chosen by the user:
-
-```sh
-choco_work=$(mktemp -d)
-git clone https://github.com/gsdlab/chocosolver.git "$choco_work/source"
-git -C "$choco_work/source" checkout --detach 253b1de60e4d87435874db81a5151dca53ee1871
-# Set JAVA21_HOME to the installed Java 21 JDK.
-# Set CLAFER_CAPTURE_BUILD_CACHE to the directory containing the static build.json.
-python3 scripts/comparison/choco_build.py --static-tools "$CLAFER_ORACLE_TOOLS" \
-  --capture-cache "$CLAFER_CAPTURE_BUILD_CACHE" --choco-source "$choco_work/source" \
-  --java-home "$JAVA21_HOME" --maven-cache "$choco_work/maven" "$choco_work/tools"
-export CLAFER_CHOCO_TOOLS="$choco_work/tools/tools.json"
+```mermaid
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+  direction LR
+  class configuration["configuration"]
+  class dashboard["dashboard display"]
+  class passenger["passenger display"]
+  class primary["primary control unit"]
+  configuration *-- dashboard
+  configuration *-- passenger
+  configuration *-- primary
+  dashboard --> primary : uses
+  passenger --> primary : uses
 ```
 
-Provisioning checks immutable source identities, builds the unchanged upstream
-library, compiles the extraction bridge and explicit companion, and retains JAR,
-JDK, dependency, source and build identities plus licenses and notices. Caches
-containing only the capture binary use a separate library build so the accepted
-static executable and receipt remain intact.
-Choco's own test suite is not run by this provisioning command; the adapter's
-actual-generation tests run in the full compiler check. Reprovision after changing
-an adapter build source. Missing tools fail qualification rather than skip it.
+The filled diamonds show containment; `uses` arrows show references. The Lean
+checker accepts because there are exactly two displays, both links reach an
+existing control unit, and `->>` permits sharing it. Both Alloy comparisons
+accept this same configuration.
 
-## Run and inspect
+Now change the model's reference kind to `->`, which requires the displays to
+use different units. Two outcomes need to be distinguished:
 
-After building the existing comparison harness, one command runs the exercise:
+- **Generating:** with room for only one control unit, Choco refuses the search
+  bounds before producing a configuration. There is no generated instance to check.
+- **Checking:** we can still hand the shared-unit configuration directly to the
+  Lean checker. It rejects it because the two displays use the same unit.
+
+To get a passing set case, change the declaration to `ControlUnit 2..2` and give
+Choco room for both units. Each display then uses a different unit. Both Alloy
+translations accept that generated configuration too.
+
+## Can the checker notice lost information?
+
+An adapter could accidentally merge two displays because they use the same
+control unit, or lose one of their links. We deliberately damage a copy of the
+valid bag configuration to see whether the checker notices:
+
+| Change to the candidate | Which rule fails? |
+| --- | --- |
+| Remove the passenger display | The model requires exactly two displays; only one remains |
+| Keep both displays but remove the passenger display's `uses` link | Every display must refer to a control unit; one has no target |
+
+The checker rejects both. The distinction is useful: two references to one
+unit are still two separate objects, and preserving only the set of target units
+would lose information that the model constrains.
+
+## What this exercise establishes
+
+We have checked real Choco output and shown that specific invalid configurations
+are rejected. That is evidence about these examples, not a proof of the Choco
+backend or of its Java parser. The current adapter covers the selected structural
+models; integer constraints and temporal behavior require their own checking paths.
+
+Haskell's role here is to prepare the explicit input. Choco generates the
+configuration. The Lean semantic checker supplies the independent judgment
+about that configuration's meaning.
+
+## Try the example
+
+After [setting up the Choco tools](choco-adapter.md#setup), run:
 
 ```sh
 lake build
 lake build +tests.ComparisonNative
-python3 scripts/comparison/choco.py demo --tools "$CLAFER_CHOCO_TOOLS" "$choco_work/run"
+choco_demo=$(mktemp -d)
+python3 scripts/comparison/choco.py demo --tools "$CLAFER_CHOCO_TOOLS" "$choco_demo/run"
 ```
 
-Use a fresh output directory. When using Lake's optional artifact cache, export
-`LAKE_RESTORE_ARTIFACTS=true` so the harness can import restored modules.
-
-| Case | Choco generation | Supplied candidate check |
-| --- | --- | --- |
-| `Target; refs ->> Target 2..2`, one declaration per line | One bag instance; two distinct heads share one target; checker accepts | Identical manually supplied bag passes |
-| Same declarations with `->` | `InsufficientScopeException`: target scope `1` is below Choco's computed minimum `2`; zero generated/decoded/checked instances | The shared-target candidate violates set uniqueness; both exact Alloy queries reject it |
-| Two targets and `->` | A generated set instance passes with distinct targets | Generated candidate also passes both exact Alloy comparisons |
-| Remove one bag head and its rows | Deliberately supplied mutation | Violates `refs` multiplicity `2..2` |
-| Remove one head's reference row | Deliberately supplied mutation | Violates reference totality |
-
-The one-target set result is `scope_rejected`, retaining Choco's diagnostic. It is
-neither solver UNSAT nor a candidate verdict. `generated`, `decoded` and `checked`
-count only returned instances; the separately named `supplied` results show that
-the negative set candidate was actually checked. `exhausted` means that Choco's
-bounded search ended; `limit` means the selected instance cap stopped enumeration.
-Neither is a completeness or unbounded-UNSAT result. `completed` means every
-returned candidate has a completed agreeing exact comparison, including a
-possible `violates` verdict; the demonstration separately requires positive
-controls to satisfy. The decoder never discards rejected instances.
-
-Each case retains original input, accepted capture, same-generation explicit
-output and scope file, complete parsed declarations, raw `raw.xml`, source/tool
-identities and generated/decoded/checked counts. Each `instance-N/` contains the
-candidate, declaration/local-ID-to-object map, complete tables including empty
-ones, checker verdict and the existing `exact/` three-way comparison bundle.
-The synthetic root has object ID `0`; sorted declaration/local-ID pairs receive
-fresh numeric IDs. All parent and reference endpoints use that same map. Abstract
-memberships follow the checked declaration super chain, without changing object
-identity. No display string is parsed and no equal-target heads are merged.
-
-Replay a case, including its retained exact candidates:
-
-```sh
-python3 scripts/comparison/choco.py replay --tools "$CLAFER_CHOCO_TOOLS" \
-  "$choco_work/run/bag" "$choco_work/bag-replay"
-```
-
-The manifest detects changed, missing and extra bundle files. Replay also checks
-current adapter and runtime identities before generation. The existing exact
-comparison replay rechecks each retained original candidate independently of the
-new search's object ordering. Individual `supplied-*` bundles also support the
-[existing exact comparison replay](comparison.md#replay-search-and-minimization).
-
-`check INPUT --bounds BOUNDS OUTPUT --tools TOOLS` accepts another source only
-through the same guarded admission and complete metadata comparison. Arithmetic,
-constraints, temporal input, backend escapes and authored option directives stay
-unsupported. Behavioral support requires a separate integration decision. Decoder
-format failures are `malformed`; failed tools are `error`; wall-clock expiry is
-`timeout`. These outcomes cannot establish agreement. The
-[regression suite](../tests/test_choco_instances.py) also exercises nested and
-inherited identities, reference cycles, malformed metadata/objects, a rejected
-returned instance, actual process failures and replay tampering.
-
-## How an instance reaches the checker
-
-The adapter keeps the original model alongside the explicit Choco input so the
-checker can judge the returned configuration against that same model. After
-checking, exact Alloy queries provide a further comparison on the same candidate.
-
-```mermaid
-flowchart TD
-  source["Original source and bounds"] --> capture["Guarded Haskell capture"]
-  capture --> explicit["Matching explicit model and scope file"]
-  explicit --> choco["Choco generation"]
-  choco --> metadata["Validate exported declaration metadata"]
-  capture -.->|Admitted core and bounds| metadata
-  metadata -->|Returned instances| decode["Decode identities and complete tables"]
-  decode --> checker["Lean candidate checker"]
-  supplied["Separately supplied candidate"] --> checker
-  checker --> exact["Exact Haskell and native Alloy comparisons"]
-  exact --> evidence["Retained evidence and fresh replay"]
-  metadata -->|Insufficient scope| rejected["scope_rejected<br/>0 generated / decoded / checked"]
-  rejected --> evidence
-```
-
-The scope-rejection branch returns no instances to check. The separately supplied
-shared-target set candidate still reaches the checker and receives a violating verdict.
-
-## Adapter assessment
-
-The selected structural adapter reuses the accepted Haskell 0.5.7 capture,
-guarded candidate protocol, Lean checker and exact Alloy comparison. Choco's
-`ExplicitParser`, `ScopeFile`, `ClaferCompiler` and `InstanceModel` supply parsing,
-scope application, solving and instance extraction. No new source parser, solver,
-semantic checker or graph-isomorphism implementation is needed.
-
-At Choco revision `253b1de60e4d87435874db81a5151dca53ee1871`, the API probe for
-`Target` followed by `refs ->> Target 2..2` returned one instance:
-
-| Declaration UID | Local ID | Reference target |
-| --- | --- | --- |
-| `Target` | `0` | none |
-| `refs` | `0` | (`Target`, `0`) |
-| `refs` | `1` | (`Target`, `0`) |
-
-Each node below pairs its Choco `(declaration UID, local ID)` with the assigned
-checker object ID. The adapter adds the synthetic root. Dashed arrows show
-containment; solid arrows show references. Heads `2` and `3` remain distinct
-while sharing target `1`.
-
-```mermaid
-flowchart LR
-  root["Added synthetic root<br/>checker object 0"]
-  head0["(refs, 0)<br/>checker object 2"]
-  head1["(refs, 1)<br/>checker object 3"]
-  target["(Target, 0)<br/>checker object 1"]
-  root -.-> head0
-  root -.-> head1
-  root -.-> target
-  head0 --> target
-  head1 --> target
-```
-
-`InstanceClafer.getType()` and `getId()` identify an occurrence together;
-`getChildren()` supplies containment and `getRef()` returns the target object.
-`ClaferSolutionMap` uses the same declaration/ID pair internally, including lazy
-resolution of reference cycles. Display names and `toString()` are unnecessary.
-The library omits the synthetic source root, complete empty tables and source
-capture receipts. A small external exporter and decoder must supply those and
-check the complete parsed declaration metadata against the admitted source core.
-No upstream change is needed for this exercise.
-
-The existing static exporter does not retain explicit output. A companion calls
-the pinned Haskell `genExplicitModule` on the same analyzed environment with the
-declared experiment bounds. It reuses the existing source audit and effective
-options, and compares the IR, JSON and Alloy bytes with the accepted capture.
-Original source is admitted before printing; the generated `//# OPTIONS --explicit`
-directive belongs only to the Choco input. Existing source-directive rejection
-remains in force. Explicit bytes, scope sidecar and effective options are retained
-from that companion generation.
-
-The JDK XML writer and Python `xml.etree.ElementTree` provide the transport;
-Python's existing JSON, subprocess and hashing support provides receipts and
-replay. These standard libraries avoid another serialization dependency. Choco
-and Haskell retain their MIT licenses; Choco's declared Maven dependencies and
-their notices are retained with the external build. Java 21 is needed for Choco;
-the existing Alloy Java 17 profile remains separate. Neither extraction nor
-external parsing, native execution or solver operation is a kernel proof.
+The command exercises the passing configurations, the refused one-unit set search,
+and the deliberately invalid candidates described above. The
+[adapter reference](choco-adapter.md) records the fixture-name mapping and integration details.

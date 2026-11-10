@@ -6,7 +6,7 @@ adds typed constraint elaboration and version-2 bounds. Both commands share stri
 decoding, deterministic diagnostics and checked output serialization.
 The separate `compile-behavioral-ir` command accepts the versioned first-slice
 behavioral IR and explicit temporal bounds. Its complete schemas, diagnostic
-additions and JSON output are in the [temporal runtime contract](temporal-comparison.md).
+additions and JSON output are in the [temporal runtime contract](temporal-runtime.md).
 The full `compile-behavioral-source` command composes the complete frontend and
 encoder, with model/assertion/scenario options and separate version-2 behavioral
 bounds; see the [source workflow](behavioral-source.md). All four commands share

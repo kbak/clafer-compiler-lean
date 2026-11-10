@@ -81,7 +81,7 @@ Do not relabel these artifacts as 0.5.7 evidence.
 
 The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/253b1de60e4d87435874db81a5151dca53ee1871)
 is pinned to `253b1de60e4d87435874db81a5151dca53ee1871` (Clafer backend `0.5.7`,
-Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco.md#adapter-assessment)
+Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco-adapter.md#adapter-assessment)
 records the reuse and representation boundary. `frontend/ExplicitParser.java`,
 `scope/ScopeFile.java`, `instance/InstanceClafer.java`, `instance/InstanceModel.java`
 and `compiler/ClaferSolutionMap.java`, under `src/main/java/org/clafer/`, provide
@@ -462,7 +462,7 @@ The [instance-check walkthrough](instance-checks.md) reuses S1's admitted struct
 comparisons and S3/S4's extended observation path, with the existing original
 telematics fixture. Its optional explicit export retains the separate registered
 PR113 `c7a2fb7` identity; it does not repin current structural capture or extend
-the M1 adapter. See the walkthrough's reuse assessment and table/body inventory.
+the M1 adapter. See the [runner reference](instance-checks-reference.md) for reuse and table/body inventories.
 
 The pinned S3 `Realization.Satisfies` and S4 `IntegerBinding` jointly require an
 infinite rooted primitive domain. The complete S8 telematics `Input`,
@@ -751,7 +751,7 @@ semantic definitions or Haskell code are vendored.
 
 ## Exact temporal runtime sources
 
-The [resolved temporal runtime](temporal-comparison.md) uses the unchanged APIs
+The [resolved temporal runtime](temporal-runtime.md) uses the unchanged APIs
 inspected at `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4`. Its executable adapter
 uses and proves agreement with
 [`Clafer/Behavioral/Lowering.lean`](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/Clafer/Behavioral/Lowering.lean),

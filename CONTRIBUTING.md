@@ -114,7 +114,7 @@ python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
 export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
 ```
 
-Full qualification also requires the [Choco instance tools](docs/choco.md#setup),
+Full qualification also requires the [Choco instance tools](docs/choco-adapter.md#setup),
 including a Java 21 JDK and Maven. Export `CLAFER_CHOCO_TOOLS` after provisioning.
 Their Java 21 runtime is separate from the existing Alloy Java 17 profile.
 
