@@ -1,122 +1,187 @@
 # Check whether an instance satisfies a model
 
-A Clafer model describes allowed configurations: which objects can exist, how
-they relate, and which rules their values must obey. An **instance** is one
-concrete configuration. An Alloy-based generator searches for instances; the
-Lean checker independently asks whether a particular candidate satisfies the
-model's semantics.
+A Clafer model describes allowed configurations. An **instance** is one concrete
+configuration: particular objects, their relationships and their values. This
+guide explains how we check that a proposed instance obeys the model.
 
-This guide starts with relationships between objects, adds a rule about values,
-then checks both in a vehicle electronics model. Passing and deliberately failing
-examples show what the checker detects. Read the examples first, then
-[run them](#run-the-demonstration) to inspect the results yourself.
+## How Haskell, Alloy and Lean fit together
 
-## Two references to the same object
+The Haskell Clafer compiler translates a Clafer model into Alloy. The Alloy
+Analyzer then searches for a configuration satisfying that translation. If a
+translation accidentally omits a rule, Alloy can return an answer that satisfies
+the translation but violates the original Clafer model.
 
-A reference points from one object to another. Clafer lets us choose whether
-several references under the same owner may point to the same target. The
-**bag** form, `->>`, permits this; the **set** form, `->`, requires distinct
-targets. This small model uses the bag form:
+The [Clafer formalization in Lean](https://github.com/kbak/clafer-semantics)
+defines what it means to satisfy Clafer's rules. Its executable checkers evaluate
+a given configuration against those definitions. They give us an independent way
+to check an answer from a generator.
+
+There are two distinct Lean roles here:
+
+| Component | What it does in this exercise |
+| --- | --- |
+| Lean semantic checker | Checks the candidate against the formal Clafer rules |
+| Haskell compiler + Alloy | Checks the same candidate against Haskell's translation |
+| This repository's Lean compiler + Alloy | Checks it against a second translation, implemented in Lean |
+
+We ask all three about the **same configuration**. This matters: two generators
+could each find a valid answer while disagreeing about which other configurations
+are allowed. The examples below include deliberately invalid candidates so we
+can see both acceptance and rejection.
+
+## Two displays sharing a control unit
+
+Imagine a dashboard display and a passenger display, each connected to an
+electronic control unit (ECU). A reference records which control unit a display
+uses. May both displays use the same one?
+
+Clafer's **bag** form, `->>`, permits this. The **set** form, `->`, requires
+references under the same owner to have distinct targets. With descriptive
+names for our small example, the bag model reads:
 
 ```clafer
-Target 0..2
-refs ->> Target 0..3
+ControlUnit 0..2
+display ->> ControlUnit 0..3
 ```
 
-The ranges allow zero to two `Target` objects and zero to three `refs` objects.
-Consider one target and two references pointing to it. That fits the ranges and
-is valid for the bag. Changing only `->>` to `->` makes the same configuration
-invalid. Giving the two references different targets makes the set valid again.
-
-Each `refs` object has its own identity, called a **reference head**. Sharing a
-target does not make two heads one object. In the diagram, root `0` is the common
-container, heads `2` and `3` are the references, and object `1` is their target.
-
-Dashed arrows show containment; solid arrows show references.
+The ranges allow up to two control units and three displays. Consider this
+configuration with two displays and one shared control unit:
 
 ```mermaid
-flowchart LR
-  subgraph shared["Shared target: bag passes, set fails"]
-    direction TB
-    r0["Root 0"]
-    h2["Reference head 2"]
-    h3["Reference head 3"]
-    t1["Target 1"]
-    r0 -.-> h2
-    r0 -.-> h3
-    r0 -.-> t1
-    h2 --> t1
-    h3 --> t1
-  end
-  subgraph distinct["Distinct targets: set passes"]
-    direction TB
-    cr0["Root 0"]
-    ch2["Reference head 2"]
-    ch3["Reference head 3"]
-    ct1["Target 1"]
-    ct4["Target 4"]
-    cr0 -.-> ch2
-    cr0 -.-> ch3
-    cr0 -.-> ct1
-    cr0 -.-> ct4
-    ch2 --> ct1
-    ch3 --> ct4
-  end
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+  direction LR
+  class configuration["configuration"]
+  class dashboard["dashboard display"]
+  class passenger["passenger display"]
+  class primary["primary control unit"]
+  configuration *-- dashboard
+  configuration *-- passenger
+  configuration *-- primary
+  dashboard --> primary : uses
+  passenger --> primary : uses
 ```
 
-The checker and two Alloy translations agree below. Haskell Alloy is produced by
-the reference Haskell compiler; native Alloy by this Lean compiler. Each solver
-query fixes the **same candidate**: SAT means that candidate is allowed; UNSAT
-means it is rejected, not that the whole model has no valid instances.
+The boxes are named objects. UML-style composition—a filled diamond at the
+container—shows which objects belong to the configuration. The `uses` arrows
+are references. Sharing a control unit does not merge the two displays.
 
-| Candidate | Verified checker | Haskell Alloy | Native Alloy |
+The checker asks:
+
+- Are the objects of the right kinds, with the required containment?
+- Are there allowed numbers of them? Two displays fit `0..3`; one unit fits `0..2`.
+- Does each display point to an existing control unit?
+- Does the reference kind permit both displays to use that same unit?
+
+The first three checks pass. The last one passes for `->>` and fails for `->`.
+So changing only the arrow in the model changes the verdict on this exact
+configuration. The failing set case is intentional; it is not a generator bug.
+
+Give the passenger display a secondary control unit and the set passes too:
+
+```mermaid
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+  direction LR
+  class configuration["configuration"]
+  class dashboard["dashboard display"]
+  class passenger["passenger display"]
+  class primary["primary control unit"]
+  class secondary["secondary control unit"]
+  configuration *-- dashboard
+  configuration *-- passenger
+  configuration *-- primary
+  configuration *-- secondary
+  dashboard --> primary : uses
+  passenger --> secondary : uses
+```
+
+All three checking paths agree:
+
+| Configuration and rule | Lean semantic checker | Haskell + Alloy | Lean compiler + Alloy |
 | --- | --- | --- | --- |
-| Bag, two heads sharing target `1` | satisfies | SAT | SAT |
-| Set, the identical candidate | violates | UNSAT | UNSAT |
-| Set control, head `2` targets `1`, head `3` targets new object `4` | satisfies | SAT | SAT |
+| Both displays share a unit; bag references | accepts | accepts | accepts |
+| Both displays share a unit; set references | rejects | rejects | rejects |
+| Each display uses a different unit; set references | accepts | accepts | accepts |
 
-Only target uniqueness fails in the rejected set. The passing set adds target
-`4` and changes head `3` to point to it; all other rules still hold.
+Alloy calls these exact-candidate outcomes **SAT** and **UNSAT**. Here UNSAT means
+“this particular configuration is not allowed.” It does not mean that the model
+has no valid configurations—the last row is a valid set configuration.
 
 ## A rule about version numbers
 
-Relationships alone do not express every requirement. Suppose a display's version
-must be at least the version of its server, an electronic control unit (ECU).
-We can isolate that rule with two integer values:
+Now add a requirement about values: a display's version must be at least the
+version of its control unit. We can study just that rule with two integers:
 
 ```clafer
-a -> int
-b -> int
-[a >= b]
+displayVersion -> int
+controlUnitVersion -> int
+[displayVersion >= controlUnitVersion]
 ```
 
-Here `a` stands for the display version and `b` for the ECU version; the brackets
-state the rule. With `a = 3` and `b = 2`, the candidate passes because `3 >= 2`.
-Changing only `a` to `1` makes it fail because `1 >= 2` is false. The objects and
-their relationships remain valid: the failure is specifically in the value rule.
+The checker first checks the structure and integer representation, then evaluates
+the bracketed constraint for those values:
 
-This is the numeric part of `[version >= server.version]` in the larger example
-below. The small model supplies the two values directly; the larger one also has
-to follow the display's `server` reference to find the ECU's version.
+| Display version | Control-unit version | Constraint evaluation | Verdict |
+| --- | --- | --- | --- |
+| `3` | `2` | `3 >= 2` is true | accepts |
+| `1` | `2` | `1 >= 2` is false | rejects |
 
-## Complete static telematics
+Both candidates use allowed integer values. The second fails because of the
+version rule, not because its data is malformed. The Lean compiler's Alloy
+translation agrees on both candidates. This richer example uses the source
+pipeline's structure and expression checks; it is outside the small Haskell
+comparison profile used for the display-reference example.
 
-Telematics here is a vehicle electronics configuration with control units,
-displays and options. It combines the ideas above: displays refer to servers,
-their versions must be compatible, and choices such as a second channel affect
-which components are required. **Static** means we check one configuration;
-changes over time belong to the [trace walkthrough](temporal-comparison.md#generated-trace-walkthrough).
+## Putting the rules together
 
-The complete model selects a dual channel, extra displays and a large size. The
-exercise generates a configuration and checks all twelve rules together,
-including the version rule we just examined. This tests whether the pieces still
-agree when combined in a larger model.
+The complete **telematics** example describes a vehicle electronics configuration
+with control units, displays and options. It combines questions such as:
 
-## Run the demonstration
+- Does selecting a dual channel include the second control unit?
+- Does selecting extra displays give the required display counts?
+- Does each display use its containing control unit as its server?
+- Is each display's version at least its server's version?
 
-Complete [dependency and comparison-tool setup](../CONTRIBUTING.md#setup-and-validation)
-first. `CLAFER_ORACLE_TOOLS` must point to the current structural tools file.
-Run these commands from the repository root:
+The last check now follows a relationship: `[version >= server.version]` finds
+the display's server and reads that server's version before comparing the values.
+The two-integer example above isolated just the comparison.
+
+The exercise compiles the complete model with the Lean compiler, asks Alloy for
+a configuration, then checks its structure, values and all twelve constraints.
+It also asks Alloy about that same configuration to compare the results. The
+model's three selections—dual channel, extra displays and large size—are included
+in those twelve constraints. This remains a check of one static configuration;
+[trace checking](temporal-comparison.md) adds behavior over time.
+
+## What this tells us
+
+Agreement means that the formal rules and the translations agree on the tested
+candidates. A generated candidate rejected by the semantic checker exposes a
+discrepancy worth investigating. Neither result, by itself, proves a generator
+correct for every model or shows that it finds every valid instance.
+
+The checker judges a representation of the model and candidate supplied by an
+adapter. The small Haskell comparison reuses Haskell's resolved model input, so
+this exercise does not independently validate Haskell's parsing and resolution.
+The [technical reference](instance-checks-reference.md) states the exact supported
+profiles and proof boundaries.
+
+The same idea can check another generator: provide the model and its candidate,
+preserving every object, link and value, then apply the semantic checker. The
+[Choco guide](choco.md) shows that next step.
+
+## Try the examples
+
+After the [tool setup](../CONTRIBUTING.md#setup-and-validation), run:
 
 ```sh
 lake build
@@ -125,148 +190,7 @@ demo_dir=$(mktemp -d)
 python3 scripts/demo_instances.py "$demo_dir/run"
 ```
 
-The commands below reuse `$demo_dir` in the same shell. `mktemp` creates a workspace
-in the system temporary directory; use a persistent directory outside the repository
-instead if you need to keep the results. The runner requires a new `run/` directory.
-
-The runner stops on failures or skipped checks. It runs the small structural
-examples before the richer source suite, prints the expected outcomes and records
-the actual test logs and evidence locations. `--part structural` or `--part source`
-runs one stage. These focused runs do not replace full IntentBond qualification.
-
-## Inspect and replay the results
-
-The runner prints the location of each result bundle. The details below connect
-those files to the examples and identify which compilation and checking paths
-each exercise covers.
-
-### Reference examples
-
-These fixtures use the admitted M1 structural comparison domain. This stage
-exercises the receipt-producing Haskell **static Alloy** generator
-and the native **resolved structural IR** encoder, serializer and Analyzer
-decoder. It does not exercise the native source frontend or temporal generator.
-See `capture-bag/`, `capture-set/`, `bag/`, `set/`, and `set-distinct/` in the printed
-three-way evidence directory. `candidate.json`, `layout.json`, `decoded.json`,
-`bijection.json`, raw Analyzer output, Haskell receipts and `result.json` retain
-the actual identities, bounds and verdicts. The existing mutations also retain
-both `compiler_accepts_checker_rejects` and `checker_accepts_compiler_rejects`.
-They deliberately damage the generated target; they are sensitivity checks,
-not discovered compiler defects. Malformed, unsupported and failed comparisons
-are never agreement.
-
-Replay the bag case from this run. `three-way-*` matches the single directory
-created by the structural suite; the replay writes to a new sibling directory:
-
-```sh
-python3 scripts/comparison/compare.py replay --tools "$CLAFER_ORACLE_TOOLS" \
-  "$demo_dir"/run/three-way-*/bag "$demo_dir/bag-replay"
-```
-
-### Version example
-
-The declared integer interval `[1,3]` admits both candidates. For `a = 3`,
-`b = 2`, inherited structure, numeric representation, constraint body `0`, the
-native target evaluator and the exact Analyzer query all pass. With `a = 1`,
-structure and numeric checks still pass, but body `0` and target evaluation are
-false, and the exact query is UNSAT. This isolates one failed obligation.
-
-Inspect `version-original/` and `version-value-negative/` in the source evidence.
-Both retain source, bounds, complete `candidate.json`, `tables.rows`, mappings,
-body owners and `evaluation.rows`. `version-value-replay/` repeats the rejection.
-The separate comparator-reversal, display-count, parent-navigation, omitted-body
-and omitted-inherited-group regressions remain part of the same run.
-
-### Complete model
-
-The source stage compiles the complete [source fixture](../tests/fixtures/constraints/telematics.cfr)
-with its [declared bounds](../tests/fixtures/pipeline/telematics.bounds.json) through
-the production `compile-source` command. It solves that generated text, decodes
-the real XML instance and evaluates the same candidate with the justified
-extended observation path. The bounds allow 36 nonprimitive objects, bitwidth `7`
-and two observed integer values in `[2,3]`; they do not bound mathematical `Int`.
-
-The standalone compilation step is:
-
-```sh
-.lake/build/bin/clafer-compiler compile-source tests/fixtures/constraints/telematics.cfr \
-  --bounds tests/fixtures/pipeline/telematics.bounds.json \
-  --output "$demo_dir/telematics.als"
-```
-
-Compilation emits Alloy and runs no solver. The demonstration's source stage
-performs the subsequent generation, decoding, checking and exact-candidate query.
-
-All twelve bodies are checked. The three final selections are **included in
-those twelve**, corresponding to upstream c10–c12, rather than three extra bodies:
-
-| Native body IDs | Owner ID | Source obligations |
-| --- | --- | --- |
-| `0`, `1`, `2` | `0` (root) | dual channel, extra display, large size (c10–c12) |
-| `3` | `1` | options/cache implication (c01) |
-| `4` | `11` | display/server version order (c02) |
-| `5`, `6` | `15` | no display cache, server equals parent (c03–c04) |
-| `7`–`11` | `19` | channel, display-count and size constraints (c05–c09) |
-
-`seed-telematics/cli.als` is the production output. `seed-analyzer/` retains its
-solver query and XML; `telematics-original/` retains the decoded candidate and
-checks. `mapping.rows` maps original declarations to signature, containment and
-dereference slots (field slots are stored plus one, with zero meaning absent).
-`schema.rows` records signature inheritance and field endpoint types. Complete
-signature/field/scalar tables preserve original objects, reference occurrences
-and inherited views, including empty rows. `exact-analyzer/manifest.json` labels
-the fixed-candidate queries and raw results. The retained harness and commands
-permit exact replay without solving for a replacement candidate.
-`seed-telematics/atom-labels.json` preserves the opaque XML-atom to table-label
-bijection; no source identity is inferred by splitting an atom's printed name.
-
-The [pipeline contract](pipeline.md#complete-example-and-exact-replay) explains
-`Inherited.check_correct`, `candidate_constraint_iff` and their premises.
-Haskell's guarded M1 adapter **does not accept full telematics**. This stage uses
-native source compilation, inherited checking, justified per-body observation
-evaluation and actual Alloy execution; it is not a three-way M1 comparison.
-
-When `CLAFER_PR113_C7_TOOLS` is set, the runner also retains a supplementary
-`explicit-telematics/explicit.cfr` through the accepted PR113 static export path.
-Its own tool/source identity is retained separately. That historical export is
-neither a current M1 receipt nor a new native explicit-source parser. Without
-those tools the summary records `not_requested`; it does not report agreement.
-
-## Reuse and execution boundary
-
-The runner uses Python's `argparse` and `unittest`, the existing
-[three-way comparisons](comparison.md), and the
-[source pipeline suite](../tests/test_source_pipeline.py). The latter already
-links the Lean `PipelineNative` harness using Lake, decodes Analyzer XML, checks
-inherited structure and numeric representation, evaluates each body and pins exact
-candidate tables for replay. The pinned upstream `capture`, `comparison` and
-`relation` adapters preserve source UIDs, paired Haskell exports and atom
-isomorphisms. The optional explicit export uses the existing PR113 capture adapter.
-No new parser, solver wrapper, normalization API or library dependency is needed.
-Project/upstream code remains MIT; external tool notices are in the
-[provisioned bundles](oracles.md).
-
-## Contract for another backend
-
-The [Choco adapter](choco.md) implements the guarded structural part of this
-contract. A backend adapter must supply the original source/profile and declared bounds,
-resolved declaration and body/owner identities, a distinguished root, the whole
-finite nonprimitive object carrier, every declaration extent, original containment
-and reference rows, inherited views of those same identities, and total functional
-scalar rows for observed integers. Preserve two bag heads even when their targets
-coincide. Include empty tables, source-to-backend maps and exact tool/source
-identities. Values must satisfy the explicit range and representation obligations.
-The current table formats are test transports, not a new stable Java interchange
-API; the adapter must select and justify its semantic bridge before using them.
-
-Use deliberately invalid candidates as well as generated instances. Compare the
-same complete candidate and bounds in each backend, retain both discrepancy
-directions, and distinguish rejection, undefinedness, malformed input, unsupported
-input, timeout and operational failure. Retain raw backend outputs and replay
-commands externally. Checking generated instances tests those instances only:
-it cannot show that every source model is generated, or validate a backend's
-UNSAT claim. The separate in-memory preservation theorems establish their stated
-soundness/completeness results under their hypotheses. External parsing, native
-Lean/C execution, serialization, Analyzer translation, solver and extraction are
-tested boundaries. Acceptance still requires independent review and the full
-[qualification workflow](qualification.md).
+The command runs the examples above and reports their outcomes. The explanatory
+names here make the situations readable; the [fixture mapping](instance-checks-reference.md#reference-examples)
+relates them to the runnable inputs. No inspection of generated files is needed
+to follow the checks.

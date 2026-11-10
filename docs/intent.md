@@ -79,7 +79,7 @@ The component contract records the recursive preservation, scope premises and
 composed in-memory proof boundary. The [source CLI](behavioral-source.md) composes these APIs with explicit full-profile
 bounds and property commands. Final qualification and independent acceptance
 remain separate gates.
-The [resolved behavioral runtime](temporal-comparison.md) adds strict JSON input,
+The [resolved behavioral runtime](temporal-runtime.md) adds strict JSON input,
 solver-free native compilation, actual Analyzer trace decoding and exact
 three-way candidate comparison. Replay preserves complete frames and the loop;
 its paired-source and first-slice limits remain explicit.
@@ -145,13 +145,16 @@ and semantic acceptance require explicit review; see the
 - [Key proved properties and reuse](lessons.md#key-proved-properties): readable guarantees, assumptions, exact theorem links and proof/execution boundaries; reuse and Haskell comparison findings.
 - [Build](build.md): module ownership, dependency preparation and kernel/native checks.
 - [Three-way comparison](comparison.md): exact candidates, decode, search and replay.
-- [Instance-check walkthrough](instance-checks.md): runnable bag/set, version and complete telematics checks, evidence and backend handoff.
-- [Choco instance checks](choco.md): explicit-model generation, occurrence-preserving extraction and checked candidate replay.
+- [Instance-check walkthrough](instance-checks.md): the roles of Haskell, Alloy and Lean; why display, version and complete telematics examples pass or fail.
+- [Instance-check reference](instance-checks-reference.md): runner setup, fixture mappings, replay and backend integration.
+- [Choco instance checks](choco.md): checking another generator and detecting lost objects or links.
+- [Choco adapter](choco-adapter.md): explicit-model provisioning, extraction, supported profiles and replay.
 - [Oracles](oracles.md): external tools, fixture admission, replay and triage.
 - [IR](ir.md): executable declarations, resolved structural normalization and exact upstream admission proofs.
 - [Behavioral IR](behavioral-ir.md): first-slice admission, trace observations and signed interpretation.
 - [Behavioral encoding](behavioral-encoding.md): temporal lowering, global identities, snapshot correspondence and bounded evidence.
-- [Temporal comparison and resolved CLI](temporal-comparison.md): strict schemas, exact lassos, verified evaluation, replay and runtime boundaries.
+- [Trace-check walkthrough](temporal-comparison.md): why temporal checking needs histories, identities and the repeating loop.
+- [Temporal runtime](temporal-runtime.md): resolved CLI, strict schemas, exact lassos, verified evaluation, replay and runtime boundaries.
 - [Expressions](expressions.md): typed static syntax, full-integer observation and proof boundaries.
 - [Expression encoding](expression-encoding.md): source constraint encoding, observation bounds and conditional preservation proofs.
 - [Alloy core](alloy-core.md): independent target API, bounds, correspondence and tests.

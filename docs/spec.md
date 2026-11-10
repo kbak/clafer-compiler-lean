@@ -470,7 +470,7 @@ query fails. Malformed, unsupported, error, resource limit and timeout results
 must not count as bounded UNSAT. Haskell expectations identify the exact profile
 and revision; historical discrepancies do not qualify a newer generator. Paired
 source/IR formula agreement is a reviewed fixture premise until full frontend
-qualification. The [comparison contract](temporal-comparison.md) records this
+qualification. The [comparison contract](temporal-runtime.md) records this
 boundary and the distinguishing lifetime/identity/loop tests.
 Provide a runnable generated-trace walkthrough in this same profile: pass actual
 external Analyzer output through strict decoding into the verified evaluator,
@@ -499,7 +499,7 @@ Haskell nor Alloy and never invokes a solver. Keep the static command/profile
 contracts unchanged. Compilation success says nothing about satisfiability;
 bounded UNSAT is a separate external result. Document all input/output schemas,
 first-slice exclusions and diagnostic codes in the
-[resolved runtime contract](temporal-comparison.md).
+[resolved runtime contract](temporal-runtime.md).
 
 Covers:
 - `intent~compiler-foundation~1`

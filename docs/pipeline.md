@@ -142,7 +142,8 @@ is widened. The [qualification inventory](qualification.md) retains these limits
 ## Complete example and exact replay
 
 The [instance-check walkthrough](instance-checks.md) supplies a runnable entry point
-and explains the version witness, complete telematics tables and backend contract.
+and explains the version witness and complete model. The
+[runner reference](instance-checks-reference.md) records tables and the backend contract.
 
 The committed Appendix 6 source contains all twelve bodies and all three final
 selections. Its explicit bounds have 36 nonprimitive objects, width 7, and two

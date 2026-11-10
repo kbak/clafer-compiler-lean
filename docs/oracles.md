@@ -541,7 +541,7 @@ source/tool disposition and exact-text/warning evidence are inputs to the
 
 ## Choco instance tooling
 
-The [Choco adapter](choco.md) provisions the pinned Java explicit frontend,
+The [Choco adapter](choco-adapter.md) provisions the pinned Java explicit frontend,
 solver and Haskell explicit printer separately from the Alloy runtime. It admits
 original source through this structural profile, checks parsed declaration
 metadata, preserves reference-head identities and sends returned candidates to
