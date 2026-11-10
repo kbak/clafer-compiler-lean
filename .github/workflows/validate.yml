@@ -55,7 +55,7 @@ jobs:
           python -m pip install -r requirements/intentbond.txt
           ib install-oft --destination "$RUNNER_TEMP/oft"
           echo "INTENTBOND_OFT_JAR=$RUNNER_TEMP/oft/openfasttrace-4.9.0.jar" >> "$GITHUB_ENV"
-      - uses: leanprover/lean-action@fe408643ea7367d8c0404a8be3975bb145f5fb64 # v1
+      - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1
         with:
           auto-config: 'false'
           build: 'false'
