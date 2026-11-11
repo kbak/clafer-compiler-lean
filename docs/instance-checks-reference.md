@@ -34,16 +34,16 @@ each exercise covers.
 ### Reference examples
 
 The explanatory names in the [guide](instance-checks.md) rename the fixture's
-`Target` declaration to `ControlUnit` and `refs` to `display`. The saved source and candidate tables keep
-the original names and numeric identities:
+`Target` declaration to `ECU` and `refs` to `server`. The saved source and
+candidate tables keep the original names and numeric identities:
 
 | Name in the diagrams | Object ID | Role in the fixture |
 | --- | --- | --- |
 | configuration | `0` | synthetic root, the common container |
-| primary control unit | `1` | first `Target` object |
-| dashboard display | `2` | first `refs` head |
-| passenger display | `3` | second `refs` head |
-| secondary control unit | `4` | additional `Target` object in the passing set |
+| `central : ECU` | `1` | first `Target` object |
+| `navigation : server` | `2` | first `refs` head |
+| `audio : server` | `3` | second `refs` head |
+| `backup : ECU` | `4` | additional `Target` object in the passing set |
 
 These fixtures use the admitted M1 structural comparison domain. This stage
 exercises the receipt-producing Haskell **static Alloy** generator

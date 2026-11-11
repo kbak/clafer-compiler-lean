@@ -1,17 +1,22 @@
-# Check whether a trace satisfies a model
+# Validate a generator's traces
 
-An [instance check](instance-checks.md) asks whether one configuration obeys a
-model. Behavioral Clafer also describes what may happen over time. A **trace**
-is an ordered sequence of configurations. Each configuration can be structurally
-valid while the history still violates a rule—for example, an event that must
-eventually happen might never occur.
+An [instance check](instance-checks.md) tests one generated configuration. When a
+generator produces behavior over time, we need to check its whole **trace**: an
+ordered sequence of configurations. Every individual configuration could be
+valid while the execution violates the model—for example, a required event
+never happens.
 
-## What the trace checker checks
+The practical exercise is the same as for [Choco instances](choco.md): generate
+an answer, check it against Clafer's formal semantics, then introduce a mistake
+and confirm rejection. Here Alloy generates the answer. The Choco adapter
+currently handles static instances only.
 
-The Haskell and Lean compilers translate behavioral models into temporal Alloy.
-Alloy can find a trace satisfying a translation. The Lean semantic checker asks
-whether that particular trace satisfies the formal Clafer rules, independently
-of what the translation says.
+## What the checker needs
+
+The trace checker needs the resolved model, the objects and links present at
+each step, and how the trace continues after its last stored step. Object
+identities must be consistent across the whole history: an object that persists
+from one step to the next must remain the same object in the exported trace.
 
 It checks both kinds of obligation:
 
@@ -19,14 +24,15 @@ It checks both kinds of obligation:
   objects retain their identities, types and containment parents across time.
 - **Behavior:** the sequence of snapshots satisfies the attached temporal rules.
 
-The exercise compares that judgment with both compilers' Alloy translations on
-the same trace. Agreeing about one snapshot is insufficient when a rule refers
-to what happens later.
+As with instance checking, the formal checker and the compilers play different
+roles. Haskell and the Lean compiler translate the model into temporal Alloy;
+the semantic checker evaluates the supplied trace against the formal rules.
+The exercise asks all three about the same complete history.
 
 ## Generated-trace walkthrough
 
-Imagine a diagnostic test that exercises a device's error reporting. We want an
-error to appear while the test runs. With descriptive names, the model reads:
+Consider a test mode for a device's error reporting. Whenever the test mode is
+active, an error must occur now or later in the chosen execution. The small model is:
 
 ```clafer
 device ?
@@ -36,9 +42,9 @@ device ?
 ```
 
 Indentation expresses containment; `?` means optional. `F` means **eventually**.
-For this exercise the device and diagnostic test stay present throughout.
-The constraint belongs to the diagnostic test and applies at every step: an
-`error` child must be present now or at a later time.
+For this exercise one `device` and its `diagnostic` child stay present throughout.
+The constraint belongs to `diagnostic` and applies at every step it is present:
+an `error` child must be present now or at a later time in this trace.
 
 This is stronger than asking whether an error occurred once. As long as the test
 keeps running, each new moment has the same obligation. A permanently present
@@ -94,21 +100,32 @@ Each Alloy query fixes the same complete trace, including its loop. Its SAT or
 UNSAT result therefore accepts or rejects **that trace**. It is not a search for
 a different history that could make the comparison pass.
 
-## What this tells us
+## Use this when developing a behavioral generator
 
-The example shows why checking behavior needs more than checking each snapshot,
-and why a trace checker must retain the loop and object identities. Agreement
-on these traces does not prove that a generator produces every valid behavior,
-or that no behavior exists when a bounded search finds none.
+The last two cases form a useful test for a generator integration: their stored
+snapshots are identical, but their correct verdicts differ. An adapter that loses
+the loop cannot distinguish them. Checking the snapshots separately cannot
+distinguish them either.
+
+To apply the checker to another generator, its adapter must supply the resolved
+model and preserve the returned trace's identities, states and continuation.
+Start with a rule such as `F error`, a satisfying trace, and a trace that violates
+it. The existing exercise demonstrates this connection for Alloy output; it
+does not yet provide a temporal adapter for the Java Choco backend.
+
+Acceptance establishes that the supplied trace satisfies the supplied model in
+the supported profile. It does not show that a generator finds every valid
+behavior or that no behavior exists when a bounded search finds none.
 
 The executable checker is connected by Lean proofs to the formal semantics for
-this supported profile. Supplying the model and decoding external solver output
-remain tested boundaries. The [technical contract](temporal-runtime.md) records
-the exact assumptions and the pairing of Haskell source with the resolved model.
+this supported profile. This walkthrough uses a reviewed pair of Haskell source
+and resolved model; it does not independently check that a new parser produces
+the right model. Decoding external solver output also remains a tested boundary.
+The [technical contract](temporal-runtime.md) records these assumptions.
 For the broader conceptual picture, read
 [From structure to behavior](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/docs/structure-and-behavior.md).
 
-## Try the example
+## Run the exercise
 
 After the [tool setup](../CONTRIBUTING.md#setup-and-validation), choose a fresh
 output directory and run:
@@ -119,7 +136,7 @@ python3 scripts/comparison/temporal_compare.py walkthrough \
   --tools "$CLAFER_TEMPORAL_TOOLS"
 ```
 
-The command generates the initial trace and checks all four cases above. The
+Successful completion means the generated trace and the recurring-error trace
+were accepted, and both traces without a future error were rejected. The
 [fixture mapping](temporal-runtime.md#walkthrough-fixture) connects the descriptive
-names to the runnable input; understanding the verdicts does not require opening
-its generated files.
+names to the runnable input.

@@ -1,97 +1,97 @@
-# Check Choco's generated instances
+# Validate a generator with the instance checker
 
-The [instance guide](instance-checks.md) checks configurations against Clafer's
-formal rules and two Alloy translations. We can also ask a different generator
-to produce configurations, then apply the same semantic checker. This guide
-uses the Java Choco backend.
+A useful first exercise for a compiler that reads explicit Clafer is to generate
+a small configuration and check it against the formal semantics. This guide does
+that with the Java Choco backend. It shows how the
+[instance checker](instance-checks.md) can test a generator's actual answers.
 
-## What each tool contributes
+## From the model to a checked answer
 
-Haskell first resolves the Clafer model and produces an **explicit model**: names
-and omitted defaults have been worked out. Choco's Java parser reads that model,
-and Choco searches for configurations. The Lean checker then checks each returned
-configuration against the formal Clafer rules.
-
-The adapter between Choco and the checker preserves the objects, their types,
-containment and references. That matters because checking a changed configuration
-would tell us nothing about Choco's actual answer. We also ask both Alloy
-translations about the same candidate, as in the instance guide.
-
-## Two displays, one control unit
-
-Use a dashboard display and a passenger display connected to a control unit.
-This time the model requires exactly two displays:
-
-```clafer
-ControlUnit
-display ->> ControlUnit 2..2
-```
-
-Choco returns a configuration with both displays using the same unit:
+The Haskell compiler prepares an **explicit model**: names are resolved and
+omitted defaults are filled in. Choco's Java parser reads that model, and Choco
+searches for instances. An adapter passes each returned instance to the Lean
+semantic checker, together with the resolved model it must satisfy:
 
 ```mermaid
----
-config:
-  class:
-    hideEmptyMembersBox: true
----
-classDiagram
-  direction LR
-  class configuration["configuration"]
-  class dashboard["dashboard display"]
-  class passenger["passenger display"]
-  class primary["primary control unit"]
-  configuration *-- dashboard
-  configuration *-- passenger
-  configuration *-- primary
-  dashboard --> primary : uses
-  passenger --> primary : uses
+flowchart TD
+  source["Clafer source"] --> haskell["Haskell: resolve the model"]
+  haskell -->|Explicit model| choco["Java parser and Choco generator"]
+  haskell -->|Resolved model| checker["Lean semantic checker"]
+  choco -->|Returned instance, through the adapter| checker
+  checker --> verdict["Satisfies or violates the model"]
 ```
 
-The filled diamonds show containment; `uses` arrows show references. The Lean
-checker accepts because there are exactly two displays, both links reach an
-existing control unit, and `->>` permits sharing it. Both Alloy comparisons
-accept this same configuration.
+The checker evaluates the instance against Clafer's formal rules. It does not ask
+Choco whether its own answer is correct. The adapter retains each object's type,
+identity, parent and reference target, so the check concerns the instance Choco
+actually returned. The exercise also asks both the Haskell and Lean compilers'
+Alloy translations about that same instance.
 
-Now change the model's reference kind to `->`, which requires the displays to
-use different units. Two outcomes need to be distinguished:
+## Generate two references to one ECU
 
-- **Generating:** with room for only one control unit, Choco refuses the search
-  bounds before producing a configuration. There is no generated instance to check.
-- **Checking:** we can still hand the shared-unit configuration directly to the
-  Lean checker. It rejects it because the two displays use the same unit.
+Use the `ECU` and `server` declarations from the instance guide, now requiring
+exactly one ECU and two servers:
 
-To get a passing set case, change the declaration to `ControlUnit 2..2` and give
-Choco room for both units. Each display then uses a different unit. Both Alloy
-translations accept that generated configuration too.
+```clafer
+ECU
+server ->> ECU 2..2
+```
 
-## Can the checker notice lost information?
+Choco returns two `server` objects referring to the same ECU. Call the servers
+`navigation` and `audio`, and the ECU `central`. These are the objects shown in the
+[instance diagram](instance-checks.md#what-is-being-checked-two-references-to-one-ecu).
+The checker accepts: there are exactly two servers, each has an existing ECU as
+its target, and `->>` permits sharing. Both Alloy comparisons accept too.
 
-An adapter could accidentally merge two displays because they use the same
-control unit, or lose one of their links. We deliberately damage a copy of the
-valid bag configuration to see whether the checker notices:
+Now change `->>` to `->`. The two servers must have different ECU targets.
+The exercise distinguishes generating an answer from checking one supplied directly:
 
-| Change to the candidate | Which rule fails? |
+| Exercise | Result | Meaning |
+| --- | --- | --- |
+| Generate with `ECU` and `server ->> ECU 2..2` | An instance is returned and accepted | Two servers may share the one ECU |
+| Generate with `ECU` and `server -> ECU 2..2`, allowing only one ECU in the search | Choco refuses the bounds; no instance is returned | It requires room for two distinct targets; there is no answer to check |
+| Supply the shared-ECU instance directly to the checker under the set model | Rejected | It violates the distinct-target rule |
+| Generate with `ECU 2..2` and `server -> ECU 2..2`, allowing two ECUs | An instance is returned and accepted | Each server has a different ECU |
+
+For every checked instance in this table, the semantic checker and both Alloy
+translations agree. Choco's refusal of the one-ECU search is a separate outcome;
+it is not a checker verdict or a solver result proving that no solution exists.
+
+## Check that mistakes are detected
+
+A passing generated instance is only half the exercise. We also damage a copy
+of it and confirm that the checker rejects the result:
+
+| Change to the bag instance | Why the checker rejects it |
 | --- | --- |
-| Remove the passenger display | The model requires exactly two displays; only one remains |
-| Keep both displays but remove the passenger display's `uses` link | Every display must refer to a control unit; one has no target |
+| Remove `audio`, leaving only `navigation` | The model requires two `server` objects |
+| Keep `audio` but remove its reference to `central` | Every server must have a target |
 
-The checker rejects both. The distinction is useful: two references to one
-unit are still two separate objects, and preserving only the set of target units
-would lose information that the model constrains.
+This is a concrete integration test. If an adapter keeps only the set of targets,
+it loses the distinction between two references to one ECU and one reference to
+that ECU. The cardinality check detects that loss. The second mutation tests
+whether a missing reference can slip through.
 
-## What this exercise establishes
+## Use this when developing the Java toolchain
 
-We have checked real Choco output and shown that specific invalid configurations
-are rejected. That is evidence about these examples, not a proof of the Choco
-backend or of its Java parser. The current adapter covers the selected structural
-models; integer constraints and temporal behavior require their own checking paths.
+The exercise already connects an explicit Java parser and Choco generator to the
+formal checker. The same approach can test later compiler changes: keep the model
+being checked, export the returned objects without merging or dropping them, and
+check each answer. Include an invalid candidate for the rule being exercised so
+that acceptance alone cannot hide a missing check.
 
-Haskell's role here is to prepare the explicit input. Choco generates the
-configuration. The Lean semantic checker supplies the independent judgment
-about that configuration's meaning.
+The current adapter handles the selected structural models without constraints;
+arithmetic and temporal behavior are outside this adapter. It checks exported
+declaration metadata against Haskell's resolved model before checking instances.
+That helps catch a mismatched interpretation of these inputs, but it is not a
+general validation of the Java parser or of Haskell's resolution. Nor does checking
+returned instances establish that Choco finds every valid configuration.
 
-## Try the example
+The [adapter reference](choco-adapter.md) describes the supported input and the
+mapping needed to connect another backend. For a generator that produces
+executions over time, the next concept is [trace checking](temporal-comparison.md).
+
+## Run the exercise
 
 After [setting up the Choco tools](choco-adapter.md#setup), run:
 
@@ -102,6 +102,9 @@ choco_demo=$(mktemp -d)
 python3 scripts/comparison/choco.py demo --tools "$CLAFER_CHOCO_TOOLS" "$choco_demo/run"
 ```
 
-The command exercises the passing configurations, the refused one-unit set search,
-and the deliberately invalid candidates described above. The
-[adapter reference](choco-adapter.md) records the fixture-name mapping and integration details.
+The command generates and checks the positive cases, records the refused search,
+and checks the invalid candidates above. In its summary, `satisfies` counts
+accepted generated instances; `supplied` records the separately checked
+candidates. `scope_rejected` means the search bounds were refused. The
+[fixture mapping](choco-adapter.md#adapter-assessment) connects the readable names
+here to the saved inputs.
