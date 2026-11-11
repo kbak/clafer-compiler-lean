@@ -47,11 +47,11 @@ Use a fresh output directory. When using Lake's optional artifact cache, export
 
 | Case | Choco generation | Supplied candidate check |
 | --- | --- | --- |
-| Bag: both displays use the primary control unit | One instance; checker accepts | Identical supplied configuration passes |
-| Set: both displays would use the primary control unit | `InsufficientScopeException`: one control unit is below the required two; no instance returned | The shared-unit configuration violates set uniqueness; both exact Alloy queries reject it |
-| Set: the displays use separate control units | Generated instances use distinct control units; checker accepts | Generated configuration also passes both exact Alloy comparisons |
-| Remove the passenger display | Deliberately supplied mutation | Violates the requirement for exactly two displays |
-| Remove the passenger display's `uses` link | Deliberately supplied mutation | Violates the requirement that each display has a target |
+| Bag: both servers refer to `central` | One instance; checker accepts | Identical supplied configuration passes |
+| Set: both servers would refer to `central` | `InsufficientScopeException`: one ECU is below the required two; no instance returned | The shared-ECU configuration violates set uniqueness; both exact Alloy queries reject it |
+| Set: the servers refer to separate ECUs | Generated instances use distinct ECUs; checker accepts | Generated configuration also passes both exact Alloy comparisons |
+| Remove `audio` | Deliberately supplied mutation | Violates the requirement for exactly two servers |
+| Remove `audio`'s reference to `central` | Deliberately supplied mutation | Violates the requirement that each server has a target |
 
 The one-target set result is `scope_rejected`, retaining Choco's diagnostic. It is
 neither solver UNSAT nor a candidate verdict. `generated`, `decoded` and `checked`
@@ -129,20 +129,22 @@ guarded candidate protocol, Lean checker and exact Alloy comparison. Choco's
 scope application, solving and instance extraction. No new source parser, solver,
 semantic checker or graph-isomorphism implementation is needed.
 
-The saved fixture uses `Target` for `ControlUnit` and `refs` for `display`.
+The saved fixture uses `Target` for `ECU` and `refs` for `server`.
 At Choco revision `253b1de60e4d87435874db81a5151dca53ee1871`, the API probe for
 `Target` followed by `refs ->> Target 2..2` returned one instance. The mapping is:
 
 | Explanatory object name | Choco (declaration UID, local ID) | Checker object ID | Reference target |
 | --- | --- | --- | --- |
 | configuration | added by the adapter | `0` | none |
-| primary control unit | (`Target`, `0`) | `1` | none |
-| dashboard display | (`refs`, `0`) | `2` | primary control unit |
-| passenger display | (`refs`, `1`) | `3` | primary control unit |
+| `central : ECU` | (`Target`, `0`) | `1` | none |
+| `navigation : server` | (`refs`, `0`) | `2` | `central` |
+| `audio : server` | (`refs`, `1`) | `3` | `central` |
 
 The diagram shows those same objects with UML-style composition for containment
 and directed associations for references. The diamond is at the container end.
-The two displays remain separate objects throughout extraction and checking.
+The two `server` objects remain separate throughout extraction and checking.
+`dref` denotes following the reference declared by `->>`; see the
+[guide notation](instance-checks.md#what-is-being-checked-two-references-to-one-ecu).
 
 ```mermaid
 ---
@@ -153,14 +155,14 @@ config:
 classDiagram
   direction LR
   class configuration["configuration"]
-  class dashboard["dashboard display"]
-  class passenger["passenger display"]
-  class primary["primary control unit"]
-  configuration *-- dashboard
-  configuration *-- passenger
-  configuration *-- primary
-  dashboard --> primary : uses
-  passenger --> primary : uses
+  class navigation["navigation : server"]
+  class audio["audio : server"]
+  class central["central : ECU"]
+  configuration *-- navigation : server
+  configuration *-- audio : server
+  configuration *-- central : ECU
+  navigation --> central : dref
+  audio --> central : dref
 ```
 
 `InstanceClafer.getType()` and `getId()` identify an occurrence together;
