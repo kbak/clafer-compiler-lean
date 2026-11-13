@@ -145,7 +145,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                         self.output/'haskell-replay'),answer)
 
     # [utest->req~compiler-behavioral-frontend~1]
-    # [utest->req~compiler-behavioral-profile~1]
+    # [utest->req~compiler-temporal-oracles~1]
     def test_058_let_capture_and_reference_exclusions(self):
         tools=bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
         fixtures=bs.oracle.UPSTREAM/'tests/fixtures/temporal-let'
