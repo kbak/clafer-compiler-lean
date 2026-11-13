@@ -156,7 +156,7 @@ class BehavioralSourceCLITests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
         sentinel = self.work / 'out.als'
         sentinel.write_text('preserve me')
-        result = self.compile(source='A := 1\n', output='out.als')
+        result = self.compile(source='abstract A -> int ? := 1\n', output='out.als')
         self.assertEqual(result.returncode, 3, result.stderr)
         self.assertEqual(sentinel.read_text(), 'preserve me')
         result = self.compile(extra=['--scenario', 'missing.cfr'], output='out.als')

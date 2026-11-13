@@ -114,7 +114,7 @@ No row is discharged by a Markdown link or an upstream theorem alone.
 | B29 syntax, precedence, aliases, disjoint/multiple binders | P §6.1; T12/CheatSheet; S5 | C7 grammar/elaboration; C8 composition | Quantifier `not`, arrow precedence, capture avoidance / change attachment or lose disjointness |
 | B30 lassos and bounded reporting | P §6.2; T13; S6 | C3/C4; C5 representation, C9 replay | Nonzero prefix, loop-edge birth / empty trace, bad loop, undersized identity pool |
 | B31 integer conversion, operations, extrema, folds | S11; D3; S4 | C6/C7; C8 observation and range proofs | Empty conversion 0, duplicate aggregate heads / zero divisor, infinite/noninteger observation, overflow |
-| B32 declaration `=`, rejected `:=`, effective defaults | P §6.1; T10/S1–S2; D4; S4/S5 | C6/C7; C8 equation/default preservation | `=` at each live state / confuse initialization with birth, silently accept `:=` |
+| B32 hard `=`/`:=`, effective defaults | P §6.1; T10/S1–S2; accepted initializer extension | [Initializer contract](behavioral-frontend.md#hard-declaration-initializers); source/target preservation | Empty-head inactivity, single/collection/global clocks, rebirth, original RHS scope / strict implication sugar, reconstructed defaults or RHS reattachment |
 
 The first slice C5 includes resolved guarded structural snapshots, nested presence
 and state-machine obligations, replacement/reappearance, X/F/G/U/W and both source
@@ -178,9 +178,10 @@ goals, backend escapes, alternative production backends, automatic scope inferen
 and a source import/module system outside the behavioral compiler profile.
 Single-model composition suffices for scenario queries; the paper's external
 import directive is not silently erased. These dispositions belong to the
-accepted profile; changing them requires explicit review. The upstream-approved
-`:=` rejection is retained; `=` is
-required. No exclusion removes an integer, reference or structural prerequisite
+accepted profile; changing them requires explicit review. Hard `=` and `:=`
+follow the accepted [initializer extension](behavioral-frontend.md#hard-declaration-initializers),
+including explicit unsupported multiplicity/scalar cases. No exclusion removes
+an integer, reference or structural prerequisite
 listed above. Any further omission needs an explicit profile amendment.
 
 ## Independent trace assurance

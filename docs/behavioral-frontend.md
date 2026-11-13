@@ -54,7 +54,7 @@ with the pinned Haskell expansions.
 
 A declaration contains optional `abstract`, a list of `initial`, `final`,
 `finalref` and `finaltarget` tokens, optional group, name, optional super/reference,
-optional cardinality, optional `= E0`, optional `arrow E0`, and children.
+optional cardinality, optional `= E0` or `:= E0`, optional `arrow E0`, and children.
 Both reference-modifier orders and repeated tokens are legal. The selected
 super position accepts a name or dot-separated path; reference type positions
 remain single names. `SuperPath` retains every token and the whole path span,
@@ -69,7 +69,7 @@ constraints with caller-selected attachment IDs from the elaborated model;
 Indentation and explicit braces follow the existing
 [layout contract](parser.md). Tabs in leading indentation and inconsistent
 indentation are malformed. Runtime strings/reals/doubles/Booleans, objectives,
-backend escapes, directives, qualified module names and `:=` remain unsupported.
+backend escapes, directives and qualified module names remain unsupported.
 Profile rejection precedes lexing. Source negation stays in the tree; the parser
 does not change assertion failure into source negation or move nested properties.
 
@@ -103,20 +103,83 @@ proves correspondence with upstream `Modifiers.Effective` and, under
 reference-modifier order collapses to `final`. These results establish modifier
 meaning independently of property expression synthesis.
 
-[`headerProperties`](../ClaferCompiler/Frontend/Behavioral/Headers.lean) inventories
-constant initializers in their enclosing scope and outgoing declaration transitions
-at the declaration itself. Each result carries its declaration of origin, generated
-expression, source span and a checked attachment rule. Initializers become
-presence-guarded equations; they acquire no lifetime anchor. Initializer heads use
-the retained declaration ID, so
-unrelated declarations with the same spelling cannot change their resolution;
-the authored right-hand side retains enclosing-scope lookup. Transitions retain
-`this` as their source, guards and the remainder of the chain. The original headers
-and ordinary property inventory remain available separately. Source-to-generated
-expression inventory is tested. `HeaderElaborates` independently specifies
-transition bodies and presence-guarded initializer equations, including declaration
-provenance and authored right-hand-side resolution. `elaborateHeader_sound` proves
-that successful header synthesis satisfies these rules.
+## Hard declaration initializers
+
+[`headerProperties`](../ClaferCompiler/Frontend/Behavioral/Headers.lean) retains
+both `=` and `:=`, declaration identity, source span and the original enclosing
+attachment. Outgoing transitions remain attached to the declaration itself.
+`HeaderElaborates` and `elaborateHeader_sound` connect successful synthesis to
+retained authored headers, checked structural provenance, independently resolved
+RHS expressions and typed equation construction.
+
+`=` compares the complete dereferenced target image at every live enclosing
+context. Empty declaration heads suppress the whole RHS observation, including
+undefined temporal conditions. This declaration guard is independent of ordinary
+strict implication. The historical `Primitive.constantInitializer` API retains
+its explicit strict operand-definedness contract; source headers use the new rule.
+
+[`InitializerClassification`](../ClaferCompiler/Frontend/Behavioral/InitializerClassification.lean)
+uses authored abstractness, omission versus explicit multiplicity, structural
+parent and effective parent group. Concrete at-most-one declarations use
+`instanceBirth`; plural declarations use `parentBirth`. Abstract omitted
+multiplicity uses `instanceBirth` regardless of the group default. Parentless
+abstract explicit `*` or `0..*` uses `globalZero`; other explicit bounds are
+unsupported. Abstract singles require an independently established at-most-one
+RHS result. [`InitializerBounds`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerBounds.lean)
+proves the conservative native rules against the actual expression evaluator and
+`Structural.Valid`: declaration bounds, functional parent/reference navigation,
+scalar integer/extremum results, intersection/difference, identical literal unions
+and strict conditionals. It does not use constraint truth or backend scopes.
+Failure to establish a bound is an unsupported-form diagnostic, not a changed clock.
+
+[`initializerFormula`](../ClaferCompiler/Frontend/Behavioral/Elaborate.lean)
+uses the existing quantifier guard and `initially` interpretation. Singles observe
+each head at its own births, including rebirth; collections observe the original
+parent at its births; globals observe the permanent root at zero. Generated
+`inContext` atoms move the birth test to a head and restore its fixed original
+parent or root for the complete RHS. `equalClosed` retains a collection with zero
+outer lexical slots, so generated capture slots cannot bind authored names.
+Authored nested binders and temporal conditions remain intact. This preserves the
+[accepted `Box` counterexample](https://github.com/kbak/clafer-semantics/blob/a18890612e38872f3fb5842ed323042aea34e1ed/docs/behavioral-initializers.md):
+the disappearance of `Box` must not turn its original RHS next condition into
+child-context cancellation. `this`, `parent`, `root` and sibling lookup retain
+that same original environment.
+
+Inherited and own equations are conjoined over their original declaration views;
+refinement does not replace an inherited obligation or split a global collection.
+An own `:=` under inherited `=` is accepted without a blanket tautology warning.
+Temporal selection scans authored syntax before enum/header expansion. An
+initializer token alone does not select temporal semantics; without an authored
+temporal feature both operators use the ordinary aggregate equation.
+
+[`InitializerClassification`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerClassification.lean)
+connects checked provenance and native classification to upstream
+`Structure.elaborate`. [`InitializerTransport`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerTransport.lean)
+instantiates the accepted transport API with the actual full RHS evaluator.
+[`InitializerMeaning`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerMeaning.lean)
+connects generated equations to upstream production `Meaning` using actual
+structural fibers and inherited-reference owners. Its assumptions include
+`Structural.Valid`; they never assume initializer satisfaction or RHS transport.
+The full expression lowering, range, completion and preservation proofs include
+both generated atom constructors. Parser recognition, Python observation and
+serialized Alloy execution remain tested boundaries.
+
+Compatibility retains its substantive hypotheses. A single birth equation
+collapses to a static aggregate on a constant-live trace with independently
+proved singleton heads or scalar RHS. Collection constant-trace compatibility
+also requires stable contexts, heads, targets and complete RHS observations.
+`finalref` equivalence requires lifetime-stable complete RHS observations,
+including definedness, plus independent singleton/scalar admission. `final` or
+`finalref` alone does not make a changing RHS constant or defined later.
+
+Reuse was checked against the existing certified frontend, generic quantifier
+and anchor machinery, upstream classification/transport/structure/compatibility
+APIs, standard `Vector`/`Fin` and the complete expression lowering. Generated
+context changes are absent from ordinary source quantifiers, and strict
+implication cannot supply the inactive declaration guard. The two small atom
+constructors reuse those facilities without a new evaluator or library dependency.
+Proof-only upstream definitions remain outside the native import closure.
+
 
 ## Let capture and comparison boundary
 
@@ -132,10 +195,11 @@ reuse the accepted upstream changing-target/set/rebirth and same-state controls.
 
 Haskell 0.5.8 substitutes expressions. Time-spanning `let` and unused undefined
 bindings therefore remain explicit comparison exclusions. Upstream resolved
-capture laws do not prove parsing or named-syntax alpha-renaming. The compiler's
-existing constant-initializer bridge uses `Initializers.Legacy`; adopting the new
-initializer clocks and warning policy belongs to the separate
-[initializer task](https://github.com/kbak/clafer-compiler-lean/issues/126).
+capture laws do not prove parsing or named-syntax alpha-renaming. Authored temporal
+selection also inspects the `let` RHS, so temporal syntax there selects the
+[production initializer clocks](#hard-declaration-initializers) even when the
+binding is unused. The resolved constant-initializer helper retains its separate
+`Initializers.Legacy` interpretation.
 
 ## Executable reductions and proved boundary
 
@@ -167,7 +231,7 @@ Target translation and native execution correctness remain separate boundaries.
 The raw authored bodies remain available for strict definedness. The
 [upstream partial-domain contract](behavioral.md#bounds-arithmetic-and-outcomes)
 requires retaining the original expanded formula's `Defined` predicate alongside
-normalized truth. The source header rules retain the C6 initializer guard; the range pass below
+normalized truth. The source header rules retain the independent inactive initializer guard; the range pass below
 composes its arithmetic checks without assuming constraint truth.
 
 ## Partial primitives and grouped counting
@@ -186,7 +250,7 @@ truth for arbitrary partial observations; the
 instantiates the theorem with the pinned primitive syntax. No missing arithmetic
 result becomes zero or a Boolean value.
 `Primitive.constantInitializer` has exact interpretation equality with upstream
-`Initializers.Legacy.constant`; `initializer_truth` reuses its presence-guarded equation
+`Initializers.Legacy.constant`; `initializer_truth` reuses its strict presence-guarded equation
 under explicit operand-definedness premises. This resolved theorem does not resolve
 the source header's head/value views or prove their typing.
 
@@ -441,8 +505,8 @@ rewriting before signed normalization are unsound. No trace evaluator or new
 library is introduced by that interpretation.
 Binder plans reuse `Vector`, `Fin`, the existing reserved-name policy and checked
 `Nat.rec` traversal. A hidden domain capture avoids introducing a separate syntax
-renaming framework. The header adapter follows the existing C6 initializer sugar
-and upstream `Initializers.Legacy.constant`; its distinct AST and attachment provenance
+renaming framework. The header adapter follows the accepted production initializer contract;
+its distinct AST and attachment provenance
 prevent passing temporal expressions through the static parser or resolver.
 `PrimitiveExpression` lacks partial-navigation and value-conditional constructors;
 `Expression` composes its operations with upstream `Step.image`, integer

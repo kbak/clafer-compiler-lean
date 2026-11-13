@@ -134,7 +134,7 @@ class BehavioralParserTests(unittest.TestCase):
                      '[X]', '[one x : A |]', 'enum E =', 'A\n  enum E = B',
                      'A\n\tinitial B', 'A\n  B\n C', 'assert a', '[!X a]',
                      '[always p && initially q]', 'initial\n  A', 'A\n: Base', 'A\n?', 'abstract\nA']
-        unsupported = ['A := 1', '[alloy| x |]', '//# OPTIONS\nA', 'A -> string',
+        unsupported = ['[alloy| x |]', '//# OPTIONS\nA', 'A -> string',
                        '[1.2]', 'A -> B ++ C', '<< minimize A >>', '["str"]', '`A\\B']
         for expected, sources in [('malformed', malformed), ('unsupported', unsupported)]:
             for source, out in zip(sources, self.parse_many(sources)):

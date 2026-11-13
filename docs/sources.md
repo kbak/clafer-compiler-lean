@@ -120,11 +120,11 @@ frontend capture avoidance.
 
 Choco declaration ordering and DOT keyword quoting are reference output changes.
 The existing Choco comparison consumer is rebuilt against the selected Haskell
-library; the Lean compiler gains neither backend. Initializer clocks/warnings
-remain with [initializer adoption](https://github.com/kbak/clafer-compiler-lean/issues/126),
-and final initializer/absence comparison with
+library; the Lean compiler gains neither backend. Source headers use the accepted
+[initializer contract](behavioral-frontend.md#hard-declaration-initializers),
+while final initializer/absence comparison remains with
 [feature qualification](https://github.com/kbak/clafer-compiler-lean/issues/127).
-The existing initializer bridge explicitly uses upstream `Initializers.Legacy`.
+The resolved constant-initializer helper retains its upstream `Initializers.Legacy` meaning.
 Reference fixed points, resolved M1 preservation and full behavioral source
 correctness remain separate evidence; the cancelled source-format project is
 not revived by this upgrade.
@@ -1033,31 +1033,49 @@ retains this limitation without changing source semantics.
 
 The installed dependency is immutable upstream main
 `e96284c98b103fe0871c00eb96210a40e5c1ea67`, with its accepted
-[0.5.8 source/build/let delta](#clafer-058-source-and-replay). It includes the prior
-`8914ce01386366296e61f049a04bbc6d24db34c4`
-[absent-reference results](https://github.com/kbak/clafer-semantics/pull/176).
-Relative to the previous structural-comparison pin
-`bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, the delta adds
-[`AbsentReference`](https://github.com/kbak/clafer-semantics/blob/8914ce01386366296e61f049a04bbc6d24db34c4/Clafer/Behavioral/AbsentReference.lean),
-its examples and root import, and supporting requirements, documentation and test
-registration. Existing semantic definitions, external adapters, toolchain and
-transitive Lake dependencies are unchanged. The source contract still distinguishes
-an empty absent-head relation from partial scalar extraction, and child disappearance
-from parent cancellation. Counter persistence requires an initial value and enabled
-transitions; presence alone is insufficient.
+[0.5.8 source/build/let delta](#clafer-058-source-and-replay),
+[production initializer semantics](https://github.com/kbak/clafer-semantics/pull/179),
+[temporal-let capture disposition](https://github.com/kbak/clafer-semantics/pull/181)
+and earlier [absent-reference results](https://github.com/kbak/clafer-semantics/pull/176).
+Current comparison tools use the qualified 0.5.8 profile; historical static
+and behavioral profiles retain their original revisions and adapters.
 
-The compiler reuses these absence lemmas with `TraceRep.deref_completed`,
-`object_reference_typed` and `compiled_sound`, rather than introducing another
-reference model or finite evaluator. Scalar completion and existing target state
-facts already enforce the required observation boundary. These proofs add no runtime
-package, copied semantic definition or license obligation; the semantics remains MIT.
+Relative to the previous installed `8914ce01386366296e61f049a04bbc6d24db34c4` absence revision, the relevant delta
+adds production `Initializers`, `InitializerClassification`, `InitializerBounds`,
+`InitializerTransport`, `InitializerStructure`, `InitializerCompatibility`,
+`InitializerStatic` and `InitializerFinality`, with independent lifecycle and
+transport examples. The historical strict constant-initializer interpretation
+is retained as `Initializers.Legacy`; source headers adopt the production
+inactive-head guard. `LetCapture` records value capture across time, distinct from
+reference substitution. Full compiler observations preserve that accepted rule.
+The [upstream initializer contract](https://github.com/kbak/clafer-semantics/blob/a18890612e38872f3fb5842ed323042aea34e1ed/docs/behavioral-initializers.md)
+is authoritative for classification, original RHS environments, conjunctive
+inheritance, static compatibility and finality assumptions.
 
-The pinned Haskell [`AlloyLtl` generator](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Generator/AlloyLtl.hs) constrains reference values for live heads
-without requiring absent-head rows to be empty. This remains comparison evidence,
-not the adopted source meaning. The accepted 0.5.8 build now supplies current
-comparison tools. The compiler still uses `Initializers.Legacy` until the separate
-initializer adoption; installing the new upstream API does not implement its
-source elaboration or clocks.
+The inspected [Haskell 0.5.8 PR](https://github.com/gsdlab/clafer/pull/119) at
+`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` supplies current implementation context:
+hard `:=`, lifetime-start `finalref`, inherited equations and temporal selection.
+Its blanket inherited-`=`/own-`:=` warning is not adopted: both equations retain
+their own scope and clock and can conflict. Its reference-substitution handling
+of temporal `let` is comparison behavior, not the accepted capture semantics.
+The [current tool qualification](#clafer-058-source-and-replay) does not
+discharge the separate [initializer/absence comparison gate](https://github.com/kbak/clafer-compiler-lean/issues/127).
+
+The compiler reuses upstream classification, structural fibers, transport,
+compatibility and finality results with its actual resolved expression evaluator.
+Native classifiers and scalar checks have kernel correspondence proofs; generated
+context/equality atoms are included in the full lowering and preservation proofs.
+The [frontend contract](behavioral-frontend.md#hard-declaration-initializers)
+records the remaining parser, serialization and execution boundaries. No runtime
+package, vendored semantic definition or new license dependency is added;
+upstream semantics remains MIT.
+
+Absence still means an empty reference relation, distinct from partial scalar
+extraction and parent cancellation. The compiler reuses absence lemmas with
+`TraceRep.deref_completed`, `object_reference_typed` and `compiled_sound`.
+The historical Haskell `AlloyLtl` generator constrains live values without requiring
+absent-head rows to be empty; this remains comparison evidence rather than source
+meaning. Counter persistence still requires an initial value and enabled transitions.
 
 The optional `Clafer.Behavioral` source entrypoint remains separate from
 `Clafer.Behavioral.FiniteComposition`. Full preservation continues to require

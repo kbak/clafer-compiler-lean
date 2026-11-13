@@ -258,6 +258,57 @@ mutual
         atom (M).toEffectiveCore CT completeIntegers e ρ t := by
     cases e with
     | primitive a => exact predicate_image h a ρ t
+    | equalClosed a d =>
+      change (collection (M).toEffectiveCore ST R d (.closed (h.environment ρ).this) t).map _ =
+        (collection (M).toEffectiveCore CT completeIntegers d (.closed ρ.this) t).map _
+      have closed : Clafer.Behavioral.Environment.closed (h.environment ρ).this =
+          h.environment (.closed ρ.this) := by
+        unfold environment Clafer.Behavioral.Environment.closed
+        congr 1
+        funext i
+        exact Fin.elim0 i
+      rw [closed, collection_image h d]
+      have image := h.setExpr_image ρ t (SemanticsBridge.Behavioral.setExpr a)
+      unfold Clafer.Behavioral.Structural.eval at image
+      rw [← image]
+      cases collection (M).toEffectiveCore CT completeIntegers d (.closed ρ.this) t with
+      | none => rfl
+      | some S =>
+        apply congrArg some
+        exact propext (Set.image_injective.mpr h.embedding.injective).eq_iff
+    | inContext d body =>
+      classical
+      change contextObservation (M).toEffectiveCore ST d (formula (M).toEffectiveCore ST R body)
+        (h.environment ρ) t =
+        contextObservation (M).toEffectiveCore CT d (formula (M).toEffectiveCore CT completeIntegers body) ρ t
+      unfold contextObservation
+      have image := h.setExpr_image ρ t (SemanticsBridge.Behavioral.setExpr d)
+      unfold Clafer.Behavioral.Structural.eval at image
+      dsimp only
+      rw [← image]
+      simp only [Set.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
+      have domains : (∀ x ∈ (SemanticsBridge.Behavioral.setExpr d).eval (M).toEffectiveCore CT ρ t,
+          (formula (M).toEffectiveCore ST R body).Defined ST observation
+            {h.environment ρ with this := h.embedding x} t) ↔
+        (∀ x ∈ (SemanticsBridge.Behavioral.setExpr d).eval (M).toEffectiveCore CT ρ t,
+          (formula (M).toEffectiveCore CT completeIntegers body).Defined CT observation {ρ with this := x} t) := by
+        apply forall_congr'
+        intro x
+        apply imp_congr_right
+        intro _
+        rw [observed_formula_defined, observed_formula_defined]
+        exact (formula_transport h body).defined {ρ with this := x} t
+      simp only [domains]
+      split
+      · apply congrArg some
+        apply propext
+        apply forall_congr'
+        intro x
+        apply imp_congr_right
+        intro _
+        rw [observed_formula_raw, observed_formula_raw]
+        exact (formula_transport h body).raw {ρ with this := x} t
+      · rfl
     | count q arity disjoint d body =>
       change countObservation ST q arity disjoint
         (collection (M).toEffectiveCore ST R d) (formula (M).toEffectiveCore ST R body) _ _ =

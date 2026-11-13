@@ -243,7 +243,7 @@ Existing in-memory tests remain mandatory as separate evidence.
 | B29 | Authored grammar/binder derivations and grouped lowering; T12 | Disjoint multiple binders, lexical capture, source parsing/rejection/precedence suite and exact observations |
 | B30 | Concrete full encode/decode and lasso relation; upstream `Lasso` | Fixed frame count/loop, nonzero prefix, scalar/global identity mutations, receipt replay and tampering |
 | B31 | Partial arithmetic/range/finite-observation preservation; upstream D3 | Scalar swaps, implicit distinct sum, occurrence sum/product, extrema, signed division/remainder, empty numerical scenario and conservative rejection tests |
-| B32 | Declaration equation/default elaboration; upstream D4 | Equation at every live frame, changed later value; existing `:=` and default-policy rejection/derivation tests |
+| B32 | [Hard initializer classification and original-context equations](behavioral-frontend.md#hard-declaration-initializers) | [Distinguishing source cases](../tests/behavioral_initializer_cases.py): changing values, rebirth, parent/global clocks, empty/undefined RHS, original-context next, inheritance, bags and simultaneous equations |
 
 `coverage.json` records individual case names, rows, expected source outcomes and
 actual completed results. Its row labels are an inventory, not a proof of coverage
@@ -272,10 +272,10 @@ strict unused-binding definedness. Current Haskell substitution disagrees on the
 accepted changing-target/set/rebirth and unused-undefined witnesses; these are
 explicit reference exclusions, with same-state/shadowing/alpha-renaming controls.
 Zero-divisor RHSs remain subject to conservative range rejection even when unused.
-The existing constant-initializer source rule uses `Initializers.Legacy`;
-[initializer adoption](https://github.com/kbak/clafer-compiler-lean/issues/126) and
-[final feature qualification](https://github.com/kbak/clafer-compiler-lean/issues/127)
-remain separate from this tool upgrade and the accepted absence implementation.
+Source headers use the accepted [hard initializer contract](behavioral-frontend.md#hard-declaration-initializers).
+The resolved constant-initializer helper retains its `Initializers.Legacy` meaning.
+[Final initializer/absence reference qualification](https://github.com/kbak/clafer-compiler-lean/issues/127)
+remains a separate gate from the tool upgrade and accepted implementations.
 
 Parentless abstract local bounds are ineffective because there is no containment
 fiber: Haskell's `0..*` and the frontend's default `1..1` are paired only there.

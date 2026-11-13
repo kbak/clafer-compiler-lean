@@ -176,10 +176,19 @@ def line (fuel : Nat) (st : ParseState) : Parser ParseState := do
   eof
   pure next
 
+/-- `piece` spends fuel only on opening parentheses. Measuring nesting with
+the standard string fold avoids allocating a recursive parser for every byte
+of a wide generated formula. The grammar still checks all delimiters. -/
+def nesting (text : String) : Nat :=
+  (text.foldl (fun (depth, maximum) c =>
+    if c == '(' then (depth + 1, max maximum (depth + 1))
+    else if c == ')' then (depth - 1, maximum) else (depth, maximum)) (0, 0)).2 + 1
+
+-- [impl->req~compiler-alloy-temporal-text~1]
 def parse (text : String) : Option Module := do
   let lines := (text.splitOn "\n").filter (· != "")
   let st ← lines.foldlM (fun st text =>
-    match (line text.length st).run text with
+    match (line (nesting text) st).run text with
     | .ok next => some next | .error _ => none) {}
   let sigs ← table st.signatures
   let fields ← table st.fields

@@ -18,15 +18,9 @@ structure HeaderProperty (k : Nat) where
   expression : Expr
   span : SourceSpan
 
-def initializerExpression (token : Token) (heads left value : Expr) : Except Diagnostic Expr :=
-  if token.text = "=" then
-    let present := Expr.unary { token with text := "some" } heads heads.span
-    let equation := Expr.binary token left value
-      ⟨left.span.file, left.span.startByte, value.span.endByte⟩
-    .ok (.binary { token with text := "=>" } present equation
-      ⟨heads.span.file, heads.span.startByte, value.span.endByte⟩)
-  else if token.text = ":=" then
-    .error (Resolution.errorAt token "behavioral.default-initializer" "Default initializers are unsupported." .unsupported)
+def initializerExpression (token : Token) (_heads left value : Expr) : Except Diagnostic Expr :=
+  if token.text = "=" ∨ token.text = ":=" then
+    .ok (.binary token left value ⟨left.span.file, left.span.startByte, value.span.endByte⟩)
   else .error (Resolution.errorAt token "behavioral.initializer-token" "Invalid initializer token.")
 
 /-- Independent attachment rules: a constant equation belongs to the enclosing

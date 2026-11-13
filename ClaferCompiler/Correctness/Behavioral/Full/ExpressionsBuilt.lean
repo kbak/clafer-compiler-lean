@@ -278,6 +278,18 @@ theorem lowerStep_atom (c : Expressions.Context n) (a : IR.Behavioral.Expression
     Success Partial.Built ((Expressions.lowerStep v b fuel next).atom c a) := by
   cases a with
   | primitive a => exact ih.predicate c a
+  | equalClosed left right =>
+    apply bind_any (Q := Partial.Built)
+    intro left
+    apply bind (Q := Partial.Built) (ih.collection _ right)
+    intro right hr
+    exact pure (predicate right _ hr (fun _ => .equal _ _))
+  | inContext domain body =>
+    apply bind_any (Q := Partial.Built)
+    intro domain
+    apply bind (Q := Partial.Built) (ih.formula _ body)
+    intro body hb
+    exact pure (Partial.atom_built (.all domain hb.defined) (.all domain hb.truth.raw))
   | count q arity disjoint domain body =>
     apply bind_any (Q := Partial.Built)
     intro estimate

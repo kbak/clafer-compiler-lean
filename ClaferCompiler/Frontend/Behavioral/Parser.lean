@@ -10,7 +10,7 @@ namespace ClaferCompiler.Frontend.Behavioral
 /-- Only explicit profile selection enables the behavioral lexical inventory. -/
 def excluded (text : String) : Bool :=
   ["string", "real", "double", "bool", "boolean", "minimize", "maximize",
-   "[alloy|", "[choco|", ":=", "<<", ">>", "\\", "\""].contains text
+   "[alloy|", "[choco|", "<<", ">>", "\\", "\""].contains text
 
 def binaryPower : String → Option Nat
   | "U" | "until" => some 8 | "W" | "weakuntil" => some 9
@@ -218,7 +218,7 @@ def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
     if [".", "++", "--", "**", "&", ",", "("].contains (← peek).text then
       reject (← peek) "behavioral.type-expression" "type positions require a single name" .unsupported
   let card ← cardinality layout start false
-  let initializer ← if (← headerContinues layout start) && (← peek).text == "=" then do
+  let initializer ← if (← headerContinues layout start) && ((← peek).text == "=" || (← peek).text == ":=") then do
       let op ← pop
       let value ← previous.expression 0
       pure (some (op, value))

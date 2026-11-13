@@ -47,6 +47,17 @@ def countObservation (τ : Trace (Fin k) U) (q : Grouped.Count) (arity : Nat)
         (fun a => body.raw τ observation.canonical (Grouped.extend ρ arity a) t))
     else none
 
+/-- Context transport changes only `this`; captured values and evaluation time
+remain unchanged. The body retains its full strict domain and raw truth. -/
+def contextObservation (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
+    (domain : SetExpr k n) (body : Meaning U n) : Observed U Prop n := by
+  classical
+  exact fun ρ t =>
+    let S := (setExpr domain).eval m τ ρ t
+    if ∀ x ∈ S, body.Defined τ observation {ρ with this := x} t then
+      some (∀ x ∈ S, body.raw τ observation.canonical {ρ with this := x} t)
+    else none
+
 -- [impl->req~compiler-behavioral-elaboration~1]
 def collection (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (R : Clafer.Constraints.IntegerRealization U) : Expression.Collection k n → Observed U (Set U) n :=
@@ -85,6 +96,9 @@ def collection (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)
@@ -143,6 +157,9 @@ def integer (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)
@@ -201,6 +218,9 @@ def collections (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)
@@ -259,6 +279,9 @@ def predicate (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)
@@ -317,6 +340,9 @@ def atom (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)
@@ -375,6 +401,9 @@ def formula (m : Clafer.Semantics.EffectiveCore k) (τ : Trace (Fin k) U)
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· = ·) (a ρ t) (b ρ t))
     (fun {_} _ _ a b ρ t => Clafer.Constraints.lift₂ (· < ·) (a ρ t) (b ρ t))
     (fun {_} _ a => a)
+    (fun {_} domain _ body => contextObservation m τ domain body)
+    (fun {_} left _ right ρ t => (right (.closed ρ.this) t).map
+      (fun S => (setExpr left).eval m τ ρ t = S))
     (fun {_} q arity disjoint _ _ domain body => countObservation τ q arity disjoint domain body)
     (fun {_} => .truth)
     (fun {_} _ a => .atom a)

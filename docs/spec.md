@@ -182,9 +182,8 @@ ordinary inherited children, nearest inherited/refined references and effective
 group unions. Keep names, IDs, head occurrences and targets distinct. Preserve
 actual-parent navigation, one-step coercion, group/default provenance and strict
 partial integer operations, with explicit finite observation and conservative
-range conditions. Diagnose unsupported domains and `:=`; supply enum/finality and
-constant-initializer sugar to the full frontend without enabling static temporal
-syntax. Expose original source fixtures and proved APIs for dependent features.
+range conditions. Diagnose unsupported domains; supply enum/finality and declaration-initializer
+metadata to the full frontend without enabling static temporal syntax. Expose original source fixtures and proved APIs for dependent features.
 Document exact successful-admission, source-coverage, role, observation and range
 theorems and their premises, distinguishing them from native/parser tests and
 future target composition. Preserve static behavior and comparison fixtures;
@@ -212,8 +211,8 @@ anchor, pattern/scope, assertion and scenario source form. Preserve layout,
 precedence, original spans, syntactic polarity, lexical binders and attachment
 ownership. Retain all repeated/combined reference modifiers in either order on
 direct and inherited references. Keep model/scenario selection and assertions
-distinct; reject unsupported objectives, escapes, domains and default initializers
-explicitly. Preserve static-profile temporal rejection. Record an independent
+distinct; parse hard `=` and `:=` initializers and reject unsupported objectives,
+escapes, domains and initializer multiplicities explicitly. Preserve static-profile temporal rejection. Record an independent
 grammar and distinguish tested recognition from proved elaboration. The
 [frontend inventory](behavioral-frontend.md) states current APIs and their proof/testing
 boundaries; parsing is not semantic admission.
@@ -237,8 +236,21 @@ Needs: impl, utest
 Resolve and elaborate the complete accepted behavioral source into the independent
 upstream source rules. Preserve authored/effective metadata, context/parent lifetime
 selection, time-spanning captures, strict definedness and attachment identity.
-Implement initial/final/inherited-reference expansions, enum finality, constant
-initializers, all thirty pattern cells and required transition chains. Preserve
+Implement initial/final/inherited-reference expansions, enum finality, hard `=`
+and `:=` initializers, all thirty pattern cells and required transition chains.
+An empty initializer head suppresses its entire RHS observation; ordinary
+implication remains strict. Retain authored abstractness, omitted/explicit
+multiplicity and effective group provenance. Classify concrete singles and
+abstract omitted multiplicities at instance birth, collections at parent birth,
+and parentless abstract explicit `*`/`0..*` at global time zero. Reject other
+parentless abstract explicit bounds and abstract singles without independent
+scalar evidence. Evaluate complete RHS expressions in their original enclosing
+context, preserving temporal cancellation and lexical captures. Inherited and
+own equations remain conjunctive in their original views and clocks. Determine
+temporal selection from authored syntax before generated anchors and enum
+finality; non-temporal initializers use the ordinary aggregate equation.
+The [initializer contract](behavioral-frontend.md#hard-declaration-initializers)
+records the classification, transport and compatibility proof boundaries. Preserve
 response-between and first-opener precedence-after corrections and the distinct
 finalref/finaltarget meanings. Compose whole-expression range obligations without
 assuming constraint truth. Prove executable normalization and source elaboration

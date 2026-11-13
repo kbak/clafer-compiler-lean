@@ -21,7 +21,8 @@ def source_identity():
     result = tc.source_identity()
     result.update(importlib.import_module("pr113").identity())
     for name in ('tests/BehavioralSourceTraceNative.lean', 'tests/test_behavioral_source_comparison.py',
-                 'tests/behavioral_source_cases.py', 'tests/test_behavioral_source_cli.py',
+                 'tests/behavioral_source_cases.py', 'tests/behavioral_initializer_cases.py',
+                 'tests/test_behavioral_source_cli.py',
                  'scripts/qualification.py'):
         result[name] = oracle.digest(ROOT/name)
     return result

@@ -48,6 +48,13 @@ mutual
     | less (a b : Integer k n) : Predicate k n
   inductive Atom (k : Nat) : Nat → Type where
     | primitive (a : Predicate k n) : Atom k n
+    /-- Generated attachment transport retains captures and evaluates the whole
+    original body with each selected context identity. Empty domains are vacuous. -/
+    | inContext (domain : SetExpr k n)
+        (body : FormulaF (Atom k) (Collection k) n) : Atom k n
+    /-- Generated declaration equations keep their authored RHS closed over
+    its own source binders. Generated captures can occur only in the left path. -/
+    | equalClosed (left : SetExpr k n) (right : Collection k 0) : Atom k n
     | count (q : Grouped.Count) (arity : Nat) (disjoint : Bool) (domain : Collection k n)
         (body : FormulaF (Atom k) (Collection k) (n + arity)) : Atom k n
 end
