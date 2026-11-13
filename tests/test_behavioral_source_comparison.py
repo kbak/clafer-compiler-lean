@@ -12,6 +12,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts/comparison'))
 import behavioral_source as bs
 from behavioral_source_cases import absence_cases, case, features, patterns
+from behavioral_initializer_cases import initializers
 import behavioral_haskell as bh
 
 
@@ -20,6 +21,11 @@ import behavioral_haskell as bh
 class BehavioralSourceComparisonTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        requested=int(os.environ.get('CLAFER_TEST_JOBS','2'))
+        if not 1 <= requested <= 4:
+            raise ValueError('CLAFER_TEST_JOBS must be between 1 and 4')
+        cpus=len(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else (os.cpu_count() or 1)
+        cls.workers=min(requested,cpus)
         parent=bs.oracle.external(os.environ.get('CLAFER_ORACLE_EVIDENCE',tempfile.gettempdir()))
         parent.mkdir(parents=True,exist_ok=True)
         cls.output=Path(tempfile.mkdtemp(prefix='behavioral-source-',dir=parent))
@@ -27,6 +33,20 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         if not tools: raise AssertionError('CLAFER_ORACLE_TOOLS required')
         cls.runtime=bs.Runtime(tools,cls.output/'runtime')
         print(f'Full source evidence: {cls.output}',flush=True)
+
+    # [utest->req~compiler-behavioral-elaboration~1]
+    # [utest->req~compiler-full-behavioral-correctness~1]
+    def test_hard_initializers(self):
+        def compare(row):
+            name, expected, c = row
+            return name, expected, self.runtime.compare(c, self.output / ('initializer-' + name))
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            results = list(pool.map(compare, initializers()))
+        for name, expected, result in results:
+            with self.subTest(name=name):
+                self.assertEqual(result, dict(status='complete', source=expected,
+                    target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
+        bs.oracle.write(self.output / 'initializer-results.json', results)
 
     # [utest->req~compiler-behavioral-partial-lowering~1]
     # [utest->req~compiler-full-behavioral-correctness~1]
@@ -38,7 +58,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             name,expected,c=row
             result=self.runtime.compare(c,self.output/('absence-'+name))
             return name,expected,result
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
             results=list(pool.map(compare,fixtures))
         for name,expected,result in results:
             with self.subTest(name=name):
@@ -103,7 +123,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             name,rows,expected,c=row
             result=self.runtime.compare(c,self.output/name)
             return name,rows,expected,result
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
             results=list(pool.map(compare,fixtures))
         for name,rows,expected,result in results:
             with self.subTest(name=name):
@@ -131,9 +151,13 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 mods=first[len('abstract '):].split(' R ')[0]
                 c['source']='abstract R ->> int\n'+mods+' r : R *\n'
                 selected.append((name,c))
-        for name,c in selected:
+        def compare(row):
+            name,c=row
+            return name,bh.compare(self.runtime,tools,c,self.output/('haskell-'+name))
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            results=list(pool.map(compare,selected))
+        for name,answer in results:
             with self.subTest(name=name):
-                answer=bh.compare(self.runtime,tools,c,self.output/('haskell-'+name))
                 # Accepted Structural.Keys requires inherited set uniqueness.
                 # This pinned Haskell generator omits the concrete-fiber key.
                 expected=['target-only'] if name=='inherited-set' else []
@@ -176,14 +200,19 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             ('safe-division', '(1 / 1) = (1 / 1)', True),
             ('temporal', 'X no noclafer.missing', True),
         ]
-        for name, expression, satisfied in rows:
+        def compare(row):
+            name, expression, satisfied = row
             c = case('A ?\n[' + expression + ']\n', 2, [(1, 1, 0)], [[1]])
+            result = self.runtime.compare(c, self.output / ('empty-self-' + name))
+            reference = bh.compare(self.runtime, tools, c, self.output / ('haskell-empty-self-' + name))
+            return name, satisfied, result, reference
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            results = list(pool.map(compare, rows))
+        for name, satisfied, result, reference in results:
             with self.subTest(name=name):
-                result = self.runtime.compare(c, self.output / ('empty-self-' + name))
                 self.assertEqual(result, dict(status='complete',
                     source='satisfied' if satisfied else 'violated',
                     target='sat' if satisfied else 'bounded_unsat', directions=[]))
-                reference = bh.compare(self.runtime, tools, c, self.output / ('haskell-empty-self-' + name))
                 self.assertEqual(reference['directions'], [], reference)
         c = case('P ?\n  field ?\nQ ?\n  field ?\n[no noclafer.field]\n', 5, [], [[]])
         result = self.runtime.compare(c, self.output / 'empty-ambiguous')

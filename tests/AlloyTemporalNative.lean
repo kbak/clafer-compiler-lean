@@ -75,6 +75,12 @@ def run (args : List String) : IO Unit := do
     let m := base ((List.range depth).foldl (fun p _ => .unary .after p) p)
     let .ok checked := check m | throw (IO.userError "deep admission")
     if !(render checked (anonymousNames m)).isOk then throw (IO.userError "deep reconstruction")
+  -- A wide shallow formula needs grammar depth, not byte-length parser recursion.
+  let wide := base (.all (.union (.sig 0) (.sig 0))
+    ((List.range 12).foldl (fun p _ => .binary .conj p p) p))
+  let .ok checkedWide := check wide | throw (IO.userError "wide admission")
+  if !(render checkedWide (anonymousNames wide)).isOk then
+    throw (IO.userError "wide reconstruction")
   let .ok checked := check (base p) | throw (IO.userError "base admission")
   if (render checked ⟨[], []⟩).isOk then throw (IO.userError "malformed names accepted")
   if (render checked ⟨[some ⟨"bad", some "x", some 9, some 2⟩], []⟩).isOk then

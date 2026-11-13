@@ -93,8 +93,8 @@ if all(present):
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
-        # The full source corpus has its own process and two bounded solver
-        # workers. Reuse this pool so it shares the unchanged full-check budget.
+        # The full source corpus has its own process and bounded case workers
+        # using the same configured cap. It shares the unchanged full-check budget.
         futures = [] if compiler_ci else [pool.submit(timed, '--behavioral-source-worker', isolated,
                                                        '--behavioral-source-worker')]
         futures.append(pool.submit(timed, 'remaining', run, remaining))

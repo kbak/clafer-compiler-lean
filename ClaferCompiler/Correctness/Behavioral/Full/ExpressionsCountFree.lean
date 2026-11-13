@@ -376,6 +376,18 @@ theorem lowerStep_atom (c : Expressions.Context n) (a : IR.Behavioral.Expression
     Success PartialPure ((Expressions.lowerStep v b fuel next).atom c a) := by
   cases a with
   | primitive a => exact ih.predicate c a
+  | equalClosed left right =>
+    apply SyntaxBuilt.bind_any (Q := PartialPure)
+    intro left
+    apply SyntaxBuilt.bind (Q := PartialPure) (ih.collection _ right)
+    intro right hr
+    exact SyntaxBuilt.pure (predicate right hr _ (fun _ _ => pure_equal _ _))
+  | inContext domain body =>
+    apply SyntaxBuilt.bind_any (Q := PartialPure)
+    intro domain
+    apply SyntaxBuilt.bind (Q := PartialPure) (ih.formula _ body)
+    intro body hb
+    exact SyntaxBuilt.pure (partial_atom (by simpa using hb.2.2.2) (by simpa using hb.1))
   | count q arity disjoint domain body =>
     apply bind_any (Q := PartialPure)
     intro estimate

@@ -44,7 +44,12 @@ The accepted expression surface has native integration tests, independent source
 derivations, upstream interpretation/normalization proofs and complete range-check
 obligations under explicit structural budgets. Grammar recognition and native
 execution remain tested boundaries; scope-budget validity belongs to encoding.
-Candidate changes require independent semantic review and source-matched qualification.
+The [hard initializer contract](behavioral-frontend.md#hard-declaration-initializers)
+adds production classification, original-context RHS transport and structural
+equation agreement. Its source cases distinguish empty-head inactivity, clocks,
+rebirth, inheritance and temporal cancellation; finality retains explicit RHS
+stability assumptions. Candidate changes require independent semantic review and
+source-matched qualification.
 
 The [temporal target](alloy-temporal.md) has separate admission, natural-time
 meaning and checked serialization. Its kernel laws and

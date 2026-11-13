@@ -191,6 +191,14 @@ class Observation:
             if tag in ('equal', 'integerEqual'): return values[0] == values[1]
             if tag == 'subset': return values[0] <= values[1]
             if tag == 'less': return values[0] < values[1]
+        if a[0] == 'equalClosed':
+            return self.set(a[1], c, e, t) == self.collection(a[2], c, [], t)
+        if a[0] == 'inContext':
+            _, domain, body = a
+            # Evaluate every original strict domain before combining truth.
+            values = [self.checked(body, owner, e, t, raw=True)
+                      for owner in sorted(self.set(domain, c, e, t))]
+            return all(values)
         if a[0] == 'count':
             _, q, arity, disjoint, domain, body = a
             xs = sorted(self.collection(domain, c, e, t))

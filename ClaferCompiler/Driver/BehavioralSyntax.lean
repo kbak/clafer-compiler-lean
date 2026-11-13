@@ -91,6 +91,8 @@ def step (m : IR.Structural.Core k) (next : Pass k) : Pass k where
   atom := fun a => do
     match a with
     | .primitive a => return node "primitive" [] [← next.predicate a]
+    | .equalClosed left right => return node "equalClosed" [] [← next.set left, ← next.collection right]
+    | .inContext domain body => return node "inContext" [] [← next.set domain, ← next.formula body]
     | .count q arity disjoint domain body => return node "count" [toJson (match q with | .one => "one" | .lone => "lone"), toJson arity, toJson disjoint] [← next.collection domain, ← next.formula body]
   formula := fun a => do
     match a with

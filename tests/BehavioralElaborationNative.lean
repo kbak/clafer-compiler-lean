@@ -236,15 +236,60 @@ def initializerOrigins : IO Unit := do
       fail "top-level initializer owner"
     let d := header.declaration
     match property.body with
-    | .implies (.atom (.primitive (.inhabited (.set (.thisStep (.child h))))))
-        (.atom (.primitive (.equal (.set (.step (.deref ref) (.thisStep (.child l)))) (.integer (.literal 3))))) =>
+    | .quant .all (.set (.thisStep (.child h)))
+        (.atom (.equalClosed (.step (.deref ref) (.thisStep (.child l))) (.integer (.literal 3)))) =>
       unless h == d && l == d && ref == d && (e.declarations.resolved.candidate.core.get d).parent.isSome do
         fail "initializer resolved a same-spelled declaration instead of its origin"
-    | .implies (.atom (.primitive (.inhabited (.set (.extent h)))))
-        (.atom (.primitive (.equal (.set (.step (.deref ref) (.extent l))) (.integer (.literal 3))))) =>
+    | .quant .all (.set (.extent h))
+        (.atom (.equalClosed (.step (.deref ref) (.extent l)) (.integer (.literal 3)))) =>
       unless h == d && l == d && ref == d && (e.declarations.resolved.candidate.core.get d).parent.isNone do
         fail "initializer resolved a same-spelled declaration instead of its origin"
     | _ => fail "initializer origin equation"
+
+-- [utest->req~compiler-behavioral-elaboration~1]
+def initializerAdmission : IO Unit := do
+  for source in ["x -> int ? := 0\n", "enum E = A | B\nx -> int ? := 0\n"] do
+    let m ← load source
+    if m.source.temporal then fail "generated enum finality selected temporal initializer semantics"
+    let some p := m.elaborated.generated.getLast? | fail "static initializer inventory"
+    match p.body with
+    | .quant .all _ (.atom (.equalClosed _ _)) => pure ()
+    | _ => fail "static initializer acquired a generated birth anchor"
+  for (source, single) in [
+      ("x -> int := 0\n", true), ("x -> int ? := 0\n", true),
+      ("x -> int 0..1 := 0\n", true), ("x -> int 1..1 := 0\n", true),
+      ("x -> int 0 := 0\n", true), ("x -> int * := 0\n", false),
+      ("x -> int 2 := 0\n", false), ("x -> int + := 0\n", false),
+      ("abstract x -> int := 0\n", true),
+      ("abstract x -> int * := 0\n", false),
+      ("abstract x -> int 0..* := 0\n", false),
+      ("xor P\n  x -> int := 0\n", true),
+      ("or P\n  x -> int := 0\n", true),
+      ("P\n  abstract x -> int := 0\n", true),
+      ("P\n  abstract x -> int * := 0\n", false)] do
+    let m ← load (source ++ "[always one root]\n")
+    let [p] := m.elaborated.generated | fail "initializer inventory"
+    match p.body, single with
+    | .atom (.inContext _ (.initially (.quant .all (.set .this)
+        (.atom (.inContext _ (.atom (.equalClosed (.step (.deref _) (.var 0)) _))))))), true => pure ()
+    | .initially (.quant .all _ (.atom (.equalClosed _ _))), false => pure ()
+    | _, _ => fail ("initializer clock: " ++ source)
+  for bounds in ["?", "1", "0", "+", "0..1", "1..*"] do
+    let .error d := parseAndElaborate IR.BehavioralStructural.profile "initial.cfr"
+        ("abstract x -> int " ++ bounds ++ " := 0\n")
+      | fail "parentless abstract bound was silently reclassified"
+    unless d.code == "behavioral.initializer-parentless-multiplicity" do fail d.code
+  for rhs in ["xs", "0 ++ 1"] do
+    let .error d := parseAndElaborate IR.BehavioralStructural.profile "initial.cfr"
+        ("xs -> int *\nabstract x -> int := " ++ rhs ++ "\n")
+      | fail ("abstract single accepted an unproved scalar bound: " ++ rhs)
+    unless d.code == "behavioral.initializer-scalar" do fail d.code
+  for rhs in ["x", "0 ++ 0", "if X (some x) then 0 else 1"] do
+    let _ ← load ("x -> int ?\nabstract A -> int := " ++ rhs ++ "\n")
+  let .ok report := parseAndElaborateReport IR.BehavioralStructural.profile "inherit.cfr"
+      "abstract A -> int = 0\na : A ? := 1\n[always one root]\n"
+    | fail "own initial equation under inherited constant rejected"
+  if !report.warnings.isEmpty then fail "blanket inherited initializer warning"
 
 -- [utest->req~compiler-behavioral-elaboration~1]
 def documents : IO Unit := do
@@ -258,8 +303,8 @@ def documents : IO Unit := do
   | [initializer, transition] =>
     unless initializer.owner == owner && transition.owner == start do fail "header attachment changed"
     match initializer.body with
-    | .implies (.atom (.primitive (.inhabited (.set (.thisStep (.child h))))))
-        (.atom (.primitive (.equal (.set (.step (.deref r) (.thisStep (.child h')))) (.integer (.literal 3))))) =>
+    | .quant .all (.set (.thisStep (.child h)))
+        (.atom (.equalClosed (.step (.deref r) (.thisStep (.child h'))) (.integer (.literal 3)))) =>
       unless h == n && h' == n && r == n do fail "initializer's head and value views differ"
     | _ => fail "initializer lost presence guard, gained birth anchor or skipped dereference"
     match transition.body with
@@ -376,6 +421,7 @@ def run : IO Unit := do
   values
   ranges
   initializerOrigins
+  initializerAdmission
   documents
   correctedPatternAttachments
   separateScenarios

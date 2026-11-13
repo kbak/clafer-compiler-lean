@@ -42,7 +42,7 @@ def estimates (v : IR.BehavioralStructural.Validated k) (b : Bounds) : Expressio
   stepAllowed := fun st => match st with
     | .child d => !integerDeclaration v d
     | _ => true
-  context := ⟨1, integerRange b⟩
+  context := ⟨1, Expression.Ranges.hull (integerRange b) ⟨0, 0⟩⟩
   root := ⟨1, ⟨0, 0⟩⟩
   extents := Vector.ofFn fun d =>
     ⟨if integerDeclaration v d then 2 ^ b.bitwidth else min b.objects (declaredScope v b d).size,

@@ -94,7 +94,7 @@ def formula (a : Formula k n) := Generic.interpret (fun {_} => atom) (fun {_} =>
 -- [proof->req~compiler-behavioral-elaboration~1]
 theorem initializer_interpret (heads left value : Collection k n) :
     formula (constantInitializer heads left value) =
-      Clafer.Behavioral.Initializers.constant (collection heads) (collection left) (collection value) := rfl
+      Clafer.Behavioral.Initializers.Legacy.constant (collection heads) (collection left) (collection value) := rfl
 
 /-- The accepted upstream equation applies at every live enclosing state.
 Defined operands are an explicit premise, never inferred from absence of heads. -/
@@ -111,7 +111,7 @@ theorem initializer_truth {U : Type u} (m : Clafer.Behavioral.Structural.Core k)
     (formula (constantInitializer heads left value)).Satisfies τ (.primitives m τ R) true ρ t ↔
       (H.Nonempty → L = V) := by
   rw [initializer_interpret]
-  exact Clafer.Behavioral.Initializers.constant_truth m τ R ρ t _ _ _ H L V hh hl hv
+  exact Clafer.Behavioral.Initializers.Legacy.constant_truth m τ R ρ t _ _ _ H L V hh hl hv
 
 -- [proof->req~compiler-behavioral-elaboration~1]
 theorem normalized_truth (a : Normalized k n) :

@@ -47,6 +47,12 @@ retaining the structural compiler as its regression baseline. The
 [final integration gate](qualification.md#main-integration) requires an accepted
 immutable upstream-main pin, full qualification and concrete merge authorization.
 
+Declaration initializers are hard equations on traces. The
+[accepted initializer contract](behavioral-frontend.md#hard-declaration-initializers)
+preserves authored clocks, original RHS environments and inherited obligations,
+including inactive empty heads. Static source selection remains independent of
+generated lifetime anchors.
+
 Dependencies flow one way: `ClaferCompiler -> Clafer -> FormalCD -> DPGraph -> Mathlib`.
 Upstream owns mathematical meanings, accepted source corrections and reusable
 results. This repository owns executable representations, the frontend, Alloy

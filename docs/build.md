@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`8914ce01386366296e61f049a04bbc6d24db34c4` and its inherited Mathlib/dependency commits.
+`a18890612e38872f3fb5842ed323042aea34e1ed` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -108,7 +108,8 @@ other compiler regressions can overlap its solver work. This reuses the existing
 group registry, bounded executor and subprocess isolation rather than adding a
 test framework or persistent solver service. Separate processes preserve the
 tests' environment and mock isolation; evidence directories remain per suite.
-The outer worker cap, temporal suite's two fresh JVM workers, complete case
+The temporal suite's fresh JVM workers honor the same CPU-capped
+`CLAFER_TEST_JOBS` setting as the source suite, defaulting to two. The complete case
 inventory and query deadlines remain unchanged. Runner fixtures check the new
 group's missing, empty, skipped and failing cases as well as serial execution.
 CI's overall 45-minute job budget includes dependency downloads
@@ -180,8 +181,8 @@ Acceptance, integration, scheduled and manual runs always select all three jobs,
 when the diff contains only compiler inputs. Unknown event/target classification
 also requires all three. This reuses the existing profile selector, reusable
 workflow, test-group registry and required aggregate. The behavioral source suite
-uses two solver workers; sharing a four-CPU runner with the temporal target suite's
-two solver workers and other regressions creates CPU contention. A separate
+defaults to two solver workers; sharing a four-CPU runner with the temporal target suite
+and other regressions creates CPU contention. A separate
 required source job preserves their query budgets and complete case inventories.
 The reference corpus likewise runs separately from compiler validation.
 No new dependency, license obligation or compiler runtime/proof boundary is added.
@@ -244,7 +245,9 @@ concurrent groups by CPU availability after the exclusive PR113 phase. CPU-count
 caps alone do not reserve execution time for a solver while other groups compile
 Lean probes; phase separation supplies that isolation without changing query
 budgets. The default is two workers, with an
-explicit `CLAFER_TEST_JOBS` limit from one to four. Every discovered
+explicit `CLAFER_TEST_JOBS` limit from one to four. Full behavioral source and temporal target case
+workers reuse this setting and CPU cap; each case still runs in its own output
+directory with unchanged query limits. Every discovered
 case and each group's exit status remain mandatory. CI uses the cache action's
 separate restore/save steps to retain successfully prepared dependencies even if
 later project verification fails. The full check retains every semantic assertion,

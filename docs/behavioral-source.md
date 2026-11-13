@@ -240,7 +240,7 @@ Existing in-memory tests remain mandatory as separate evidence.
 | B29 | Authored grammar/binder derivations and grouped lowering; T12 | Disjoint multiple binders, lexical capture, source parsing/rejection/precedence suite and exact observations |
 | B30 | Concrete full encode/decode and lasso relation; upstream `Lasso` | Fixed frame count/loop, nonzero prefix, scalar/global identity mutations, receipt replay and tampering |
 | B31 | Partial arithmetic/range/finite-observation preservation; upstream D3 | Scalar swaps, implicit distinct sum, occurrence sum/product, extrema, signed division/remainder, empty numerical scenario and conservative rejection tests |
-| B32 | Declaration equation/default elaboration; upstream D4 | Equation at every live frame, changed later value; existing `:=` and default-policy rejection/derivation tests |
+| B32 | [Hard initializer classification and original-context equations](behavioral-frontend.md#hard-declaration-initializers) | [Distinguishing source cases](../tests/behavioral_initializer_cases.py): changing values, rebirth, parent/global clocks, empty/undefined RHS, original-context next, inheritance, bags and simultaneous equations |
 
 `coverage.json` records individual case names, rows, expected source outcomes and
 actual completed results. Its row labels are an inventory, not a proof of coverage
@@ -292,7 +292,8 @@ it. The required behavioral source CI job provisions the c7 exporter for these c
 standalone old/new reference corpora remain separately mandatory in full qualification.
 The full local check uses a separate process in the existing bounded regression
 worker pool. Hosted CI uses the [source profile](build.md#ci-profiles) on its own runner.
-Both paths use two internal solver workers and explicit per-query limits.
+Both paths use CPU-capped internal case workers, defaulting to two and honoring
+the existing `CLAFER_TEST_JOBS` limit of one to four, with explicit per-query limits.
 Existing tests, required checks and the full deadline remain unchanged.
 
 | Reviewed delta | Disposition and retained evidence |
