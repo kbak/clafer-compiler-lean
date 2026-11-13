@@ -169,6 +169,16 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 self.assertEqual(reference['source'],'satisfied',reference)
                 self.assertEqual(reference['target'],'bounded_unsat' if excluded else 'sat',reference)
                 self.assertEqual(reference['directions'],['source-only'] if excluded else [],reference)
+        # A small signed domain keeps nested capture/aggregate expansion finite
+        # enough for this exact strict-definedness witness (see issue #132).
+        source=('v -> int ?\n[initially (some v && X no v)]\n'
+                '[initially (let old = v in X (let unused = sum old in some root))]\n')
+        c=case(source,2,[(1,1,0)],[[1],[]],interval=(0,0),width=2)
+        answer=self.runtime.compare(c,self.output/'let-unused-partial')
+        self.assertEqual(answer,dict(status='complete',source='undefined',target='bounded_unsat',directions=[]))
+        reference=bh.compare(self.runtime,tools,c,self.output/'haskell-let-unused-partial')
+        self.assertEqual((reference['source'],reference['target'],reference['directions']),
+                         ('undefined','sat',['target-only']))
         # The accepted unused-division witness is rejected by conservative
         # source range admission. Resolved native tests separately exercise the
         # strict undefined let domain, without erasing the unused RHS.

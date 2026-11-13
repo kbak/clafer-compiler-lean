@@ -209,7 +209,10 @@ These are descriptive measurements, not a performance guarantee. Frozen capture
 uses the encoder's finite alias enumeration, which includes signed integer
 candidates: its cost is exponential in identity capacity plus integer-domain
 size. Use the smallest sufficient width; a narrow scalar interval does not shrink
-that signed capture domain. This cost is inherited from the accepted full encoder.
+that signed capture domain. This cost is inherited from the accepted full encoder. Nested captures and
+aggregates can exhaust the native stack even with small object scopes;
+[bounded lowering work](https://github.com/kbak/clafer-compiler-lean/issues/132)
+tracks that operational limitation. Resource failures are not semantic results.
 
 ## Feature and evidence inventory
 
