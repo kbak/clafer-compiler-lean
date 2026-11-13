@@ -1,0 +1,6 @@
+abstract A
+  abstract B
+    abstract C
+a : A
+  b : A.B
+    c : A.B.C

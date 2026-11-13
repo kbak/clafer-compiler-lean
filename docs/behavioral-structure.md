@@ -58,8 +58,14 @@ accepts an authored `Document` and the explicit profile. It reuses finite invent
 source spans, forward/lexical/unique-global lookup, group provenance and rank
 construction. `SourceRow` and `Elaboration` independently check coverage,
 preorder identity, source paths, exact names, authored data, parent/super/reference
-targets and defaults. Concrete and nested supers are permitted. Missing or
+targets and defaults. Direct-name concrete and nested supers are permitted. Missing or
 ambiguous names remain errors; no `noclafer` navigation shortcut is introduced.
+Current super lookup uses authored lexical/global candidates, without an
+inherited-child search or self exclusion; same-name redefinitions can therefore
+fail as inheritance cycles. Qualified type paths are rejected by the parsers.
+The [super-lookup review candidate](super-lookup.md) records distinguishing native
+and reference cases and the proposed behavioral rules; it does not change this
+implemented policy or the static profile.
 
 The [resolution bridge](../ClaferCompiler/SemanticsBridge/BehavioralResolution.lean)
 proves original declaration coverage, per-row correspondence, upstream

@@ -1,0 +1,250 @@
+{
+  "cases": {
+    "concrete-child.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 4 7, modelPos = Pos 4 7}, msg = \"No superclafer found: Head\"}]",
+      "status": "rejected"
+    },
+    "concrete.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 2 5, modelPos = Pos 2 5}, msg = \"No superclafer found: Base\"}]",
+      "status": "rejected"
+    },
+    "cycle.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 1 1, modelPos = Pos 1 1}, msg = \"ResolverInheritance: clafer A inherits from itself\"}]",
+      "status": "rejected"
+    },
+    "duplicate.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 3 5, modelPos = Pos 3 5}, msg = \"clafer \\\"Head\\\" cannot be defined because the name should be unique in the same namespace.\\nAvailable paths:\\nroot__Head\\nroot__Head__2\\n\"}]",
+      "status": "rejected"
+    },
+    "expression-super.cfr": {
+      "diagnostic": "[ParseErr {pos = ErrPos {fragId = 0, fragPos = Pos 3 7, modelPos = Pos 3 7}, msg = \"syntax error before ++ B\"}]",
+      "status": "rejected"
+    },
+    "forward.cfr": {
+      "status": "resolved",
+      "supers": {
+        "h": "Head"
+      }
+    },
+    "plain-after-qualified.cfr": {
+      "status": "resolved",
+      "supers": {
+        "family": "Family",
+        "family.person": "Family.Person",
+        "family.person.h": "Family.Person.Head"
+      }
+    },
+    "plain-ambiguous.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 5 5, modelPos = Pos 5 5}, msg = \"clafer \\\"Head\\\" is not unique. Available paths:\\nP.P__Head\\nQ.Q__Head\\n\"}]",
+      "status": "rejected"
+    },
+    "plain-concrete-shadow.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Owner.h": "Head"
+      }
+    },
+    "plain-enclosing.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Head.Inner.h": "Head"
+      }
+    },
+    "plain-global.cfr": {
+      "status": "resolved",
+      "supers": {
+        "p": "P",
+        "p.h": "P.Head"
+      }
+    },
+    "plain-inherited-before-global.cfr": {
+      "status": "resolved",
+      "supers": {
+        "p": "P",
+        "p.h": "P.Head"
+      }
+    },
+    "plain-inherited.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.h": "Person.Head"
+      }
+    },
+    "plain-lexical.cfr": {
+      "status": "resolved",
+      "supers": {
+        "P.Inner": "P",
+        "P.Inner.h": "P.Head"
+      }
+    },
+    "plain-missing.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 1 5, modelPos = Pos 1 5}, msg = \"No superclafer found: Missing\"}]",
+      "status": "rejected"
+    },
+    "plain-outer-lexical.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 5 9, modelPos = Pos 5 9}, msg = \"clafer \\\"Head\\\" is not unique. Available paths:\\nroot__Head\\nP.P__Head\\n\"}]",
+      "status": "rejected"
+    },
+    "plain-parentless.cfr": {
+      "relocated_parents": {
+        "H": "P"
+      },
+      "status": "resolved",
+      "supers": {
+        "H": "P.Head"
+      }
+    },
+    "plain-sibling.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.h": "Bob.Head"
+      }
+    },
+    "plain-top-preference.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 4 5, modelPos = Pos 4 5}, msg = \"clafer \\\"Head\\\" is not unique. Available paths:\\nroot__Head\\nP.P__Head\\n\"}]",
+      "status": "rejected"
+    },
+    "primitive.cfr": {
+      "status": "resolved",
+      "supers": {}
+    },
+    "qualified-chain.cfr": {
+      "status": "resolved",
+      "supers": {
+        "family": "Family",
+        "family.person": "Family.Person",
+        "family.person.h": "Family.Person.Head"
+      }
+    },
+    "qualified-child-missing.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 2 5, modelPos = Pos 2 5}, msg = \"No superclafer found: P has no child Missing, neither its own nor an inherited one, for P.Missing\"}]",
+      "status": "rejected"
+    },
+    "qualified-concrete.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 4 7, modelPos = Pos 4 7}, msg = \"No superclafer found: P.Head is not abstract, and only abstract clafers can be supers\"}]",
+      "status": "rejected"
+    },
+    "qualified-cycle.cfr": {
+      "status": "resolved",
+      "supers": {
+        "P.A": "P.B",
+        "P.B": "P.A"
+      }
+    },
+    "qualified-duplicate-child.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 2 3, modelPos = Pos 2 3}, msg = \"Duplicate name: Head\"}]",
+      "status": "rejected"
+    },
+    "qualified-enclosing.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Outer.P.h": "Outer.P.Head"
+      }
+    },
+    "qualified-first-ambiguous.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 7 5, modelPos = Pos 7 5}, msg = \"No superclafer found: the clafer P in P.Head is not unique. Available paths:\\nA.P\\nB.P\\n\"}]",
+      "status": "rejected"
+    },
+    "qualified-first-missing.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 1 5, modelPos = Pos 1 5}, msg = \"No superclafer found: no clafer Missing for Missing.Head\"}]",
+      "status": "rejected"
+    },
+    "qualified-forward.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.h": "Person.Head"
+      }
+    },
+    "qualified-global.cfr": {
+      "status": "resolved",
+      "supers": {
+        "o": "Outer",
+        "o.p": "Outer.P",
+        "o.p.h": "Outer.P.Head"
+      }
+    },
+    "qualified-inherited.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.h": "Person.Head"
+      }
+    },
+    "qualified-long.cfr": {
+      "status": "resolved",
+      "supers": {
+        "a": "A",
+        "a.b": "A.B",
+        "a.b.c": "A.B.C"
+      }
+    },
+    "qualified-nearest.cfr": {
+      "status": "resolved",
+      "supers": {
+        "B": "A",
+        "C": "B",
+        "C.h": "B.Head"
+      }
+    },
+    "qualified-own.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.h": "Person.Head"
+      }
+    },
+    "qualified-parentless.cfr": {
+      "relocated_parents": {
+        "H": "P"
+      },
+      "status": "resolved",
+      "supers": {
+        "H": "P.Head"
+      }
+    },
+    "qualified-reference.cfr": {
+      "status": "resolved",
+      "supers": {}
+    },
+    "qualified-self.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 2 19, modelPos = Pos 2 19}, msg = \"ResolverInheritance: clafer Head inherits from itself\"}]",
+      "status": "rejected"
+    },
+    "qualified-shadow.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.Head": "Person.Head",
+        "Bob.h": "Bob.Head"
+      }
+    },
+    "qualified-sibling-start.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 7 7, modelPos = Pos 7 7}, msg = \"No superclafer found: the clafer P in P.Head is not unique. Available paths:\\nGlobal.P\\nOwner.P\\n\"}]",
+      "status": "rejected"
+    },
+    "qualified-top-preference.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "P",
+        "Bob.h": "P.Head"
+      }
+    },
+    "redefinition.cfr": {
+      "status": "resolved",
+      "supers": {
+        "Bob": "Person",
+        "Bob.Head": "Person.Head",
+        "Bob.h": "Bob.Head"
+      }
+    },
+    "self.cfr": {
+      "diagnostic": "[SemanticErr {pos = ErrPos {fragId = 0, fragPos = Pos 1 1, modelPos = Pos 1 1}, msg = \"ResolverInheritance: clafer A inherits from itself\"}]",
+      "status": "rejected"
+    }
+  },
+  "compiler_commit": "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a",
+  "observation": "post_analysis; no solver; generated-cycle check is separate"
+}

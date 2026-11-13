@@ -1,0 +1,6 @@
+abstract Family
+  abstract Person
+    abstract Head
+family : Family
+  person : Family.Person
+    h : person.Head

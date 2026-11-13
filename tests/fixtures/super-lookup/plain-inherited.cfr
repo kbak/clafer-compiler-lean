@@ -1,0 +1,6 @@
+abstract Person
+  abstract Head
+abstract Dog
+  abstract Head
+Bob : Person
+  h : Head

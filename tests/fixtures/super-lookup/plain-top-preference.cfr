@@ -1,0 +1,4 @@
+abstract Head
+abstract P
+  abstract Head
+h : Head

@@ -169,6 +169,7 @@ and semantic acceptance require explicit review; see the
 - [Structural correctness](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
 - [Source constraints](constraints.md): inference rules, automatic elaboration, attachment and meaning proofs.
 - [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.
+- [Super-lookup review candidate](super-lookup.md): static/behavioral distinctions, executed lookup cases and pending compatibility obligations.
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.

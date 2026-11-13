@@ -166,6 +166,37 @@ rules is asserted. Reuse of `Field`, `HasField`, `Navigate` and `ScopePath` keep
 the change in the frontend and its independent source judgments. No backend or
 upstream semantic definitions, new library, or third-party code are needed.
 
+## Qualified-super comparison candidate
+
+The [super-lookup review](super-lookup.md) inspects
+[`ResolverInheritance.hs`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/src/Language/Clafer/Intermediate/ResolverInheritance.hs)
+at `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`, including the change introduced by
+[`bff528b57be0802b9f48aa694a5d192c06f35f61`](https://github.com/gsdlab/clafer/commit/bff528b57be0802b9f48aa694a5d192c06f35f61),
+and the matching
+[`path_super.cfr`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/test/positive/path_super.cfr).
+`resolveNClafer`, both `resolveNSuper` branches, `ancestorsIn`, `superChain` and
+`resolveN` explain self exclusion, sibling/inherited priority, qualified first
+segments and later child steps. Fresh direct frontend observations use the
+qualified candidate library; the structural capture adapter's dotted-type
+exclusion is kept separate. This is a review candidate, not a new source/tool pin.
+
+The accepted
+[S10 concrete-super disposition](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/docs/behavioral-structure.md#reuse-and-admitted-domains)
+retains SoSyM §5.5 and behavioral Definition 1.5's richer domain. Haskell's
+abstract-only filter, authored-parent relocation, primitive-super desugaring and
+plain-name ambiguity rules are not silently adopted. The candidate matrix also
+retains the qualified cycle emitted by this reference revision as a rejected
+source case, not a valid inheritance interpretation.
+
+Accepted upstream
+[initializer inheritance](https://github.com/kbak/clafer-semantics/blob/85875084ebc7b405bb57f0c4a4ee4f9042e5c758/docs/behavioral-initializers.md#production-transport-and-proof-domain)
+preserves resolved original environments, clocks and complete scopes while
+conjoining obligations. It explicitly leaves named lookup to the compiler.
+These facts constrain downstream initializer adoption but do not establish the
+lookup matrix. The review reuses existing native tests and the qualified Haskell
+library through a small observation-only adapter; it adds no production runtime
+dependency, semantic definition or dependency/license pin.
+
 ## Empty collection extension
 
 The [upstream empty-set decision](https://github.com/kbak/clafer-semantics/issues/134)

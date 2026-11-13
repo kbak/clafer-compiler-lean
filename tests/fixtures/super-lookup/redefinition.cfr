@@ -1,0 +1,5 @@
+abstract Person
+  abstract Head
+Bob : Person
+  abstract Head : Head
+  h : Head

@@ -1,0 +1,6 @@
+abstract Outer
+  abstract P
+    abstract Head
+o : Outer
+  p : P
+    h : P.Head
