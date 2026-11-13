@@ -7,6 +7,7 @@ public import ClaferCompiler.Correctness.Behavioral.Full.Frontend
 public import ClaferCompiler.Correctness.Behavioral.Full.Collections
 public import ClaferCompiler.Correctness.Behavioral.Full.Expressions
 public import ClaferCompiler.Correctness.Behavioral.Full.FrontendCorrectness
+public import ClaferCompiler.Correctness.Behavioral.Full.AbsentReference
 
 public section
 /-! Behavioral soundness, bounded completeness, global trace representation,

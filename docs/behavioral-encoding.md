@@ -324,6 +324,43 @@ Analyzer supply comparison behavior, not a preservation premise. No new package,
 vendored semantics or license obligation is introduced; existing MIT dependency
 and tool licenses remain those in the source register.
 
+## Absent reference observations
+
+The adopted [absence results](sources.md#accepted-semantics-main-dependency)
+apply to raw, inherited and refined reference views. In the full encoder,
+`Full.head` intersects the allocated identity pool with the current live
+extent. Scalar dereference restricts total value storage to that head; inherited
+`deref` restricts the nearest declared reference to the current subtype head.
+Object-reference facts require live endpoints and one value at each live head.
+They reject tuples at absent heads rather than masking malformed source data.
+
+[`Full.AbsentReference`](../ClaferCompiler/Correctness/Behavioral/Full/AbsentReference.lean)
+connects those definitions to the accepted source lemmas:
+
+- `completeTrace_absent_values` proves that scalar tables agreeing at live
+  identities produce the same completed source trace.
+- `TraceRep.absent_object_row` derives raw object-row exclusion from actual
+  generated state facts.
+- `TraceRep.absent_deref` proves the actual target dereference image is empty at
+  an absent mapped identity, using concrete representation, the integer primitive,
+  positive bitwidth at most 16, fitting scalar values and generated state facts.
+- `compiled_absent_references` derives actual decoding, source model/query
+  satisfaction and empty raw references from successful compilation and target
+  satisfaction. It does not assume decoder success or source validity.
+
+Captures preserve identities and consult current relations. With a surviving
+parent, a disappearing child cannot meet a next-value equality. Empty relational
+inequality remains defined, arithmetic coercion of empty is zero, and integer
+extraction from empty is undefined. Parent cancellation follows the existing signed
+and definedness lowering in both polarities. Counter persistence additionally needs
+an initial value and enabled next-value transitions; an unconstrained identity may
+vanish and reappear.
+
+The scalar table stays total and is preserved by checked decoding in every frame,
+including absent and never-live identities. Different hidden values can therefore
+produce different target witnesses for the same source trace. These results do not
+claim canonical target witnesses or remove scalar rows from replay.
+
 ## Fixtures and validation
 
 [BehavioralEncodingNative.lean](../tests/BehavioralEncodingNative.lean) compiles
@@ -339,6 +376,15 @@ references. Mutation cases remove an invariant or make actual parents mutable;
 the resulting witnesses expose orphaning or per-state renaming. Wrong typed
 parents are rejected. An actual Alloy `check` yields a counterexample. SAT
 witnesses are decoded and replayed through the native encoder.
+
+The source comparison suite additionally fixes complete traces for absent, inherited
+and captured references, parent cancellation in both signs, contradictory next
+values, counter replacement, rebirth, never-live identities and differing loop
+indices. It checks hidden scalar storage and invalid raw object rows separately.
+Unfixed solver queries distinguish allowed disappearance from a next-value
+obligation that forbids it; successful witnesses pass native decoding and the
+independent finite observer. This executable observer remains outside the kernel
+proof boundary.
 
 The mandatory repository check still builds every discovered Lean module,
 audits transitive axioms, replays the kernel and runs all static and behavioral

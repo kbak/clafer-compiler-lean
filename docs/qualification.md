@@ -64,7 +64,10 @@ The [full encoding](behavioral-encoding.md#full-profile-proof-components) adds
 `Full.compile`, complete partial-expression lowering, disjoint direct-type
 inventories, inherited structural facts and finite integer observations.
 `Expressions.lowerAt_preserves` and `lower_preserves` follow the actual executable
-pass. `Full.compiled_sound` derives actual decoding and the existing upstream
+pass. The [absence corollaries](behavioral-encoding.md#absent-reference-observations)
+make the empty-reference boundary explicit while retaining total scalar decoder
+data and the same representation and finite-integer assumptions.
+`Full.compiled_sound` derives actual decoding and the existing upstream
 model/query satisfaction from target satisfaction; `Full.compiled_complete`
 proves the reverse for the concrete encoder under data-only source fitting
 conditions. `compiled_complete_observed` includes arbitrary source carriers under

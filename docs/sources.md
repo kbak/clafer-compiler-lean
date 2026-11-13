@@ -21,7 +21,7 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/bbf81e44beca6eb6c4ff3f0e87516b15be59676e) | `bbf81e44beca6eb6c4ff3f0e87516b15be59676e` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/8914ce01386366296e61f049a04bbc6d24db34c4) | `8914ce01386366296e61f049a04bbc6d24db34c4` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer](https://github.com/gsdlab/clafer/tree/f6ca5b887d7bacc09915c6fc0278064c8371beac) | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
@@ -946,14 +946,29 @@ retains this limitation without changing source semantics.
 ## Accepted semantics-main dependency
 
 The installed dependency is immutable upstream main
-`bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, accepted through
-[structural comparison adoption](https://github.com/kbak/clafer-semantics/pull/166).
-Relative to `f00e5dacb07eed51026f69fcf699683210d394d3`, the complete Lean source
-tree, toolchain and inherited Lake dependencies are unchanged. The delta changes
-external structural adapters, fixture candidates, tests and documentation.
-`AlloyBridge` validates original zero scopes and collision-safe candidate names;
-the Alloy distribution, solver and Java profile are unchanged. The Haskell source
-and toolchain notices retain the same MIT and external dependency boundaries.
+`8914ce01386366296e61f049a04bbc6d24db34c4`, accepted through the
+[absent-reference results](https://github.com/kbak/clafer-semantics/pull/176).
+Relative to the previous structural-comparison pin
+`bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, the delta adds
+[`AbsentReference`](https://github.com/kbak/clafer-semantics/blob/8914ce01386366296e61f049a04bbc6d24db34c4/Clafer/Behavioral/AbsentReference.lean),
+its examples and root import, and supporting requirements, documentation and test
+registration. Existing semantic definitions, external adapters, toolchain and
+transitive Lake dependencies are unchanged. The source contract still distinguishes
+an empty absent-head relation from partial scalar extraction, and child disappearance
+from parent cancellation. Counter persistence requires an initial value and enabled
+transitions; presence alone is insufficient.
+
+The compiler reuses these absence lemmas with `TraceRep.deref_completed`,
+`object_reference_typed` and `compiled_sound`, rather than introducing another
+reference model or finite evaluator. Scalar completion and existing target state
+facts already enforce the required observation boundary. These proofs add no runtime
+package, copied semantic definition or license obligation; the semantics remains MIT.
+
+The pinned Haskell [`AlloyLtl` generator](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Generator/AlloyLtl.hs) constrains reference values for live heads
+without requiring absent-head rows to be empty. This remains comparison evidence,
+not the adopted source meaning. The absence pin does not adopt later initializer
+results or qualify the unreleased 0.5.8 toolchain. Those changes require their own
+source and comparison intake.
 
 The optional `Clafer.Behavioral` source entrypoint remains separate from
 `Clafer.Behavioral.FiniteComposition`. Full preservation continues to require
