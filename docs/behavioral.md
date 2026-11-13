@@ -13,13 +13,13 @@ The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
 
-The completion profile is `behavioral-0.5.7-candidate/v1`. Its independent source
+The completion profile is `behavioral-0.5.8/v1`. Its independent source
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
 source truth. The Lake dependency pins accepted upstream main; its
-[source delta](sources.md#accepted-semantics-main-dependency) retains the static
-Haskell/Alloy comparison pins and regression corpus. Candidate acceptance still
+[source delta](sources.md#clafer-058-source-and-replay) selects current Haskell
+comparison pins while retaining the static regression corpus and historical receipts. Candidate acceptance still
 requires independent review.
 
 The scoped compiler source amendment

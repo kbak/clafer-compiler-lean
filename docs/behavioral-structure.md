@@ -2,7 +2,7 @@
 
 `impl~compiler-behavioral-structural-bridge~1`
 
-The `behavioral-0.5.7-candidate/v1` library APIs supply the structural handoff in
+The `behavioral-0.5.8/v1` library APIs supply the structural handoff in
 the [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix).
 They use the accepted upstream S4 meaning at the [installed pin](sources.md).
 They do not constitute a behavioral source command or an Alloy temporal encoding.
@@ -60,12 +60,17 @@ construction. `SourceRow` and `Elaboration` independently check coverage,
 preorder identity, source paths, exact names, authored data, parent/super/reference
 targets and defaults. Direct-name concrete and nested supers are permitted. Missing or
 ambiguous names remain errors; no `noclafer` navigation shortcut is introduced.
-Current super lookup uses authored lexical/global candidates, without an
-inherited-child search or self exclusion; same-name redefinitions can therefore
-fail as inheritance cycles. Qualified type paths are rejected by the parsers.
-The [super-lookup review candidate](super-lookup.md) records distinguishing native
-and reference cases and the proposed behavioral rules; it does not change this
-implemented policy or the static profile.
+The [super lookup contract](super-lookup.md) uses own children, then nearest
+inherited children, before plain lexical/global fallback. Qualified first segments
+prefer enclosing declarations, then a unique top-level/global candidate; later
+segments use own/inherited children. The declaration being defined cannot select
+itself. Concrete candidates remain eligible; no authored-parent relocation occurs.
+`BehavioralLookupRules.Plain` and `Qualified` inspect the completed declaration
+table independently of the executable dependency traversal. Successful
+`Elaboration` checks these relations, and the resolution bridge carries them
+through `SourceRow`. Uniqueness holds within a completed table (plain lookup also
+requires unique authored paths). Forward/order variants and cycle diagnostics
+are tested; no universal convergence or cross-table uniqueness theorem is claimed.
 
 The [resolution bridge](../ClaferCompiler/SemanticsBridge/BehavioralResolution.lean)
 proves original declaration coverage, per-row correspondence, upstream
@@ -83,7 +88,7 @@ The static parser continues to reject enums. `constantInitializer` constructs
 `some heads => left = value`, preserving spans and the supplied views, and rejects
 `:=` explicitly. This is syntactic sugar for an ordinary attachment at every live
 enclosing state; it adds no birth operator. C7 must prove the resulting expression
-elaboration against upstream `Initializers.constant` and carry enum final markers
+elaboration against upstream `Initializers.Legacy.constant` and carry enum final markers
 to resolved declarations. Native tests check these sugar shapes and inventories;
 there is no claim that arbitrary parser output already has that temporal proof.
 

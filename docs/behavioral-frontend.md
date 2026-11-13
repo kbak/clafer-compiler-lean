@@ -1,6 +1,6 @@
 # Behavioral source frontend
 
-The explicit `behavioral-0.5.7-candidate/v1` parser accepts authored behavioral
+The explicit `behavioral-0.5.8/v1` parser accepts authored behavioral
 syntax and retains the original source. It is separate from the static parser
 and from first-slice `behavioral-core/1` admission. The
 [completion matrix](behavioral.md#complete-feature-and-evidence-matrix) retains
@@ -32,7 +32,7 @@ in a tighter context.
 | Category | Productions / operand categories |
 | --- | --- |
 | `E0` | `E1 arrow E0`, or `E1` |
-| `E1` | `quant [disj] names : E21` followed by a bar and `E1`; `if E1 then E1 else E1`; `let name = name in E1`; or `E2` |
+| `E1` | `quant [disj] names : E21` followed by a bar and `E1`; `if E1 then E1 else E1`; `let name = E16 in E1`; or `E2` |
 | `E2` | `never`, `sometime`, `lonce`, `always` followed by `E3 scope`; `E3 must precede E3 scope`; `E3 must follow E3 scope`; `initially E3`; `finally E3`; or `E3` |
 | `E3`–`E7` | `<=>`, `=>`, `\|\|`, `xor`, `&&`, respectively |
 | `E8`–`E9` | `U`/`until`, `W`/`weakuntil`, respectively |
@@ -56,7 +56,9 @@ A declaration contains optional `abstract`, a list of `initial`, `final`,
 `finalref` and `finaltarget` tokens, optional group, name, optional super/reference,
 optional cardinality, optional `= E0` or `:= E0`, optional `arrow E0`, and children.
 Both reference-modifier orders and repeated tokens are legal. The selected
-structural type positions remain single names. The use shorthand retains its
+super position accepts a name or dot-separated path; reference type positions
+remain single names. `SuperPath` retains every token and the whole path span,
+and declaration projection preserves it for the independent lookup relation. The use shorthand retains its
 existing name/cardinality/children shape. Enums are top-level nonempty
 `enum name = literal | literal ...` declarations. Properties are bracketed lists
 of `E0`, optionally preceded by `assert`, at top level or within a declaration.
@@ -178,6 +180,26 @@ implication cannot supply the inactive declaration guard. The two small atom
 constructors reuse those facilities without a new evaluator or library dependency.
 Proof-only upstream definitions remain outside the native import closure.
 
+
+## Let capture and comparison boundary
+
+The RHS is an `E16` expression (parentheses permit looser categories), evaluated
+in the previous environment before the new binder is introduced. It must
+elaborate to an object/value collection or scalar integer; formulas are not
+binder values. The body sees
+the nearest binding at slot zero; a shadowing declaration cannot recapture its
+own RHS. Captures preserve values across time and evaluate unused bindings
+strictly. The native elaboration tests exercise compound RHSs, nested shadowing,
+alpha-renaming and retained undefined arithmetic. Exact source/target observations
+reuse the accepted upstream changing-target/set/rebirth and same-state controls.
+
+Haskell 0.5.8 substitutes expressions. Time-spanning `let` and unused undefined
+bindings therefore remain explicit comparison exclusions. Upstream resolved
+capture laws do not prove parsing or named-syntax alpha-renaming. Authored temporal
+selection also inspects the `let` RHS, so temporal syntax there selects the
+[production initializer clocks](#hard-declaration-initializers) even when the
+binding is unused. The resolved constant-initializer helper retains its separate
+`Initializers.Legacy` interpretation.
 
 ## Executable reductions and proved boundary
 
@@ -507,9 +529,9 @@ The [source register](sources.md#behavioral-frontend-sources) records exact pins
 [Native parser tests](../tests/test_behavioral_parser.py) check all pattern/scope
 cells, anchors/signs, every pair of infix operators, arrows/chains, multiple/disjoint
 binders, modifier order/repetition, attachment shape, layout, byte spans and typed
-failures. The live pinned exporter checks representative syntax. Its `LetExp`
-desugaring crash is retained as a tool failure, not compilation or meaning
-agreement. [Native reduction tests](../tests/test_behavioral_surface.py) exercise
+failures. The live pinned exporter checks representative syntax. The current reference accepts `let`; historical `LetExp` failures remain
+tied to their original comparison profiles. Successful parsing alone does not
+establish agreement with captured-value meaning. [Native reduction tests](../tests/test_behavioral_surface.py) exercise
 guard placement, both corrected expansions and distinct reference views without
 proof imports. The kernel-checked
 [binder counterexample](../tests/BehavioralSurface.lean) demonstrates that tuple

@@ -9,13 +9,14 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 ## Tools and profile
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
-[source register](sources.md) pin Haskell `f6ca5b887d7bacc09915c6fc0278064c8371beac`,
-semantics `a18890612e38872f3fb5842ed323042aea34e1ed`, Lean 4.35.0 and Alloy 6.2.0
+[source register](sources.md) pin Haskell `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`,
+semantics `e96284c98b103fe0871c00eb96210a40e5c1ea67`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
-The Haskell library build uses Stack 3.11.1, GHC 9.6.7, `lts-22.44`, and its pinned
-`json-builder` and `StringMap` Git dependencies. The upstream builder checks the
+The Haskell library build uses Stack 3.11.1, GHC 9.12.4, `nightly-2026-11-11`, and the reviewed claferIG dependency.
+It reuses the accepted `Data.Map`/aeson exporter; `json-builder` and `StringMap`
+are removed. The upstream builder checks the
 source archive/tree, original lockfile, unchanged library sources and exporter
-source/binary hashes. A matching installed exporter may be reused. Build receipts
+source/binary hashes, including the metadata probe. A matching installed exporter may be reused. Build receipts
 are unsigned identity records, not authentication of the producer.
 
 Java 17 is the initial reproducible subset of the Java 17+ requirement. The
@@ -41,13 +42,13 @@ receipt are rejected. The real Alloy bridge also rejects temporal ASTs and
 requires static trace bounds `-1`, rather than relying on the runtime instance's
 `isTemporal()` flag. No ordinary separate CLI exports substitute for this receipt.
 
-The sole structural profile uses `generic-aeson-0.5.7/1` and
+The sole structural profile uses `generic-aeson-0.5.8/1` and
 `clafer-generation/2`. Empty `_finalReferences` and `_refModifiers` arrays are
 required; malformed fields and nonempty behavioral modifiers fail explicitly.
 The receipt binds source UIDs to injective Alloy symbols and validates the
 original command's zero scopes for unused abstracts. Capture, candidate pinning,
 scope checking and witness decoding reuse the upstream implementation. Old
-0.5.4 artifacts are replayed at their original compiler-repository revision with
+0.5.4/0.5.7 artifacts are replayed at their original compiler-repository revision with
 its original tools; current tooling rejects them. The independently pinned
 behavioral suites reuse Java/Alloy provisioning through fresh static tool receipts.
 
@@ -337,8 +338,8 @@ Keep this candidate and static profile intact. Before adopting release bytes:
 
 `behavioral-pr113-9a0f16e/v1` selects the immutable later Haskell revision in the
 [source register](sources.md#pr113-delta-candidate). It is a qualification
-candidate awaiting independent review. The primary behavioral pin, old temporal
-profile, static profile and their capture/replay protocols remain unchanged.
+historical profile with its own producer and capture/replay protocol. Current
+0.5.8 qualification is registered separately; it does not change these receipts.
 
 Reuse assessment: `temporal.py` supplies duplicate-key JSON parsing, bridge
 compilation, bounded solving and complete trace validation; `temporal_build.py`
@@ -513,8 +514,8 @@ changelog's claim concerning 27 models.
 Independent meaning comes from pinned `Properties.Constraint.root_holds` and
 `Anchors.root_recurrence`, under singleton/permanent-root assumptions. The later
 upstream `PatternExamples.root_attachment_not_initially` is a useful related
-witness but is absent from the installed semantic pin; no unaccepted dependency
-is imported to obtain it. The local distinguishing trace checks the same
+witness that was absent at the original comparison checkpoint; that qualification
+imported no unaccepted dependency to obtain it. The local distinguishing trace checks the same
 attachment distinction. None of these facts assumes Haskell preservation.
 
 Another known limitation: a top-level `this.item` navigation emits the ill-typed Alloy
@@ -529,15 +530,15 @@ The library capture does not invoke upstream `clafer -v` or `make test`.
 this harness independently checks process results, exact fixed points and
 complete command coverage. The upstream positive runner still returns zero for
 invalid `JOBS` after an `xargs -P` error with an empty failure list. Its status
-is not qualification evidence. This repository retains at most two concurrent
-cases and each query's 30-second/512-MiB budget. Missing tools, interrupted
+is not qualification evidence. This repository uses the bounded case-worker
+budget described below and retains each query's 30-second/512-MiB budget. Missing tools, interrupted
 processes, malformed inputs and timeouts remain failures, never skipped gates.
 
-Candidate acceptance, primary-pin adoption, full assertion/encoder correctness,
-normalization and later release deltas remain separate review obligations. The
-source/tool disposition and exact-text/warning evidence are inputs to the
-[trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79) and
-[explicit-form](https://github.com/kbak/clafer-compiler-lean/issues/86) tasks.
+Full assertion/encoder correctness, normalization and later release deltas remain
+separate review obligations. These historical source/tool observations supplied
+the [trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79).
+The source-format proof project was cancelled; reference explicit-output fixed
+points do not revive it or replace the distinct resolved M1 preservation proof.
 
 ## Choco instance tooling
 
@@ -622,3 +623,52 @@ that finite mutation coverage is not a proof of arbitrary protocol security.
 
 Covers:
 - `req~compiler-oracles~1`
+
+## Current 0.5.8 comparison tools
+
+The explicitly selected `behavioral-0.5.8/v1` profile reuses the PR113
+same-generation exporter, source map, field-type inspector and complete typed
+trace decoder at the [registered current pin](sources.md#clafer-058-source-and-replay).
+The [0.5.8 inventory](../tests/fixtures/pr113/058-inventory.json) retains the prior
+corpus and current temporal inputs, including initializer inputs as reference
+fixtures only. Current static and temporal integer fields use the inspected target types for
+scalar decoding; the historical PR113 selectors retain their original boundaries. Original and explicit outputs must reach a printer fixed point
+and agree on paired bounded runs/checks. This is not exact-lasso equivalence.
+
+The exclusive reference phase reuses Python's `ThreadPoolExecutor` and the
+runner's `CLAFER_TEST_JOBS=1..4` budget, defaulting to two and capped by available
+CPUs. This accommodates the additional current corpus without removing historical
+queries or extending their deadlines. Each case retains separate processes and
+evidence; compiler regressions start after all reference corpora finish. The
+existing executor meets the scheduling need without another runner, persistent
+solver, package or license dependency. Its scheduling is runtime tooling, outside
+the Lean proof boundary.
+
+Independent full-source observation cases use the same bounded setting in their
+existing executor; source and reference cases default to two workers. Every
+authored fixture, exact trace, mutation, source observation and fresh solver
+query remains required. This reuses case-level isolation instead of changing
+the semantic domain, caching verdicts or enlarging the full-check deadline.
+Revision-qualified Haskell observations use that same executor; replay still
+launches fresh queries after checking the collected observations. The source CLI
+uses an exclusive phase through the existing subprocess group runner, avoiding
+native compilation timeouts caused by competing solver work without extending
+its deadlines or adding synchronization infrastructure.
+
+```sh
+python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-058-build-UNIQUE /tmp/clafer-058-tools-UNIQUE
+export CLAFER_058_TOOLS=/tmp/clafer-058-tools-UNIQUE/tools.json
+```
+
+Current authored-source comparison and parser smoke tests require these tools.
+Historical temporal and both PR113 profiles remain separately mandatory in the
+full/reference checks; replay never changes the producer identity. The static
+runtime validates the accepted metadata probe, while decoder mutations and
+exact observations qualify the downstream trace path separately. JSON decoded
+values may agree while escape bytes differ; EOF parser exceptions remain errors.
+Time-spanning `let` and unused undefined bindings are explicit Haskell comparison
+exclusions. The current source tests preserve those counterexamples alongside
+defined same-state, shadowing and alpha-renaming controls. New initializer
+semantics and final absence/initializer agreement are not claimed by this suite.

@@ -108,13 +108,24 @@ class ParserTests(unittest.TestCase):
         # Syntax keeps later resolution errors and contradictions inspectable.
         sources = ['A -> Missing', 'A : A', 'A\nA', '5..5 A\n  B 0',
                    'A\n  same\nB\n  same', 'A\n  1..* B', 'A [a][b]',
-                   '/* hi */ A\nB', 'A\n: Base', 'A\n?', 'A { B\n -> T }', 'abstract\nType', 'xor\nA', '`\nBase']
+                   '/* hi */ A\nB', 'A { B\n -> T }']
         for source, out in zip(sources, self.parse_many(sources)):
             self.assertTrue(out.startswith('ok\n'), (source, out))
         self.assertEqual(self.parse_many(['A\n1..* B'])[0],
-                         'ok\n(decl A false _ 1..* _ _ [])\n(decl B false _ _ _ _ [])')
+                         'ok\n(decl A false _ _ _ _ [])\n(decl B false 1..* _ _ _ [])')
         self.assertEqual(self.parse_many(['A {\n B\n  C\n}'])[0],
                          'ok\n(decl A false _ _ _ _ [(decl B false _ _ _ _ []) (decl C false _ _ _ _ [])])')
+
+    def test_sibling_line_group_and_dedent(self):
+        source = 'Root\n  child\n  2..3 sibling\n    a\n    b\n2..3 Top\n  c\n  d\n'
+        expected = ('ok\n(decl Root false _ _ _ _ [(decl child false _ _ _ _ []) '
+                    '(decl sibling false 2..3 _ _ _ [(decl a false _ _ _ _ []) '
+                    '(decl b false _ _ _ _ [])])])\n'
+                    '(decl Top false 2..3 _ _ _ [(decl c false _ _ _ _ []) '
+                    '(decl d false _ _ _ _ [])])')
+        for variant in (source, source.replace('\n', '\r\n'),
+                        '// Café\n' + source, source.replace('\n', ' // comment\n')):
+            self.assertEqual(self.parse_many([variant])[0], expected)
 
     def test_expressions_and_exact_precedence(self):
         cases = {
@@ -158,7 +169,7 @@ class ParserTests(unittest.TestCase):
     def test_rejections_do_not_erase_constructs(self):
         malformed = ['A\n\tB', 'A\n  B\n C', 'A { B', 'A }', 'A B', 'A { B C }', '[1.]', '[a + ]', '[all x A | x]',
                      '[a', '/* never closed', 'A 2..1', '2..1 A', '2 A', '_name', "a'\u0301",
-                     'λ', '×', '÷', '[some]', '[some a + b]', '[no a ++ b + c]', '[a + some b]', '[a + #b + ]', 'A ->\n B', 'A :\n B', 'abstract\n  B', 'xor\n  B', '`\n  B', 'A 1..\n  2']
+                     'λ', '×', '÷', '[some]', '[some a + b]', '[no a ++ b + c]', '[a + some b]', '[a + #b + ]', 'A ->\n B', 'A :\n B', 'A\n: Base', 'A\n?', 'A\n-> T', 'abstract\nType', 'xor\nType', '`\nType', 'abstract\n  B', 'xor\n  B', '`\n  B', 'A 1..\n  2']
         unsupported = ['enum A = B | C', 'A -> string', 'A -> real', 'A -> double',
                        'A -> bool', 'A -> boolean', 'initial A', 'final A', 'finalref A',
                        'finaltarget A', '[X a]', '[always a]', '[a U b]', '[eventually a]',
@@ -221,10 +232,10 @@ class ParserTests(unittest.TestCase):
         positives = ['A', 'A\n  B ?', 'abstract Base\nA : Base',
                      'Target\nOwner\n  ref -> Target *', 'Target\nOwner\n  ref ->> Target *',
                      'xor A\n  B\n  C', 'A { B\n C }', 'À\n  Café',
-                     '/* comment */ A', 'A\n1..* B', 'A\n?', 'A\n: Base', 'A { B\n -> T }', '[a][b]', 'A [some A]', 'A {\n B\n  C\n}',
+                     '/* comment */ A', 'A\n1..* B', 'A { B\n -> T }', '[a][b]', 'A [some A]', 'A {\n B\n  C\n}',
                      '[all x : A | some x]', '[a + b = c]', '[a => b => c]',
                      '[a ++ b -- c ** d]', '[one a - b]', '[a = some b - c]', '[(some a) + b]', '[a not in b]', '[]', '`Base ?']
-        negatives = ['[a + ]', '[all x A | x]', '/* unfinished', '_name', 'A B', 'abstract\n  B', 'A ->\n B', '[some a + b]', '[no a ++ b + c]']
+        negatives = ['A\n?', 'A\n: Base', '[a + ]', '[all x A | x]', '/* unfinished', '_name', 'A B', 'abstract\n  B', 'A ->\n B', '[some a + b]', '[no a ++ b + c]']
         observations = []
         for expected, inputs in [(True, positives), (False, negatives)]:
             ours = self.parse_many(inputs)
@@ -247,15 +258,16 @@ class ParserTests(unittest.TestCase):
                     self.assertEqual(inventory.get('Clafer', 0), our.count('(decl '))
                     self.assertEqual(inventory.get('ReferenceBag', 0), our.count('->>'))
                     self.assertEqual(inventory.get('ReferenceSet', 0), our.count('->') - our.count('->>'))
-        # Known reference EOF crashes remain tool errors, never parse agreement.
+        # The 0.5.8 exporter retains EOF exceptions as execution-error JSON,
+        # distinct from a compiler parse rejection and never parse agreement.
         for source in ['A {', '[a', 'A ->']:
             path = self.output / f'reference-crash-{len(observations)}.cfr'
             path.write_text(source)
             p = subprocess.run([str(exporter), str(path)], capture_output=True, text=True, timeout=15)
             path.with_suffix('.stdout').write_text(p.stdout)
             path.with_suffix('.stderr').write_text(p.stderr)
-            self.assertEqual(p.returncode, 1)
-            self.assertTrue(p.stderr.startswith('clafer-capture: EOF'))
+            self.assertEqual(p.returncode, 0)
+            self.assertEqual(json.loads(p.stdout), {'status': 'error', 'errors': ['EOF']})
             ours = self.parse_many([source])[0]
             self.assertTrue(ours.startswith('malformed|'))
             observations.append({'source': source, 'reference': 'tool_error', 'ours': ours})

@@ -45,6 +45,26 @@ def captures : IO Unit := do
   | .letSet _ (.quant .all _ (.letSet (.set (.var 0))
       (.quant .some _ (.quant .some _ (.next (.atom (.primitive (.equal (.set (.var 0)) (.set (.var 1)))))))))) => pure ()
   | _ => fail "group domain was resolved after introducing shadowing names"
+  -- A RHS uses the previous environment, and nested binders cannot capture it.
+  let m ← load "A *\nB *\n[let x = A ++ B in let x = x -- B in X (no x)]\n"
+  match ← body m with
+  | .letSet (.set (.union (.extent a) (.extent b)))
+      (.letSet (.set (.diff (.var 0) (.extent b')))
+        (.next (.not (.atom (.primitive (.inhabited (.set (.var 0)))))))) =>
+    unless a == (← idOf m "A") && b == b' do fail "let shadowing changed RHS declaration identity"
+  | _ => fail "compound let RHS was substituted or recaptured"
+  for source in ["A *\n[let x = A in all x : x | X (x = x)]\n",
+      "A *\n[let captured = A in all item : captured | X (item = item)]\n"] do
+    let m ← load source
+    match ← body m with
+    | .letSet (.set (.extent _)) (.letSet (.set (.var 0))
+        (.quant .all (.set (.var 0))
+          (.next (.atom (.primitive (.equal (.set (.var 0)) (.set (.var 0)))))))) => pure ()
+    | _ => fail "alpha-renaming or shadowing changed resolved captures"
+  let m ← load "A *\n[let unused = 1 / 0 in some A]\n"
+  match ← body m with
+  | .letSet (.integer (.binary .divide (.literal 1) (.literal 0))) _ => pure ()
+  | _ => fail "unused undefined binding was discarded"
   let m ← load "abstract Node -> Node\n  [some Outside]\nn : Node\nOutside\n"
   let outside ← idOf m "Outside"
   match ← body m with
@@ -247,7 +267,16 @@ def initializerOrigins : IO Unit := do
     | _ => fail "initializer origin equation"
 
 -- [utest->req~compiler-behavioral-elaboration~1]
+-- [utest->req~compiler-behavioral-profile~1]
 def initializerAdmission : IO Unit := do
+  for (rhs, temporal) in [("A ++ A", false), ("if X (some A) then A else A", true)] do
+    let m ← load ("A ?\nx -> int ? := 0\n[let unused = (" ++ rhs ++ ") in some root]\n")
+    unless m.source.temporal == temporal do fail "let RHS lost authored temporal selection"
+    let [p] := m.elaborated.generated | fail "let RHS initializer inventory"
+    match p.body, temporal with
+    | .quant .all _ (.atom (.equalClosed _ _)), false => pure ()
+    | .atom (.inContext _ (.initially _)), true => pure ()
+    | _, _ => fail "let RHS changed initializer clock selection"
   for source in ["x -> int ? := 0\n", "enum E = A | B\nx -> int ? := 0\n"] do
     let m ← load source
     if m.source.temporal then fail "generated enum finality selected temporal initializer semantics"

@@ -8,10 +8,10 @@ class BehavioralDeclarationsTests(unittest.TestCase):
     def test_binding(self):
         result = run_native(self, [
             'ClaferCompiler.IR.Structural', 'ClaferCompiler.Frontend.Surface',
-            'ClaferCompiler.Frontend.Defaults', 'ClaferCompiler.Frontend.Resolve',
+            'ClaferCompiler.Frontend.Defaults', 'ClaferCompiler.Frontend.BehavioralLookup', 'ClaferCompiler.Frontend.Resolve',
             'ClaferCompiler.IR.StructuralNormalization',
             'ClaferCompiler.IR.BehavioralStructural',
-            'ClaferCompiler.Frontend.BehavioralResolution',
+            'ClaferCompiler.Frontend.BehavioralLookupRules', 'ClaferCompiler.Frontend.BehavioralResolution',
             'ClaferCompiler.Frontend.BehavioralDeclarations',
             'ClaferCompiler.Frontend.Lexer', 'ClaferCompiler.Frontend.Parser',
             'ClaferCompiler.IR.Behavioral.Syntax', 'ClaferCompiler.IR.Behavioral.Surface',

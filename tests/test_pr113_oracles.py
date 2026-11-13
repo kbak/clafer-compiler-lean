@@ -17,6 +17,15 @@ import pr113_protocol as protocol
 import temporal
 
 
+def corpus_workers():
+    """Reuse the runner's bounded worker budget during its exclusive phase."""
+    cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
+    requested = int(os.environ.get('CLAFER_TEST_JOBS', '2'))
+    if requested < 1 or requested > 4:
+        raise ValueError('CLAFER_TEST_JOBS must be between 1 and 4')
+    return max(1, min(requested, cpus))
+
+
 # [utest->req~compiler-temporal-oracles~1]
 class PR113Oracles(unittest.TestCase):
     @classmethod
@@ -32,8 +41,7 @@ class PR113Oracles(unittest.TestCase):
         cls.cases = pr113.read(pr113.CORPUS)['cases']
         def run(case):
             return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
-        cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1, min(2, cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
             cls.results = dict(pool.map(run,cls.cases))
         oracle.write(cls.output/'summary.json',cls.results)
 
@@ -216,8 +224,7 @@ class PR113C7Oracles(PR113Oracles):
         cls.cases = pr113.read(pr113.corpus(cls.tools))['cases']
         def run(case):
             return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
-        cpus = len(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1,min(2,cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
             cls.results = dict(pool.map(run,cls.cases))
         oracle.write(cls.output/'summary.json',cls.results)
 
@@ -439,3 +446,38 @@ class PR113C7Oracles(PR113Oracles):
         self.assertEqual(g['explicit'],again['explicit'])
         self.assertEqual('ok',pr113.replay(self.tools,self.output/'union-live-good',self.output/'union-replay')['status'])
         self.assertEqual('discrepancy',pr113.replay(self.tools,self.output/'union-dead-target',self.output/'union-discrepancy-replay')['status'])
+
+
+# [utest->req~compiler-temporal-oracles~1]
+class Clafer058Oracles(PR113C7Oracles):
+    """Fresh current-profile corpus; original PR113 classes retain their pins."""
+    @classmethod
+    def setUpClass(cls):
+        for name in ('CLAFER_058_TOOLS', 'CLAFER_PR113_TOOLS', 'CLAFER_TEMPORAL_TOOLS'):
+            if not os.environ.get(name): raise RuntimeError('Prepare and set ' + name)
+        cls.tools = pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        cls.previous = pr113.load_tools(os.environ['CLAFER_PR113_TOOLS'])
+        cls.tools['old'] = temporal.load_tools(os.environ['CLAFER_TEMPORAL_TOOLS'])
+        parent = oracle.external(os.environ.get('CLAFER_ORACLE_EVIDENCE', tempfile.gettempdir()))
+        parent.mkdir(parents=True, exist_ok=True)
+        cls.output = Path(tempfile.mkdtemp(prefix='clafer-058-', dir=parent))
+        print('0.5.8 oracle evidence: ' + str(cls.output), flush=True)
+        cls.cases = pr113.read(pr113.corpus(cls.tools))['cases']
+        def run(case):
+            return case['id'], pr113.run_case(cls.tools, case, cls.output / case['id'])
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
+            cls.results = dict(pool.map(run, cls.cases))
+        oracle.write(cls.output / 'summary.json', cls.results)
+
+    def test_complete_inventory_and_source_delta(self):
+        source = self.tools['build'].parent / 'compiler'
+        inventory = pr113.read(pr113.corpus(self.tools))
+        self.assertEqual(inventory['haskell_commit'], self.tools['tools']['profile']['haskell_commit'])
+        self.assertEqual(inventory['profile'], 'behavioral-0.5.8/v1')
+        upstream = {c['entry'] for c in self.cases if c['origin'] == 'haskell'}
+        self.assertEqual({p.name for p in (source / 'test/positive').glob('tmp_*.cfr')} |
+                         {'explicit_dref_navigation.cfr'}, upstream)
+        self.assertTrue({c['id'] for c in pr113.read(pr113.CORPUS.parent / 'c7-inventory.json')['cases']}
+                        <= {c['id'] for c in self.cases})
+        self.assertEqual(self.tools['tools']['profile']['ghc'], '9.12.4')
+        self.assertEqual(self.tools['tools']['profile']['resolver'], 'nightly-2026-11-11')

@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`a18890612e38872f3fb5842ed323042aea34e1ed` and its inherited Mathlib/dependency commits.
+`e96284c98b103fe0871c00eb96210a40e5c1ea67` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -98,11 +98,16 @@ replay environments out of each regression's CPU and memory budget. Every gate
 runs even if another validation gate failed; every exit status must succeed.
 Replay uses two workers to bound large imported environments resident at once. Failures in the audit, replay or
 regressions fail the check. No module, test or kernel gate is skipped.
-The regression runner runs both revision-specific PR113 corpora first, each with
-its existing two case workers, then runs the remaining groups concurrently. The bounded solver queries
+The regression runner runs the historical PR113 and current 0.5.8 corpora first,
+each using the existing `CLAFER_TEST_JOBS=1..4` worker budget, capped by available
+CPUs and defaulting to two, then runs the remaining groups concurrently. The bounded solver queries
 in that corpus therefore do not compete with Lean compilation in other suites.
 Every group must execute without skips and pass, including after a failed PR113
 phase. It retains every discovered case and propagates each group's failure.
+The behavioral source CLI then runs exclusively, using the same group registry
+and subprocess runner, so its native compilation deadlines do not compete with
+concurrent Lean and solver work. Its missing, empty, skipped and failing suites
+remain rejected, and the serial/parallel runner fixtures check this exclusion.
 The full temporal target suite uses its own early subprocess group, so the
 other compiler regressions can overlap its solver work. This reuses the existing
 group registry, bounded executor and subprocess isolation rather than adding a
@@ -181,8 +186,8 @@ Acceptance, integration, scheduled and manual runs always select all three jobs,
 when the diff contains only compiler inputs. Unknown event/target classification
 also requires all three. This reuses the existing profile selector, reusable
 workflow, test-group registry and required aggregate. The behavioral source suite
-defaults to two solver workers; sharing a four-CPU runner with the temporal target suite
-and other regressions creates CPU contention. A separate
+and temporal target suite use the bounded `CLAFER_TEST_JOBS` setting. Sharing
+a four-CPU runner with other regressions creates CPU contention. A separate
 required source job preserves their query budgets and complete case inventories.
 The reference corpus likewise runs separately from compiler validation.
 No new dependency, license obligation or compiler runtime/proof boundary is added.

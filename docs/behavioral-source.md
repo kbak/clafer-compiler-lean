@@ -1,6 +1,6 @@
 # Behavioral source workflow
 
-The source workflow selects `behavioral-0.5.7-candidate/v1` explicitly and
+The source workflow selects `behavioral-0.5.8/v1` explicitly and
 composes the [authored frontend](behavioral-frontend.md),
 [full encoder](behavioral-encoding.md#full-profile-runtime) and checked temporal
 serializer. The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix)
@@ -75,7 +75,7 @@ For the source `A ?`, a complete bounds document is:
 ```json
 {
   "version": "clafer-behavioral-bounds/2",
-  "profile": "behavioral-0.5.7-candidate/v1",
+  "profile": "behavioral-0.5.8/v1",
   "objects": 2,
   "bitwidth": 3,
   "minSteps": 1,
@@ -209,7 +209,10 @@ These are descriptive measurements, not a performance guarantee. Frozen capture
 uses the encoder's finite alias enumeration, which includes signed integer
 candidates: its cost is exponential in identity capacity plus integer-domain
 size. Use the smallest sufficient width; a narrow scalar interval does not shrink
-that signed capture domain. This cost is inherited from the accepted full encoder.
+that signed capture domain. This cost is inherited from the accepted full encoder. Nested captures and
+aggregates can exhaust the native stack even with small object scopes;
+[bounded lowering work](https://github.com/kbak/clafer-compiler-lean/issues/132)
+tracks that operational limitation. Resource failures are not semantic results.
 
 ## Feature and evidence inventory
 
@@ -248,23 +251,31 @@ by themselves: each fixture and its negative observation remains reviewable.
 
 ## Source candidate and Haskell comparison disposition
 
-The compiler selects the accepted S7 semantics at
-`5182c8f5884eddfd8bff8a26b493a8550f0162b6`, with
-`behavioral-0.5.7-candidate/v1` and Haskell
-`af858ec0fe3ce2ceacb7fd120947c058233086d6` as its primary source contract.
-The [registered S7 delta](sources.md#accepted-semantic-qualification-dependency)
-adds generic qualification APIs without changing the inherited meanings.
-This retains S7's D1–D5 dispositions and the historical compiler mismatches.
-No moving release branch or final 0.5.7 release is adopted by inference.
+The compiler selects accepted semantics
+`e96284c98b103fe0871c00eb96210a40e5c1ea67` with `behavioral-0.5.8/v1` and Haskell
+`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`. The
+[current source register](sources.md#clafer-058-source-and-replay) retains D1–D5,
+accepted later corrections and distinct historical replay identities. No moving
+release branch is selected.
 
-The [c7a2fb7 adapter](../scripts/comparison/behavioral_haskell.py) separately uses
-`behavioral-pr113-c7a2fb7/v1`. It reuses the accepted same-generation receipt and
+The [Haskell adapter](../scripts/comparison/behavioral_haskell.py) uses current
+`behavioral-0.5.8/v1` receipts. It reuses the accepted same-generation receipt and
 actual Analyzer field-type inspector, checks a complete declaration/ownership/
 superclass/reference-target bijection and fixes whole-trace observations.
 Integer field endpoints are values; ordinary head occurrences remain identities.
 Every SAT witness is checked under a global graph isomorphism. This comparison
 projects unused compiler scalar slots away, because Haskell only observes values
 of live reference heads. It does not collapse duplicate bag heads.
+
+Exact source observations preserve time-spanning captured `let` values and
+strict unused-binding definedness. Current Haskell substitution disagrees on the
+accepted changing-target/set/rebirth and unused-undefined witnesses; these are
+explicit reference exclusions, with same-state/shadowing/alpha-renaming controls.
+Zero-divisor RHSs remain subject to conservative range rejection even when unused.
+Source headers use the accepted [hard initializer contract](behavioral-frontend.md#hard-declaration-initializers).
+The resolved constant-initializer helper retains its `Initializers.Legacy` meaning.
+[Final initializer/absence reference qualification](https://github.com/kbak/clafer-compiler-lean/issues/127)
+remains a separate gate from the tool upgrade and accepted implementations.
 
 Parentless abstract local bounds are ineffective because there is no containment
 fiber: Haskell's `0..*` and the frontend's default `1..1` are paired only there.
@@ -275,7 +286,7 @@ The exact `inherited-set` counterexample has source
 one root, one `Target` and two `port` heads sharing that target. Accepted upstream
 [`Structural.Keys`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Structural.lean)
 requires distinct targets in the concrete containment fiber. The source observer
-reports `violated` and the Lean target is UNSAT; Haskell `c7a2fb7` is SAT because
+reports `violated` and the Lean target is UNSAT; Haskell 0.5.8 is SAT because
 its output omits that inherited set key. The regression retains this exact
 `target-only` discrepancy, rather than counting it as semantic agreement. The
 source rule is unchanged; the
@@ -283,17 +294,17 @@ source rule is unchanged; the
 retains this Haskell limitation explicitly.
 
 ```sh
-python3 scripts/comparison/behavioral_haskell.py run case.json /tmp/haskell-case-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_PR113_C7_TOOLS"
-python3 scripts/comparison/behavioral_haskell.py replay /tmp/haskell-case-UNIQUE/case /tmp/haskell-replay-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_PR113_C7_TOOLS"
+python3 scripts/comparison/behavioral_haskell.py run case.json /tmp/haskell-case-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_058_TOOLS"
+python3 scripts/comparison/behavioral_haskell.py replay /tmp/haskell-case-UNIQUE/case /tmp/haskell-replay-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_058_TOOLS"
 ```
 
 The Haskell command returns nonzero for a discrepancy even when replay reproduces
-it. The required behavioral source CI job provisions the c7 exporter for these comparisons;
+it. The required behavioral source CI job provisions the 0.5.8 exporter for these comparisons;
 standalone old/new reference corpora remain separately mandatory in full qualification.
 The full local check uses a separate process in the existing bounded regression
 worker pool. Hosted CI uses the [source profile](build.md#ci-profiles) on its own runner.
-Both paths use CPU-capped internal case workers, defaulting to two and honoring
-the existing `CLAFER_TEST_JOBS` limit of one to four, with explicit per-query limits.
+Both paths reuse the `CLAFER_TEST_JOBS` worker limit (two by default, capped by
+available CPUs) and retain explicit per-query limits.
 Existing tests, required checks and the full deadline remain unchanged.
 
 | Reviewed delta | Disposition and retained evidence |
@@ -305,7 +316,7 @@ Existing tests, required checks and the full deadline remain unchanged.
 | `2c80226` union endpoint types | Accepted #95 field-owner/type and original/explicit regressions remain mandatory; no expression-target language expansion |
 | `8298fbd` failure propagation | Accepted malformed input and runner failure receipts; a runner exit alone does not establish corpus execution |
 | `67324c5` compact navigation/exact regressions | Accepted static `explicit_dref_navigation` and temporal inherited-reference cases, fixed-point and original-scope evidence |
-| `c7a2fb7` root binding | Root recurrence, cardinality/constraints/assertions, nested guards and actual positive-control warning receipts |
+| Current Haskell root binding | Root recurrence, cardinality/constraints/assertions, nested guards and actual positive-control warning receipts |
 
 The complete #91 and #95 source deltas, not just the named commits, remain in
 [the source register](sources.md#pr113-union-and-root-binding-delta). Their full

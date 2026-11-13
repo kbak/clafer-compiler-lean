@@ -5,6 +5,7 @@ public import ClaferCompiler.Frontend.Behavioral.Surface
 @[expose] public section
 namespace ClaferCompiler.Frontend.Behavioral
 
+-- [impl->req~compiler-behavioral-profile~1]
 /-- Inspect authored syntax before enum/header expansion. An initializer token
 alone never selects temporal interpretation. -/
 def temporalExpression : Nat → Expr → Bool :=
@@ -14,7 +15,8 @@ def temporalExpression : Nat → Expr → Bool :=
         ["X", "next", "F", "eventually", "G", "globally", "initially", "finally"].contains op.text || next a
     | .binary op a b _ => ["U", "until", "W", "weakuntil"].contains op.text || next a || next b
     | .quantified _ _ _ a b _ => next a || next b
-    | .letSet _ _ _ a _ | .parens a _ => next a
+    | .letSet _ _ value body _ => next value || next body
+    | .parens a _ => next a
     | .conditional _ c a b _ => next c || next a || next b
     | .transition .. | .pattern .. => true
 

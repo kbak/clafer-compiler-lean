@@ -71,6 +71,7 @@ jobs:
           echo "CLAFER_TEMPORAL_CACHE=$RUNNER_TEMP/clafer-temporal" >> "$GITHUB_ENV"
           echo "CLAFER_PR113_CACHE=$RUNNER_TEMP/clafer-pr113" >> "$GITHUB_ENV"
           echo "CLAFER_PR113_C7_CACHE=$RUNNER_TEMP/clafer-pr113-c7" >> "$GITHUB_ENV"
+          echo "CLAFER_058_CACHE=$RUNNER_TEMP/clafer-058" >> "$GITHUB_ENV"
           echo "CLAFER_ALLOY_CACHE=$RUNNER_TEMP/clafer-alloy" >> "$GITHUB_ENV"
       # Lake validates source/options/import traces; proof and test results are never cached.
       - name: Cache Lean build artifacts
@@ -126,9 +127,10 @@ jobs:
         with:
           path: |
             ${{ runner.temp }}/clafer-capture/*/clafer-capture
+            ${{ runner.temp }}/clafer-capture/*/metadata-probe
             ${{ runner.temp }}/clafer-capture/*/build.json
             ${{ runner.temp }}/clafer-capture/*/builder.sha256
-          key: compiler-exporter-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/Export.hs', '.lake/packages/clafer/scripts/verification/build.py', '.lake/packages/clafer/scripts/verification/runtime.py', '.lake/packages/clafer/scripts/verification/protocol.py', '.lake/packages/clafer/scripts/verification/compiler_profile.py') }}
+          key: compiler-exporter-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.lake/packages/clafer/scripts/verification/Export.hs', '.lake/packages/clafer/scripts/verification/build.py', '.lake/packages/clafer/scripts/verification/runtime.py', '.lake/packages/clafer/scripts/verification/protocol.py', '.lake/packages/clafer/scripts/verification/compiler_profile.py', '.lake/packages/clafer/scripts/verification/candidate_profile.py', '.lake/packages/clafer/scripts/verification/build_profiles.py', '.lake/packages/clafer/scripts/verification/Metadata.hs') }}
       - name: Cache pinned Alloy download
         if: inputs.profile != 'routine'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -150,7 +152,7 @@ jobs:
           key: compiler-temporal-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/temporal-profile.json', 'scripts/oracles/temporal_build.py', 'scripts/oracles/TemporalExport.hs') }}
       - name: Restore verified PR113 exporter and sources
         id: pr113
-        if: inputs.profile == 'full' || inputs.profile == 'reference' || inputs.profile == 'source'
+        if: inputs.profile == 'full' || inputs.profile == 'reference'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
@@ -167,6 +169,19 @@ jobs:
             ${{ runner.temp }}/clafer-pr113-c7/compiler
             !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
           key: compiler-pr113-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/pr113-profile.json', 'scripts/oracles/pr113-c7-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
+      - name: Restore verified 0.5.8 exporter and sources
+        id: clafer058
+        if: inputs.profile != 'routine'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-058/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-058/build.json
+            ${{ runner.temp }}/clafer-058/source-files.json
+            ${{ runner.temp }}/clafer-058/compiler.tar.gz
+            ${{ runner.temp }}/clafer-058/compiler
+            !${{ runner.temp }}/clafer-058/compiler/.stack-work
+          key: compiler-058-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/oracles/clafer058-profile.json', 'scripts/oracles/pr113_build.py', 'scripts/oracles/temporal_build.py', 'scripts/oracles/PR113Export.hs') }}
       - name: Prepare static comparison tools and runtime isolation
         if: inputs.profile != 'routine'
         run: |
@@ -190,6 +205,7 @@ jobs:
         with:
           path: |
             ${{ runner.temp }}/clafer-capture/*/clafer-capture
+            ${{ runner.temp }}/clafer-capture/*/metadata-probe
             ${{ runner.temp }}/clafer-capture/*/build.json
             ${{ runner.temp }}/clafer-capture/*/builder.sha256
           key: ${{ steps.exporter.outputs.cache-primary-key }}
@@ -240,8 +256,8 @@ jobs:
           python3 scripts/oracles/pr113.py prepare --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_PR113_CACHE" "$RUNNER_TEMP/pr113-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-setup.log"
           echo "CLAFER_PR113_TOOLS=$RUNNER_TEMP/pr113-tools/tools.json" >> "$GITHUB_ENV"
-      - name: Prepare c7a2fb7 source comparison tools
-        if: inputs.profile == 'full' || inputs.profile == 'reference' || inputs.profile == 'source'
+      - name: Prepare historical c7a2fb7 comparison tools
+        if: inputs.profile == 'full' || inputs.profile == 'reference'
         run: |
           python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_PR113_C7_CACHE" "$RUNNER_TEMP/pr113-c7-tools" 2>&1 | tee "$RUNNER_TEMP/pr113-c7-setup.log"
@@ -264,6 +280,24 @@ jobs:
             ${{ runner.temp }}/clafer-pr113-c7/compiler
             !${{ runner.temp }}/clafer-pr113-c7/compiler/.stack-work
           key: ${{ steps.pr113.outputs.cache-primary-key }}
+      - name: Prepare 0.5.8 comparison tools
+        if: inputs.profile != 'routine'
+        run: |
+          python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
+            --build-cache "$CLAFER_058_CACHE" "$RUNNER_TEMP/clafer-058-tools" 2>&1 | tee "$RUNNER_TEMP/clafer-058-setup.log"
+          echo "CLAFER_058_TOOLS=$RUNNER_TEMP/clafer-058-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Save verified 0.5.8 exporter and sources
+        if: (inputs.profile != 'routine') && steps.clafer058.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/clafer-058/clafer-pr113-capture
+            ${{ runner.temp }}/clafer-058/build.json
+            ${{ runner.temp }}/clafer-058/source-files.json
+            ${{ runner.temp }}/clafer-058/compiler.tar.gz
+            ${{ runner.temp }}/clafer-058/compiler
+            !${{ runner.temp }}/clafer-058/compiler/.stack-work
+          key: ${{ steps.clafer058.outputs.cache-primary-key }}
       - name: Check scope against the baseline
         id: scope
         env:
@@ -377,6 +411,11 @@ jobs:
             ${{ runner.temp }}/choco-tools/*-command.json
             ${{ runner.temp }}/choco-tools/*.log
             ${{ runner.temp }}/choco-tools/notices/
+            ${{ runner.temp }}/clafer-058-tools/
+            ${{ runner.temp }}/clafer-058-setup.log
+            ${{ runner.temp }}/clafer-058/build.json
+            ${{ runner.temp }}/clafer-058/build.log
+            ${{ runner.temp }}/clafer-058/source-files.json
             ${{ runner.temp }}/pr113-tools/
             ${{ runner.temp }}/pr113-setup.log
             ${{ runner.temp }}/pr113-c7-tools/

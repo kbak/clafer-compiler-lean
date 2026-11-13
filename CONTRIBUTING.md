@@ -112,6 +112,10 @@ python3 scripts/oracles/pr113.py prepare --candidate c7a2fb7 \
   --static-tools "$CLAFER_ORACLE_TOOLS" \
   --build-cache /tmp/clafer-pr113-c7-build-UNIQUE /tmp/clafer-pr113-c7-tools-UNIQUE
 export CLAFER_PR113_C7_TOOLS=/tmp/clafer-pr113-c7-tools-UNIQUE/tools.json
+python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \
+  --static-tools "$CLAFER_ORACLE_TOOLS" \
+  --build-cache /tmp/clafer-058-build-UNIQUE /tmp/clafer-058-tools-UNIQUE
+export CLAFER_058_TOOLS=/tmp/clafer-058-tools-UNIQUE/tools.json
 ```
 
 Full qualification also requires the [Choco instance tools](docs/choco-adapter.md#setup),
@@ -157,10 +161,13 @@ Set `CLAFER_ORACLE_EVIDENCE` to an external directory to retain oracle runs
 The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
-CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another. The PR113 corpus runs before the other groups so its bounded
-solver queries do not compete with Lean compilation. It runs at most two
-independent cases concurrently, capped by available CPUs. After that phase,
+CLI and audit regressions share one worker; static source CLI and pipeline comparisons
+share another. The behavioral source CLI runs in its own exclusive phase before
+concurrent solver work, preserving its native compilation deadlines. The PR113 corpus runs before the other groups so its bounded
+solver queries do not compete with Lean compilation. It reuses the runner's
+`CLAFER_TEST_JOBS=1..4` budget for independent cases, defaulting to two and capped
+by available CPUs. Every query retains its own bounds, deadline and evidence.
+After that phase,
 the remaining groups share a bounded executor. The runner rejects
 missing prerequisites, empty/skipped tests and unowned modules.
 
@@ -183,7 +190,7 @@ PRs outside `behavioral` and pushes to `main` run the Lean build, axiom audit, k
 native source/IR CLI tests and scope-policy tests. Run the full local IntentBond
 check before handoff. Every PR targeting `behavioral` runs all compiler regressions,
 including Haskell/Alloy comparisons, and fresh proof checks. The full behavioral
-source suite runs in its own required job to keep its two solver workers from
+source suite runs in its own required job to keep its bounded solver workers from
 competing with the temporal target suite and other regressions. Standalone historical
 and PR113 reference corpora run in a separate job when their inputs or unclassified
 paths change. Missing comparison baselines require that job. Compiler-only results

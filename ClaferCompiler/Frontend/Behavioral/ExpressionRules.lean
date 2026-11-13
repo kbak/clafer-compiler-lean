@@ -35,7 +35,7 @@ inductive Elaborates (v : IR.BehavioralStructural.Validated k) (owner : Fin k) :
       Elaborates v owner Γ cursor (.quantified op disjoint names e f span)
         (.formula (Expression.binders q names.length disjoint.isSome d p))
   | letSet (legal : Resolution.reserved binder.text = false)
-      (domain : Elaborates v owner Γ cursor (.name value) a) (heads : Heads a type d)
+      (domain : Elaborates v owner Γ cursor value a) (heads : Heads a type d)
       (body : Elaborates v owner (push Γ binder type) none e b) (boolean : Boolean b p) :
       Elaborates v owner Γ cursor (.letSet token binder value e span) (.formula (.letSet d p))
   | conditional (guard : Elaborates v owner Γ cursor e a) (boolean : Boolean a p)

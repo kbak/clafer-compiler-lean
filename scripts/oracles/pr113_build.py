@@ -16,7 +16,7 @@ HERE = Path(__file__).resolve().parent
 EXPORTER = HERE / 'PR113Export.hs'
 
 
-PROFILES = {'9a0f16e': 'pr113-profile.json', 'c7a2fb7': 'pr113-c7-profile.json'}
+PROFILES = {'9a0f16e': 'pr113-profile.json', 'c7a2fb7': 'pr113-c7-profile.json', '0.5.8': 'clafer058-profile.json'}
 
 
 def profile(candidate='9a0f16e'):
@@ -108,7 +108,8 @@ def prepare(work, api, candidate='9a0f16e'):
         obj.mkdir(exist_ok=True)
         commands = [[str(stack), 'build', 'clafer:lib'], [str(stack), 'exec', '--', 'ghc',
             '-package', 'clafer', '-package', 'aeson', '-Wall', '-fforce-recomp',
-            *(['-DCANDIDATE_C7'] if candidate == 'c7a2fb7' else []),
+            *(['-DCANDIDATE_C7'] if candidate != '9a0f16e' else []),
+            *(['-DCANDIDATE_058'] if candidate == '0.5.8' else []),
             '-outputdir', str(obj), str(EXPORTER), '-o', str(work / 'clafer-pr113-capture')]]
         (work / 'build.json').unlink(missing_ok=True)
         run_build(commands, work / 'compiler', env, work / 'build.log')

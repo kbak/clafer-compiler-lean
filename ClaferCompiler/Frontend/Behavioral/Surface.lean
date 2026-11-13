@@ -15,7 +15,7 @@ inductive Expr where
   | binary (op : Token) (left right : Expr) (span : SourceSpan)
   | quantified (quantifier : Token) (disjoint : Option Token) (binders : List Name)
       (domain body : Expr) (span : SourceSpan)
-  | letSet (token : Token) (binder value : Name) (body : Expr) (span : SourceSpan)
+  | letSet (token : Token) (binder : Name) (value body : Expr) (span : SourceSpan)
   | conditional (token : Token) (condition yes no : Expr) (span : SourceSpan)
   | transition (arrow : Token) (source : Expr) (guard : Option Expr) (target : Expr)
       (span : SourceSpan)

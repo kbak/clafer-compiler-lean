@@ -1,0 +1,1668 @@
+{
+  "cases": [
+    {
+      "entry": "tmp_DefaultGlobal.cfr",
+      "files": {
+        "tmp_DefaultGlobal.cfr": {
+          "bytes": 217,
+          "sha256": "6ecd7cb6e877cb9dc0aaa5205a2ba3169aebdc1d72eae4ed632a385f92bcae2a"
+        }
+      },
+      "id": "tmp_DefaultGlobal",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global00.cfr",
+      "files": {
+        "tmp_Global00.cfr": {
+          "bytes": 122,
+          "sha256": "fc957617c799c4f6168bbdc2c3b7beef4df0098a557d4af0ca9b1a2d94b8f45e"
+        }
+      },
+      "id": "tmp_Global00",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global01.cfr",
+      "files": {
+        "tmp_Global01.cfr": {
+          "bytes": 113,
+          "sha256": "52f32003438ccdf5c14662a65e16385257e108454d4caf28e67ea6e83130ca25"
+        }
+      },
+      "id": "tmp_Global01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global02.cfr",
+      "files": {
+        "tmp_Global02.cfr": {
+          "bytes": 73,
+          "sha256": "9dd9b58c34bba295fc603f618db8c6146633d211d1eae87ec6f381a60ec24b99"
+        }
+      },
+      "id": "tmp_Global02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global03.cfr",
+      "files": {
+        "tmp_Global03.cfr": {
+          "bytes": 93,
+          "sha256": "4c5a930d49516e1049593005cf5a65fa08e55486d73cb49da076b09e7ff18c8c"
+        }
+      },
+      "id": "tmp_Global03",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global04.cfr",
+      "files": {
+        "tmp_Global04.cfr": {
+          "bytes": 77,
+          "sha256": "56c9a8b01c482c1639289e240adc3cdea3e5039f8868e25b0d1e95e196aa4ce9"
+        }
+      },
+      "id": "tmp_Global04",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_Global05.cfr",
+      "files": {
+        "tmp_Global05.cfr": {
+          "bytes": 75,
+          "sha256": "049e26724f8498ece8a2b45fdf98353d27a45f81ae67305f08db97e054517d28"
+        }
+      },
+      "id": "tmp_Global05",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TLSHandshakeProtocol_distributed.cfr",
+      "files": {
+        "tmp_TLSHandshakeProtocol_distributed.cfr": {
+          "bytes": 7430,
+          "sha256": "15bda15f15f3c30a0c5214c61b66f054d207ee8b6abed2def86f314962fcd08d"
+        }
+      },
+      "id": "tmp_TLSHandshakeProtocol_distributed",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight1.cfr",
+      "files": {
+        "tmp_TrafficLight1.cfr": {
+          "bytes": 1417,
+          "sha256": "64e6a8c565e60d2c730c9305754380393419e9b9b23ed18386b34bba3c9c5ab4"
+        }
+      },
+      "id": "tmp_TrafficLight1",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight1_cycle.cfr",
+      "files": {
+        "tmp_TrafficLight1.cfr": {
+          "bytes": 1417,
+          "sha256": "64e6a8c565e60d2c730c9305754380393419e9b9b23ed18386b34bba3c9c5ab4"
+        },
+        "tmp_TrafficLight1_cycle.cfr": {
+          "bytes": 375,
+          "sha256": "f58fdcc870d4d03165c2a491c527ddabb1e85b26a850597152a0e70258535866"
+        }
+      },
+      "id": "tmp_TrafficLight1_cycle",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight1_t1.cfr",
+      "files": {
+        "tmp_TrafficLight1.cfr": {
+          "bytes": 1417,
+          "sha256": "64e6a8c565e60d2c730c9305754380393419e9b9b23ed18386b34bba3c9c5ab4"
+        },
+        "tmp_TrafficLight1_t1.cfr": {
+          "bytes": 393,
+          "sha256": "b8a804ddfaf8dbeed32c89be88d67f1c0d5d150d533cee747cf7ea0d2697ceef"
+        }
+      },
+      "id": "tmp_TrafficLight1_t1",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight1_t2.cfr",
+      "files": {
+        "tmp_TrafficLight1.cfr": {
+          "bytes": 1417,
+          "sha256": "64e6a8c565e60d2c730c9305754380393419e9b9b23ed18386b34bba3c9c5ab4"
+        },
+        "tmp_TrafficLight1_t2.cfr": {
+          "bytes": 414,
+          "sha256": "e44ded266ba8e72107bde65a52ceebca6de45af52ad536edc9c9e1745f7521d8"
+        }
+      },
+      "id": "tmp_TrafficLight1_t2",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight1_t3.cfr",
+      "files": {
+        "tmp_TrafficLight1.cfr": {
+          "bytes": 1417,
+          "sha256": "64e6a8c565e60d2c730c9305754380393419e9b9b23ed18386b34bba3c9c5ab4"
+        },
+        "tmp_TrafficLight1_t3.cfr": {
+          "bytes": 305,
+          "sha256": "6b545167e6ff69be00579055018d62e4db43213a648db2332965ccdfe09c627f"
+        }
+      },
+      "id": "tmp_TrafficLight1_t3",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight2.cfr",
+      "files": {
+        "tmp_TrafficLight2.cfr": {
+          "bytes": 1260,
+          "sha256": "4d141c8c4a4d32b2fa972e1d72aaf957a005eaf2ec636b3492f3596a943d76fb"
+        }
+      },
+      "id": "tmp_TrafficLight2",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight2_EU.cfr",
+      "files": {
+        "tmp_TrafficLight2.cfr": {
+          "bytes": 1260,
+          "sha256": "4d141c8c4a4d32b2fa972e1d72aaf957a005eaf2ec636b3492f3596a943d76fb"
+        },
+        "tmp_TrafficLight2_EU.cfr": {
+          "bytes": 265,
+          "sha256": "f4625f68af44f91930d883842fcb10f6435bbe79748447f4a6b269f791909caa"
+        }
+      },
+      "id": "tmp_TrafficLight2_EU",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight2_noEU.cfr",
+      "files": {
+        "tmp_TrafficLight2.cfr": {
+          "bytes": 1260,
+          "sha256": "4d141c8c4a4d32b2fa972e1d72aaf957a005eaf2ec636b3492f3596a943d76fb"
+        },
+        "tmp_TrafficLight2_noEU.cfr": {
+          "bytes": 277,
+          "sha256": "f91541b6bef2ecca053ee04b9a9018d71c6fa4d5638e1a32414fc94fdee0cd28"
+        }
+      },
+      "id": "tmp_TrafficLight2_noEU",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight3.cfr",
+      "files": {
+        "tmp_TrafficLight3.cfr": {
+          "bytes": 1260,
+          "sha256": "77ab78785089f7800d2714810de13c43b52a3df279798aa83e3a83f705ef3320"
+        }
+      },
+      "id": "tmp_TrafficLight3",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight3_police.cfr",
+      "files": {
+        "tmp_TrafficLight3.cfr": {
+          "bytes": 1260,
+          "sha256": "77ab78785089f7800d2714810de13c43b52a3df279798aa83e3a83f705ef3320"
+        },
+        "tmp_TrafficLight3_police.cfr": {
+          "bytes": 422,
+          "sha256": "eac8c824f72444809c913440d8d8fba619b56e7c9fe4c8d51e29c3ab8434146b"
+        }
+      },
+      "id": "tmp_TrafficLight3_police",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLight5.cfr",
+      "files": {
+        "tmp_TrafficLight5.cfr": {
+          "bytes": 756,
+          "sha256": "f4aeb64219cbd3aaa441b3e8c64a97cbd7dda235c3c033baeea13b42dc5bddf2"
+        }
+      },
+      "id": "tmp_TrafficLight5",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLightH.cfr",
+      "files": {
+        "tmp_TrafficLightH.cfr": {
+          "bytes": 832,
+          "sha256": "889ca061967e5c5b7ce61b15c30b02eafda5ed0ca6303a0164470c4f1c90ea2a"
+        }
+      },
+      "id": "tmp_TrafficLightH",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_TrafficLightH_resume.cfr",
+      "files": {
+        "tmp_TrafficLightH.cfr": {
+          "bytes": 832,
+          "sha256": "889ca061967e5c5b7ce61b15c30b02eafda5ed0ca6303a0164470c4f1c90ea2a"
+        },
+        "tmp_TrafficLightH_resume.cfr": {
+          "bytes": 298,
+          "sha256": "b2710b9d95260223aa993ae8bf5e8d2530a520c940786695be8745a1ffdd0074"
+        }
+      },
+      "id": "tmp_TrafficLightH_resume",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_U01.cfr",
+      "files": {
+        "tmp_U01.cfr": {
+          "bytes": 60,
+          "sha256": "eb2235d014e4c524895f8c969bf5cd08f593aebc7de20c6b242c6c6d152bc344"
+        }
+      },
+      "id": "tmp_U01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_W01.cfr",
+      "files": {
+        "tmp_W01.cfr": {
+          "bytes": 64,
+          "sha256": "b9f529c032ad8024d9d898f45f4f1417cb5756115ec2b204f1ea72fae1963700"
+        }
+      },
+      "id": "tmp_W01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_after01.cfr",
+      "files": {
+        "tmp_after01.cfr": {
+          "bytes": 494,
+          "sha256": "22b29175a7c9cf661c0b02cd397a2e1f06dcc40ce844b9992a6fd5cc0b4aef25"
+        }
+      },
+      "id": "tmp_after01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_afteruntil01.cfr",
+      "files": {
+        "tmp_afteruntil01.cfr": {
+          "bytes": 136,
+          "sha256": "a93eed92f5ac28db6d441664f86d1adec1116e243646ba37bfab824e57e25b5e"
+        }
+      },
+      "id": "tmp_afteruntil01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_before01.cfr",
+      "files": {
+        "tmp_before01.cfr": {
+          "bytes": 115,
+          "sha256": "febaa0e4dff4585d0776cf4f5684bda2d411ee650469711b8bc7140079cbfabc"
+        }
+      },
+      "id": "tmp_before01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_betweenand01.cfr",
+      "files": {
+        "tmp_betweenand01.cfr": {
+          "bytes": 468,
+          "sha256": "d1f3a1f3d567d6b35373085a4beee48d95273eb6498cb681c43c48b335e3ae1c"
+        }
+      },
+      "id": "tmp_betweenand01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_clafertransitions01.cfr",
+      "files": {
+        "tmp_clafertransitions01.cfr": {
+          "bytes": 199,
+          "sha256": "15b080bf4bdf2eddfa329b6e1fc5a9cc6a81ffa995f49b4b6ef9df21f28228cf"
+        }
+      },
+      "id": "tmp_clafertransitions01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_clafertransitions02.cfr",
+      "files": {
+        "tmp_clafertransitions02.cfr": {
+          "bytes": 372,
+          "sha256": "54bd6882afb90a7e77a28f931b510edfdb6b3cb2db53626735fa086c99c5e499"
+        }
+      },
+      "id": "tmp_clafertransitions02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_combinedEGX01.cfr",
+      "files": {
+        "tmp_combinedEGX01.cfr": {
+          "bytes": 54,
+          "sha256": "a7841a9b66d86144dee4fc97b99a1d4bf142319243354e5a7161ce774a211fdf"
+        }
+      },
+      "id": "tmp_combinedEGX01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_combinedEGX02.cfr",
+      "files": {
+        "tmp_combinedEGX02.cfr": {
+          "bytes": 80,
+          "sha256": "e1fa48c0549eb15f8ef1e10610b779c77a4721206c7755b163603447ebfe0b36"
+        }
+      },
+      "id": "tmp_combinedEGX02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_enum01.cfr",
+      "files": {
+        "tmp_enum01.cfr": {
+          "bytes": 380,
+          "sha256": "0832769a8b819d3a6d4ae08d2554f5aa81065989b686f759d71a94039f858982"
+        }
+      },
+      "id": "tmp_enum01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_eventually01.cfr",
+      "files": {
+        "tmp_eventually01.cfr": {
+          "bytes": 69,
+          "sha256": "ad4556b57181073bc80640b5f3fb9dabe070c205f35f6dadbeeb20d0ff7c41f4"
+        }
+      },
+      "id": "tmp_eventually01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_eventually02.cfr",
+      "files": {
+        "tmp_eventually02.cfr": {
+          "bytes": 80,
+          "sha256": "8364c548a890276734f01baf27c69c2826ac056d32f5a52c18aedc65044e6afe"
+        }
+      },
+      "id": "tmp_eventually02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_eventually03.cfr",
+      "files": {
+        "tmp_eventually03.cfr": {
+          "bytes": 74,
+          "sha256": "f5dfd82e0c8c6a1ce8f5656471333430d1f09d203d7474de80f61c53c6626447"
+        }
+      },
+      "id": "tmp_eventually03",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_eventually04.cfr",
+      "files": {
+        "tmp_eventually04.cfr": {
+          "bytes": 141,
+          "sha256": "faaf8509ddaa8edf72069cdbbdf6eed2840c3e56efb7d8b66781888165d5af5e"
+        }
+      },
+      "id": "tmp_eventually04",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_final01.cfr",
+      "files": {
+        "tmp_final01.cfr": {
+          "bytes": 61,
+          "sha256": "b4ce210213ef5d0175bbda7b0d2f6e6a1febb92e6dea16b7bf169ee7db7b6748"
+        }
+      },
+      "id": "tmp_final01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_final02.cfr",
+      "files": {
+        "tmp_final02.cfr": {
+          "bytes": 124,
+          "sha256": "da8c80d4bf170a6b528e723cbc2504112472f482e56581711edcaa102b95e0ec"
+        }
+      },
+      "id": "tmp_final02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_final_inherited_reference.cfr",
+      "files": {
+        "tmp_final_inherited_reference.cfr": {
+          "bytes": 1343,
+          "sha256": "537a3966dd977476843beffe13a0517128fba325ff5dfadfd0ebf24d6ab9f090"
+        }
+      },
+      "id": "tmp_final_inherited_reference",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_finally01.cfr",
+      "files": {
+        "tmp_finally01.cfr": {
+          "bytes": 72,
+          "sha256": "6d85a6cae184f7927c9460e0231e3f54fa51870f8ae014ae80d19f6e515252b7"
+        }
+      },
+      "id": "tmp_finally01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_finally02.cfr",
+      "files": {
+        "tmp_finally02.cfr": {
+          "bytes": 78,
+          "sha256": "da4deef6d2002294e33be73b2436429d4fb017b01186c8e48f5782c9017c88da"
+        }
+      },
+      "id": "tmp_finally02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_guardedtransitions01.cfr",
+      "files": {
+        "tmp_guardedtransitions01.cfr": {
+          "bytes": 835,
+          "sha256": "e7abb60409b606fac5c48d086696581346752d3a639324a918aa91c856e2a32d"
+        }
+      },
+      "id": "tmp_guardedtransitions01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initially01.cfr",
+      "files": {
+        "tmp_initially01.cfr": {
+          "bytes": 77,
+          "sha256": "8da77fd3d5c983e4b0c282db9b90c89c5c84a43064e0cf454c7f109a97566867"
+        }
+      },
+      "id": "tmp_initially01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initially02.cfr",
+      "files": {
+        "tmp_initially02.cfr": {
+          "bytes": 132,
+          "sha256": "e2558273cc7bcf0efa1abb0078858580b1afc0f1fb8e7b8459501b3932cfe08b"
+        }
+      },
+      "id": "tmp_initially02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_liftingNestedConstraints.cfr",
+      "files": {
+        "tmp_liftingNestedConstraints.cfr": {
+          "bytes": 325,
+          "sha256": "d5bba49e78d52c3a4aa35eb6660b12c7a92754cb14762d6df01ad61accc1f344"
+        }
+      },
+      "id": "tmp_liftingNestedConstraints",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_negated_obligations.cfr",
+      "files": {
+        "tmp_negated_obligations.cfr": {
+          "bytes": 485,
+          "sha256": "8467c30eeb6677ad0b19bc4036dea0264a46b6c57919ca512b47ec0a5ab61fdc"
+        }
+      },
+      "id": "tmp_negated_obligations",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_nested_assertions.cfr",
+      "files": {
+        "tmp_nested_assertions.cfr": {
+          "bytes": 250,
+          "sha256": "d9ce1f3f5ad0f87cd1eb416991e31e2c9b7e3fb933fbe143acad7e42f8cd7fed"
+        }
+      },
+      "id": "tmp_nested_assertions",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_next01.cfr",
+      "files": {
+        "tmp_next01.cfr": {
+          "bytes": 77,
+          "sha256": "072b6b06fb92410a92077598fb30dfd330a2946718ce7928ddd319b034514d4b"
+        }
+      },
+      "id": "tmp_next01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_next02.cfr",
+      "files": {
+        "tmp_next02.cfr": {
+          "bytes": 80,
+          "sha256": "95be750e4183a485d8525ab7bc2490f85ce07166046ada127d70416713d9b943"
+        }
+      },
+      "id": "tmp_next02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_next03.cfr",
+      "files": {
+        "tmp_next03.cfr": {
+          "bytes": 91,
+          "sha256": "2f85717c0406268b7dfa4c30d962d614a9173c1ee725773c75bbf757ca145ff4"
+        }
+      },
+      "id": "tmp_next03",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_next04.cfr",
+      "files": {
+        "tmp_next04.cfr": {
+          "bytes": 88,
+          "sha256": "f46e2aacc8462ff6a12012958cb01816d94af0fd1b617eb0306e4050754d00fb"
+        }
+      },
+      "id": "tmp_next04",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_next05.cfr",
+      "files": {
+        "tmp_next05.cfr": {
+          "bytes": 94,
+          "sha256": "04d395f93416133691b7a5489717dbef5bf72035116533bd87524ee3a2dbc05c"
+        }
+      },
+      "id": "tmp_next05",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_obligation_outlives_instance.cfr",
+      "files": {
+        "tmp_obligation_outlives_instance.cfr": {
+          "bytes": 462,
+          "sha256": "5696551d2ce5363e66bcd928e803f7bae210918de2915f02999cc1c3491c2f59"
+        }
+      },
+      "id": "tmp_obligation_outlives_instance",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_parent_across_lifetimes.cfr",
+      "files": {
+        "tmp_parent_across_lifetimes.cfr": {
+          "bytes": 358,
+          "sha256": "178d2e0f679edba107fc579316fd579e599398dc7a2251815037ae7acada81f1"
+        }
+      },
+      "id": "tmp_parent_across_lifetimes",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_scope_identities.cfr",
+      "files": {
+        "tmp_scope_identities.cfr": {
+          "bytes": 241,
+          "sha256": "08295d926f44cd15ef9f9c33848123a944cea30c5352223bbc68172992188cde"
+        }
+      },
+      "id": "tmp_scope_identities",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_trafficLight_history.cfr",
+      "files": {
+        "tmp_trafficLight_history.cfr": {
+          "bytes": 1586,
+          "sha256": "0e598f2522ad091fd127df56a25affec9d0a7500b03c082b96c867f287b5beb8"
+        }
+      },
+      "id": "tmp_trafficLight_history",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transition_in_source_state.cfr",
+      "files": {
+        "tmp_transition_in_source_state.cfr": {
+          "bytes": 458,
+          "sha256": "ef3d5f4a9cea6f3f4e0765462e4a3cf380a07390383cef9db7868f0f05b9ead3"
+        }
+      },
+      "id": "tmp_transition_in_source_state",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transition_replaced_machine.cfr",
+      "files": {
+        "tmp_transition_replaced_machine.cfr": {
+          "bytes": 399,
+          "sha256": "8fb95f734d997270ced8522b8794a69dfcb362018dd3f0be7e3efe0f23d65dd4"
+        }
+      },
+      "id": "tmp_transition_replaced_machine",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transitionconstraint01.cfr",
+      "files": {
+        "tmp_transitionconstraint01.cfr": {
+          "bytes": 70,
+          "sha256": "be678d63fc47b47aa4488d3bb4267374d2df45ed4610aafe386d97ce8cd441ea"
+        }
+      },
+      "id": "tmp_transitionconstraint01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transitionconstraint02.cfr",
+      "files": {
+        "tmp_transitionconstraint02.cfr": {
+          "bytes": 81,
+          "sha256": "97f867b3bf8e89211bcb02a12b4512620150fc1f4b65f1c079d817e4abf644ff"
+        }
+      },
+      "id": "tmp_transitionconstraint02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transitionconstraint04.cfr",
+      "files": {
+        "tmp_transitionconstraint04.cfr": {
+          "bytes": 181,
+          "sha256": "082674f06bcf536d63a55afed0d7404a39fba73b8b6e97ba006327dcc163a31e"
+        }
+      },
+      "id": "tmp_transitionconstraint04",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transitionconstraintguard01.cfr",
+      "files": {
+        "tmp_transitionconstraintguard01.cfr": {
+          "bytes": 253,
+          "sha256": "70227d0217337d6bd898ecfb98c5b439acbff8b57e18f82b59b657c7e0e097ed"
+        }
+      },
+      "id": "tmp_transitionconstraintguard01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_transitionconstraintguard02.cfr",
+      "files": {
+        "tmp_transitionconstraintguard02.cfr": {
+          "bytes": 305,
+          "sha256": "b915fd846016b7bcb6a28daa7b9d352f43530e5f838b16f0850556f805d6e6c9"
+        }
+      },
+      "id": "tmp_transitionconstraintguard02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_until01.cfr",
+      "files": {
+        "tmp_until01.cfr": {
+          "bytes": 64,
+          "sha256": "0e83d806c0378d429ee4616b499ae029c3055fa82a52c3eea593351ff591c5f1"
+        }
+      },
+      "id": "tmp_until01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_weakuntil01.cfr",
+      "files": {
+        "tmp_weakuntil01.cfr": {
+          "bytes": 72,
+          "sha256": "77f81b0403cc892c6302b5c6836696caf1390e9baa61080c190c49e14a97cd10"
+        }
+      },
+      "id": "tmp_weakuntil01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "direct-swap-both.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-swap-both.cfr": {
+          "bytes": 258,
+          "sha256": "179b45a5313147e59bf5febb0fa90359ab8b5bfda5b4b4a073da593b65103919"
+        }
+      },
+      "id": "direct-swap-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-swap-reverse.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-swap-reverse.cfr": {
+          "bytes": 258,
+          "sha256": "3f9099be29603e705a47bea94b807834c702deda6d1c6004083aa37f940af41d"
+        }
+      },
+      "id": "direct-swap-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-swap-target.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-swap-target.cfr": {
+          "bytes": 249,
+          "sha256": "22f72434516abda84ab3765bcfb740f957157cb4f1c6a86f3d680a8db62b018c"
+        }
+      },
+      "id": "direct-swap-target",
+      "modifier": "target",
+      "old_expected": "bounded_unsat",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-change-both.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-change-both.cfr": {
+          "bytes": 274,
+          "sha256": "480c17538790b32e09d82bd5a86cb92ef7465584ffcb950dff1fd6fe92abf21e"
+        }
+      },
+      "id": "direct-change-both",
+      "modifier": "both",
+      "old_expected": "sat",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-change-reverse.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-change-reverse.cfr": {
+          "bytes": 274,
+          "sha256": "91bc4a60275bf5f33e26601bcc9bcf4796d866d9c1552938017c8609187f5dec"
+        }
+      },
+      "id": "direct-change-reverse",
+      "modifier": "reverse",
+      "old_expected": "sat",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-change-ref.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-change-ref.cfr": {
+          "bytes": 262,
+          "sha256": "af50b923d62571d1ce8e5d03f5bad82f7e707c122ceb04732c6159a8b60b4701"
+        }
+      },
+      "id": "direct-change-ref",
+      "modifier": "ref",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-replace-both.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-replace-both.cfr": {
+          "bytes": 273,
+          "sha256": "d1b7715b6250c52836c051b1002d2be742c2b37674ece1c4f8d379a2ce00a448"
+        }
+      },
+      "id": "direct-replace-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-replace-reverse.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-replace-reverse.cfr": {
+          "bytes": 273,
+          "sha256": "2fb785601138f2e4ea9a4cf2a2920669f5649b9473e5184b25e18c082909bd88"
+        }
+      },
+      "id": "direct-replace-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-replace-final.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-replace-final.cfr": {
+          "bytes": 258,
+          "sha256": "f740ea38b1556b7e9870936a2f6f2a12dc03fb2782ce039af2d2965c7b11406b"
+        }
+      },
+      "id": "direct-replace-final",
+      "modifier": "final",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-bag-both.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-bag-both.cfr": {
+          "bytes": 313,
+          "sha256": "8e3f8e67aca90c5f30758261d766aa0fea19f76dc8fe78b3175ad3200ba35c97"
+        }
+      },
+      "id": "direct-bag-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-bag-reverse.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "direct-bag-reverse.cfr": {
+          "bytes": 313,
+          "sha256": "2defc7c0b69b3e63a49fdbace4c84c7228a513fe43c6251b2cf3dd7ed8fcc2fa"
+        }
+      },
+      "id": "direct-bag-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "direct-bag-final.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "direct-bag-final.cfr": {
+          "bytes": 298,
+          "sha256": "350ac5db93b9cf4e415a77e97fd6b96bd21fa04dd0ecbcc03724e2aa13e34db3"
+        }
+      },
+      "id": "direct-bag-final",
+      "modifier": "final",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-swap-both.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-swap-both.cfr": {
+          "bytes": 279,
+          "sha256": "eff13e942f7f73a39bffee2b39a118200f2714f4f638a1ed0167a82b639c0b48"
+        }
+      },
+      "id": "inherited-swap-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-swap-reverse.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-swap-reverse.cfr": {
+          "bytes": 279,
+          "sha256": "dde752b72b198b993b2ef9bce8eadc8c9b1bbe269300c46f4067fbdeb8d1ba6f"
+        }
+      },
+      "id": "inherited-swap-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-swap-target.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-swap-target.cfr": {
+          "bytes": 270,
+          "sha256": "9116bdc3f84feb7f7766248b3d50bd6608690acdef28cc9a5b9d4eaaf52b41bf"
+        }
+      },
+      "id": "inherited-swap-target",
+      "modifier": "target",
+      "old_expected": "bounded_unsat",
+      "origin": "local",
+      "scenario": "swap",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-change-both.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-change-both.cfr": {
+          "bytes": 295,
+          "sha256": "6b817ab0230b834429dcfcd553b33b2ee0006adf3c6b7e5c1430c8e38143c769"
+        }
+      },
+      "id": "inherited-change-both",
+      "modifier": "both",
+      "old_expected": "sat",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-change-reverse.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-change-reverse.cfr": {
+          "bytes": 295,
+          "sha256": "278cc5175f1afb17a554b62a64b4200be473277c65db576d5bba1ca66ac1e216"
+        }
+      },
+      "id": "inherited-change-reverse",
+      "modifier": "reverse",
+      "old_expected": "sat",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-change-ref.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-change-ref.cfr": {
+          "bytes": 283,
+          "sha256": "445bf84ea30113190a25cd15560af095ba94e1c8d9c3151183f1e92a986b539f"
+        }
+      },
+      "id": "inherited-change-ref",
+      "modifier": "ref",
+      "origin": "local",
+      "scenario": "change",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-replace-both.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-replace-both.cfr": {
+          "bytes": 294,
+          "sha256": "10fdfd348e9116e2633a902e82fe33bb579d8301653e6b1c7ab856f050f443e2"
+        }
+      },
+      "id": "inherited-replace-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-replace-reverse.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-replace-reverse.cfr": {
+          "bytes": 294,
+          "sha256": "dfb9a7f0a80e50ab09558257f5e2b688c6054ac645197ab4883f77d69e52e7f6"
+        }
+      },
+      "id": "inherited-replace-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-replace-final.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-replace-final.cfr": {
+          "bytes": 279,
+          "sha256": "4905168d8d1d3c3a54c6a655c16bfec763485f1af491e66a6d194e0a5b35443e"
+        }
+      },
+      "id": "inherited-replace-final",
+      "modifier": "final",
+      "origin": "local",
+      "scenario": "replace",
+      "scopes": {
+        "Link": 2,
+        "Target": 2,
+        "head": 2,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-bag-both.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-bag-both.cfr": {
+          "bytes": 334,
+          "sha256": "81d2d60b63ce68592d16aa4ad0365c2ee50fef96100291a2dfb4f78e99df8d38"
+        }
+      },
+      "id": "inherited-bag-both",
+      "modifier": "both",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Link": 6,
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-bag-reverse.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "inherited-bag-reverse.cfr": {
+          "bytes": 334,
+          "sha256": "d152b7c4afcdc6c2fa76efbfb964b4359d19b920ba552a79005d6f34912fb5ee"
+        }
+      },
+      "id": "inherited-bag-reverse",
+      "modifier": "reverse",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Link": 6,
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "inherited-bag-final.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "inherited-bag-final.cfr": {
+          "bytes": 319,
+          "sha256": "017a54fbfa3fd11f3e920ad98382f45077428e9f1a27973bf654329a545f6fd2"
+        }
+      },
+      "id": "inherited-bag-final",
+      "modifier": "final",
+      "origin": "local",
+      "scenario": "bag",
+      "scopes": {
+        "Link": 6,
+        "Target": 2,
+        "head": 6,
+        "left": 1,
+        "owner": 1,
+        "right": 1
+      }
+    },
+    {
+      "entry": "late-trigger.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "late-trigger.cfr": {
+          "bytes": 256,
+          "sha256": "915664f0dbda3586116bf56c3874f4bce8debe9c0abda69dfb412853d3747412"
+        }
+      },
+      "id": "late-trigger",
+      "old_expected": "sat",
+      "origin": "local"
+    },
+    {
+      "entry": "first-opener.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "first-opener.cfr": {
+          "bytes": 226,
+          "sha256": "810fcfab3d12c94a1da2cdcb56a2ce64fb1a06545353e90f183e43b8d6a2c902"
+        }
+      },
+      "id": "first-opener",
+      "old_expected": "sat",
+      "origin": "local"
+    },
+    {
+      "entry": "attachment-initial.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "attachment-initial.cfr": {
+          "bytes": 198,
+          "sha256": "2c9e3e17822f0bfcce44d34d63afb96686dd694ecb198e6c840afe5d86fac28f"
+        }
+      },
+      "id": "attachment-initial",
+      "old_expected": "sat",
+      "origin": "local"
+    },
+    {
+      "entry": "attachment-always.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "attachment-always.cfr": {
+          "bytes": 186,
+          "sha256": "e1bafabe2fa15538423e1ce29734c6e631870189ec0b1a41f31d0cd194055a1f"
+        }
+      },
+      "id": "attachment-always",
+      "old_expected": "bounded_unsat",
+      "origin": "local"
+    },
+    {
+      "entry": "names.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat",
+        "sat"
+      ],
+      "files": {
+        "names.cfr": {
+          "bytes": 210,
+          "sha256": "a4a645932bbc40c1063b07ffc45d82d8d7f12238cd67cbf1d1e37cb3a123f965"
+        }
+      },
+      "id": "names",
+      "origin": "local"
+    },
+    {
+      "entry": "unsupported-real.cfr",
+      "expected": [],
+      "expected_status": "unsupported",
+      "files": {
+        "unsupported-real.cfr": {
+          "bytes": 49,
+          "sha256": "08df27ed2a4ae354dbe7dcc0e60256150444c768779a55b19bf3b868a340b07b"
+        }
+      },
+      "id": "unsupported-real",
+      "origin": "local"
+    },
+    {
+      "entry": "unsupported-double.cfr",
+      "expected": [],
+      "expected_status": "unsupported",
+      "files": {
+        "unsupported-double.cfr": {
+          "bytes": 51,
+          "sha256": "e42784d6bb69209f73002ea18b39ac87b79bb34a75a6e74900384628381bd595"
+        }
+      },
+      "id": "unsupported-double",
+      "origin": "local"
+    },
+    {
+      "entry": "malformed.cfr",
+      "expected": [],
+      "expected_status": "malformed",
+      "files": {
+        "malformed.cfr": {
+          "bytes": 52,
+          "sha256": "f844f34e3522502ece1ac9327746f4bc7580c8b108a4caed5384735a4e148a64"
+        }
+      },
+      "id": "malformed",
+      "origin": "local"
+    },
+    {
+      "backend": "als",
+      "entry": "explicit_dref_navigation.cfr",
+      "files": {
+        "explicit_dref_navigation.cfr": {
+          "bytes": 1138,
+          "sha256": "c442bc04224b6d4244fdf9ed2520cb6d6ac26e4c70c44c8c6e9e82d9a2481396"
+        }
+      },
+      "id": "explicit_dref_navigation",
+      "origin": "haskell"
+    },
+    {
+      "entry": "root-binding.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat",
+        "bounded_unsat",
+        "bounded_unsat",
+        "bounded_unsat",
+        "sat"
+      ],
+      "files": {
+        "root-binding.cfr": {
+          "bytes": 404,
+          "sha256": "b0266070fbffc978939bc0dd30489ff452691bdeae4409ff7bd3bf504f36bac6"
+        }
+      },
+      "id": "root-binding",
+      "origin": "local"
+    },
+    {
+      "entry": "root-recurrence.cfr",
+      "expected": [
+        "bounded_unsat"
+      ],
+      "files": {
+        "root-recurrence.cfr": {
+          "bytes": 116,
+          "sha256": "15e35427407951c8a1914fc8f20f83a8e037b401f97a3b391301274e6a479232"
+        }
+      },
+      "id": "root-recurrence",
+      "origin": "local"
+    },
+    {
+      "entry": "root-initially.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "root-initially.cfr": {
+          "bytes": 126,
+          "sha256": "aa9ac89fa1f61d91c05f29d92cd755b6e79db844923d7b577dac9e3942ff746b"
+        }
+      },
+      "id": "root-initially",
+      "origin": "local"
+    },
+    {
+      "entry": "root-recurring.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "root-recurring.cfr": {
+          "bytes": 117,
+          "sha256": "b7d746d92c723f7b1b1808a2fbff2ae22e33751cf27e260f00f00fa781078d8e"
+        }
+      },
+      "id": "root-recurring",
+      "origin": "local"
+    },
+    {
+      "entry": "union-live-good.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "union-live-good.cfr": {
+          "bytes": 256,
+          "sha256": "5ba13791e49432b5deb31789ee0b759268fa9579e89611805a0e1e664a134de9"
+        }
+      },
+      "id": "union-live-good",
+      "origin": "local"
+    },
+    {
+      "entry": "union-wrong-target.cfr",
+      "expected_status": "malformed",
+      "files": {
+        "union-wrong-target.cfr": {
+          "bytes": 196,
+          "sha256": "cf164c1595a4573d7c94edfb253dd89c8bfc4ba5209ad8be5bacb2e99988f259"
+        }
+      },
+      "id": "union-wrong-target",
+      "origin": "local"
+    },
+    {
+      "disposition": "Known Haskell soundness gap: original union reference omits live-target membership; independent Structural.Valid.target_live rejects the trace.",
+      "entry": "union-dead-target.cfr",
+      "expected": [
+        "sat"
+      ],
+      "expected_explicit": [
+        "bounded_unsat"
+      ],
+      "expected_status": "discrepancy",
+      "files": {
+        "union-dead-target.cfr": {
+          "bytes": 224,
+          "sha256": "8ad21a1b6b857fdc65685299455ab84bbf7ecb4f439ad6fea3d7b8cf39cd3a67"
+        }
+      },
+      "id": "union-dead-target",
+      "origin": "local"
+    },
+    {
+      "entry": "navigation-compact.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "navigation-compact.cfr": {
+          "bytes": 131,
+          "sha256": "9335afedc1f3b233743529c5b65a6d456d6b5865f3825529a9de61d91eed53a7"
+        }
+      },
+      "id": "navigation-compact",
+      "origin": "local"
+    },
+    {
+      "entry": "navigation-spaced.cfr",
+      "expected": [
+        "sat"
+      ],
+      "files": {
+        "navigation-spaced.cfr": {
+          "bytes": 137,
+          "sha256": "fc90d34a087239b414e490deabef96ed12d662311a7e99cfb621ed026f6b3d8c"
+        }
+      },
+      "id": "navigation-spaced",
+      "origin": "local"
+    },
+    {
+      "entry": "root-navigation-unsupported.cfr",
+      "expected_status": "error",
+      "files": {
+        "root-navigation-unsupported.cfr": {
+          "bytes": 149,
+          "sha256": "50898c7d7237d598e0a11cc8776eb82b837a7d20f4cf3b2a9e0316114bd66030"
+        }
+      },
+      "id": "root-navigation-unsupported",
+      "origin": "local"
+    },
+    {
+      "entry": "tmp_initialValue01.cfr",
+      "files": {
+        "tmp_initialValue01.cfr": {
+          "bytes": 318,
+          "sha256": "fceb6db390d0afbbaa8e9bec53819374573ea9761812875efa85cdf9da6a54e1"
+        }
+      },
+      "id": "tmp_initialValue01",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue02.cfr",
+      "files": {
+        "tmp_initialValue02.cfr": {
+          "bytes": 203,
+          "sha256": "4a09182ffa407978e65b608f77c73a7e9e4333e02afb8091ee44af4ffb831daa"
+        }
+      },
+      "id": "tmp_initialValue02",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue03.cfr",
+      "files": {
+        "tmp_initialValue03.cfr": {
+          "bytes": 282,
+          "sha256": "7445e137d2345aa33b73614d009ed65f2fa37fe1dd1a4513a7dbab8e9b8f1005"
+        }
+      },
+      "id": "tmp_initialValue03",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue04.cfr",
+      "files": {
+        "tmp_initialValue04.cfr": {
+          "bytes": 483,
+          "sha256": "a86779bbfad4f37410786914b7355a7f6534a425087dca0a9aff33884da01fbf"
+        }
+      },
+      "id": "tmp_initialValue04",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue05.cfr",
+      "files": {
+        "tmp_initialValue05.cfr": {
+          "bytes": 407,
+          "sha256": "2a1a18f21e570e4d89be708caa71f6b673c3658962acea23334ddd89e07e4389"
+        }
+      },
+      "id": "tmp_initialValue05",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue06.cfr",
+      "files": {
+        "tmp_initialValue06.cfr": {
+          "bytes": 563,
+          "sha256": "836e757285cb16c166128489af7da5f5a41745ff08685df5259278a422674525"
+        }
+      },
+      "id": "tmp_initialValue06",
+      "origin": "haskell"
+    }
+  ],
+  "haskell_commit": "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a",
+  "license": "MIT; external source archive LICENSE",
+  "profile": "behavioral-0.5.8/v1",
+  "schema": "clafer-pr113-fixtures/1",
+  "static_upstream_cases": [
+    "tmp_TrafficLight5"
+  ],
+  "temporal_upstream_count": 70
+}

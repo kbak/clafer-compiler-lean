@@ -39,7 +39,7 @@ def shapeAt : Nat → Expr → Option (List String) :=
     | .quantified op disjoint names a b _ => do
       return ["quantified", op.text] ++ optionalToken disjoint ++ [toString names.length] ++
         names.map (·.text) ++ (← next a) ++ (← next b)
-    | .letSet op binder value body _ => do return ["let", op.text, binder.text, value.text] ++ (← next body)
+    | .letSet op binder value body _ => do return ["let", op.text, binder.text] ++ (← next value) ++ (← next body)
     | .conditional op a b c _ => do return ["conditional", op.text] ++ (← next a) ++ (← next b) ++ (← next c)
     | .transition op a b c _ => do return ["transition", op.text] ++ (← next a) ++ (← optional b) ++ (← next c)
     | .pattern op a b scope c d _ => do
@@ -68,7 +68,8 @@ def expressionAt (doc : Document) : Nat → Expr → List Warning :=
     else
       match e with
       | .name _ | .integer _ _ => []
-      | .parens a _ | .unary _ a _ | .letSet _ _ _ a _ => next a
+      | .parens a _ | .unary _ a _ => next a
+      | .letSet _ _ a b _ => next a ++ next b
       | .binary op a b _ =>
           let own := if ["=", "!=", "--", "**"].contains op.text && sameExpression (fuel + 1) a b then
             [warningAt doc e "behavioral.redundant-expression" op.text

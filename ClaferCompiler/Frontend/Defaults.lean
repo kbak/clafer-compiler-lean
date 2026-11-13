@@ -116,16 +116,17 @@ instance (doc : Document) (c : Candidate n) (p : Path) : Decidable (CoversChildr
   infer_instance
 
 def SuperRule (doc : Document) (c : Candidate n) (path : Path)
-    (name : Option Name) (target : Option (Fin n)) : Prop :=
-  match name, target with
+    (name : Option Name) (target : Option (Fin n)) (qualified : Option SuperPath := none) : Prop :=
+  qualified = none ∧ match name, target with
   | none, none => True
   | some name, some j => Resolves doc c path.dropLast true name.text j
   | _, _ => False
 
-instance (doc : Document) (c : Candidate n) (p : Path) (name : Option Name) (j : Option (Fin n)) :
-    Decidable (SuperRule doc c p name j) := by
+instance (doc : Document) (c : Candidate n) (p : Path) (name : Option Name)
+    (j : Option (Fin n)) (q : Option SuperPath) : Decidable (SuperRule doc c p name j q) := by
   unfold SuperRule
-  split <;> infer_instance
+  cases name <;> cases j <;> simp only <;> infer_instance
+
 
 def ReferenceRule (doc : Document) (c : Candidate n) (path : Path)
     (source : Option (Token × Name)) (target : Reference (Fin n)) : Prop :=
@@ -153,7 +154,7 @@ def SourceRow (doc : Document) (c : Candidate n) (i : Fin n) : Prop :=
     (if path.length = 1 then
       d.parent = (if h.abstractToken.isSome then none else some c.core.root)
      else ∃ p : Fin n, d.parent = some p ∧ c.paths[p] = some path.dropLast ∧ h.abstractToken.isSome = false) ∧
-    SuperRule doc c path (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)) d.super ∧
+    SuperRule doc c path (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)) d.super h.superPath ∧
     ReferenceRule doc c path h.reference d.reference ∧
     c.groups[i] = (h.group.map authoredGroup).getD (super.getD (.bounds {})) ∧
     d.groupBounds = c.groups[i].range ∧

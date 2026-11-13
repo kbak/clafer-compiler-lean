@@ -65,7 +65,7 @@ def certifiedAt (doc : Document) (v : IR.BehavioralStructural.Validated k) (owne
         if hb : Resolution.reserved binder.text = true then
           throw (Resolution.errorAt binder "behavioral.reserved-binder" "Reserved binder name.")
         else
-          let value ← next Γ cursor (.name value)
+          let value ← next Γ cursor value
           let heads ← lift (MonadAttach.attach (Values.heads value.val))
           let body ← next (push Γ binder heads.val.1) none body
           let boolean ← lift (booleanCertified body.val)

@@ -92,11 +92,13 @@ column one. A greater indentation after a declaration opens children; dedents mu
 return to an existing sibling level. Within explicit braces, indentation has no
 structural meaning. Sibling declarations must begin on separate lines, including
 in braces; hard constraints may be adjacent or share a declaration's line.
-Headers can continue across equally indented lines or across whitespace inside
-explicit braces. Greater indentation cannot interrupt a header's required syntax.
-The pinned grammar greedily consumes a following cardinality: `A` followed by
-`1..* B` at the same indentation gives A card `1..*` and a separate B with no group;
-indenting the second line instead gives A a child B with group `1..*`.
+Layout headers remain on their declaration's line. A same-indent continuation
+such as `A` followed by `: Base`, `?` or `-> T` is malformed, as is a line break
+between `abstract` and its name. Inside explicit braces, whitespace may continue
+a header. A following `1..* B` starts a sibling with group `1..*`; greater
+indentation makes that grouped declaration a child. The group does not become
+the previous declaration's cardinality. This follows the selected 0.5.8 layout
+correction and leaves the static feature whitelist unchanged.
 Invalid numeric intervals are malformed; a valid but impossible group is retained.
 
 Expression precedence uses the pinned grammar's numbered levels. Operators at
@@ -162,13 +164,26 @@ does not count as evidence for an otherwise unsupported complete construct.
 
 The [source register](sources.md) pins the paper's Appendix 3/Figure 27 and
 Appendix 4/Figure 28, upstream `Syntax`/`Typing` (S2/S4), and Haskell grammar (S5).
-The Haskell commit is `f6ca5b887d7bacc09915c6fc0278064c8371beac`; inspected files:
+The original static grammar baseline was Haskell
+`f6ca5b887d7bacc09915c6fc0278064c8371beac`; retained historical hashes:
 
 | File | SHA-256 | Correspondence |
 | --- | --- | --- |
 | `src/clafer.cf` | `14176e1c241d7d44d368535ff1664b75da39a054ee32f880456a4b7291921a2f` | retained Module/Element/Clafer/Card/GCard/Exp productions, tokens, precedence |
 | `src/Language/Clafer/Front/LexClafer.x` | `d888bfe16746efd3ef02f21e8929e044974f3ee6ff9f8c5473b74d73bef83b7e` | actual Latin-1 character classes and longest-match tokens |
 | `src/Language/Clafer.hs` | `a87a52ddebd864ac804225900897239688088ce032503fc3f2401de602466ae5` | public parse/layout boundary and same-line sibling guard |
+
+The selected 0.5.8 source is
+[`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a).
+Its grammar/lexer and layout boundary are checked separately from those historical
+hashes; the adopted sibling-group and header rules are specified above.
+
+| Current file | SHA-256 |
+| --- | --- |
+| `src/clafer.cf` | `db446b591613eaffb340b1f0ba46e79b43500521032bb479bf639567376ff6bf` |
+| `src/Language/Clafer/Front/LexClafer.x` | `d888bfe16746efd3ef02f21e8929e044974f3ee6ff9f8c5473b74d73bef83b7e` |
+| `src/Language/Clafer.hs` | `b9b6be7fb94d2561dac6e5394a8dd7f43a3abb72be011a166c02fde2ffb302e9` |
+| `src/Language/Clafer/Front/LayoutResolver.hs` | `6adb611d36956b0e7978856b77818f3fa67d8ef242428e291d96e1e93f20d1b9` |
 
 No Haskell or paper text/code/fixtures are redistributed. New implementation and
 fixtures are original MIT project code. Lean's Apache-2.0 implementation is

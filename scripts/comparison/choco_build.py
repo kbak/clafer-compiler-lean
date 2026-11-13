@@ -69,7 +69,7 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
         original = cache
         cache = output/'capture-library'
         cache.mkdir()
-        for name in ('compiler.tar.gz', 'stack.tar.gz', 'stack'):
+        for name in ('compiler.tar.gz', 'claferIG.tar.gz', 'stack.tar.gz', 'stack'):
             if (original/name).is_file(): shutil.copyfile(original/name, cache/name)
         if (original/'stack-root').is_dir():
             (cache/'stack-root').symlink_to(original/'stack-root', target_is_directory=True)
@@ -83,8 +83,11 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
                 (cache/'stack').write_bytes(packed.extractfile('stack-3.11.1-linux-x86_64/stack').read())
         (cache/'stack').chmod(0o755)
         require(r.matches(cache/'stack', r.STACK_BINARY), 'Wrong Stack binary')
+        r.download(f'https://codeload.github.com/gsdlab/claferIG/tar.gz/{r.current.IG_PIN}',
+                   cache/'claferIG.tar.gz', r.current.IG_ARCHIVE)
         run([sys.executable, oracle.UPSTREAM/'scripts/verification/build.py',
-             '--archive', cache/'compiler.tar.gz', '--stack', cache/'stack', '--work', cache],
+             '--archive', cache/'compiler.tar.gz', '--ig-archive', cache/'claferIG.tar.gz',
+             '--stack', cache/'stack', '--work', cache],
             output, 'static-library')
     require(oracle.digest(static['exporter']) == static['exporter_identity']
             and oracle.digest(static['build']) == static['build_identity'], 'Static tools changed during setup')
@@ -117,7 +120,7 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
     shutil.copyfile(cache/'Observer.hs', output/'Observer.hs')
     env = dict(os.environ, STACK_ROOT=str(cache/'stack-root'))
     run([cache/'stack', 'exec', '--', 'ghc', '-package', 'clafer', '-package', 'aeson',
-         '-package', 'data-stringmap', '-i'+str(output), '-outputdir', output/'objects',
+         '-package', 'containers', '-i'+str(output), '-outputdir', output/'objects',
          '-main-is', 'ExplicitExport', HERE/'ExplicitExport.hs', '-o', output/'explicit-export'],
         output, 'explicit-build', cwd=cache/'compiler', env=env)
     notices = output/'notices'

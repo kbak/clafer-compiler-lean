@@ -20,7 +20,9 @@ import Language.Clafer.QNameUID (deriveQNameMaps)
 import Language.Clafer.JSONMetaData (generateJSONScopes)
 
 revision :: String
-#ifdef CANDIDATE_C7
+#ifdef CANDIDATE_058
+revision = "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a"
+#elif defined(CANDIDATE_C7)
 revision = "c7a2fb7d0ba601f52efeac459d12f859a40580fe"
 #else
 revision = "9a0f16ed18bdfb5277bedcc6577731f4b422be77"

@@ -260,12 +260,13 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', CLAFER_TEST_JOBS='1'))
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(result.stderr.count('test_serial ('), len(fixtures))
-            # PR113 must not overlap any other group, even with several workers.
+            # Reference and source CLI phases must not overlap any other group,
+            # even with several workers, preserving their execution budgets.
             # Shared locks permit the ordinary groups to run concurrently.
             shared = locked.replace('fcntl.LOCK_EX', 'fcntl.LOCK_SH')
             for fixture in fixtures:
                 fixture.write_text(locked.replace('time.sleep(0.03)', 'time.sleep(0.3)')
-                                   if fixture.stem == 'test_pr113_oracles' else shared)
+                                   if fixture.stem in {'test_pr113_oracles','test_behavioral_source_cli'} else shared)
             result = subprocess.run([sys.executable, str(ROOT/'scripts/run_tests.py')],
                 cwd=root, capture_output=True, text=True,
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', CLAFER_TEST_JOBS='3'))

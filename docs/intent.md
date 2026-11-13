@@ -63,9 +63,9 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
-The current structural comparison profile uses merged Haskell 0.5.7 through the
-accepted upstream adapters; it does not expand the selected compiler language.
-The separate [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
+The current structural and behavioral comparison profiles use the reviewed
+immutable Haskell 0.5.8 prerelease through accepted upstream adapters; it does not expand the selected compiler language.
+The historical [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
 reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
 they do not implement behavioral compilation or prove source preservation.
 The separate [PR113 delta candidate](oracles.md#pr113-delta-qualification-candidate)
@@ -175,7 +175,7 @@ and semantic acceptance require explicit review; see the
 - [Structural correctness](structural-correctness.md): finite representation, M1 soundness, bounded completeness and review boundary.
 - [Source constraints](constraints.md): inference rules, automatic elaboration, attachment and meaning proofs.
 - [Resolution](resolution.md): source identities, lookup, defaults, admission and proof boundaries.
-- [Super-lookup review candidate](super-lookup.md): static/behavioral distinctions, executed lookup cases and pending compatibility obligations.
+- [Super lookup contract](super-lookup.md): static/behavioral distinctions, inherited/qualified rules and source-correspondence boundaries.
 - [Parser](parser.md): authored static grammar, source diagnostics, reuse and assurance limits.
 - [Contribution guide](../CONTRIBUTING.md): workflow and validation.
 - [Agent guidance](../AGENTS.md): the same workflow for coding agents.

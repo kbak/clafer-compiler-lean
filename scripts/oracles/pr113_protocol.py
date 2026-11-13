@@ -94,13 +94,13 @@ def renamed(value, names):
 def generation(g):
     selected = pr113_build.candidate_for(g['compiler_commit'])
     keys = 'schema compiler_commit effective_options trace_length files post_analysis outputs status backend json alloy explicit explicit_observed explicit_scopes original_scopes scopes backend_input backend_ir backend_alloy names'
-    if selected == 'c7a2fb7': keys += ' source_map backend_map'
+    if selected != '9a0f16e': keys += ' source_map backend_map'
     closed(g, keys, 'generation')
-    if selected == 'c7a2fb7':
+    if selected != '9a0f16e':
         require(type(g['source_map']) is str and g['source_map']==g['backend_map'], 'Source-map replay differs')
     require(g['schema'] == 'clafer-pr113-generation/1', 'Wrong generation schema')
     require(g['status'] == 'captured' and g['backend'] in
-            (('tmp.als', 'als') if selected == 'c7a2fb7' else ('tmp.als',)), 'Wrong generation backend')
+            (('tmp.als', 'als') if selected != '9a0f16e' else ('tmp.als',)), 'Wrong generation backend')
     require(type(g['trace_length']) is int and 1 <= g['trace_length'] <= 100, 'Invalid trace length')
     rows = declarations(g['post_analysis'])
     declarations(g['backend_input'])
@@ -114,7 +114,7 @@ def generation(g):
         elif type(value) is dict:
             if value.get('tag') == 'GlobalBind':
                 require(value['contents'] in rows or value['contents'] in
-                        (('root', 'clafer', 'noclafer', 'integer', 'int') if selected == 'c7a2fb7' else
+                        (('root', 'clafer', 'noclafer', 'integer', 'int') if selected != '9a0f16e' else
                          ('root', 'clafer', 'noclafer')), 'Dangling global binding')
             if value.get('tag') == 'TClafer':
                 require(all(u in rows or u in ('root','clafer','noclafer') for u in value['_hi']),
@@ -180,7 +180,7 @@ def reference_targets(pexp, rows, names):
 def layout(g, inspected):
     """Check declaration endpoints and actual type products under the captured hierarchy."""
     rows = generation(g)
-    modern = pr113_build.candidate_for(g['compiler_commit']) == 'c7a2fb7'
+    modern = pr113_build.candidate_for(g['compiler_commit']) != '9a0f16e'
     static = g['backend']=='als'
     names = dict(g['names'], **({} if static else {'root':'root'}))
     sigs = inspected['signatures']

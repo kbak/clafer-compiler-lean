@@ -39,8 +39,8 @@ def render (source : String) (initial : List Task) : Option (String × Bool) := 
             String.intercalate ";" (ns.map (·.text)) ++ " "),
           .expr domain, .text " ", .expr body, .text ")"] ++ tasks
       | .letSet t n v body _ =>
-        valid := valid && [t, n, v].all (fun t => Parser.spanValid source t.span)
-        tasks := [.text ("(let " ++ n.text ++ " " ++ v.text ++ " "), .expr body, .text ")"] ++ tasks
+        valid := valid && [t, n].all (fun t => Parser.spanValid source t.span)
+        tasks := [.text ("(let " ++ n.text ++ " "), .expr v, .text " ", .expr body, .text ")"] ++ tasks
       | .conditional _ c a b _ =>
         tasks := [.text "(if ", .expr c, .text " ", .expr a, .text " ", .expr b, .text ")"] ++ tasks
       | .transition op a guard b _ =>
@@ -69,9 +69,13 @@ def render (source : String) (initial : List Task) : Option (String × Bool) := 
           s.abstractToken.all (fun t => Parser.spanValid source t.span) &&
           s.useToken.all (fun t => Parser.spanValid source t.span) &&
           s.super.all (fun t => Parser.spanValid source t.span) &&
+          s.superPath.all (fun p => Parser.spanValid source p.span &&
+            (p.first :: p.rest).all (fun t => Parser.spanValid source t.span)) &&
           s.reference.all (fun (a, n) => Parser.spanValid source a.span && Parser.spanValid source n.span) &&
           [s.group, s.cardinality].all (fun c => c.all (fun c => c.tokens.all (fun t => Parser.spanValid source t.span)))
-        let headerText := s!"({if s.useToken.isSome then "use" else "decl"} {s.name.text} {s.abstractToken.isSome} {String.intercalate "," (h.modifiers.map (·.text))} {Parser.cardShape s.group} {Parser.cardShape s.cardinality} {s.super.map (·.text) |>.getD "_"} {s.reference.map (fun (a, n) => a.text ++ n.text) |>.getD "_"}"
+        let superName := s.super.map (·.text) |>.orElse (fun _ =>
+          s.superPath.map (fun p => String.intercalate "." ((p.first :: p.rest).map (·.text))))
+        let headerText := s!"({if s.useToken.isSome then "use" else "decl"} {s.name.text} {s.abstractToken.isSome} {String.intercalate "," (h.modifiers.map (·.text))} {Parser.cardShape s.group} {Parser.cardShape s.cardinality} {superName.getD "_"} {s.reference.map (fun (a, n) => a.text ++ n.text) |>.getD "_"}"
         let init := h.initializer.toList.flatMap fun (t, e) => [.text (" " ++ t.text ++ " "), .expr e]
         let trans := h.transition.toList.flatMap fun (t, g, e) =>
           [.text (" " ++ t.text ++ " ")] ++ (g.toList.map Task.expr) ++ [.text " | ", .expr e]

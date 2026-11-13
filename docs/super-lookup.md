@@ -1,17 +1,14 @@
-# Super-name lookup review candidate
+# Behavioral super-name lookup
 
-This is the candidate disposition for the
-[lookup review](https://github.com/kbak/clafer-compiler-lean/issues/129).
-Independent acceptance is pending. The
-[compatibility task](https://github.com/kbak/clafer-compiler-lean/issues/128)
-owns production changes after acceptance and selection. Current behavior remains
-the [static resolution contract](resolution.md#declarative-lookup-and-defaults)
-and [behavioral structural contract](behavioral-structure.md#source-identity-and-defaults).
-No parser, resolver, semantic dependency or comparison-tool pin changes here.
+The [accepted lookup disposition](https://github.com/kbak/clafer-compiler-lean/pull/131)
+defines the implemented plain/inherited/qualified rules below. The
+[static resolution contract](resolution.md#declarative-lookup-and-defaults)
+remains separate from the richer
+[behavioral structural contract](behavioral-structure.md#source-identity-and-defaults).
 
 The affected promises are resolution (`req~compiler-resolution~1`),
 behavioral structure (`req~compiler-behavioral-structural-bridge~1`) and
-behavioral syntax (`req~compiler-behavioral-frontend~1`). The candidate extends behavioral super
+behavioral syntax (`req~compiler-behavioral-frontend~1`). The contract extends behavioral super
 syntax and lookup, preserving the static promise and the richer resolved domain.
 It does not extend reference-type syntax or expression navigation.
 
@@ -22,9 +19,9 @@ The [small models](../tests/fixtures/super-lookup),
 [regression](../tests/test_super_lookup.py) exercise the actual static parser and
 resolver and behavioral parser plus `bindDeclarations`. Successful rows identify
 both ends of each super edge by their **authored declaration paths**. Rejected
-models have no accepted declaration table. `current.json` records current outcomes,
-including diagnostic categories and byte spans; its refusals are characterization
-tests, not the desired outcomes of the compatibility change.
+models have no accepted declaration table. `058.json` records the selected outcomes, diagnostic categories and byte spans.
+`current.json` retains the historical direct-name characterization; it is not
+relabeled as a result of the new resolver. Its static lookup outcomes are unchanged.
 
 The reference is Haskell
 [`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a),
@@ -35,7 +32,7 @@ output bytes. It does not invoke a solver. Fresh observations retain source,
 build, observer and input identities externally. `reference.json` records the
 reviewed frontend outcomes and authored super edges, separately from native
 expectations. These are finite observations, not a proof of Haskell equivalence
-or a newly adopted oracle profile.
+or universal source/target equivalence.
 
 The existing structural capture adapter rejects dotted type expressions in its
 source audit. Its `unsupported` result is **adapter admission**, not Haskell
@@ -47,12 +44,12 @@ demonstrates that distinction.
 
 Each row names a `.cfr` fixture. The fixture itself is the complete model; names
 such as `P.Head` below identify authored declarations, independent of Haskell UIDs
-or Lean numeric IDs. `Dotted` means current behavioral parsing rejects the first
+or Lean numeric IDs. `Dotted` means historical behavioral parsing rejected the first
 dot with unsupported `behavioral.type-expression`. Static parsing uses unsupported
 `parser.type-expression` for the same forms. Static nested explicit abstracts
 are unsupported even when behavioral lookup succeeds.
 
-| Case | Current behavioral result | Haskell reference result | Candidate disposition |
+| Case | Historical behavioral result | Haskell reference result | Selected disposition |
 | --- | --- | --- | --- |
 | `forward` | `h → Head` | Same | Reuse forward lookup. |
 | `plain-enclosing` | `Head.Inner.h → Head` | Same | Retain enclosing lexical visibility. |
@@ -91,10 +88,9 @@ are unsupported even when behavioral lookup succeeds.
 | `expression-super` | Unsupported type expression | Parse error | Keep set/arithmetic expressions outside super syntax. |
 | `qualified-reference` | Unsupported type expression | Reference path accepted | Keep qualified reference types outside this super-only amendment. |
 
-## Candidate lookup rules
+## Lookup rules
 
-These rules require review before adoption. They do not redefine upstream
-structural meaning.
+These source rules preserve the accepted upstream resolved structural meaning.
 
 1. **Plain behavioral super:** exclude the declaration being defined. Search its
    parent's own children, then children of the parent's supers from nearest to
@@ -129,47 +125,40 @@ lookup where Haskell has a broader ambiguity check. Qualified first segments
 have their own explicit rule; plain and qualified names are not interchangeable
 search procedures.
 
-## Correspondence and implementation obligations
+## Source correspondence and proof boundary
 
-`Header.super` currently stores `Option Name`, and both parsers share the
-single-name `typeName` helper. Add a behavioral representation that retains each
-segment and the whole authored span without broadening reference positions or
-the static grammar. Projection through `Projects`, `BoundDeclarations` and
-declaration coverage must preserve that path instead of flattening it into an
-opaque name or silently truncating it. Name canonicalization must not change
-source identity or diagnostic offsets.
+`Header.super` retains plain names; `Header.superPath` retains qualified
+`SuperPath` values with every segment token and the entire span. Exactly one
+form is present. The behavioral parser alone constructs qualified paths;
+references remain single-name. `Projects`, `BoundDeclarations`, `SourceRow` and
+coverage retain this representation through declaration elaboration.
 
-`lookupName` and `Resolves` currently implement the same finite lexical/global
-ranking, and behavioral `SuperRule` invokes `Resolves` with the broader user
-domain. Their existing proofs therefore do **not** establish the candidate
-inherited/path policy. State independent declarative plain lookup and path-step
-relations, uniqueness, exclusion of self and priority rules. Prove successful
-resolution corresponds to those relations, then carry them through `SourceRow`,
-`Elaboration`, source coverage and the behavioral semantics bridge. Reuse the
-static relation and proofs unchanged where applicable.
+[`BehavioralLookup`](../ClaferCompiler/Frontend/BehavioralLookup.lean) uses a bounded
+dependency traversal over inventoried authored paths. A parent super must be
+resolved before inherited-child lookup; an unresolved dependency is never treated
+as an absent edge. Active requests diagnose cycles, and exhausted traversal
+reports `resolve.lookup-budget`. Successful results still pass the ordinary
+rank, parent-refinement, reference and default checks.
 
-Inherited lookup depends on super edges while those edges are being resolved.
-Use checked resolution state or a bounded dependency traversal that reports
-cycles, ambiguity, missing names and exhaustion separately. Never treat an
-unresolved parent super as an absent edge. Establish order-independent resolved
-identities for the admitted domain, including forward declarations and inherited
-paths after qualified supers. A termination bound or successful structural
-admission alone is not a name-correspondence proof.
+[`BehavioralLookupRules`](../ClaferCompiler/Frontend/BehavioralLookupRules.lean)
+defines `Plain`, `First`, `Child`, `Steps` and `Qualified` against the completed
+table, independently of that traversal and its fuel. `Child` minimizes inherited
+distance; `Plain` requires no local candidate before lexical fallback. `SuperRule`
+checks those relations for each authored row. Successful `elaborate` returns
+`Elaboration`; `sourceRow_of_user` and the existing resolution bridge expose
+coverage and source correspondence alongside upstream structural validity.
+`plain_unique` (assuming unique authored paths), `child_unique`, `steps_unique`
+and `qualified_unique` prove target uniqueness within that table;
+`plain_excludes_self` proves self exclusion. They do not prove Haskell equivalence,
+parser correctness, universal termination or uniqueness between different tables.
 
-Distinguishing correspondence witnesses must show that replacing `Bob.Head`
-with `Person.Head` can preserve structural well-formedness while violating
-the selected lookup, and that binding a concrete sibling to an outer abstract
-violates the richer source rule. Retain both own and inherited declarations,
-their distinct properties, original attachment owners, references and defaults.
-Test wrong-target and dropped-path mutations against the independent relation;
-preserve successful concrete-super controls alongside negative cases.
-
-Malformed paths need stable segment-level spans, ambiguity-related locations,
-self/cycle diagnostics and no successful partial table. Unsupported reference
-paths, primitive supers and general type expressions remain distinguishable from
-missing names. Repeat whitespace/comment, Unicode/CRLF and declaration-order
-tests, then the existing static and behavioral regressions. Grammar recognition
-and native execution remain tested boundaries, distinct from kernel proofs.
+The native matrix, declaration-order variants, CRLF/Unicode/comment variants and
+segment/related spans exercise execution. Wrong-target mutations replace
+`Bob.Head` with `Person.Head`, or a concrete sibling with an outer abstract;
+structural checks still succeed while independent source correspondence fails.
+Dropping an authored super also fails. Concrete-super successes remain beside
+negative missing/ambiguous/path/cycle controls. Declaration coverage retains both
+own and inherited declarations, their properties, ownership and defaults.
 
 The accepted upstream
 [initializer inheritance contract](https://github.com/kbak/clafer-semantics/blob/85875084ebc7b405bb57f0c4a4ee4f9042e5c758/docs/behavioral-initializers.md#production-transport-and-proof-domain)
@@ -184,13 +173,16 @@ has been identified that requires a separate semantic decision.
 
 ## Reuse assessment
 
-Reuse the current inventory, source paths, duplicate checks, finite rank checks,
+The implementation reuses the current inventory, source paths, duplicate checks, finite rank checks,
 behavioral admission and independent source/table validation. Existing
 `BehavioralStructural.Analysis`, ancestor/owner proofs and behavioral expression
 field lookup provide related machinery, but are consumers of already resolved
 supers; they cannot be assumed to solve the bootstrap dependency. Lean/Std lists,
 arrays and finite folds suffice for the selected traversal. Lean namespace
-resolution and general graph packages do not supply Clafer's lookup policy.
+resolution and general graph packages do not supply Clafer's lookup policy. The
+new bounded traversal fills that bootstrap gap; the independent table predicates
+reuse `Fin`, `Nat.repeat`, lists and decidable finite quantification. Runtime
+checks and proof-only upstream interpretation stay in their existing import layers.
 
 The pinned upstream structural and initializer relations already provide the
 resolved meaning. The Haskell resolver and its positive path fixture provide
