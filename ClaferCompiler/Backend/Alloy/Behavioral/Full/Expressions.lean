@@ -15,6 +15,9 @@ structure Context (n : Nat) where
 
 def Context.push (c : Context n) (r : Temporal.Rel) (estimate : Expression.Ranges.CollectionEstimate) : Context (n + 1) :=
   ⟨c.lexical.push r, Expression.Ranges.push c.estimates estimate⟩
+def Context.close (c : Context n) : Context 0 :=
+  ⟨⟨c.lexical.this, Fin.elim0, c.lexical.aliases⟩, #v[]⟩
+
 def Context.shift (c : Context n) (amount : Nat) : Context n :=
   ⟨c.lexical.shift amount, c.estimates⟩
 
@@ -161,6 +164,15 @@ def lowerStep (v : IR.BehavioralStructural.Validated k) (b : Expression.Ranges.I
   atom := fun c a => do
     match a with
     | .primitive a => next.predicate c a
+    | .equalClosed a d =>
+      let left ← next.set c a
+      let right ← next.collection c.close d
+      return right.predicate (fun r => .equal left r)
+    | .inContext d a =>
+      let domain ← next.set c d
+      let shifted := c.shift 1
+      let body ← next.formula { shifted with lexical := { shifted.lexical with this := .var 0 } } a
+      return Partial.atom (.all domain body.defined) (.all domain body.truth.raw)
     | .count q arity disjoint d a =>
       let estimate ← collectionEstimate b fuel c d
       let domain ← next.collection c d

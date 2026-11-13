@@ -72,12 +72,11 @@ def run : IO Unit := do
   unless origins == [("value", "owner", .initializer), ("phase", "phase", .transition)] do
     fail "initializer/transition attached to the wrong context"
   match (derived.map (fun p => p.toHeaderProperty.expression) : List Expr) with
-  | [.binary implies (.unary someHeads (.name heads) _) (.binary eq (.name left) (.integer _ 2) _) _,
+  | [.binary eq (.name left) (.integer _ 2) _,
       .transition arrow (.name source) none (.name target) _] =>
-    unless implies.text == "=>" && someHeads.text == "some" && heads.text == "value" &&
-        eq.text == "=" && left.text == "value" && arrow.text == "-->" &&
-        source.text == "this" && target.text == "flag" do fail "header sugar changed"
-  | _ => fail "header sugar gained an anchor or changed its expression"
+    unless eq.text == "=" && left.text == "value" && arrow.text == "-->" &&
+        source.text == "this" && target.text == "flag" do fail "authored header or transition changed"
+  | _ => fail "initializer token/RHS was replaced by generated sugar"
   for source in ["a = 2\n", "a --> a\n", "assert [0 = 0]\n"] do
     let v ← load source
     unless v.bound.resolved.candidate.core.declarations.any (·.origin == .integer) do

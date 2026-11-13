@@ -188,6 +188,17 @@ def analyzeStep (b : Inputs k) (next : Pass b) : Pass b where
     | primitive a => exact do
         let a ← next.predicate a Γ
         return ⟨.primitive a.property⟩
+    | equalClosed a d => exact do
+        let left ← next.set a Γ
+        let right ← next.collection d #v[]
+        return ⟨.equalClosed left.property right.property⟩
+    | inContext d a => exact do
+        let domain ← next.set d Γ
+        if h : 1 ≤ b.context.budget ∧ b.context.values.lower ≤ domain.val.values.lower ∧
+            domain.val.values.upper ≤ b.context.values.upper then
+          let body ← next.formula a Γ
+          return ⟨.inContext domain.property h.1 h.2.1 h.2.2 body.property⟩
+        else throw rangeError
     | count q arity disjoint d a => exact do
         let d ← next.collection d Γ
         let a ← next.formula a (extend Γ arity d.val)

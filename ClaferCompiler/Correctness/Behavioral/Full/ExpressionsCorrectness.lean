@@ -4,6 +4,7 @@ public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsValuesPreser
 public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsIntegerStep
 public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsFoldStep
 public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsPredicateStep
+public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsContextStep
 public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsCountStep
 public import ClaferCompiler.Correctness.Behavioral.Full.ExpressionsFormulaStep
 
@@ -54,6 +55,8 @@ theorem lowerAt_preserves (model : ModelRows v b s τ σ labels) (fuel depth : N
       | primitive a =>
         cases bound with
         | primitive bound => exact ih.predicate hc t a result bound success
+      | equalClosed a d => exact equalClosedStep model ih hc bound success
+      | inContext d a => exact inContextStep model ih hc bound success
       | count q arity disjoint d a => exact countStep model ih built hc bound success
     · intro n c ρ e hc t a result bound success
       exact formulaStep model ih built hc bound success

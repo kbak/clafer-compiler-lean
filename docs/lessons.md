@@ -152,6 +152,24 @@ Modifier agreement additionally requires upstream `Structural.Valid`, including
 the inherited reference view. These are resolved reductions, not parser proofs;
 see the [surface reduction contract](behavioral-frontend.md#executable-reductions-and-proved-boundary).
 
+Hard declaration initializers preserve the original RHS observation while selecting
+the authored instance, parent or global initialization clock. Empty declaration
+heads suppress the whole `=` observation. Generated context changes retain the
+RHS's original parent/root, captures, time and strict definedness.
+
+Lean: `ClaferCompiler.SemanticsBridge.Behavioral.Initializers.body_meaning` in
+[`InitializerMeaning`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerMeaning.lean)
+connects the actual generated formula and RHS evaluator to upstream production
+`Meaning`. It requires checked authored classification, `Structural.Valid` and
+the inherited reference owner, without assuming initializer truth or an arbitrary
+transport equivalence. The classification uses the independently proved
+`scalarAt_sound` in [`InitializerBounds`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerBounds.lean).
+`Production.finalref_equivalence` retains complete RHS observation stability within
+each uninterrupted lifetime and independent singleton-head or scalar admission;
+`finalref` alone does not imply `:=`/`=` agreement. Parser recognition, authored
+temporal selection and serialized execution remain tested boundaries. See the
+[hard initializer contract](behavioral-frontend.md#hard-declaration-initializers).
+
 ### 7. A behavioral trace keeps the same identities across time
 
 For the narrower `behavioral-core/1` resolved profile, a satisfying compiled

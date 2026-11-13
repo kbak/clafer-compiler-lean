@@ -1,5 +1,7 @@
 module
 
+public import ClaferCompiler.SemanticsBridge.Behavioral.InitializerMeaning
+
 public import ClaferCompiler.Correctness.Behavioral.Full.Frontend
 public import ClaferCompiler.SemanticsBridge.Behavioral.Source
 

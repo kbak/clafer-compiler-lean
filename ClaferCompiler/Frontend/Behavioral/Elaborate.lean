@@ -5,6 +5,8 @@ public import ClaferCompiler.Frontend.Behavioral.Expressions
 public import ClaferCompiler.Frontend.Behavioral.Warnings
 public import ClaferCompiler.Frontend.Behavioral.Modifiers
 public import ClaferCompiler.Frontend.Behavioral.Headers
+public import ClaferCompiler.Frontend.Behavioral.InitializerBounds
+public import ClaferCompiler.Frontend.Behavioral.TemporalSelection
 public import ClaferCompiler.IR.Behavioral.Properties
 
 @[expose] public section
@@ -40,9 +42,46 @@ def Elaborated.model {source : Document} (e : Elaborated source) :
 /-- Generated heads retain the declaration of origin; source name lookup is
 used only for the initializer's authored right-hand side. -/
 def initializerHeads {source : Document} (d : BoundDeclarations source)
-    (p : BoundHeaderProperty d.resolved.candidate.core) : SetExpr d.resolved.count 0 :=
+    (p : BoundHeaderProperty d.resolved.candidate.core) : SetExpr d.resolved.count n :=
   if (d.resolved.candidate.core.get p.declaration).parent.isSome then
     .thisStep (.child p.declaration) else .extent p.declaration
+
+/-- Classify authored `:=` independently of temporal selection. `=` retains
+its aggregate every-live rule. Unsupported admission never changes a clock. -/
+def InitializerClassification {source : Document} (d : BoundDeclarations source)
+    (p : BoundHeaderProperty d.resolved.candidate.core) (header : Header) (op : Token)
+    (rhs : Expression.Collection d.resolved.count 0) (clock : Option Initializers.Clock) : Prop :=
+  (op.text = "=" ∧ clock = none) ∨ (op.text = ":=" ∧ ∃ c,
+    Initializers.classify (Initializers.metadata d p.declaration header)
+      (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs) = .ok c ∧ clock = some c)
+
+def initializerSingle (clock : Option Initializers.Clock) (temporal : Bool) : Bool :=
+  temporal && clock == some .instanceBirth
+
+/-- Resolved runtime expansion. The closed RHS type prevents generated capture
+slots from becoming authored lexical bindings. -/
+-- [impl->req~compiler-behavioral-elaboration~1]
+def initializerFormula (declaration : Fin k) (parented referenced temporal : Bool)
+    (clock : Option Initializers.Clock) (rhs : Expression.Collection k 0) : Expression.Formula k 0 :=
+  let heads : SetExpr k 0 := if parented then .thisStep (.child declaration) else .extent declaration
+  let heads' : SetExpr k 1 := if parented then .thisStep (.child declaration) else .extent declaration
+  let left := if initializerSingle clock temporal then .var 0 else heads'
+  let targets := if referenced then SetExpr.step (.deref declaration) left else left
+  let equation := FormulaF.atom (Expression.Atom.equalClosed targets rhs)
+  if initializerSingle clock temporal then
+    let original : SetExpr k 1 := if parented then .thisStep .parent else .root
+    .atom (.inContext heads
+      (.initially (.quant .all (.set .this) (.atom (.inContext original equation)))))
+  else
+    let guarded := FormulaF.quant .all (.set heads) equation
+    if temporal && clock.isSome then .initially guarded else guarded
+
+-- [impl->req~compiler-behavioral-elaboration~1]
+def initializerBody {source : Document} (d : BoundDeclarations source)
+    (p : BoundHeaderProperty d.resolved.candidate.core) (clock : Option Initializers.Clock)
+    (rhs : Expression.Collection d.resolved.count 0) : Expression.Formula d.resolved.count 0 :=
+  initializerFormula p.declaration (d.resolved.candidate.core.get p.declaration).parent.isSome
+    (IR.BehavioralSupport.referenceView d.resolved.admitted p.declaration).isSome source.temporal clock rhs
 
 inductive HeaderElaborates {source : Document} (d : BoundDeclarations source)
     (p : BoundHeaderProperty d.resolved.candidate.core) : Expression.Formula d.resolved.count 0 → Prop where
@@ -51,11 +90,33 @@ inductive HeaderElaborates {source : Document} (d : BoundDeclarations source)
   | initializer {header : Header} (kind : p.kind ≠ .transition)
       (origin : d.resolved.candidate.paths[p.declaration].bind (headerAt d.expanded) = some header)
       (authored : header.initializer = some (op, rhs))
+      (provenance : Initializers.Provenance d p.declaration header)
       (right : Expressions.Elaborates d.resolved.admitted p.owner #v[] none rhs value)
+      (target : ValueRules.Target d.resolved.admitted value converted)
+      (heads : ValueRules.Heads converted type collection)
+      (classification : InitializerClassification d p header op collection clock)
       (equation : ValueRules.Binary d.resolved.admitted "="
         (.collection (.objects p.declaration) (.set (initializerHeads d p))) value eqn)
       (boolean : ValueRules.Boolean eqn formula) :
-      HeaderElaborates d p (.implies (Values.present (.set (initializerHeads d p))) formula)
+      HeaderElaborates d p (initializerBody d p clock collection)
+
+def classifyInitializer {source : Document} (d : BoundDeclarations source)
+    (p : BoundHeaderProperty d.resolved.candidate.core) (header : Header) (op : Token)
+    (rhs : Expression.Collection d.resolved.count 0) :
+    Except Diagnostic {clock // InitializerClassification d p header op rhs clock} := do
+  if constant : op.text = "=" then
+    return ⟨none, Or.inl ⟨constant, rfl⟩⟩
+  else if initial : op.text = ":=" then
+    match classified : Initializers.classify (Initializers.metadata d p.declaration header)
+        (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs) with
+    | .ok clock => return ⟨some clock, Or.inr ⟨initial, clock, classified, rfl⟩⟩
+    | .error error =>
+      let (code, message, category) := match error with
+        | .invalidMultiplicity => ("behavioral.initializer-multiplicity", "Invalid initializer multiplicity.", IR.Structural.Category.malformed)
+        | .parentlessMultiplicity => ("behavioral.initializer-parentless-multiplicity", "Parentless abstract initializers support omitted or explicitly unrestricted multiplicity only.", IR.Structural.Category.unsupported)
+        | .scalarNotEstablished => ("behavioral.initializer-scalar", "The supported rules cannot establish an at-most-one RHS bound for this abstract initializer.", IR.Structural.Category.unsupported)
+      throw (Resolution.errorAt op code message category)
+  else throw (Resolution.errorAt op "behavioral.initializer-token" "Invalid initializer token.")
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 -- [proof->req~compiler-behavioral-elaboration~1]
@@ -71,14 +132,23 @@ def elaborateHeaderCertified {source : Document} (d : BoundDeclarations source)
     | none => throw (Expressions.failure source p.expression "behavioral.initializer-origin")
     | some header => match hi : header.initializer with
       | none => throw (Expressions.failure source p.expression "behavioral.initializer-origin")
-      | some (_, rhs) =>
-        let right ← Expressions.certifiedAt source d.resolved.admitted p.owner budget #v[] none rhs
-        let left := Values.Value.collection (.objects p.declaration) (.set (initializerHeads d p))
-        let equation ← (MonadAttach.attach (Values.binary d.resolved.admitted "=" left right.val)).mapError
-          (Expressions.failure source p.expression)
-        let boolean ← (Expressions.booleanCertified equation.val).mapError (Expressions.failure source p.expression)
-        return ⟨.implies (Values.present (.set (initializerHeads d p))) boolean.val,
-          .initializer hk hh hi right.property (ValueRules.binary_sound equation.property) boolean.property⟩
+      | some (op, rhs) =>
+        if provenance : Initializers.Provenance d p.declaration header then
+          let right ← Expressions.certifiedAt source d.resolved.admitted p.owner budget #v[] none rhs
+          let converted ← (MonadAttach.attach (Values.target d.resolved.admitted right.val)).mapError
+            (Expressions.failure source rhs)
+          let collection ← (MonadAttach.attach (Values.heads converted.val)).mapError
+            (Expressions.failure source rhs)
+          let clock ← classifyInitializer d p header op collection.val.2
+          let left := Values.Value.collection (.objects p.declaration) (.set (initializerHeads d p))
+          let equation ← (MonadAttach.attach (Values.binary d.resolved.admitted "=" left right.val)).mapError
+            (Expressions.failure source p.expression)
+          let boolean ← (Expressions.booleanCertified equation.val).mapError (Expressions.failure source p.expression)
+          return ⟨initializerBody d p clock.val collection.val.2,
+            .initializer hk hh hi provenance right.property (ValueRules.target_sound _ converted.property)
+              (ValueRules.heads_sound collection.property) clock.property
+              (ValueRules.binary_sound equation.property) boolean.property⟩
+        else throw (Expressions.failure source rhs "behavioral.initializer-provenance")
 
 def elaborateHeader {source : Document} (d : BoundDeclarations source)
     (p : BoundHeaderProperty d.resolved.candidate.core) : Except Diagnostic (Expression.Formula d.resolved.count 0) :=

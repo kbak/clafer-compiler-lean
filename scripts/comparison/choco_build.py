@@ -113,7 +113,7 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
          HERE/'ChocoInstances.java'], output, 'bridge-build')
     # Import the unmodified upstream module by its declared name; its private
     # observer is the same checked library observation used by static capture.
-    shutil.copyfile(oracle.UPSTREAM/'scripts/verification/Export.hs', output/'Main.hs')
+    shutil.copyfile(oracle.UPSTREAM/'scripts/verification'/api['runtime'].current.EXPORTER, output/'Main.hs')
     shutil.copyfile(cache/'Observer.hs', output/'Observer.hs')
     env = dict(os.environ, STACK_ROOT=str(cache/'stack-root'))
     run([cache/'stack', 'exec', '--', 'ghc', '-package', 'clafer', '-package', 'aeson',

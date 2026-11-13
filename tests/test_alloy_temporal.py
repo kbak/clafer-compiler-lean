@@ -112,9 +112,13 @@ class AlloyTemporalTests(unittest.TestCase):
             oracle.write(case_dir / 'result.json', result)
             return result
 
-        # Reuse the PR113 suite's bounded concurrency, with fresh JVMs and
-        # disjoint case directories. All unittest checks stay on this thread.
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        # Reuse the regression runner's CPU-capped worker setting, with fresh
+        # JVMs and disjoint directories. All unittest checks stay on this thread.
+        requested = int(os.environ.get('CLAFER_TEST_JOBS', '2'))
+        if not 1 <= requested <= 4:
+            raise ValueError('CLAFER_TEST_JOBS must be between 1 and 4')
+        cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
+        with ThreadPoolExecutor(max_workers=min(requested, cpus)) as pool:
             futures = [pool.submit(solve, case) for case in cases]
             for (path, _, request), future in zip(cases, futures):
                 with self.subTest(case=path.stem):

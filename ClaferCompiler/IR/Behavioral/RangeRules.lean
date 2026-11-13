@@ -102,6 +102,13 @@ mutual
     | less (left : IntegerBound b Γ a x) (right : IntegerBound b Γ c y) : PredicateBound b Γ (.less a c)
   inductive AtomBound (b : Inputs k) : {n : Nat} → Context n → Atom k n → Prop where
     | primitive (body : PredicateBound b Γ a) : AtomBound b Γ (.primitive a)
+    | equalClosed (left : SetBound b Γ a r) (right : CollectionBound b #v[] d s) :
+        AtomBound b Γ (.equalClosed a d)
+    | inContext (domain : SetBound b Γ d r)
+        (capacity : 1 ≤ b.context.budget)
+        (lower : b.context.values.lower ≤ r.values.lower)
+        (upper : r.values.upper ≤ b.context.values.upper)
+        (body : FormulaBound b Γ a) : AtomBound b Γ (.inContext d a)
     | count (domain : CollectionBound b Γ d r) (body : FormulaBound b (extend Γ arity r) a) :
         AtomBound b Γ (.count q arity disjoint d a)
   inductive FormulaBound (b : Inputs k) : {n : Nat} → Context n → Formula k n → Prop where
