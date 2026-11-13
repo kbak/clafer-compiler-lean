@@ -1,0 +1,7 @@
+abstract Global
+  abstract P
+    abstract Head
+abstract Owner
+  abstract P
+    abstract Head
+  h : P.Head

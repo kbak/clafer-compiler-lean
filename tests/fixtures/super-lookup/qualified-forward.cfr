@@ -1,0 +1,4 @@
+Bob : Person
+  h : Bob.Head
+abstract Person
+  abstract Head

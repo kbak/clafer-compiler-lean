@@ -1,0 +1,4 @@
+abstract Head
+Owner
+  Head
+  h : Head

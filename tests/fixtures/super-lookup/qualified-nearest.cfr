@@ -1,0 +1,6 @@
+abstract A
+  abstract Head
+abstract B : A
+  abstract Head
+C : B
+  h : C.Head

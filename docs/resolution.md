@@ -80,6 +80,8 @@ names in different bodies retain distinct identities. This is the declared direc
 `Name` type-position policy; expression navigation and inherited contextual name
 lookup belong to [constraint elaboration](constraints.md). Haskell's general path-valued resolution and nested abstract
 relocation do not expand the selected profile.
+The [super-lookup review candidate](super-lookup.md) preserves this static
+restriction while proposing a separate behavioral path and inherited-child policy.
 
 `SourceRow` equates resolved edges with these lookup rules and the original source
 parent path. Top-level explicit abstracts are parentless; concrete top-levels

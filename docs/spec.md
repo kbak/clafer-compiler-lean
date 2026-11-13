@@ -191,6 +191,9 @@ future target composition. Preserve static behavior and comparison fixtures;
 review an immutable accepted-SHA repin and retain its source delta and full checks.
 The [component contract](behavioral-structure.md) records delivered APIs and C7/C8
 handoff obligations; no required row is deferred out of full qualification.
+The [super-lookup review candidate](super-lookup.md) distinguishes current direct-name
+binding from proposed path/inherited-child rules and preserves concrete supers.
+Its pending adoption does not change this resolved structural domain.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -212,6 +215,9 @@ explicitly. Preserve static-profile temporal rejection. Record an independent
 grammar and distinguish tested recognition from proved elaboration. The
 [frontend inventory](behavioral-frontend.md) states current APIs and their proof/testing
 boundaries; parsing is not semantic admission.
+Qualified super paths remain outside the implemented grammar; their
+[review candidate](super-lookup.md) records the parser, diagnostic and
+correspondence obligations for separate compatibility implementation.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -1129,6 +1135,8 @@ keep constraints available for [expression elaboration](constraints.md). The
 explicit M1 conversion must reject richer features and constraints, and pass the existing exact M1 admission. Compare
 resolved fields with the pinned importer on its common domain, retaining expected
 identity/provenance differences. See the [resolution contract](resolution.md).
+The [super-lookup review candidate](super-lookup.md) retains this static profile;
+its richer path proposal applies only to behavioral source after acceptance.
 
 Covers:
 - `intent~compiler-foundation~1`
