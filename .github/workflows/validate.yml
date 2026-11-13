@@ -210,13 +210,13 @@ jobs:
             ${{ runner.temp }}/clafer-capture/*/builder.sha256
           key: ${{ steps.exporter.outputs.cache-primary-key }}
       - name: Set up Choco Java runtime
-        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: '21'
       - name: Prepare Choco instance tools
-        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
         run: |
           git clone https://github.com/gsdlab/chocosolver.git "$RUNNER_TEMP/choco-source"
           git -C "$RUNNER_TEMP/choco-source" checkout --detach 253b1de60e4d87435874db81a5151dca53ee1871
@@ -227,7 +227,7 @@ jobs:
             "$RUNNER_TEMP/choco-tools" 2>&1 | tee "$RUNNER_TEMP/choco-setup.log"
           echo "CLAFER_CHOCO_TOOLS=$RUNNER_TEMP/choco-tools/tools.json" >> "$GITHUB_ENV"
       - name: Restore Alloy Java runtime
-        if: inputs.profile == 'compiler' || inputs.profile == 'full'
+        if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin

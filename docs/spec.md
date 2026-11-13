@@ -569,6 +569,15 @@ negative feature/interaction witnesses, replayable source/tool identities and
 explicit compilation/checking measurements. Distinguish executable reference
 checks from kernel-checked correspondence and from revision-specific Haskell
 comparisons. Unsupported requests and timeouts are inconclusive, never passes.
+The shared initializer/absence matrix keeps accepted source outcomes separate
+from observed reference outcomes at immutable tool pins. Include all initializer
+clocks and inherited original environments, positive and negative static hard
+equations, scalar admission and raw absent-reference probes. Retain full tuples
+even when live-only displays coincide; distinguish these differences from global
+renaming. Record unsupported pairing and admitted discrepancies explicitly, with
+Choco evidence limited to its supported static reference backend. The
+[qualification contract](behavioral-source.md#initializer-and-absence-qualification)
+owns the fixture and discrepancy boundaries.
 Independent review and source-matched full regression evidence remain required
 for candidate acceptance; bounded agreement does not establish universal proof.
 

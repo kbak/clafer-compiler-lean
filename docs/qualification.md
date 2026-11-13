@@ -14,9 +14,11 @@ all B01–B32 obligations. Component inventories distinguish first-slice evidenc
 from the full frontend/encoder and source workflow. Every candidate still needs
 source-matched full checks and independent review. The current
 [0.5.8 profile](sources.md#clafer-058-source-and-replay) preserves the separate
-historical corpora and temporal `let` exclusions. Initializer adoption and final
-initializer/absence reference qualification remain separate work; current tool
-and frontend checks do not imply their acceptance.
+historical corpora and temporal `let` exclusions. The shared
+[initializer/absence qualification matrix](behavioral-source.md#initializer-and-absence-qualification)
+retains exact source/compiler/reference outcomes, hidden-reference probes,
+static Choco controls and explicit reference discrepancies. Its disposition
+requires independent review; current tool and frontend checks do not imply acceptance.
 The [instance-check walkthrough](instance-checks.md) runs small positive/negative
 structural candidates and the complete static source model while retaining these
 qualification and proof/execution boundaries.

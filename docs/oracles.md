@@ -670,5 +670,8 @@ exact observations qualify the downstream trace path separately. JSON decoded
 values may agree while escape bytes differ; EOF parser exceptions remain errors.
 Time-spanning `let` and unused undefined bindings are explicit Haskell comparison
 exclusions. The current source tests preserve those counterexamples alongside
-defined same-state, shadowing and alpha-renaming controls. New initializer
-semantics and final absence/initializer agreement are not claimed by this suite.
+defined same-state, shadowing and alpha-renaming controls. The separate
+[initializer/absence matrix](behavioral-source.md#initializer-and-absence-qualification)
+uses these same immutable tools for exact candidates and raw-reference probes,
+with explicit reference discrepancies. Original/explicit corpus success alone
+does not establish initializer or absence agreement.

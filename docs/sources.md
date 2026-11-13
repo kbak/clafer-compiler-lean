@@ -122,8 +122,8 @@ Choco declaration ordering and DOT keyword quoting are reference output changes.
 The existing Choco comparison consumer is rebuilt against the selected Haskell
 library; the Lean compiler gains neither backend. Source headers use the accepted
 [initializer contract](behavioral-frontend.md#hard-declaration-initializers),
-while final initializer/absence comparison remains with
-[feature qualification](https://github.com/kbak/clafer-compiler-lean/issues/127).
+with the [initializer/absence comparison matrix](behavioral-source.md#initializer-and-absence-qualification)
+retaining the reference discrepancies for independent review.
 The resolved constant-initializer helper retains its upstream `Initializers.Legacy` meaning.
 Reference fixed points, resolved M1 preservation and full behavioral source
 correctness remain separate evidence; the cancelled source-format project is
@@ -1058,8 +1058,22 @@ hard `:=`, lifetime-start `finalref`, inherited equations and temporal selection
 Its blanket inherited-`=`/own-`:=` warning is not adopted: both equations retain
 their own scope and clock and can conflict. Its reference-substitution handling
 of temporal `let` is comparison behavior, not the accepted capture semantics.
-The [current tool qualification](#clafer-058-source-and-replay) does not
-discharge the separate [initializer/absence comparison gate](https://github.com/kbak/clafer-compiler-lean/issues/127).
+The [current tool qualification](#clafer-058-source-and-replay) does not itself
+discharge the [initializer/absence comparison gate](behavioral-source.md#initializer-and-absence-qualification).
+That matrix reuses the installed semantic pin's `InitializerContractExamples`,
+`InitializerSourceExamples`, `InitializerProductionExamples` and
+`InitializerReplacementExamples` to select distinguishing source observations.
+The inspected Haskell
+[`Desugarer.desugarInit`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/src/Language/Clafer/Intermediate/Desugarer.hs)
+emits hard equations and distinguishes authored singleton/collection clocks;
+[`AlloyLtl.genConstraints`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/src/Language/Clafer/Generator/AlloyLtl.hs)
+guards reference totality by liveness without requiring absent-head emptiness.
+Fresh raw-table probes retain the latter discrepancy. Temporal RHS transport,
+temporal selection and abstract admission remain explicit comparison differences,
+not new source rules. Static Choco checks reuse the registered CLI's `Main`,
+`Normal` and `ExplicitParser` paths with captured explicit input and scopes.
+No Haskell, claferIG, Alloy or Choco revision, historical source hash, dependency
+or license changes are introduced by these comparisons.
 
 The compiler reuses upstream classification, structural fibers, transport,
 compatibility and finality results with its actual resolved expression evaluator.
