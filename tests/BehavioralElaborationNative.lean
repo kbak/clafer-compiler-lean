@@ -267,7 +267,6 @@ def initializerOrigins : IO Unit := do
     | _ => fail "initializer origin equation"
 
 -- [utest->req~compiler-behavioral-elaboration~1]
--- [utest->req~compiler-behavioral-profile~1]
 def initializerAdmission : IO Unit := do
   for (rhs, temporal) in [("A ++ A", false), ("if X (some A) then A else A", true)] do
     let m ← load ("A ?\nx -> int ? := 0\n[let unused = (" ++ rhs ++ ") in some root]\n")
