@@ -129,16 +129,24 @@ def First (doc : Document) (c : Candidate n) (self : Path) (name : String) (j : 
 
 instance : Decidable (First doc c self name j) := by unfold First; infer_instance
 
-def Steps (doc : Document) (c : Candidate n) : List Name → Fin n → Fin n → Prop
-  | [], a, b => a = b
-  | name :: rest, a, b => ∃ next, Child doc c a name.text [] next ∧ Steps doc c rest next b
+def Steps (doc : Document) (c : Candidate n) (names : List Name) : Fin n → Fin n → Prop :=
+  names.foldr (fun name rest a b => ∃ next, Child doc c a name.text [] next ∧ rest next b)
+    (fun a b => a = b)
+
+/-- Use the project's bounded `Nat.rec` pattern so decision checking has no
+compiler-generated unsafe list-recursion helper. Fuel never changes the relation. -/
+def stepsDecidableAt (doc : Document) (c : Candidate n) : (fuel : Nat) →
+    (names : List Name) → names.length < fuel → (a b : Fin n) → Decidable (Steps doc c names a b) :=
+  Nat.rec (fun _ h _ _ => False.elim (Nat.not_lt_zero _ h))
+    (fun _ next names h a b => match names with
+      | [] => inferInstanceAs (Decidable (a = b))
+      | name :: rest =>
+        have enough : rest.length < _ := by simp only [List.length_cons] at h; omega
+        have : ∀ a, Decidable (Steps doc c rest a b) := fun a => next rest enough a b
+        inferInstanceAs (Decidable (∃ target, Child doc c a name.text [] target ∧ Steps doc c rest target b)))
 
 instance stepsDecidable (names : List Name) (a b : Fin n) : Decidable (Steps doc c names a b) :=
-  match names with
-  | [] => inferInstanceAs (Decidable (a = b))
-  | _ :: rest =>
-    have : ∀ a, Decidable (Steps doc c rest a b) := fun a => stepsDecidable rest a b
-    inferInstanceAs (Decidable (∃ next, Child doc c a _ [] next ∧ Steps doc c rest next b))
+  stepsDecidableAt doc c (names.length + 1) names (by omega) a b
 
 -- [proof->req~compiler-behavioral-structural-bridge~1]
 theorem steps_unique (names : List Name) (ha : Steps doc c names start a)

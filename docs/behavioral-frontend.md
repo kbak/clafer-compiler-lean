@@ -121,7 +121,9 @@ that successful header synthesis satisfies these rules.
 ## Let capture and comparison boundary
 
 The RHS is an `E16` expression (parentheses permit looser categories), evaluated
-in the previous environment before the new binder is introduced. The body sees
+in the previous environment before the new binder is introduced. It must
+elaborate to an object/value collection or scalar integer; formulas are not
+binder values. The body sees
 the nearest binding at slot zero; a shadowing declaration cannot recapture its
 own RHS. Captures preserve values across time and evaluate unused bindings
 strictly. The native elaboration tests exercise compound RHSs, nested shadowing,
