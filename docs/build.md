@@ -104,6 +104,10 @@ CPUs and defaulting to two, then runs the remaining groups concurrently. The bou
 in that corpus therefore do not compete with Lean compilation in other suites.
 Every group must execute without skips and pass, including after a failed PR113
 phase. It retains every discovered case and propagates each group's failure.
+The behavioral source CLI then runs exclusively, using the same group registry
+and subprocess runner, so its native compilation deadlines do not compete with
+concurrent Lean and solver work. Its missing, empty, skipped and failing suites
+remain rejected, and the serial/parallel runner fixtures check this exclusion.
 The full temporal target suite uses its own early subprocess group, so the
 other compiler regressions can overlap its solver work. This reuses the existing
 group registry, bounded executor and subprocess isolation rather than adding a

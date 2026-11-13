@@ -140,9 +140,13 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 mods=first[len('abstract '):].split(' R ')[0]
                 c['source']='abstract R ->> int\n'+mods+' r : R *\n'
                 selected.append((name,c))
-        for name,c in selected:
+        def compare(row):
+            name,c=row
+            return name,bh.compare(self.runtime,tools,c,self.output/('haskell-'+name))
+        with ThreadPoolExecutor(max_workers=case_workers()) as pool:
+            observations=list(pool.map(compare,selected))
+        for name,answer in observations:
             with self.subTest(name=name):
-                answer=bh.compare(self.runtime,tools,c,self.output/('haskell-'+name))
                 # Accepted Structural.Keys requires inherited set uniqueness.
                 # This pinned Haskell generator omits the concrete-fiber key.
                 expected=['target-only'] if name=='inherited-set' else []

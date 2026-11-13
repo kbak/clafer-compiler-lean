@@ -161,8 +161,9 @@ Set `CLAFER_ORACLE_EVIDENCE` to an external directory to retain oracle runs
 The shared check validates syntax/links, inventories all Lean modules, builds
 libraries/tests/native code, exercises the real pinned comparison tools, audits project declarations and their transitive
 axioms, runs all Python/native regressions, and replays the kernel. M1 comparison,
-CLI and audit regressions share one worker; source CLI and pipeline comparisons
-share another. The PR113 corpus runs before the other groups so its bounded
+CLI and audit regressions share one worker; static source CLI and pipeline comparisons
+share another. The behavioral source CLI runs in its own exclusive phase before
+concurrent solver work, preserving its native compilation deadlines. The PR113 corpus runs before the other groups so its bounded
 solver queries do not compete with Lean compilation. It reuses the runner's
 `CLAFER_TEST_JOBS=1..4` budget for independent cases, defaulting to two and capped
 by available CPUs. Every query retains its own bounds, deadline and evidence.

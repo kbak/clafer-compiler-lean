@@ -649,6 +649,11 @@ existing executor; source and reference cases default to two workers. Every
 authored fixture, exact trace, mutation, source observation and fresh solver
 query remains required. This reuses case-level isolation instead of changing
 the semantic domain, caching verdicts or enlarging the full-check deadline.
+Revision-qualified Haskell observations use that same executor; replay still
+launches fresh queries after checking the collected observations. The source CLI
+uses an exclusive phase through the existing subprocess group runner, avoiding
+native compilation timeouts caused by competing solver work without extending
+its deadlines or adding synchronization infrastructure.
 
 ```sh
 python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \

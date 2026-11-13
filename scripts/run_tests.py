@@ -16,7 +16,8 @@ import unittest
 ISOLATED_GROUPS = {
     # This corpus runs exclusively, preserving its per-query solver budgets.
     '--pr113-worker': {'test_pr113_oracles'},
-    '--behavioral-source-worker': {'test_behavioral_source_cli', 'test_behavioral_source_comparison'},
+    '--behavioral-cli-worker': {'test_behavioral_source_cli'},
+    '--behavioral-source-worker': {'test_behavioral_source_comparison'},
     '--temporal-target-worker': {'test_alloy_temporal'},
     '--source-worker': {'test_source_cli', 'test_source_pipeline'},
     '--isolated-worker': {'test_cli', 'test_cli_external', 'test_axiom_audit', 'test_comparison',
@@ -28,7 +29,7 @@ ISOLATED_GROUPS = {
 }
 ISOLATED_MODULES = set.union(*ISOLATED_GROUPS.values())
 REFERENCE_MODULES = {'test_pr113_oracles', 'test_temporal_oracles'}
-SOURCE_MODULES = ISOLATED_GROUPS['--behavioral-source-worker']
+SOURCE_MODULES = ISOLATED_GROUPS['--behavioral-source-worker'] | ISOLATED_GROUPS['--behavioral-cli-worker']
 
 
 def cases(suite):
@@ -78,7 +79,7 @@ if all(present):
     if requested < 1 or requested > 4:
         raise SystemExit('CLAFER_TEST_JOBS must be between 1 and 4')
     worker_count = max(1, min(requested, cpus))
-    print(f'Regression groups: {len(ISOLATED_GROUPS) + (-1 if compiler_ci else 1)}; workers: {worker_count}', flush=True)
+    print(f'Regression groups: {len(ISOLATED_GROUPS) + (-2 if compiler_ci else 1)}; workers: {worker_count}', flush=True)
     def timed(label, action, *args):
         started = time.monotonic()
         result = action(*args)
@@ -90,6 +91,10 @@ if all(present):
     # Do not make bounded solver queries compete with Lean compilation/checkers.
     # Still run every other group if this mandatory phase fails.
     results = [] if compiler_ci else [timed('--pr113-worker', isolated, '--pr113-worker')]
+    # Keep the source CLI's native compilation deadlines independent of the
+    # concurrent solver and Lean workloads. Its full suite remains mandatory.
+    if not compiler_ci:
+        results.append(timed('--behavioral-cli-worker', isolated, '--behavioral-cli-worker'))
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
@@ -99,7 +104,7 @@ if all(present):
                                                        '--behavioral-source-worker')]
         futures.append(pool.submit(timed, 'remaining', run, remaining))
         futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS
-                       if flag not in {'--pr113-worker','--behavioral-source-worker'})
+                       if flag not in {'--pr113-worker','--behavioral-cli-worker','--behavioral-source-worker'})
         results.extend(future.result() for future in futures)
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)
