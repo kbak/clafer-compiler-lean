@@ -50,6 +50,74 @@ def patterns():
 def case_status(satisfied): return 'satisfied' if satisfied else 'violated'
 
 
+def absence_cases():
+    """Accepted absence consequences, with deliberately retained hidden scalars.
+
+    Expectations follow semantics #168/#172, not generated target formulas.
+    Reference equality is relational; arithmetic coercion of empty is zero.
+    """
+    for name,body,good in (
+        ('value', 'X (this = 3)', False),
+        ('negative-value', 'X (this != 3)', True),
+        ('disappearance', 'X (no this)', True),
+        ('contradictory-values', 'X (this = 3) && X (this = 4)', False),
+        ('coerced-empty-zero', 'X (this + 1 = 1)', True),
+        ('empty-minimum', 'X (min this = 0)', False),
+        ('negative-empty-minimum', 'X (!(min this = 0))', True),
+        ('captured-empty-extraction', 'all old : this | X (sum old = 0)', False),
+        ('negative-captured-extraction', 'all old : this | X (!(sum old = 0))', False)):
+        for ghost in ((0,1) if 'extraction' in name else (0,3)):
+            yield name+'-ghost-'+str(ghost),('undefined' if 'extraction' in name else case_status(good)),case(
+                'c -> int ?\n  ['+body+']\n',2,[(1,1,0)],[[1],[]],
+                values=[{1:1},{1:ghost}],interval=(0,1) if 'extraction' in name else (0,4),
+                width=3 if 'extraction' in name else 4)
+    yield 'live-value','satisfied',case('c -> int ?\n  [X (this = 3)]\n',2,
+        [(1,1,0)],[[1],[1]],values=[{1:3},{1:3}],interval=(0,4))
+    yield 'never-live-scalar','satisfied',case('c -> int ?\n  [X (this = 3)]\n',2,
+        [(1,1,0)],[[],[]],values=[{1:3},{1:4}],interval=(0,4))
+    yield 'captured-head-current-deref','satisfied',case(
+        'c -> int ?\n[all old : c | X (no old.dref)]\n',2,[(1,1,0)],[[1],[]],
+        values=[{1:1},{1:3}],interval=(0,4))
+    for inherited in (False,True):
+        for cancel in (False,True):
+            source=('abstract R -> int\n  [X (this = 3)]\nP ?\n  c : R ?\n'
+                    if inherited else 'P ?\n  c -> int ?\n    [X (this = 3)]\n')
+            pd,cd=(2,3) if inherited else (1,2)
+            yield f'parent-cancel-{cancel}-inherited-{inherited}',case_status(cancel),case(
+                source,cd+1,[(1,pd,0),(2,cd,1)],[[1,2],[] if cancel else [1]],
+                values=[{2:1},{2:3}],interval=(0,4),supers={3:1} if inherited else {})
+    for negative in (False,True):
+        body='!(sum old = 0)' if negative else 'sum old = 0'
+        yield 'cancel-undefined-'+str(negative),'satisfied',case(
+            'P ?\n  c -> int ?\n    [all old : this | X ('+body+')]\n',3,
+            [(1,1,0),(2,2,1)],[[1,2],[]],values=[{2:1},{2:0}],interval=(0,1),width=3)
+    transitions='c -> int ?\n  [this = 1 --> this = 2]\n  [this = 2 --> this = 1]\n'
+    counter=transitions+'[initially c = 1]\n'
+    yield 'counter-no-enabled-transition','satisfied',case(
+        transitions+'[initially some c]\n',2,[(1,1,0)],[[1],[]],
+        values=[{1:0},{1:1}],interval=(0,4))
+    for name,live,values,loop,good in (
+        ('counter-loop',[[1],[1]],[{1:1},{1:2}],0,True),
+        ('counter-wrong-loop',[[1],[1]],[{1:1},{1:2}],1,False),
+        ('counter-replacement',[[1],[2]],[{1:1},{1:2,2:2}],0,False),
+        ('counter-rebirth-gap',[[1],[],[1]],[{1:1},{1:2},{1:1}],0,False)):
+        yield name,case_status(good),case(counter,2,[(1,1,0),(2,1,0)],live,
+            values=values,loop=loop,interval=(0,4))
+    yield 'rebirth-no-pending-value','satisfied',case('c -> int ?\n',2,[(1,1,0)],
+        [[1],[],[1]],values=[{1:1},{1:4},{1:2}],loop=0,interval=(0,4))
+    for hidden in (False,True):
+        yield 'object-absent-row-'+str(hidden),case_status(not hidden),case(
+            'T\nr -> T ?\n',3,[(1,1,0),(2,2,0)],[[1,2],[1]],
+            refs=[[[2,2,1]],[[2,2,1]] if hidden else []])
+    yield 'object-never-live-row','violated',case('T\nr -> T ?\n',3,
+        [(1,1,0),(2,2,0)],[[1]],refs=[[[2,2,1]]])
+    for hidden in (False,True):
+        yield 'refined-object-absent-row-'+str(hidden),case_status(not hidden),case(
+            'abstract T\nS : T\nabstract R -> T\nr : R -> S ?\n',5,
+            [(1,2,0),(2,4,0)],[[1,2],[1]],
+            refs=[[[3,2,1],[4,2,1]],[[4,2,1]] if hidden else []],supers={2:1,4:3})
+
+
 def features():
     for name,expression,good in (
         ('singleton','X (one root)',True),

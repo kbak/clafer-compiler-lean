@@ -4,13 +4,14 @@ import copy
 import os
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts/comparison'))
 import behavioral_source as bs
-from behavioral_source_cases import case, features, patterns
+from behavioral_source_cases import absence_cases, case, features, patterns
 import behavioral_haskell as bh
 
 
@@ -26,6 +27,74 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         if not tools: raise AssertionError('CLAFER_ORACLE_TOOLS required')
         cls.runtime=bs.Runtime(tools,cls.output/'runtime')
         print(f'Full source evidence: {cls.output}',flush=True)
+
+    # [utest->req~compiler-behavioral-partial-lowering~1]
+    # [utest->req~compiler-full-behavioral-correctness~1]
+    # [utest->req~compiler-trace-representation~1]
+    def test_absent_reference_observations(self):
+        fixtures=list(absence_cases())
+        self.assertEqual(len({name for name,_,_ in fixtures}),len(fixtures))
+        def compare(row):
+            name,expected,c=row
+            result=self.runtime.compare(c,self.output/('absence-'+name))
+            return name,expected,result
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(compare,fixtures))
+        for name,expected,result in results:
+            with self.subTest(name=name):
+                self.assertEqual(result,dict(status='complete',source=expected,
+                    target='sat' if expected=='satisfied' else 'bounded_unsat',directions=[]))
+        bs.oracle.write(self.output/'absence-results.json',results)
+        # Exact comparison includes every stored scalar, even when unobservable.
+        # Replaying a passing cancellation witness retains both frames and loop.
+        name='absence-parent-cancel-True-inherited-True'
+        answer=next(r for n,_,r in results if 'absence-'+n==name)
+        self.assertEqual(bs.replay(self.runtime,self.output/name,self.output/'absence-replay'),answer)
+
+    # [utest->req~compiler-behavioral-partial-lowering~1]
+    def test_absent_divisor_admission(self):
+        # Cancellation and a supplied disappearing trace do not relax the
+        # existing conservative range admission of a possibly zero divisor.
+        for negative in (False,True):
+            body='!(1 / this = 1)' if negative else '1 / this = 1'
+            c=case('P ?\n  c -> int ?\n    [X ('+body+')]\n',3,
+                [(1,1,0),(2,2,1)],[[1,2],[]],values=[{2:1},{}],interval=(0,4))
+            output=self.output/('absence-divisor-'+str(negative));output.mkdir()
+            with self.assertRaises(subprocess.CalledProcessError):
+                self.runtime.compile(output,c)
+            self.assertIn('behavioral.possible-zero-divisor',
+                (output/'compile-stderr.log').read_text())
+
+    # [utest->req~compiler-behavioral-encoding~1]
+    # [utest->req~compiler-full-behavioral-correctness~1]
+    def test_generated_absence_obligations(self):
+        # These are unconstrained solver witnesses, not fixed candidate queries.
+        # Root persistence and initial presence make the negative model genuinely
+        # contradictory throughout the selected bounds, rather than just ruling
+        # out one supplied disappearing trace.
+        for value_obligation in (False,True):
+            source='c -> int ?\n  [X (no this)]\n'
+            if value_obligation: source+='  [X (this = 3)]\n'
+            source+='[initially some c]\n'
+            c=case(source,2,[(1,1,0)],[[1],[]],interval=(0,4))
+            output=self.output/('absence-generated-'+str(value_obligation));output.mkdir()
+            p=self.runtime.compile(output,c)
+            (output/'model.als').write_text(p['alloy'])
+            request=dict(command_index=0,overall=1,bitwidth=p['bitwidth'],
+                min_steps=p['minSteps'],max_steps=p['maxSteps'],identities=p['scopes'])
+            answer=bs.temporal.solve(self.runtime.runtime,self.runtime.api,output,request,
+                timeout=120,integer_fields=[bs.SCALAR])
+            bs.oracle.write(output/'result.json',answer)
+            self.assertEqual(answer['status'],'ok',answer)
+            self.assertEqual(answer['outcome'],'bounded_unsat' if value_obligation else 'sat',answer)
+            if not value_obligation:
+                decoded=self.runtime.decode(output,answer['trace'],'generated-witness')
+                self.assertEqual(bs.Observation(p,decoded).check()['status'],'satisfied')
+                head=next(i['id'] for i in decoded['identities'] if i['type']==1)
+                self.assertIn(head,decoded['frames'][0]['live'])
+                self.assertNotIn(head,decoded['frames'][1]['live'])
+                self.assertTrue(all(not f['references'] for f in decoded['frames']))
+                self.assertTrue(all(len(f['values'])==len(decoded['identities']) for f in decoded['frames']))
 
     def test_full_feature_observations(self):
         fixtures=list(features())+list(patterns())

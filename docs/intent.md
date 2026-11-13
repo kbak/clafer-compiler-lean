@@ -75,6 +75,10 @@ The [full encoding](behavioral-encoding.md#full-profile-runtime) accepts elabora
 model/check/run requests with the complete partial-expression surface and rich
 structural core. Its concrete trace representation retains all ordinary identities
 and completes finite integer observations into the mathematical integer carrier.
+[Absent reference observations](behavioral-encoding.md#absent-reference-observations)
+are empty, while checked decoding retains total scalar storage and each identity's
+history. Parent cancellation and empty partial observations keep their adopted
+source meanings.
 The component contract records the recursive preservation, scope premises and
 composed in-memory proof boundary. The [source CLI](behavioral-source.md) composes these APIs with explicit full-profile
 bounds and property commands. Final qualification and independent acceptance

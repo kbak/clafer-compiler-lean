@@ -22,6 +22,10 @@ strict JSON decoder, UTF-8 diagnostics and atomic output replacement.
 The first-slice JSON driver cannot admit full expressions or inherited references.
 Its trace decoder also has no scalar fields. Reuse its closed-schema and global
 identity checks while keeping the full profile's scalar observations explicit.
+Full decoding preserves all scalar rows at every frame, including absent identities;
+[source reference observations](behavioral-encoding.md#absent-reference-observations)
+restrict those values to live heads. Potentially zero divisors remain an admission
+error even when a particular observation would disappear or cancel.
 The exact-candidate phase clock, global isomorphism and retained replay machinery
 in `scripts/comparison/temporal_compare.py` can preserve lasso presentations.
 Its historical Haskell adapter only admits a guarded structural subset; it cannot

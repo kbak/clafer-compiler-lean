@@ -346,6 +346,9 @@ contains data equations only. Distinct heads with equal referents remain distinc
 per-state renaming cannot disguise replacement. Prove concrete representation
 and round-trip boundaries and derive decoding data from independent target facts.
 Do not substitute assumed source validity or target truth for these equations.
+Full scalar tables remain explicit decoder data even at absent or never-live
+identities. Prove that changing only absent scalar storage does not change the
+completed source trace; do not hide invalid raw object-reference tuples.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -402,6 +405,10 @@ Compile the complete selected behavioral expression and structural profile at th
 elaborated in-memory boundary. Prove preservation of original partial values,
 raw truth and both source signs through the actual recursive lowering, including
 frozen captures, whole-tuple counting and repeated aggregate occurrences.
+Preserve empty raw and inherited reference images at absent occurrences. A
+captured identity observes the current reference relation, not a stored old value.
+Distinguish child disappearance from parent cancellation, relational emptiness
+from undefined scalar extraction, and their consequences under both signs.
 Derive source structural validity and model/query satisfaction from successful
 compilation and satisfaction of its actual target module. Prove the reverse for
 represented source lassos under concrete data-only identity, declaration scope,
