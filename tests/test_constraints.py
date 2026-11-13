@@ -31,7 +31,7 @@ class ConstraintTests(unittest.TestCase):
         cls.modules = ['tests.ConstraintsNative', 'ClaferCompiler.IR.Structural',
                        'ClaferCompiler.IR.StructuralNormalization', 'ClaferCompiler.IR.Expr',
                        *(f'ClaferCompiler.Frontend.{m}' for m in
-                         ['Surface', 'Lexer', 'Parser', 'Defaults', 'Resolve', 'ConstraintsSupport',
+                         ['Surface', 'Lexer', 'Parser', 'Defaults', 'BehavioralLookup', 'Resolve', 'ConstraintsSupport',
                           'ConstraintsRules', 'ConstraintsNames', 'ConstraintsCoercions', 'ConstraintsOps', 'Constraints'])]
         files = [*(ROOT / (m.replace('.', '/') + '.lean') for m in cls.modules),
                  ROOT / 'tests/ConstraintsInventory.lean', ROOT / 'ClaferCompiler/SemanticsBridge/Constraints.lean',

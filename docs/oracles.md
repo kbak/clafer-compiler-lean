@@ -530,8 +530,8 @@ The library capture does not invoke upstream `clafer -v` or `make test`.
 this harness independently checks process results, exact fixed points and
 complete command coverage. The upstream positive runner still returns zero for
 invalid `JOBS` after an `xargs -P` error with an empty failure list. Its status
-is not qualification evidence. This repository retains at most two concurrent
-cases and each query's 30-second/512-MiB budget. Missing tools, interrupted
+is not qualification evidence. This repository uses the bounded case-worker
+budget described below and retains each query's 30-second/512-MiB budget. Missing tools, interrupted
 processes, malformed inputs and timeouts remain failures, never skipped gates.
 
 Full assertion/encoder correctness, normalization and later release deltas remain
@@ -634,6 +634,15 @@ corpus and current temporal inputs, including initializer inputs as reference
 fixtures only. Current static and temporal integer fields use the inspected target types for
 scalar decoding; the historical PR113 selectors retain their original boundaries. Original and explicit outputs must reach a printer fixed point
 and agree on paired bounded runs/checks. This is not exact-lasso equivalence.
+
+The exclusive reference phase reuses Python's `ThreadPoolExecutor` and the
+runner's `CLAFER_TEST_JOBS=1..4` budget, defaulting to two and capped by available
+CPUs. This accommodates the additional current corpus without removing historical
+queries or extending their deadlines. Each case retains separate processes and
+evidence; compiler regressions start after all reference corpora finish. The
+existing executor meets the scheduling need without another runner, persistent
+solver, package or license dependency. Its scheduling is runtime tooling, outside
+the Lean proof boundary.
 
 ```sh
 python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \

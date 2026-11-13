@@ -98,8 +98,9 @@ replay environments out of each regression's CPU and memory budget. Every gate
 runs even if another validation gate failed; every exit status must succeed.
 Replay uses two workers to bound large imported environments resident at once. Failures in the audit, replay or
 regressions fail the check. No module, test or kernel gate is skipped.
-The regression runner runs both revision-specific PR113 corpora first, each with
-its existing two case workers, then runs the remaining groups concurrently. The bounded solver queries
+The regression runner runs the historical PR113 and current 0.5.8 corpora first,
+each using the existing `CLAFER_TEST_JOBS=1..4` worker budget, capped by available
+CPUs and defaulting to two, then runs the remaining groups concurrently. The bounded solver queries
 in that corpus therefore do not compete with Lean compilation in other suites.
 Every group must execute without skips and pass, including after a failed PR113
 phase. It retains every discovered case and propagates each group's failure.

@@ -17,6 +17,15 @@ import pr113_protocol as protocol
 import temporal
 
 
+def corpus_workers():
+    """Reuse the runner's bounded worker budget during its exclusive phase."""
+    cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
+    requested = int(os.environ.get('CLAFER_TEST_JOBS', '2'))
+    if requested < 1 or requested > 4:
+        raise ValueError('CLAFER_TEST_JOBS must be between 1 and 4')
+    return max(1, min(requested, cpus))
+
+
 # [utest->req~compiler-temporal-oracles~1]
 class PR113Oracles(unittest.TestCase):
     @classmethod
@@ -32,8 +41,7 @@ class PR113Oracles(unittest.TestCase):
         cls.cases = pr113.read(pr113.CORPUS)['cases']
         def run(case):
             return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
-        cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1, min(2, cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
             cls.results = dict(pool.map(run,cls.cases))
         oracle.write(cls.output/'summary.json',cls.results)
 
@@ -216,8 +224,7 @@ class PR113C7Oracles(PR113Oracles):
         cls.cases = pr113.read(pr113.corpus(cls.tools))['cases']
         def run(case):
             return case['id'], pr113.run_case(cls.tools,case,cls.output/case['id'])
-        cpus = len(os.sched_getaffinity(0)) if hasattr(os,'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1,min(2,cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
             cls.results = dict(pool.map(run,cls.cases))
         oracle.write(cls.output/'summary.json',cls.results)
 
@@ -458,8 +465,7 @@ class Clafer058Oracles(PR113C7Oracles):
         cls.cases = pr113.read(pr113.corpus(cls.tools))['cases']
         def run(case):
             return case['id'], pr113.run_case(cls.tools, case, cls.output / case['id'])
-        cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
-        with ThreadPoolExecutor(max_workers=max(1, min(2, cpus))) as pool:
+        with ThreadPoolExecutor(max_workers=corpus_workers()) as pool:
             cls.results = dict(pool.map(run, cls.cases))
         oracle.write(cls.output / 'summary.json', cls.results)
 

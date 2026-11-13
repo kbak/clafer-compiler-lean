@@ -232,10 +232,10 @@ class ParserTests(unittest.TestCase):
         positives = ['A', 'A\n  B ?', 'abstract Base\nA : Base',
                      'Target\nOwner\n  ref -> Target *', 'Target\nOwner\n  ref ->> Target *',
                      'xor A\n  B\n  C', 'A { B\n C }', 'À\n  Café',
-                     '/* comment */ A', 'A\n1..* B', 'A\n?', 'A\n: Base', 'A { B\n -> T }', '[a][b]', 'A [some A]', 'A {\n B\n  C\n}',
+                     '/* comment */ A', 'A\n1..* B', 'A { B\n -> T }', '[a][b]', 'A [some A]', 'A {\n B\n  C\n}',
                      '[all x : A | some x]', '[a + b = c]', '[a => b => c]',
                      '[a ++ b -- c ** d]', '[one a - b]', '[a = some b - c]', '[(some a) + b]', '[a not in b]', '[]', '`Base ?']
-        negatives = ['[a + ]', '[all x A | x]', '/* unfinished', '_name', 'A B', 'abstract\n  B', 'A ->\n B', '[some a + b]', '[no a ++ b + c]']
+        negatives = ['A\n?', 'A\n: Base', '[a + ]', '[all x A | x]', '/* unfinished', '_name', 'A B', 'abstract\n  B', 'A ->\n B', '[some a + b]', '[no a ++ b + c]']
         observations = []
         for expected, inputs in [(True, positives), (False, negatives)]:
             ours = self.parse_many(inputs)
@@ -258,15 +258,16 @@ class ParserTests(unittest.TestCase):
                     self.assertEqual(inventory.get('Clafer', 0), our.count('(decl '))
                     self.assertEqual(inventory.get('ReferenceBag', 0), our.count('->>'))
                     self.assertEqual(inventory.get('ReferenceSet', 0), our.count('->') - our.count('->>'))
-        # Known reference EOF crashes remain tool errors, never parse agreement.
+        # The 0.5.8 exporter retains EOF exceptions as execution-error JSON,
+        # distinct from a compiler parse rejection and never parse agreement.
         for source in ['A {', '[a', 'A ->']:
             path = self.output / f'reference-crash-{len(observations)}.cfr'
             path.write_text(source)
             p = subprocess.run([str(exporter), str(path)], capture_output=True, text=True, timeout=15)
             path.with_suffix('.stdout').write_text(p.stdout)
             path.with_suffix('.stderr').write_text(p.stderr)
-            self.assertEqual(p.returncode, 1)
-            self.assertTrue(p.stderr.startswith('clafer-capture: EOF'))
+            self.assertEqual(p.returncode, 0)
+            self.assertEqual(json.loads(p.stdout), {'status': 'error', 'errors': ['EOF']})
             ours = self.parse_many([source])[0]
             self.assertTrue(ours.startswith('malformed|'))
             observations.append({'source': source, 'reference': 'tool_error', 'ours': ours})
