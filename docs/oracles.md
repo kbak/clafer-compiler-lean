@@ -338,8 +338,8 @@ Keep this candidate and static profile intact. Before adopting release bytes:
 
 `behavioral-pr113-9a0f16e/v1` selects the immutable later Haskell revision in the
 [source register](sources.md#pr113-delta-candidate). It is a qualification
-candidate awaiting independent review. The primary behavioral pin, old temporal
-profile, static profile and their capture/replay protocols remain unchanged.
+historical profile with its own producer and capture/replay protocol. Current
+0.5.8 qualification is registered separately; it does not change these receipts.
 
 Reuse assessment: `temporal.py` supplies duplicate-key JSON parsing, bridge
 compilation, bounded solving and complete trace validation; `temporal_build.py`
@@ -514,8 +514,8 @@ changelog's claim concerning 27 models.
 Independent meaning comes from pinned `Properties.Constraint.root_holds` and
 `Anchors.root_recurrence`, under singleton/permanent-root assumptions. The later
 upstream `PatternExamples.root_attachment_not_initially` is a useful related
-witness but is absent from the installed semantic pin; no unaccepted dependency
-is imported to obtain it. The local distinguishing trace checks the same
+witness that was absent at the original comparison checkpoint; that qualification
+imported no unaccepted dependency to obtain it. The local distinguishing trace checks the same
 attachment distinction. None of these facts assumes Haskell preservation.
 
 Another known limitation: a top-level `this.item` navigation emits the ill-typed Alloy
@@ -534,11 +534,11 @@ is not qualification evidence. This repository retains at most two concurrent
 cases and each query's 30-second/512-MiB budget. Missing tools, interrupted
 processes, malformed inputs and timeouts remain failures, never skipped gates.
 
-Candidate acceptance, primary-pin adoption, full assertion/encoder correctness,
-normalization and later release deltas remain separate review obligations. The
-source/tool disposition and exact-text/warning evidence are inputs to the
-[trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79) and
-[explicit-form](https://github.com/kbak/clafer-compiler-lean/issues/86) tasks.
+Full assertion/encoder correctness, normalization and later release deltas remain
+separate review obligations. These historical source/tool observations supplied
+the [trace comparison](https://github.com/kbak/clafer-compiler-lean/issues/79).
+The source-format proof project was cancelled; reference explicit-output fixed
+points do not revive it or replace the distinct resolved M1 preservation proof.
 
 ## Choco instance tooling
 

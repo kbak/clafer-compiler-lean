@@ -293,14 +293,15 @@ operation, temporal meaning or static-policy rule changes.
 
 The complete inspected `ResolverName.hs` and `ResolverType.hs` files are
 byte-identical at the qualified comparison revision
-`c7a2fb7d0ba601f52efeac459d12f859a40580fe`. The source comparison regressions use
-that pinned exporter and Alloy 6.2.0; the task retains the exact file comparison
-and direct Alloy probes as external evidence. Native/parser/warning behavior
+`c7a2fb7d0ba601f52efeac459d12f859a40580fe`. The original source comparison used
+that pinned exporter and Alloy 6.2.0; its exact file comparison and direct Alloy
+probes remain historical evidence. Current regressions use the registered 0.5.8 tools. Native/parser/warning behavior
 and bounded solver results remain tests. Source derivations and interpretation
 reuse existing kernel-checked terms and proofs. Independent candidate review is
-still required. The primary `behavioral-0.5.7-candidate/v1` reference remains
-`af858ec0fe3ce2ceacb7fd120947c058233086d6` with D1–D5; this amendment does not
-adopt the intervening release or replace any historical Haskell/oracle pin.
+still required. That amendment retained the original
+`behavioral-0.5.7-candidate/v1` reference and D1–D5. The later
+[current profile](#clafer-058-source-and-replay) supplies a separately reviewed
+pin without relabeling those historical observations.
 
 ## Published source and locators
 
@@ -709,9 +710,9 @@ retain them in the comparison domain; no blanket 0.5.7 equivalence is asserted.
 
 The separate qualification profile pins
 [`9a0f16ed18bdfb5277bedcc6577731f4b422be77`](https://github.com/gsdlab/clafer/tree/9a0f16ed18bdfb5277bedcc6577731f4b422be77).
-It does not replace `af858ec` as the primary behavioral source or change the
-static comparison pin. Its accepted comparison role does not adopt it as the
-primary source profile.
+This historical comparison profile retained `af858ec` as the source checkpoint
+and its original static pin. The current 0.5.8 profile is separately registered
+above; neither its producer nor its receipts are substituted into this inventory.
 The [delta inventory](../tests/fixtures/pr113/delta.json) records both endpoints,
 all ten intervening commits and exact old/new hashes for all 40 changed source,
 build, documentation and test files outside generated regressions. The full
@@ -906,8 +907,9 @@ semantics `6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4` and Haskell
 `translateTmpPatterns`, binder and initializer cases), `AlloyLtl.hs`
 (`genQuant`, `genDecl`) and CheatSheet temporal sections. The registered source
 hashes remain unchanged. Haskell list-to-first-modifier truncation and its two
-pattern discrepancies are not adopted. The native comparison retains its `LetExp`
-desugaring crash distinctly from parsed/compiled outcomes.
+pattern discrepancies are not adopted. The historical comparison records its
+`LetExp` desugaring crash distinctly from parsed/compiled outcomes; current 0.5.8
+parsing and the temporal capture exclusions are qualified separately.
 
 Executable reduction equations adapt upstream MIT `Patterns.expand`,
 `Transitions.Chain.sequence`/`expand`/`declaration` and `Modifiers.expand`.
@@ -999,8 +1001,9 @@ meanings; historical receipts keep their original identities.
 
 S7 explicitly accepts `behavioral-0.5.7-candidate/v1` with Haskell
 `af858ec0fe3ce2ceacb7fd120947c058233086d6` and D1–D5. This source integration
-retains that immutable prerelease disposition. It does not adopt a moving
-release or relabel the separately qualified PR113 comparison candidates.
+retained that immutable prerelease disposition at the S7 checkpoint. The current
+0.5.8 adoption retains D1–D5 and the historical receipts; it does not track a moving
+release or relabel the separately qualified PR113 comparisons.
 At the S7 checkpoint, the static Haskell 0.5.4 and Alloy 6.2.0 pins and their expected corpus outcomes
 were unchanged; fresh tool receipts bound their reuse to that semantics source.
 
@@ -1029,7 +1032,9 @@ retains this limitation without changing source semantics.
 ## Accepted semantics-main dependency
 
 The installed dependency is immutable upstream main
-`8914ce01386366296e61f049a04bbc6d24db34c4`, accepted through the
+`e96284c98b103fe0871c00eb96210a40e5c1ea67`, with its accepted
+[0.5.8 source/build/let delta](#clafer-058-source-and-replay). It includes the prior
+`8914ce01386366296e61f049a04bbc6d24db34c4`
 [absent-reference results](https://github.com/kbak/clafer-semantics/pull/176).
 Relative to the previous structural-comparison pin
 `bbf81e44beca6eb6c4ff3f0e87516b15be59676e`, the delta adds
@@ -1049,9 +1054,10 @@ package, copied semantic definition or license obligation; the semantics remains
 
 The pinned Haskell [`AlloyLtl` generator](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/src/Language/Clafer/Generator/AlloyLtl.hs) constrains reference values for live heads
 without requiring absent-head rows to be empty. This remains comparison evidence,
-not the adopted source meaning. The absence pin does not adopt later initializer
-results or qualify the unreleased 0.5.8 toolchain. Those changes require their own
-source and comparison intake.
+not the adopted source meaning. The accepted 0.5.8 build now supplies current
+comparison tools. The compiler still uses `Initializers.Legacy` until the separate
+initializer adoption; installing the new upstream API does not implement its
+source elaboration or clocks.
 
 The optional `Clafer.Behavioral` source entrypoint remains separate from
 `Clafer.Behavioral.FiniteComposition`. Full preservation continues to require
@@ -1063,10 +1069,12 @@ adapter, not a kernel-certified finite evaluator. The
 records the exact APIs and assumptions. Earlier locators remain at their inspected
 revisions; new tool receipts must match this installed pin.
 
-The primary source remains `behavioral-0.5.7-candidate/v1` at `af858ec0fe3ce2ceacb7fd120947c058233086d6`,
-with D1–D5. The accepted c7 comparison retains inherited-set duplicate targets,
+The current source profile is `behavioral-0.5.8/v1`, retaining D1–D5 and the
+explicit exclusions registered above. Historical `af858ec` and c7 receipts remain
+replayable with their original identities. The accepted c7 comparison retains inherited-set duplicate targets,
 live-union-target disagreement and root-navigation rejection. The upstream
 [source ledger](https://github.com/kbak/clafer-semantics/blob/f00e5dacb07eed51026f69fcf699683210d394d3/docs/sources.md)
 classifies subsequent `eb2f653a02979d0db35451ed6abf131eaf7c355a` and
 `8cfa0f3740f1cfb515f9862bc8993b826fa08a67` as build, documentation and negative-fixture
-changes. These entries do not adopt final-release bytes as the behavioral source or comparison profile.
+changes. Those historical ledger entries are not the basis for current
+0.5.8 adoption; the separately accepted source/build/profile review above is.
