@@ -644,6 +644,12 @@ existing executor meets the scheduling need without another runner, persistent
 solver, package or license dependency. Its scheduling is runtime tooling, outside
 the Lean proof boundary.
 
+Independent full-source observation cases use the same bounded setting in their
+existing executor; source and reference cases default to two workers. Every
+authored fixture, exact trace, mutation, source observation and fresh solver
+query remains required. This reuses case-level isolation instead of changing
+the semantic domain, caching verdicts or enlarging the full-check deadline.
+
 ```sh
 python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \
   --static-tools "$CLAFER_ORACLE_TOOLS" \

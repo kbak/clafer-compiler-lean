@@ -15,6 +15,15 @@ from behavioral_source_cases import absence_cases, case, features, patterns
 import behavioral_haskell as bh
 
 
+def case_workers():
+    """Bound independent source cases with the existing regression worker setting."""
+    cpus = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else (os.cpu_count() or 1)
+    requested = int(os.environ.get('CLAFER_TEST_JOBS', '2'))
+    if requested < 1 or requested > 4:
+        raise ValueError('CLAFER_TEST_JOBS must be between 1 and 4')
+    return max(1, min(requested, cpus))
+
+
 # [utest->req~compiler-behavioral-qualification~1]
 # [utest->req~compiler-behavioral-integration~1]
 class BehavioralSourceComparisonTests(unittest.TestCase):
@@ -38,7 +47,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             name,expected,c=row
             result=self.runtime.compare(c,self.output/('absence-'+name))
             return name,expected,result
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        with ThreadPoolExecutor(max_workers=case_workers()) as pool:
             results=list(pool.map(compare,fixtures))
         for name,expected,result in results:
             with self.subTest(name=name):
@@ -103,7 +112,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             name,rows,expected,c=row
             result=self.runtime.compare(c,self.output/name)
             return name,rows,expected,result
-        with ThreadPoolExecutor(max_workers=2) as pool:
+        with ThreadPoolExecutor(max_workers=case_workers()) as pool:
             results=list(pool.map(compare,fixtures))
         for name,rows,expected,result in results:
             with self.subTest(name=name):
