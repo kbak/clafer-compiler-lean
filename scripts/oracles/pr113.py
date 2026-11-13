@@ -24,14 +24,16 @@ def candidate(tools):
 
 
 def corpus(tools):
-    return CORPUS if candidate(tools) == '9a0f16e' else CORPUS.parent/'c7-inventory.json'
+    return CORPUS.parent / {'9a0f16e': 'inventory.json', 'c7a2fb7': 'c7-inventory.json',
+                          '0.5.8': '058-inventory.json'}[candidate(tools)]
 
 
 def identity():
     paths = [Path(__file__), HERE/'pr113_build.py', HERE/'pr113_protocol.py',
              HERE/'pr113-profile.json', HERE/'PR113Export.hs', HERE/'AlloyPR113Inspect.java', CORPUS,
              CORPUS.parent/'delta.json', CORPUS.parent/'c7-inventory.json',
-             CORPUS.parent/'c7-delta.json', HERE/'pr113-c7-profile.json']
+             CORPUS.parent/'c7-delta.json', HERE/'pr113-c7-profile.json',
+             CORPUS.parent/'058-inventory.json', HERE/'clafer058-profile.json']
     paths += list(CORPUS.parent.glob('*.cfr'))
     return dict(temporal.identity(), **{str(p.relative_to(oracle.ROOT)):oracle.digest(p) for p in paths})
 
@@ -184,11 +186,11 @@ def query(tools, generation, request, directory, *, inspection=False):
     directory.mkdir()
     (directory/'model.als').write_text(generation['alloy'])
     selected = candidate(tools)
-    inspection = inspection or selected == 'c7a2fb7'
+    inspection = inspection or selected != '9a0f16e'
     runtime = dict(tools['runtime'], static_backend=generation.get('backend') == 'als')
     result = temporal.solve(runtime,tools['api'],directory,request,
         inspection=inspection,**build.profile(selected)['resources'])
-    if selected == 'c7a2fb7' and result['status'] == 'ok':
+    if selected != '9a0f16e' and result['status'] == 'ok':
         try:
             diagnostics = read(directory/'warnings.json')
             protocol.closed(diagnostics, 'schema warnings', 'warning receipt')

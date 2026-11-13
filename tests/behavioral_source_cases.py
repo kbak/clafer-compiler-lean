@@ -2,7 +2,7 @@
 import copy
 import hashlib
 
-PROFILE='behavioral-0.5.7-candidate/v1'
+PROFILE='behavioral-0.5.8/v1'
 
 
 def case(source,count,identities,live,*,refs=None,values=None,loop=None,query=None,width=4,interval=(0,1),supers=None):

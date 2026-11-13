@@ -17,11 +17,11 @@ open Backend.Alloy
 
 def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-source (selected static)\n" ++
   "ir: clafer-ir/1; bounds: clafer-bounds/1 (IR), clafer-bounds/2 (source)\n" ++
-  "semantics: 8914ce01386366296e61f049a04bbc6d24db34c4\n" ++
-  "haskell-reference: f6ca5b887d7bacc09915c6fc0278064c8371beac\n" ++
+  "semantics: e96284c98b103fe0871c00eb96210a40e5c1ea67\n" ++
+  "haskell-reference: fca0deb9c766261f5c0d2ae57af4ba9b07e1279a\n" ++
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
-  ++ "\nbehavioral-source: behavioral-0.5.7-candidate/v1; clafer-behavioral-bounds/2"
+  ++ "\nbehavioral-source: behavioral-0.5.8/v1; clafer-behavioral-bounds/2"
   ++ "\nbehavioral-source-policy: literal-empty-navigation/1; warnings: clafer-warning/1"
 
 def usage : String := "usage: clafer-compiler --version | --help\n" ++

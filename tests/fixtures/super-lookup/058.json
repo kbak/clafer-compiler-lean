@@ -1,0 +1,170 @@
+{
+  "concrete-child.cfr": {
+    "behavioral": "ok|p->P;p.h->P.Head",
+    "static": "error|resolve.missing-name|malformed|30|34"
+  },
+  "concrete.cfr": {
+    "behavioral": "ok|h->Base",
+    "static": "error|resolve.missing-name|malformed|9|13"
+  },
+  "cycle.cfr": {
+    "behavioral": "error|resolve.inheritance-cycle|malformed|9|10",
+    "static": "error|resolve.inheritance-cycle|malformed|9|10"
+  },
+  "duplicate.cfr": {
+    "behavioral": "error|resolve.duplicate-name|malformed|23|27",
+    "static": "error|resolve.duplicate-name|malformed|23|27"
+  },
+  "expression-super.cfr": {
+    "behavioral": "error|behavioral.type-expression|unsupported|28|30",
+    "static": "error|parser.type-expression|unsupported|28|30"
+  },
+  "forward.cfr": {
+    "behavioral": "ok|h->Head",
+    "static": "ok|h->Head"
+  },
+  "plain-after-qualified.cfr": {
+    "behavioral": "ok|family->Family;family.person->Family.Person;family.person.h->Family.Person.Head",
+    "static": "error|parser.type-expression|unsupported|85|86"
+  },
+  "plain-ambiguous.cfr": {
+    "behavioral": "error|resolve.ambiguous-name|malformed|58|62",
+    "static": "error|resolve.nested-abstract|unsupported|22|26"
+  },
+  "plain-concrete-shadow.cfr": {
+    "behavioral": "ok|Owner.h->Owner.Head",
+    "static": "ok|Owner.h->Head"
+  },
+  "plain-enclosing.cfr": {
+    "behavioral": "ok|Head.Inner.h->Head",
+    "static": "error|resolve.nested-abstract|unsupported|25|30"
+  },
+  "plain-global.cfr": {
+    "behavioral": "ok|p->P;p.h->P.Head",
+    "static": "error|resolve.nested-abstract|unsupported|22|26"
+  },
+  "plain-inherited-before-global.cfr": {
+    "behavioral": "ok|p->P;p.h->P.Head",
+    "static": "error|resolve.nested-abstract|unsupported|36|40"
+  },
+  "plain-inherited.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.h->Person.Head",
+    "static": "error|resolve.nested-abstract|unsupported|27|31"
+  },
+  "plain-lexical.cfr": {
+    "behavioral": "ok|P.Inner->P;P.Inner.h->P.Head",
+    "static": "error|resolve.nested-abstract|unsupported|36|40"
+  },
+  "plain-missing.cfr": {
+    "behavioral": "error|resolve.missing-name|malformed|4|11",
+    "static": "error|resolve.missing-name|malformed|4|11"
+  },
+  "plain-outer-lexical.cfr": {
+    "behavioral": "error|behavioral.structural-admission|malformed|0|0",
+    "static": "error|resolve.nested-abstract|unsupported|36|40"
+  },
+  "plain-parentless.cfr": {
+    "behavioral": "error|behavioral.structural-admission|malformed|0|0",
+    "static": "error|resolve.nested-abstract|unsupported|22|26"
+  },
+  "plain-sibling.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.h->Bob.Head",
+    "static": "error|resolve.nested-abstract|unsupported|27|31"
+  },
+  "plain-top-preference.cfr": {
+    "behavioral": "ok|h->Head",
+    "static": "error|resolve.nested-abstract|unsupported|36|40"
+  },
+  "primitive.cfr": {
+    "behavioral": "error|resolve.primitive-super|unsupported|4|11",
+    "static": "error|resolve.primitive-super|unsupported|4|11"
+  },
+  "qualified-chain.cfr": {
+    "behavioral": "ok|family->Family;family.person->Family.Person;family.person.h->Family.Person.Head",
+    "static": "error|parser.type-expression|unsupported|85|86"
+  },
+  "qualified-child-missing.cfr": {
+    "behavioral": "error|resolve.missing-name|malformed|17|24",
+    "static": "error|parser.type-expression|unsupported|16|17"
+  },
+  "qualified-concrete.cfr": {
+    "behavioral": "ok|p->P;p.h->P.Head",
+    "static": "error|parser.type-expression|unsupported|31|32"
+  },
+  "qualified-cycle.cfr": {
+    "behavioral": "error|resolve.inheritance-cycle|malformed|22|23",
+    "static": "error|parser.type-expression|unsupported|27|28"
+  },
+  "qualified-duplicate-child.cfr": {
+    "behavioral": "error|resolve.duplicate-name|malformed|38|42",
+    "static": "error|parser.type-expression|unsupported|57|58"
+  },
+  "qualified-enclosing.cfr": {
+    "behavioral": "ok|Outer.P.h->Outer.P.Head",
+    "static": "error|parser.type-expression|unsupported|82|83"
+  },
+  "qualified-first-ambiguous.cfr": {
+    "behavioral": "error|resolve.ambiguous-name|malformed|88|89",
+    "static": "error|parser.type-expression|unsupported|89|90"
+  },
+  "qualified-first-missing.cfr": {
+    "behavioral": "error|resolve.missing-name|malformed|4|11",
+    "static": "error|parser.type-expression|unsupported|11|12"
+  },
+  "qualified-forward.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.h->Person.Head",
+    "static": "error|parser.type-expression|unsupported|22|23"
+  },
+  "qualified-global.cfr": {
+    "behavioral": "ok|o->Outer;o.p->Outer.P;o.p.h->Outer.P.Head",
+    "static": "error|parser.type-expression|unsupported|73|74"
+  },
+  "qualified-inherited.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.h->Person.Head",
+    "static": "error|parser.type-expression|unsupported|54|55"
+  },
+  "qualified-long.cfr": {
+    "behavioral": "ok|a->A;a.b->A.B;a.b.c->A.B.C",
+    "static": "error|parser.type-expression|unsupported|52|53"
+  },
+  "qualified-nearest.cfr": {
+    "behavioral": "ok|B->A;C->B;C.h->B.Head",
+    "static": "error|parser.type-expression|unsupported|71|72"
+  },
+  "qualified-own.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.h->Person.Head",
+    "static": "error|parser.type-expression|unsupported|57|58"
+  },
+  "qualified-parentless.cfr": {
+    "behavioral": "error|behavioral.structural-admission|malformed|0|0",
+    "static": "error|parser.type-expression|unsupported|41|42"
+  },
+  "qualified-reference.cfr": {
+    "behavioral": "error|behavioral.type-expression|unsupported|33|34",
+    "static": "error|parser.type-expression|unsupported|33|34"
+  },
+  "qualified-self.cfr": {
+    "behavioral": "error|resolve.inheritance-cycle|malformed|31|35",
+    "static": "error|parser.type-expression|unsupported|30|31"
+  },
+  "qualified-shadow.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.Head->Person.Head;Bob.h->Bob.Head",
+    "static": "error|parser.type-expression|unsupported|77|78"
+  },
+  "qualified-sibling-start.cfr": {
+    "behavioral": "error|resolve.ambiguous-name|malformed|99|100",
+    "static": "error|parser.type-expression|unsupported|100|101"
+  },
+  "qualified-top-preference.cfr": {
+    "behavioral": "ok|Bob->P;Bob.h->P.Head",
+    "static": "error|parser.type-expression|unsupported|52|53"
+  },
+  "redefinition.cfr": {
+    "behavioral": "ok|Bob->Person;Bob.Head->Person.Head;Bob.h->Bob.Head",
+    "static": "error|resolve.nested-abstract|unsupported|27|31"
+  },
+  "self.cfr": {
+    "behavioral": "error|resolve.inheritance-cycle|malformed|13|14",
+    "static": "error|resolve.inheritance-cycle|malformed|9|10"
+  }
+}

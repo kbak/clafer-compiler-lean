@@ -7,7 +7,7 @@ namespace ClaferCompiler.IR.BehavioralStructural
 open Structural
 
 -- [impl->req~compiler-behavioral-structural-bridge~1]
-def profile : String := "behavioral-0.5.7-candidate/v1"
+def profile : String := "behavioral-0.5.8/v1"
 
 /-- Declared references stay declared: inherited references are views of their
 original owner. Authored abstractness and group provenance are retained separately. -/

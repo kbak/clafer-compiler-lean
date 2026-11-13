@@ -1,5 +1,6 @@
 """Live pinned tools plus rejection tests; all execution evidence is external."""
 import copy
+import json
 import os
 from pathlib import Path
 import shutil
@@ -190,6 +191,36 @@ class OracleTests(unittest.TestCase):
                                                (bundle / "analyzed.json").read_bytes(),
                                                (bundle / "model.als").read_bytes())
 
+    def test_058_metadata_and_execution_boundaries(self):
+        # Reuse the accepted upstream probe, validating values and determinism
+        # independently with Python's JSON decoder. Escapes are not 0.5.7 bytes.
+        probe = self.exporter.with_name('metadata-probe')
+        raw = subprocess.check_output([str(probe), '--synthetic'], timeout=30)
+        (self.output/'synthetic-metadata.json').write_bytes(raw)
+        self.assertEqual(raw, subprocess.check_output([str(probe), '--synthetic'], timeout=30))
+        result = json.loads(raw)
+        for key in ('metadata', 'empty_metadata'):
+            metadata = result[key]
+            self.assertEqual(json.loads(metadata['name_map']),
+                [dict(fqName=fq, lpqName=lpq, uid=uid) for fq,lpq,uid in sorted(metadata['triples'])])
+            self.assertEqual(json.loads(metadata['scopes']),
+                [dict(lpqName=uid, scope=n) for uid,n in sorted(metadata['scope_input'])])
+        instance = json.loads(result['instance'])
+        name = 'quote"slash\\tab\tline\nreturn\rback\bform\fctrl\x01É🙂'
+        self.assertEqual(instance['elements'][0]['ident'], name)
+        self.assertEqual(instance['elements'][0]['elements'][0]['value'], 'target"\\\t\nÉ$1')
+        self.assertEqual(instance['elements'][1]['value'], -17)
+        self.assertIn(r'\u0008', result['instance'])
+        self.assertIn(r'\u000c', result['instance'])
+        self.assertNotEqual(result['instance'], json.dumps(instance,ensure_ascii=False,separators=(',',':')))
+        self.assertEqual(json.loads(result['empty_instance']),dict(elements=[]))
+        for name,source,expected in [('eof','A ->\n','error'),
+                                     ('continuation','A ->\nB\n','compiler_rejected')]:
+            path=self.output/(name+'.cfr');path.write_text(source)
+            raw=subprocess.check_output([str(self.exporter),str(path)],timeout=30)
+            (self.output/(name+'-generation.json')).write_bytes(raw)
+            self.assertEqual(json.loads(raw)['status'],expected)
+
     def test_actual_analyzer_rejects_temporal_model(self):
         out = self.output / "temporal-analyzer"
         out.mkdir()
@@ -200,7 +231,7 @@ class OracleTests(unittest.TestCase):
         self.assertIn("temporal", result["detail"])
         self.assertIsNone(result["outcome"])
 
-    def test_057_receipts_and_modifier_arrays_are_strict(self):
+    def test_058_receipts_and_modifier_arrays_are_strict(self):
         bundle = self.captures['bag'][0] / 'capture'
         receipt = self.p.loads((bundle/'generation.json').read_bytes())
         self.assertEqual(receipt['schema'], 'clafer-generation/2')

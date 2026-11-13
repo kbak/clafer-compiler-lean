@@ -115,6 +115,10 @@ def sourceCases : List Case := [
     (.quant .all (number 1) (.or .truth (integerEqual emptyExtract (.literal 0)))) .domain,
   sample "full-expr-frozen-selection" true
     (.letSet (.ite .truth (number 1) (number 2)) (equal (.set (.var 0)) (number 1))),
+  sample "full-expr-unused-undefined-let" false (.letSet (.integer emptyExtract) .truth),
+  sample "full-expr-unused-undefined-let-domain" false (.letSet (.integer emptyExtract) .truth) .domain,
+  sample "full-expr-unused-undefined-let-counterexample" true
+    (.letSet (.integer emptyExtract) .truth) .counterexample,
   { sample "full-expr-padded-alias-coercion" true
       (integerEqual (.coerce (number 2)) (.literal 2)) with padded := true },
   { sample "full-expr-padded-alias-one" true

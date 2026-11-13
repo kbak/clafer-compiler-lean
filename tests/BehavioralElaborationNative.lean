@@ -45,6 +45,26 @@ def captures : IO Unit := do
   | .letSet _ (.quant .all _ (.letSet (.set (.var 0))
       (.quant .some _ (.quant .some _ (.next (.atom (.primitive (.equal (.set (.var 0)) (.set (.var 1)))))))))) => pure ()
   | _ => fail "group domain was resolved after introducing shadowing names"
+  -- A RHS uses the previous environment, and nested binders cannot capture it.
+  let m ← load "A *\nB *\n[let x = A ++ B in let x = x -- B in X (no x)]\n"
+  match ← body m with
+  | .letSet (.set (.union (.extent a) (.extent b)))
+      (.letSet (.set (.diff (.var 0) (.extent b')))
+        (.next (.not (.atom (.primitive (.inhabited (.set (.var 0)))))))) =>
+    unless a == (← idOf m "A") && b == b' do fail "let shadowing changed RHS declaration identity"
+  | _ => fail "compound let RHS was substituted or recaptured"
+  for source in ["A *\n[let x = A in all x : x | X (x = x)]\n",
+      "A *\n[let captured = A in all item : captured | X (item = item)]\n"] do
+    let m ← load source
+    match ← body m with
+    | .letSet (.set (.extent _)) (.letSet (.set (.var 0))
+        (.quant .all (.set (.var 0))
+          (.next (.atom (.primitive (.equal (.set (.var 0)) (.set (.var 0)))))))) => pure ()
+    | _ => fail "alpha-renaming or shadowing changed resolved captures"
+  let m ← load "A *\n[let unused = 1 / 0 in some A]\n"
+  match ← body m with
+  | .letSet (.integer (.binary .divide (.literal 1) (.literal 0))) _ => pure ()
+  | _ => fail "unused undefined binding was discarded"
   let m ← load "abstract Node -> Node\n  [some Outside]\nn : Node\nOutside\n"
   let outside ← idOf m "Outside"
   match ← body m with

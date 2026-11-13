@@ -37,10 +37,10 @@ def name : P Name := do
   if isName t then pop else reject t "parser.name" "expected an unqualified name"
 
 /-- Layout inserts a body only at greater indentation; braces disable it.
-At equal indentation the pinned grammar can continue a declaration header. -/
+Sibling lines begin separate declarations in the selected 0.5.8 grammar. -/
 def headerContinues (layout : Bool) (start : Token) : P Bool := do
   let t ← peek
-  return !layout || t.line == start.line || t.layoutColumn == start.layoutColumn
+  return !layout || t.line == start.line
 
 def headerName (layout : Bool) (start : Token) : P Name := do
   unless ← headerContinues layout start do
@@ -110,7 +110,9 @@ def header (layout : Bool) (start : Token) : P Header := do
   let abstractToken ← accept "abstract"
   let group ← cardinality layout start true
   let n ← headerName layout start
-  let super ← if (← headerContinues layout start) && (← accept ":").isSome then some <$> typeName layout start else pure none
+  let super ← if ← headerContinues layout start then do
+      if (← accept ":").isSome then some <$> typeName layout start else pure none
+    else pure none
   let reference ← if (← headerContinues layout start) && ["->", "->>"].contains (← peek).text then do
     let arrow ← pop
     let target ← typeName layout start

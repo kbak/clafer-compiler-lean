@@ -62,7 +62,7 @@ jobs to preserve solver query budgets. No test result is reused as fresh evidenc
 
 `clafer-compiler --version` reports the package version, exact M1 profile, IR and
 bounds versions, semantic/Haskell source pins, `m2-source`, `behavioral-core/1`
-and `behavioral-0.5.7-candidate/v1`.
+and `behavioral-0.5.8/v1`.
 `--help` prints usage. Compilation is:
 
 ```sh

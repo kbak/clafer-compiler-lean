@@ -12,7 +12,11 @@ link delivered profiles to implementations, proofs and runtime witnesses.
 The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix) retains
 all B01–B32 obligations. Component inventories distinguish first-slice evidence
 from the full frontend/encoder and source workflow. Every candidate still needs
-source-matched full checks and independent review.
+source-matched full checks and independent review. The current
+[0.5.8 profile](sources.md#clafer-058-source-and-replay) preserves the separate
+historical corpora and temporal `let` exclusions. Initializer adoption and final
+initializer/absence reference qualification remain separate work; current tool
+and frontend checks do not imply their acceptance.
 The [instance-check walkthrough](instance-checks.md) runs small positive/negative
 structural candidates and the complete static source model while retaining these
 qualification and proof/execution boundaries.
@@ -30,7 +34,7 @@ same-generation UID/Alloy correspondence, modifier-array validation, historical
 pattern/reference discrepancies and fresh explicit-model bounded comparisons.
 Its [tests](../tests/test_pr113_oracles.py) retain independent distinguishing
 witnesses and replay evidence. It establishes no exact-lasso equivalence or new
-Lean theorem; primary-pin adoption remains subject to independent review.
+Lean theorem; its historical receipts do not qualify a different producer pin.
 
 The [behavioral IR inventory](behavioral-ir.md#proof-handoff) separately records
 the delivered `behavioral-core/1` API, exact interpretation theorems and

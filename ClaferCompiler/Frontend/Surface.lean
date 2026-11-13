@@ -53,12 +53,21 @@ structure Cardinality where
   upper : Option Nat
   deriving Repr, BEq
 
+/-- A behavioral super path retains each token and the complete authored span. -/
+-- [impl->req~compiler-behavioral-frontend~1]
+structure SuperPath where
+  first : Name
+  rest : List Name
+  span : SourceSpan
+  deriving Repr, BEq
+
 structure Header where
   name : Name
   abstractToken : Option Token := none
   useToken : Option Token := none
   group : Option Cardinality := none
   super : Option Name := none
+  superPath : Option SuperPath := none
   reference : Option (Token × Name) := none
   cardinality : Option Cardinality := none
   deriving Repr, BEq

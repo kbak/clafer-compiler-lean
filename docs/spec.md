@@ -174,7 +174,7 @@ Needs: impl
 
 `req~compiler-behavioral-structural-bridge~1`
 
-Under explicit `behavioral-0.5.7-candidate/v1` selection, provide resolved structural
+Under explicit `behavioral-0.5.8/v1` selection, provide resolved structural
 admission, authored identity/default correspondence and typed observation APIs
 for the complete structural prerequisites in B01/B04–B08/B18–B19/B31–B32.
 Use accepted S4 meaning for nested abstracts, refined parents, concrete supers,
@@ -191,9 +191,11 @@ future target composition. Preserve static behavior and comparison fixtures;
 review an immutable accepted-SHA repin and retain its source delta and full checks.
 The [component contract](behavioral-structure.md) records delivered APIs and C7/C8
 handoff obligations; no required row is deferred out of full qualification.
-The [super-lookup review candidate](super-lookup.md) distinguishes current direct-name
-binding from proposed path/inherited-child rules and preserves concrete supers.
-Its pending adoption does not change this resolved structural domain.
+The [super lookup contract](super-lookup.md) admits behavioral qualified paths,
+own/inherited child precedence and self-excluding plain lookup. Preserve concrete
+supers, authored parent identities and static lookup. Successful elaboration must
+carry independent source/table correspondence, with target uniqueness under
+unique authored paths and checked structural admission.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -204,7 +206,7 @@ Needs: impl, proof, utest
 
 `req~compiler-behavioral-frontend~1`
 
-Under explicit `behavioral-0.5.7-candidate/v1` selection, parse every accepted
+Under explicit `behavioral-0.5.8/v1` selection, parse every accepted
 behavioral modifier, temporal operator/alias, transition/guard/chain, lifetime
 anchor, pattern/scope, assertion and scenario source form. Preserve layout,
 precedence, original spans, syntactic polarity, lexical binders and attachment
@@ -215,9 +217,13 @@ explicitly. Preserve static-profile temporal rejection. Record an independent
 grammar and distinguish tested recognition from proved elaboration. The
 [frontend inventory](behavioral-frontend.md) states current APIs and their proof/testing
 boundaries; parsing is not semantic admission.
-Qualified super paths remain outside the implemented grammar; their
-[review candidate](super-lookup.md) records the parser, diagnostic and
-correspondence obligations for separate compatibility implementation.
+Qualified supers retain every segment and its span; missing/ambiguous segments
+fail without partial tables. Keep reference types single-name. Parse `let` RHS
+at `E16`, resolving it before extending the lexical context; retain shadowing,
+captured values and strict definedness, including unused bindings. Test named
+capture avoidance and alpha-renaming independently of upstream resolved laws.
+Sibling-line group cards start new declarations; layout headers cannot continue
+on another line. Explicit braces retain whitespace continuation.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -523,7 +529,7 @@ Needs: impl, utest
 
 `req~compiler-behavioral-integration~1`
 
-Expose the complete `behavioral-0.5.7-candidate/v1` source frontend and encoder
+Expose the complete `behavioral-0.5.8/v1` source frontend and encoder
 through a separate native command, with closed versioned bounds for nonprimitive
 identity pools, declaration scopes, steps and observed integer values. Preserve
 authored source locations, deterministic output and source maps. Select model
@@ -613,7 +619,7 @@ Needs: impl, proof, utest
 `req~compiler-oracles~1`
 
 Reuse the immutable upstream capture/import/comparison adapters with the pinned
-Haskell 0.5.7 library, Stack/GHC/dependency profile, Lean semantics and Alloy 6.2.0 JAR.
+Haskell 0.5.8 library, Stack 3.11.1/GHC 9.12.4 dependency profile, Lean semantics and Alloy 6.2.0 JAR.
 Retain source and tool hashes, same-generation IR/Alloy receipts, actual Java
 vendor/build, effective static SAT4J options, explicit per-UID scopes and signed
 bitwidth. Run the actual tools on positive and negative candidates; preserve
@@ -621,7 +627,7 @@ reference occurrences. The initial profile uses Java 17 and upstream bitwidths
 1–16 with independent range admission. Reject temporal source/backend dispatch.
 Require the paired UID-to-Alloy map, strict modifier arrays and zero scopes for
 unused abstracts. Reject stale generation/version/build receipts. Preserve old
-0.5.4 evidence with its original compiler revision and tools; the current runtime
+0.5.4 and 0.5.7 evidence with their original compiler revisions and tools; the current runtime
 has one structural profile. Behavioral comparison profiles remain independent.
 
 Run the finite checker only after its guarded constraint-free admission. Keep
@@ -649,11 +655,11 @@ Needs: impl, utest
 
 `req~compiler-temporal-oracles~1`
 
-Select `behavioral-0.5.7-candidate/v1` explicitly for the pinned Haskell 0.5.7
+Retain historical `behavioral-0.5.7-candidate/v1` explicitly for its pinned Haskell
 candidate and Alloy 6.2.0. Build and execute the unchanged Haskell library;
 retain paired source/JSON/Alloy/options, source-tree and exporter build hashes,
 actual Java identity, JAR identity and every effective solver option. Reuse
-existing provisioning without changing static oracle pins or temporal rejection.
+existing provisioning while preserving independent profile identities and static temporal rejection.
 
 Run the registered positive/negative corpus for stable and replaced machines,
 both source signs under parent cancellation, persistent parents, identity scope
@@ -685,8 +691,8 @@ and retain both scope files, effective options and trace length. Pair original
 and explicit bounded runs/assertions using the original model's scopes and
 identical solver budgets. Printer fixed points and bounded outcome agreement
 are weaker than exact-lasso equivalence; they do not discharge C9 or the Lean
-explicit-form preservation task. This qualification does not adopt a new primary
-compiler pin; independent delta review remains required.
+explicit-form preservation task. These historical receipts retain their original profile identities when the current
+compiler pin changes; independent delta review remains required.
 
 Qualify `c7a2fb7` separately as `behavioral-pr113-c7a2fb7/v1`, retaining both
 historical profiles. Derive union field endpoints from captured resolved target
@@ -702,6 +708,19 @@ Check root cardinalities, constraints and assertions retain `always` and bind
 Retain source-map spans and identifier boundaries. Distinguish recurrence from
 `initially` with positive/negative traces and a removed-`always` mutant. Document
 unsupported captures and parse failures without changing independent semantics.
+
+
+The current `behavioral-0.5.8/v1` tools reuse the accepted Data.Map/aeson build
+and PR113 typed receipt/trace adapters at the registered immutable Haskell and
+claferIG pins. Revalidate archive/recipe/binary identities, metadata and strict
+complete trace decoding; synthetic backspace/form-feed change escape bytes while
+preserving decoded strings. EOF parser exceptions remain execution errors.
+Run a separate current corpus and explicit-output fixed points without relabeling
+historical static, temporal or PR113 evidence. Preserve captured-value temporal
+`let` and strict unused-binding definedness; changing-target/set/rebirth and
+unused-undefined inputs are explicit reference exclusions. Choco ordering and
+DOT quoting are reference output changes, not new compiler backends. Initializer
+adoption and final initializer/absence qualification retain their separate owners.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -1135,8 +1154,8 @@ keep constraints available for [expression elaboration](constraints.md). The
 explicit M1 conversion must reject richer features and constraints, and pass the existing exact M1 admission. Compare
 resolved fields with the pinned importer on its common domain, retaining expected
 identity/provenance differences. See the [resolution contract](resolution.md).
-The [super-lookup review candidate](super-lookup.md) retains this static profile;
-its richer path proposal applies only to behavioral source after acceptance.
+The [super lookup contract](super-lookup.md) retains this static profile;
+its richer path rules apply only to the behavioral source profile.
 
 Covers:
 - `intent~compiler-foundation~1`
@@ -1155,7 +1174,7 @@ group other than exactly `0..*`; numeric `0..*` gives `1..1`. Authored bounds
 override it. Preserve this distinction through inheritance, including `opt`
 versus numeric `0..*`. Effective abstractness is the explicit flag or the parent's
 effective flag. Kernel-prove agreement with pinned `Clafer.Defaults` and test
-child-default agreement with Haskell 0.5.7 on the common domain, including
+child-default agreement with Haskell 0.5.8 on the common domain, including
 finite/unbounded numeric groups, the unrestricted exception and overrides.
 This is the adopted language evolution from Appendix 3, not a paper correction.
 Require actual source/native/Alloy witnesses in which a numeric `1..1` group

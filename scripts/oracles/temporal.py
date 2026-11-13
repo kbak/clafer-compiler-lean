@@ -132,7 +132,7 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
     command = [str(runtime['java']), *options, '-cp', os.pathsep.join(
         map(str,(runtime['classes'],runtime['jar'])))]
     flag = '--solve'
-    if runtime.get('pr113_candidate') == 'c7a2fb7':
+    if runtime.get('pr113_candidate') in ('c7a2fb7', '0.5.8'):
         flag = '--solve-static-c7' if runtime.get('static_backend') else '--solve-c7'
     command += ['AlloyPR113Inspect', flag] if inspection else ['AlloyTemporalBridge']
     address = heap_mb+2048
@@ -168,7 +168,8 @@ def solve(runtime, api, directory, request, timeout=30, heap_mb=512, *, inspecti
                 raise ValueError('Unexpected effective solver options')
             if result['outcome']=='sat':
                 scalar_fields = set(integer_fields)
-                if runtime.get('pr113_candidate')=='c7a2fb7' and runtime.get('static_backend'):
+                if inspection and (runtime.get('pr113_candidate') == '0.5.8' or (
+                        runtime.get('pr113_candidate') == 'c7a2fb7' and runtime.get('static_backend'))):
                     observed = read(directory/'inspection.json')
                     scalar_fields.update(k for k,f in observed['fields'].items() if f['targets']==['Int'])
                 validate_trace(result['trace'],request,integer_fields=scalar_fields)

@@ -1,6 +1,7 @@
 module
 
 public import ClaferCompiler.Frontend.Resolve
+public import ClaferCompiler.Frontend.BehavioralLookupRules
 public import ClaferCompiler.IR.BehavioralStructural
 
 @[expose] public section
@@ -8,21 +9,25 @@ namespace ClaferCompiler.Frontend.BehavioralResolution
 open Resolution IR.Structural
 
 -- [impl->req~compiler-behavioral-structural-bridge~1]
-/-- The selected behavioral type policy keeps unique lexical/global lookup,
-including forward references, and permits ordinary and nested superclasses. -/
+/-- Accepted plain and qualified lookup, independently checked against the
+completed table; supers always refer to original user declaration identities. -/
 def SuperRule (doc : Document) (c : Candidate n) (path : Path)
-    (name : Option Name) (target : Option (Fin n)) : Prop :=
-  match name, target with
-  | none, none => True
-  | some name, some j => integerName name.text = false ∧
-      Resolves doc c path.dropLast false name.text j ∧ (c.core.get j).origin = .user
-  | _, _ => False
+    (name : Option Name) (target : Option (Fin n)) (qualified : Option SuperPath := none) : Prop :=
+  match target with
+  | none => name = none ∧ qualified = none
+  | some j => (c.core.get j).origin = .user ∧
+    match qualified, name with
+    | none, some name => BehavioralLookupRules.Plain doc c path name.text j
+    | some q, none => BehavioralLookupRules.Qualified doc c path q j
+    | _, _ => False
 
-instance (doc : Document) (c : Candidate n) (p : Path) (name : Option Name) (j : Option (Fin n)) :
-    Decidable (SuperRule doc c p name j) := by unfold SuperRule; split <;> infer_instance
+instance (doc : Document) (c : Candidate n) (p : Path) (name : Option Name)
+    (j : Option (Fin n)) (q : Option SuperPath) : Decidable (SuperRule doc c p name j q) := by
+  unfold SuperRule
+  cases j <;> cases q <;> cases name <;> simp only <;> infer_instance
 
-/-- Independent source/table correspondence. Only the nested-abstract and
-supertype domains differ from the selected static source rule. -/
+/-- Independent source/table correspondence, retaining the behavioral
+nested-abstract domain and its plain/qualified superclass policy. -/
 def SourceRow (doc : Document) (c : Candidate n) (i : Fin n) : Prop :=
   match c.paths[i], c.header doc i with
   | some path, some h =>
@@ -36,7 +41,7 @@ def SourceRow (doc : Document) (c : Candidate n) (i : Fin n) : Prop :=
     (if path.length = 1 then
       d.parent = (if h.abstractToken.isSome then none else some c.core.root)
      else ∃ p : Fin n, d.parent = some p ∧ c.paths[p] = some path.dropLast) ∧
-    SuperRule doc c path (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)) d.super ∧
+    SuperRule doc c path (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)) d.super h.superPath ∧
     ReferenceRule doc c path h.reference d.reference ∧
     c.groups[i] = (h.group.map authoredGroup).getD (super.getD (.bounds {})) ∧
     d.groupBounds = c.groups[i].range ∧

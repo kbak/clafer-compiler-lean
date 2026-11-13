@@ -8,7 +8,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 EXE = ROOT / '.lake/build/bin/clafer-compiler'
-PROFILE = 'behavioral-0.5.7-candidate/v1'
+PROFILE = 'behavioral-0.5.8/v1'
 
 
 def bounds(count, objects=3, width=4, low=0, high=1, steps=3):

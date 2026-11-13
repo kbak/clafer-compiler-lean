@@ -161,7 +161,7 @@ def main():
     parser.add_argument('--haskell-tools',required=True,type=Path)
     args=parser.parse_args();runtime=bs.Runtime(args.tools,args.output/'runtime')
     tools=pr113.load_tools(args.haskell_tools)
-    tc.require(tools['tools']['profile']['profile']=='behavioral-pr113-c7a2fb7/v1','Haskell profile')
+    tc.require(tools['tools']['profile']['profile']=='behavioral-0.5.8/v1','Haskell profile')
     result=(replay(runtime,tools,args.input,args.output/'case') if args.command=='replay' else
             compare(runtime,tools,temporal.read(args.input),args.output/'case'))
     print(json.dumps(result,sort_keys=True))

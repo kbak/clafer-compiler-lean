@@ -1,6 +1,6 @@
 module
 
-public import ClaferCompiler.Frontend.Defaults
+public import ClaferCompiler.Frontend.BehavioralLookup
 public import ClaferCompiler.IR.StructuralNormalization
 
 @[expose] public section
@@ -117,6 +117,8 @@ def prepareWith (behavioral : Bool) (doc : Document) : Except Diagnostic
     let h := header doc paths[i]!
     if reserved h.name.text then
       throw (errorAt h.name "resolve.reserved-name" "reserved names cannot declare user types" .unsupported)
+    if !behavioral && h.superPath.isSome then
+      throw (errorAt h.name "parser.type-expression" "qualified supers require the behavioral profile" .unsupported)
     if !behavioral && h.abstractToken.isSome && paths[i]!.length != 1 then
       throw (errorAt h.name "resolve.nested-abstract" "explicit nested abstract types are unsupported" .unsupported)
     for j in [:i] do
@@ -137,11 +139,14 @@ def prepareWith (behavioral : Bool) (doc : Document) : Except Diagnostic
       else match pathId paths path.dropLast with
         | some p => pure (some p)
         | none => throw (errorAt h.name "resolve.parent" "missing containment parent")
-    let super ← (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)).mapM
-      (fun name => do
-        if behavioral && integerName name.text then
-          throw (errorAt name "resolve.primitive-super" "a primitive cannot be a superclass" .unsupported)
-        lookupName doc paths path.dropLast (!behavioral) name integerId)
+    let super ← if behavioral then do
+        let target ← BehavioralLookup.resolve doc paths path
+        target.mapM fun p => match pathId paths p with
+          | some id => pure id
+          | none => throw (errorAt h.name "resolve.missing-name" "missing resolved super identity")
+      else
+        (h.super.orElse (fun _ => if h.useToken.isSome then some h.name else none)).mapM
+          (fun name => lookupName doc paths path.dropLast true name integerId)
     let reference ← match h.reference with
       | none => pure Reference.basic
       | some (arrow, name) => do

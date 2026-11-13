@@ -75,6 +75,10 @@ class BehavioralParserTests(unittest.TestCase):
             'lone x : A | !(F x)': '(lone x A (! (F x)))',
             'not x : A | X x': '(not x A (X x))',
             'let x = A in X x': '(let x A (X x))',
+            'let x = A ++ B in X x': '(let x (++ A B) (X x))',
+            'let x = 1 + 2 in x = 3': '(let x (+ 1 2) (= x 3))',
+            'let x = (if p then A else B) in some x': '(let x (if p A B) (some x))',
+            'let x = A in let x = x ++ B in X x': '(let x A (let x (++ x B) (X x)))',
             'if p then X a else F b': '(if p (X a) (F b))',
             'sum a ++ b * 2 + min c': '(+ (* (sum (++ a b)) 2) (min c))',
             'product a / 2 % 3': '(% (/ (product a) 2) 3)',
@@ -129,22 +133,32 @@ class BehavioralParserTests(unittest.TestCase):
                      '[all disj x; : A | x]', '[let x = A]', '[if a then b]',
                      '[X]', '[one x : A |]', 'enum E =', 'A\n  enum E = B',
                      'A\n\tinitial B', 'A\n  B\n C', 'assert a', '[!X a]',
-                     '[always p && initially q]', 'initial\n  A']
+                     '[always p && initially q]', 'initial\n  A', 'A\n: Base', 'A\n?', 'abstract\nA']
         unsupported = ['A := 1', '[alloy| x |]', '//# OPTIONS\nA', 'A -> string',
-                       '[1.2]', 'A -> B ++ C', 'A : B.c', '<< minimize A >>', '["str"]', '`A\\B']
+                       '[1.2]', 'A -> B ++ C', '<< minimize A >>', '["str"]', '`A\\B']
         for expected, sources in [('malformed', malformed), ('unsupported', unsupported)]:
             for source, out in zip(sources, self.parse_many(sources)):
                 self.assertTrue(out.startswith(expected + '|'), (source, out))
         out = self.parse_many(['Café\r\n  [a / ]\r\n'])[0]
         self.assertEqual(out, 'malformed|behavioral.expression|parser|14|15|2|8')
 
+    def test_qualified_super_tokens_and_spans(self):
+        source='abstract Café\n  abstract Head\nx : Café.Head\n'
+        variants=[source,source.replace('\n','\r\n'),'// heading\n'+source,
+                  source.replace('Café.Head','Café /* path */ . Head')]
+        for out in self.parse_many(variants):
+            self.assertTrue(out.startswith('ok\n'),out)
+            self.assertIn('Café.Head',out)
+        for out in self.parse_many(['x : A.\n','x : A..B\n','x : A.\nB\n']):
+            self.assertTrue(out.startswith('malformed|'),out)
+
     def test_live_pinned_syntax_comparison(self):
-        import temporal
-        tools_file = os.environ.get('CLAFER_TEMPORAL_TOOLS')
+        import pr113
+        tools_file = os.environ.get('CLAFER_058_TOOLS')
         if not tools_file:
-            raise RuntimeError('CLAFER_TEMPORAL_TOOLS is required; syntax comparison cannot skip')
+            raise RuntimeError('CLAFER_058_TOOLS is required; syntax comparison cannot skip')
         # Reuse receipt checks; later compiler errors still establish parsing only.
-        loaded = temporal.load_tools(tools_file)
+        loaded = pr113.load_tools(tools_file)
         exporter = loaded['exporter']
         oracle.write(self.output / 'reference-tools.json', loaded['tools'])
         positives = ['initial final A', 'finalref finaltarget r -> T\nT',
@@ -156,8 +170,11 @@ class BehavioralParserTests(unittest.TestCase):
                      'A --> B\n  assert [X B]\nB', 'enum E = A | B',
                      '[s must follow p between q and r]', '[s must precede p after q]',
                      '[never p after q until r]', '[initially (sometime p)]',
-                     '[sum a ++ b * 2 + min c]', '[a <: b :> c, d & e.f]']
-        negatives = ['[a -->]', '[a -[g] b]', '[never a between q]', '[!X a]', '[if a then b]']
+                     '[sum a ++ b * 2 + min c]', '[a <: b :> c, d & e.f]',
+                     'A\n[let x = A in X some x]',
+                     'A\nB\n[let x = A ++ B in let x = x -- B in some x]',
+                     'A\n[let x = 1 + 2 in x = 3]', 'A\n2..3 B\n  c\n  d']
+        negatives = ['[a -->]', '[a -[g] b]', '[never a between q]', '[!X a]', '[if a then b]', 'A\n: B', 'A\n?', 'abstract\nB']
         observations = []
         for expected, sources in [(True, positives), (False, negatives)]:
             for source, ours in zip(sources, self.parse_many(sources)):
@@ -173,25 +190,11 @@ class BehavioralParserTests(unittest.TestCase):
                                      'status': ref['status'], 'expected': expected})
                 self.assertEqual(parsed, expected, (source, ref))
                 self.assertEqual(ours.startswith('ok\n'), expected, (source, ours))
-        # The pinned exporter crashes after parsing LetExp. Preserve tool failure;
-        # it does not establish successful compilation or semantic agreement.
-        source = '[let x = A in X x]'
-        path = self.output / 'reference-let-crash.cfr'
-        path.write_text(source)
-        p = subprocess.run([str(exporter), str(path)], capture_output=True, text=True, timeout=30)
-        path.with_suffix('.stdout').write_text(p.stdout)
-        path.with_suffix('.stderr').write_text(p.stderr)
-        self.assertEqual(p.returncode, 1)
-        self.assertIn('Desugarer', p.stderr)
-        self.assertIn('LetExp', p.stderr)
-        ours = self.parse_many([source])[0]
-        self.assertTrue(ours.startswith('ok\n'), ours)
-        observations.append({'source': source, 'ours': ours, 'reference': 'tool_error',
-                             'stage': 'desugar', 'syntax_agreement_claimed': False})
         oracle.write(self.output / 'reference-comparison.json', observations)
 
     # [utest->req~compiler-behavioral-elaboration~1]
     def test_live_value_reference(self):
+        # Preserve these historical value-resolution observations at their pin.
         import temporal
         loaded = temporal.load_tools(os.environ['CLAFER_TEMPORAL_TOOLS'])
         cases = [

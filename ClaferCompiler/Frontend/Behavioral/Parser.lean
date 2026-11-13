@@ -118,7 +118,7 @@ def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
     else if t.text == "let" && minimum ≤ 1 then do
       let binder ← name
       let _ ← expect "="
-      let value ← name
+      let value ← previous.expression 16
       let _ ← expect "in"
       let body ← previous.expression 1
       pure (.letSet t binder value body (extent t.span body.span))
@@ -185,6 +185,18 @@ def bodiesStep (previous : Parsers) : P (List Expr) := do
   let body ← previous.expression 0
   return body :: (← previous.bodies)
 
+-- [impl->req~compiler-behavioral-frontend~1]
+def superName (layout : Bool) (start : Token) : P (Option Name × Option SuperPath) := do
+  let first ← typeName layout start
+  let mut rest := []
+  let limit := (← get).rest.length + 1
+  for _ in [:limit] do
+    if !(← headerContinues layout start) || (← accept ".").isNone then
+      if rest.isEmpty then return (some first, none)
+      return (none, some ⟨first, rest.reverse, extent first.span (← get).previous.span⟩)
+    rest := (← headerName layout start) :: rest
+  progressError
+
 def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
   if let some use ← accept "`" then
     let n ← headerName layout start
@@ -194,14 +206,15 @@ def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
   let mods ← modifiers
   let group ← cardinality layout start true
   let n ← headerName layout start
-  let super ← if (← headerContinues layout start) && (← accept ":").isSome then
-      some <$> typeName layout start else pure none
+  let (super, superPath) ← if ← headerContinues layout start then do
+      if (← accept ":").isSome then superName layout start else pure (none, none)
+    else pure (none, none)
   let reference ← if (← headerContinues layout start) && ["->", "->>"].contains (← peek).text then do
       let op ← pop
       let target ← typeName layout start
       pure (some (op, target))
     else pure none
-  if super.isSome || reference.isSome then
+  if super.isSome || superPath.isSome || reference.isSome then
     if [".", "++", "--", "**", "&", ",", "("].contains (← peek).text then
       reject (← peek) "behavioral.type-expression" "type positions require a single name" .unsupported
   let card ← cardinality layout start false
@@ -216,7 +229,7 @@ def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
       pure (some (op, guard, target))
     else pure none
   return {
-    structural := { name := n, abstractToken, group, super, reference, cardinality := card }
+    structural := { name := n, abstractToken, group, super, superPath, reference, cardinality := card }
     modifiers := mods
     initializer
     transition := trans }

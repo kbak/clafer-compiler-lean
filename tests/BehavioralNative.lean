@@ -41,7 +41,7 @@ def cases : List (String × Document 4 × String) := [
   ("empty attachments", {document with attachments := []}, "ok"),
   ("unknown version", {document with version := "clafer-behavioral-ir/2"}, "behavioral.version"),
   ("static profile", {document with profile := "m1-effective"}, "behavioral.profile"),
-  ("full profile is not this slice", {document with profile := "behavioral-0.5.7-candidate/v1"}, "behavioral.profile"),
+  ("full profile is not this slice", {document with profile := "behavioral-0.5.8/v1"}, "behavioral.profile"),
   ("duplicate occurrences", {document with attachments := [attached, attached]}, "behavioral.metadata"),
   ("unknown owner", {document with attachments := [{attached with owner := 99}]}, "behavioral.metadata"),
   ("bad attachment span", {document with attachments := [{attached with source := some ⟨"m", 4, 2⟩}]}, "behavioral.metadata"),

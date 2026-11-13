@@ -21,8 +21,8 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/8914ce01386366296e61f049a04bbc6d24db34c4) | `8914ce01386366296e61f049a04bbc6d24db34c4` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
-| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/f6ca5b887d7bacc09915c6fc0278064c8371beac) | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/f6ca5b887d7bacc09915c6fc0278064c8371beac/LICENSE). External tool, not production runtime dependency. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/e96284c98b103fe0871c00eb96210a40e5c1ea67) | `e96284c98b103fe0871c00eb96210a40e5c1ea67` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a) | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/LICENSE). External tool, not production runtime dependency. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
@@ -42,11 +42,13 @@ A source citation is not a redistribution license.
 
 The behavioral planning sources are registered [separately below](#behavioral-sources).
 The installed semantics pin supplies both the static and behavioral libraries.
-The sole structural comparison uses merged Haskell 0.5.7. Upstream's
-[compiler profile](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/compiler_profile.py)
-records archive SHA-256 `51e5c8d47c1e8bf05ca89a8432176c25cb1e6df589aeb36386bcf7627ee3d954`,
-source-tree SHA-256 `5ed4d4fdc704f198e311e4d6055b59b98789dcf10ff652305c3c863c167f03ca`,
-`generic-aeson-0.5.7/1` and `clafer-generation/2`. Its capture/import/runtime and
+The structural comparison and current behavioral source tools use the reviewed
+immutable 0.5.8 prerelease. The release PR remains open; this pin does not track
+a moving branch or assert a published release. Upstream's
+[compiler profile](https://github.com/kbak/clafer-semantics/blob/e96284c98b103fe0871c00eb96210a40e5c1ea67/scripts/verification/compiler_profile.py)
+records archive SHA-256 `fcf7bf883723e7eb22ff2f3c1b6538f0c967cb5eace3a00a89f5fcd2e4a4edc5`,
+source-tree SHA-256 `c9009d0fa8fb3d834b307b6d481a0ac99aa02994ac65200a3f25a0391281be8a`,
+`generic-aeson-0.5.8/1` and `clafer-generation/2`. Its capture/import/runtime and
 comparison adapters supply strict modifier arrays, paired source/backend maps,
 name-safe candidate pinning and decoding, and validated zero scopes for unused
 abstracts. The single-file capture emits spans without filenames; raw CLI exports
@@ -54,7 +56,7 @@ cannot replace the paired generation receipt. These adapters remain outside the
 kernel proof boundary.
 
 The downstream transport already uses original UIDs and independent numeric
-native IDs. Fixture bounds and candidates use the freshly captured 0.5.7 UIDs.
+native IDs. Fixture bounds and candidates use the freshly captured 0.5.8 UIDs.
 The benchmark reuses Haskell `AlloyNames.alloyNames`/`toAlloyNames` and
 `ScopeAnalysis.withEmptyAbstracts`, rebuilding the consumed map as the public
 compiler does. Existing unittest, replay, mutation and shrinking infrastructure
@@ -75,7 +77,57 @@ identities. Replay it from compiler revision
 `46c874e339b1bc8b82c57a25d00d3b01ad0240aa` (or its recorded earlier revision),
 semantics `f00e5dacb07eed51026f69fcf699683210d394d3` and Haskell
 `6750e6f591b2131549122c13dee94d3d2257eaea`, using the matching original receipts.
-Do not relabel these artifacts as 0.5.7 evidence.
+Do not relabel historical artifacts as current evidence.
+
+<a id="clafer-058-source-and-replay"></a>
+
+## 0.5.8 source and replay boundary
+
+The accepted semantics pin includes the independently reviewed
+[build/exporter](https://github.com/kbak/clafer-semantics/pull/180),
+[temporal let](https://github.com/kbak/clafer-semantics/pull/181) and
+[source/profile adoption](https://github.com/kbak/clafer-semantics/pull/182).
+The compiler uses the accepted
+[super lookup disposition](https://github.com/kbak/clafer-compiler-lean/pull/131).
+The [current behavioral profile](../scripts/oracles/clafer058-profile.json) and
+[corpus](../tests/fixtures/pr113/058-inventory.json) retain their own identities.
+
+The build reuses upstream `Data.Map`/aeson exporters, metadata probe and verified
+Stack 3.11.1/GHC 9.12.4 route with `nightly-2026-11-11`. The claferIG dependency is
+[`7942789d84939e98da38d4219cefbbd5b9e0d184`](https://github.com/gsdlab/claferIG/tree/7942789d84939e98da38d4219cefbbd5b9e0d184).
+The accepted builder verifies both archives, the unchanged lockfile/source tree,
+compiler/Stack identities and exporter/metadata binaries. `StringMap` and
+`json-builder` are no longer dependencies. Metadata values and ordered fields
+are checked independently; synthetic backspace/form-feed use different JSON
+escape bytes with identical decoded strings. Upstream EOF parser exceptions
+remain execution errors, never rejection or bounded UNSAT.
+
+| Evidence family | Immutable Haskell identity | Replay policy |
+| --- | --- | --- |
+| Historical static 0.5.7 | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Use original compiler revision/semantics `8914ce01386366296e61f049a04bbc6d24db34c4` and receipts. |
+| Historical temporal | `af858ec0fe3ce2ceacb7fd120947c058233086d6` | Retain `temporal-profile.json` unchanged. |
+| Historical PR113 | `9a0f16e` and `c7a2fb7` (full hashes in their profiles) | Retain both inventories, adapters' schema selectors and original receipts. |
+| Current static/behavioral | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Fresh 0.5.8 receipts, corpus and complete typed trace checks. |
+
+The reviewed [release changes](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/CHANGES.md)
+include expression `let`, capture avoidance/shadowing, sibling-line groups,
+same-indent header rejection and ambiguous-super diagnostics. The frontend
+contracts and lookup matrix state the adopted subset. Haskell's expression
+substitution does not replace captured-value temporal `let` or strict unused
+binding definedness: changing target/set/rebirth and unused undefined bindings
+remain reference exclusions. The accepted resolved laws do not prove named
+frontend capture avoidance.
+
+Choco declaration ordering and DOT keyword quoting are reference output changes.
+The existing Choco comparison consumer is rebuilt against the selected Haskell
+library; the Lean compiler gains neither backend. Initializer clocks/warnings
+remain with [initializer adoption](https://github.com/kbak/clafer-compiler-lean/issues/126),
+and final initializer/absence comparison with
+[feature qualification](https://github.com/kbak/clafer-compiler-lean/issues/127).
+The existing initializer bridge explicitly uses upstream `Initializers.Legacy`.
+Reference fixed points, resolved M1 preservation and full behavioral source
+correctness remain separate evidence; the cancelled source-format project is
+not revived by this upgrade.
 
 ## Choco instance source
 

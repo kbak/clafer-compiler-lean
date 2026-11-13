@@ -114,8 +114,8 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                                                     for name,rows,expected,result in results])
 
     def test_revision_qualified_haskell_observations(self):
-        path=os.environ.get('CLAFER_PR113_C7_TOOLS')
-        self.assertTrue(path,'CLAFER_PR113_C7_TOOLS required')
+        path=os.environ.get('CLAFER_058_TOOLS')
+        self.assertTrue(path,'CLAFER_058_TOOLS required')
         tools=bh.pr113.load_tools(path)
         selected=[]
         for name,rows,expected,c in features():
@@ -144,6 +144,45 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                     self.assertEqual(bh.replay(self.runtime,tools,self.output/('haskell-'+name),
                         self.output/'haskell-replay'),answer)
 
+    # [utest->req~compiler-behavioral-frontend~1]
+    # [utest->req~compiler-behavioral-profile~1]
+    def test_058_let_capture_and_reference_exclusions(self):
+        tools=bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        fixtures=bs.oracle.UPSTREAM/'tests/fixtures/temporal-let'
+        for name in ('baseline','target','same-state','head','changing-set','rebirth',
+                     'shadow','rename','rename-control'):
+            source=(fixtures/(name+'.cfr')).read_text()
+            if name in ('rename','rename-control'):
+                c=case(source,3,[(1,1,0),(2,2,0)],[[1,2]]*4,
+                       values=[{0:1,1:1,2:2}]*4,interval=(1,2))
+            else:
+                live=([[1],[],[1],[1]] if name=='rebirth' else
+                      [[1],[],[],[]] if name=='changing-set' else [[1]]*4)
+                values=[{0:1,1:1},{0:1,1:2},{0:1,1:2},{0:1,1:2}]
+                if name=='shadow': values=[{0:1,1:1}]*4
+                c=case(source,2,[(1,1,0)],live,values=values,interval=(1,2))
+            with self.subTest(name=name):
+                answer=self.runtime.compare(c,self.output/('let-'+name))
+                self.assertEqual(answer,dict(status='complete',source='satisfied',target='sat',directions=[]))
+                reference=bh.compare(self.runtime,tools,c,self.output/('haskell-let-'+name))
+                excluded=name in ('target','changing-set','rebirth')
+                self.assertEqual(reference['source'],'satisfied',reference)
+                self.assertEqual(reference['target'],'bounded_unsat' if excluded else 'sat',reference)
+                self.assertEqual(reference['directions'],['source-only'] if excluded else [],reference)
+        # The accepted unused-division witness is rejected by conservative
+        # source range admission. Resolved native tests separately exercise the
+        # strict undefined let domain, without erasing the unused RHS.
+        source=(fixtures/'unused.cfr').read_bytes()
+        g=bh.pr113.capture(tools,{'unused.cfr':source},'unused.cfr',self.output/'haskell-let-unused')
+        self.assertEqual(g['status'],'captured',g)
+        self.assertNotIn(' / ',g['explicit'])
+        reference=bh.pr113.query(tools,g,bh.protocol.request(g,0,steps=2),self.output/'haskell-let-unused-query')
+        self.assertEqual((reference['status'],reference['outcome']),('ok','sat'))
+        c=case((fixtures/'unused.cfr').read_text(),2,[(1,1,0)],[[1]],values=[{1:1}])
+        output=self.output/'let-unused-divisor';output.mkdir()
+        with self.assertRaises(subprocess.CalledProcessError): self.runtime.compile(output,c)
+        self.assertIn('behavioral.possible-zero-divisor',(output/'compile-stderr.log').read_text())
+
     def test_replay_and_mutation_directions(self):
         for name,source,live,mutation,direction in (
             ('sound','A ?\n[no A]\n',[[1]],'drop-constraints','target-only'),
@@ -164,7 +203,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
     # [utest->req~compiler-behavioral-elaboration~1]
     # [utest->req~compiler-diagnostics~1]
     def test_empty_navigation_and_self_expression_outcomes(self):
-        tools = bh.pr113.load_tools(os.environ['CLAFER_PR113_C7_TOOLS'])
+        tools = bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
         rows = [
             ('unknown', 'no noclafer.missing', True),
             ('nested', 'no (noclafer).(missing.parent.dref)', True),

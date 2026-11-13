@@ -23,7 +23,7 @@ class ResolutionTests(unittest.TestCase):
         cls.output = Path(tempfile.mkdtemp(prefix='resolution-', dir=parent))
         print(f'Resolution evidence: {cls.output}', flush=True)
         cls.serial = 0
-        cls.modules = ['tests.ResolveNative', 'ClaferCompiler.Frontend.Resolve',
+        cls.modules = ['tests.ResolveNative', 'ClaferCompiler.Frontend.BehavioralLookup', 'ClaferCompiler.Frontend.Resolve',
                        'ClaferCompiler.Frontend.Defaults', 'ClaferCompiler.Frontend.Parser',
                        'ClaferCompiler.Frontend.Lexer', 'ClaferCompiler.Frontend.Surface',
                        'ClaferCompiler.IR.Structural', 'ClaferCompiler.IR.StructuralNormalization']

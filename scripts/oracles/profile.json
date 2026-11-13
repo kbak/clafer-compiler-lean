@@ -1,18 +1,26 @@
 {
   "schema": "clafer-oracle-profile/1",
-  "semantics_commit": "8914ce01386366296e61f049a04bbc6d24db34c4",
-  "haskell_commit": "f6ca5b887d7bacc09915c6fc0278064c8371beac",
-  "haskell_version": "0.5.7",
+  "semantics_commit": "e96284c98b103fe0871c00eb96210a40e5c1ea67",
+  "haskell_commit": "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a",
+  "haskell_version": "0.5.8",
   "stack": "3.11.1",
-  "ghc": "9.6.7",
-  "resolver": "lts-22.44",
+  "ghc": "9.12.4",
+  "resolver": "nightly-2026-11-11",
   "alloy_version": "6.2.0",
   "alloy_commit": "794226dd07b536fe35c5ca44b529417183cd629b",
   "alloy_jar_sha256": "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d",
   "java_major": 17,
   "solver": "sat4j",
-  "bitwidth_range": [1, 16],
-  "comparison": {"bitwidth": 8, "overall": 5, "timeout": 30, "heap_mb": 512},
+  "bitwidth_range": [
+    1,
+    16
+  ],
+  "comparison": {
+    "bitwidth": 8,
+    "overall": 5,
+    "timeout": 30,
+    "heap_mb": 512
+  },
   "options": {
     "symmetry": 0,
     "skolemDepth": 0,
