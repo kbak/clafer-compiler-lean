@@ -5,6 +5,7 @@ TEMPORAL = '[always one root]\n'
 
 
 def initializers():
+    yield from qualification_cases()
     for op in ('=', ':='):
         for change in (False, True):
             source = f'x -> int ? {op} 0\n' + TEMPORAL
@@ -103,3 +104,50 @@ def initializers():
             'flag ?\nx -> int ? := if (let old = flag in X (some old)) then 1 else 0\n', 3,
             [(1, 1, 0), (2, 2, 0)], [[1, 2], [2]],
             values=[{2: int(not wrong)}, {2: int(not wrong)}], width=2)
+
+
+def qualification_cases():
+    """Source expectations from the accepted initializer contract, not Haskell."""
+    for op in ('=', ':='):
+        for value in (0, 1):
+            yield f'static-single-{op}-{value}', ('satisfied' if value == 0 else 'violated'), case(
+                f'x -> int {op} 0\n', 2, [(1, 1, 0)], [[1]], values=[{1: value}])
+        for changing in (False, True):
+            yield f'finalref-explicit-temporal-{op}-{changing}', (
+                'violated' if op == '=' and changing else 'satisfied'), case(
+                f'v -> int\nfinalref x -> int {op} v\n' + TEMPORAL, 3,
+                [(1, 1, 0), (2, 2, 0)], [[1, 2], [1, 2]],
+                values=[{1: 0, 2: 0}, {1: int(changing), 2: 0}])
+        # The final edge starts another life of the same identity.
+        for value in (0, 1):
+            yield f'loop-birth-{op}-{value}', ('satisfied' if value == 0 else 'violated'), case(
+                f'x -> int ? {op} 0\n' + TEMPORAL, 2, [(1, 1, 0)], [[], [1], []],
+                values=[{}, {1: value}, {}], loop=1)
+
+    for targets in ((0, 0, 1), (0, 1, 1), (0, 0, 0), (0, 1, 2)):
+        good = set(targets) == {0, 1}
+        yield 'bag-targets-' + ''.join(map(str, targets)), ('satisfied' if good else 'violated'), case(
+            'xs ->> int 3 := 0 ++ 1 ++ 1\n' + TEMPORAL, 2,
+            [(i, 1, 0) for i in (1, 2, 3)], [[1, 2, 3]],
+            values=[dict(zip((1, 2, 3), targets))], interval=(0, 2))
+
+    for value in (0, 1):
+        yield f'global-late-parent-{value}', 'satisfied', case(
+            'abstract xs ->> int * := 0\nP ?\n  a : xs ?\n' + TEMPORAL, 4,
+            [(1, 2, 0), (2, 3, 1)], [[], [1, 2]], values=[{}, {2: value}], supers={3: 1})
+        yield f'inherited-single-own-collection-{value}', ('satisfied' if value == 0 else 'violated'), case(
+            'abstract V -> int := 0\nP\n  xs : V * := 1\n' + TEMPORAL, 4,
+            [(1, 2, 0), (2, 3, 1)], [[1], [1, 2]], values=[{}, {2: value}], supers={3: 1})
+        yield f'inherited-rhs-scope-{value}', ('satisfied' if value == 0 else 'violated'), case(
+            'globalValue -> int\nabstract A -> int := globalValue\nP\n  localValue -> int\n  x : A := localValue\n' + TEMPORAL, 6,
+            [(1, 1, 0), (2, 3, 0), (3, 4, 2), (4, 5, 2)], [[1, 2, 3, 4]],
+            values=[{1: 0, 3: value, 4: 0}], supers={5: 2})
+        yield f'replacement-fresh-initializer-{value}', ('satisfied' if value == 0 else 'violated'), case(
+            'P ?\n  x -> int := 0\n' + TEMPORAL, 3,
+            [(1, 1, 0), (2, 1, 0), (3, 2, 1), (4, 2, 2)], [[1, 3], [2, 4]],
+            values=[{3: 0}, {4: value}])
+    # Narrowing the realization does not reclassify an inherited collection.
+    yield 'inherited-collection-replacement', 'satisfied', case(
+        'P\n  abstract xs -> int * := 0\n  x : xs\n' + TEMPORAL, 4,
+        [(1, 1, 0), (2, 3, 1), (3, 3, 1)], [[1, 2], [1, 3]],
+        values=[{2: 0}, {3: 1}], supers={3: 2})

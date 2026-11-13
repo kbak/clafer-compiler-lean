@@ -1,8 +1,10 @@
 """Full-source exact observations, replay, decoder and sensitivity gates."""
 from concurrent.futures import ThreadPoolExecutor
 import copy
+import json
 import os
 from pathlib import Path
+import re
 import sys
 import subprocess
 import tempfile
@@ -52,6 +54,175 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 self.assertEqual(result, dict(status='complete', source=expected,
                     target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
         bs.oracle.write(self.output / 'initializer-results.json', results)
+
+    # [utest->req~compiler-behavioral-qualification~1]
+    def test_initializer_absence_reference_matrix(self):
+        tools = bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        # Expected reference results are deliberately separate from source truth.
+        # A changed reference result requires triage, never automatic adoption.
+        target_only = {
+            'initializer-undefined-guard-=-True', 'initializer-undefined-guard-:=-True',
+            'initializer-box-original-anchor-1', 'initializer-finalref-later-undefined-=',
+            'initializer-let-capture-absence-True',
+            'absence-captured-empty-extraction-ghost-0', 'absence-captured-empty-extraction-ghost-1',
+            'absence-object-absent-row-True', 'absence-object-never-live-row',
+            'absence-refined-object-absent-row-True',
+        }
+        source_only = {'initializer-box-original-anchor-0', 'initializer-finalref-rhs-:=-True',
+                       'initializer-let-capture-absence-False'}
+        fixtures = [('initializer-' + n, e, c) for n, e, c in initializers()]
+        fixtures += [('absence-' + n, e, c) for n, e, c in absence_cases()]
+        self.assertEqual(len(fixtures), len({n for n, _, _ in fixtures}))
+
+        def compare(row):
+            name, expected, c = row
+            directory = self.output / ('reference-' + name)
+            if name == 'initializer-inherited-original-clock-omitted':
+                # The parented abstract's effective multiplicity differs. Keep
+                # both analyzed declarations; no relaxed pairing or SAT verdict.
+                with self.assertRaisesRegex(ValueError, '^effective cardinality pairing$'):
+                    bh.compare(self.runtime, tools, c, directory)
+                p = bs.temporal.read(directory / 'compilation.json')
+                source = bs.Observation(p, c['candidate']).check()['status']
+                answer = dict(status='unpaired', source=source, reason='effective cardinality pairing')
+                bs.oracle.write(directory / 'result.json', answer)
+                bs.oracle.write(directory / 'runtime.json', dict(compiler=self.runtime.identity,
+                                                                haskell=tools['tools']))
+                bh.pr113.index(directory)
+                return name, expected, answer
+            return name, expected, bh.compare(self.runtime, tools, c, directory)
+
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            results = list(pool.map(compare, fixtures))
+        bs.oracle.write(self.output / 'initializer-absence-reference-results.json', results)
+        for name, expected, answer in results:
+            with self.subTest(name=name):
+                self.assertEqual(answer['source'], expected, answer)
+                if answer.get('status') == 'unpaired':
+                    self.assertEqual(name, 'initializer-inherited-original-clock-omitted')
+                    continue
+                direction = (['target-only'] if name in target_only else
+                             ['source-only'] if name in source_only else [])
+                self.assertEqual(answer['directions'], direction, answer)
+                sat = name in target_only or (expected == 'satisfied' and name not in source_only)
+                self.assertEqual(answer['target'], 'sat' if sat else 'bounded_unsat', answer)
+        for name in ('initializer-box-original-anchor-0', 'initializer-box-original-anchor-1'):
+            answer = next(a for n, _, a in results if n == name)
+            self.assertEqual(bh.replay(self.runtime, tools, self.output / ('reference-' + name),
+                                      self.output / ('reference-replay-' + name)), answer)
+
+    # [utest->req~compiler-trace-representation~1]
+    # [utest->req~compiler-behavioral-qualification~1]
+    def test_hidden_scalar_reference_rows(self):
+        tools = bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        fixtures = {n: c for n, _, c in absence_cases()}
+        c = fixtures['disappearance-ghost-3']
+        control = self.output / 'hidden-reference-empty'
+        self.assertEqual(bh.compare(self.runtime, tools, c, control)['target'], 'sat')
+        hidden = self.output / 'hidden-reference-scalar'
+        answer = bh.compare(self.runtime, tools, c, hidden, hidden_scalar_rows=[[], [[1, 1, 3]]])
+        self.assertEqual((answer['source'], answer['reference_domain'], answer['target'], answer['directions']),
+                         ('satisfied', 'violated', 'sat', ['target-only']))
+        self.assertEqual(bh.replay(self.runtime, tools, hidden, self.output / 'hidden-reference-replay'), answer)
+        plain = bs.temporal.read(control / 'expected-trace.json')
+        raw = bs.temporal.read(hidden / 'expected-trace.json')
+        scalar = [f for f in raw['fields'] if f.endswith('_ref')]
+        relation = __import__('relation')
+        self.assertIsNone(relation.isomorphism(bh.graph(plain, scalar), bh.graph(raw, scalar)))
+        # The visible live projection is identical; deleting the raw rows would
+        # hide the counterexample. Ordinary global renaming remains harmless.
+        visible = copy.deepcopy(raw)
+        for field in scalar:
+            visible['frames'][1]['fields'][field] = []
+        self.assertEqual(visible, plain)
+        renamed = json.loads(json.dumps(raw).replace('object_', 'renamed_'))
+        self.assertIsNotNone(relation.isomorphism(bh.graph(raw, scalar), bh.graph(renamed, scalar)))
+        changed = copy.deepcopy(raw)
+        changed['frames'][1]['fields'][scalar[0]][0][1] = '4'
+        self.assertIsNone(relation.isomorphism(bh.graph(raw, scalar), bh.graph(changed, scalar)))
+        # Reference equality and contradictory values are probed with the same
+        # absent head, without projecting the distinguishing tuple away.
+        for name, values in (('value-ghost-3', [3]), ('contradictory-values-ghost-3', [3, 4]),
+                             ('coerced-empty-zero-ghost-3', [3])):
+            result = bh.compare(self.runtime, tools, fixtures[name], self.output / ('hidden-' + name),
+                                hidden_scalar_rows=[[], [[1, 1, z] for z in values]])
+            bs.oracle.write(self.output / ('hidden-' + name + '.json'), result)
+            self.assertEqual(result['target'], 'sat' if name == 'value-ghost-3' else 'bounded_unsat', result)
+
+    # [utest->req~compiler-behavioral-qualification~1]
+    def test_static_initializer_reference_backends(self):
+        import choco_build
+        tools = bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        choco = choco_build.load(os.environ['CLAFER_CHOCO_TOOLS'])
+        choco_home = Path(os.environ['CLAFER_CHOCO_TOOLS']).parent
+        results = []
+        for op in ('=', ':='):
+            for value in (0, 1):
+                source = f'x -> int {op} 0\n[x = {value}]\nassert [x = 1]\n'
+                c = case(source, 2, [(1, 1, 0)], [[1]], values=[{1: value}])
+                directory = self.output / f'static-reference-{op}-{value}'
+                expected = 'sat' if value == 0 else 'bounded_unsat'
+                compiled = self.runtime.compare(c, directory)
+                self.assertEqual(compiled, dict(status='complete', source='satisfied' if value == 0 else 'violated',
+                                               target=expected, directions=[]))
+                g = bh.pr113.capture(tools, {'input.cfr': source.encode()}, 'input.cfr',
+                                     directory / 'capture', backend='als')
+                self.assertEqual(g['status'], 'captured', g)
+                reference = bh.pr113.query(tools, g, bh.protocol.request(g, 0, steps=1),
+                                           directory / 'reference-alloy')
+                self.assertEqual((reference['status'], reference['outcome']), ('ok', expected))
+                # The false assertion does not become a model constraint; a
+                # contradictory initializer still forbids a model. No optimizer.
+                explicit = directory / 'explicit.cfr'
+                explicit.write_text(g['explicit'])
+                (directory / 'explicit.cfr-scope').write_text(g['explicit_scopes'])
+                command = [Path(choco['java_home']) / 'bin/java', '-Xmx512m', '-XX:ActiveProcessorCount=1',
+                           '-jar', choco_home / 'chocosolver.jar', '--file', explicit, '--scope', '2',
+                           '--minint', '0', '--maxint', '1', '-n', '1']
+                bs.tc.run(command, directory, 'choco', timeout=30)
+                observed = (directory / 'choco-stdout.log').read_text()
+                counts = re.findall(r'^Generated ([0-9]+) instance\(s\) within the scope$', observed, re.M)
+                self.assertEqual(counts, ['1' if value == 0 else '0'], observed)
+                bs.oracle.write(directory / 'choco-tools.json', choco)
+                results.append(dict(operator=op, value=value, source=compiled['source'],
+                                    compiler=compiled['target'], haskell=reference['outcome'],
+                                    choco=expected))
+                # Include the added captures and raw Choco output in replay integrity.
+                bh.pr113.index(directory)
+        bs.oracle.write(self.output / 'static-initializer-reference-results.json', results)
+
+    # [utest->req~compiler-behavioral-elaboration~1]
+    # [utest->req~compiler-behavioral-qualification~1]
+    def test_abstract_initializer_scalar_admission(self):
+        tools = bh.pr113.load_tools(os.environ['CLAFER_058_TOOLS'])
+        for temporal in (False, True):
+            for rhs, admitted in (('0 ++ 0', True), ('0 ++ 1', False)):
+                source = 'abstract A -> int := ' + rhs + '\n'
+                if temporal:
+                    source += '[always one root]\n'
+                c = case(source, 2, [], [[]])
+                directory = self.output / f'scalar-admission-{temporal}-{admitted}'
+                directory.mkdir()
+                if admitted:
+                    product = self.runtime.compile(directory, c)
+                    self.assertEqual(bs.Observation(product, c['candidate']).check()['status'], 'satisfied')
+                else:
+                    with self.assertRaises(subprocess.CalledProcessError) as failure:
+                        self.runtime.compile(directory, c)
+                    self.assertEqual(failure.exception.returncode, 3)
+                    self.assertEqual(bs.temporal.read(directory / 'compile-stderr.log')['code'],
+                                     'behavioral.initializer-scalar')
+                # Haskell accepts the unused multi-target abstract. This is an
+                # admission difference, not source UNSAT or compiler agreement.
+                g = bh.pr113.capture(tools, {'input.cfr': source.encode()}, 'input.cfr', directory / 'capture')
+                self.assertEqual(g['status'], 'captured', g)
+                reference = bh.pr113.query(tools, g, bh.protocol.request(g, 0, steps=1), directory / 'haskell')
+                self.assertEqual((reference['status'], reference['outcome']), ('ok', 'sat'))
+                bs.oracle.write(directory / 'case.json', c)
+                bs.oracle.write(directory / 'result.json', dict(source_admission='admitted' if admitted else 'unsupported',
+                    diagnostic=None if admitted else 'behavioral.initializer-scalar', reference='sat'))
+                bs.oracle.write(directory / 'runtime.json', dict(compiler=self.runtime.identity, haskell=tools['tools']))
+                bh.pr113.index(directory)
 
     # [utest->req~compiler-behavioral-partial-lowering~1]
     # [utest->req~compiler-full-behavioral-correctness~1]

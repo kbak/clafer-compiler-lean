@@ -48,6 +48,20 @@ it is not an imported or certified upstream checker. Original code is
 MIT; imported Lean libraries retain Apache-2.0 and external tools retain the
 licenses in the [source register](sources.md).
 
+Initializer and absence qualification reuses `behavioral_initializer_cases`,
+`absence_cases`, the full source observer, `behavioral_haskell`, PR113 capture and
+the existing exact-lasso pinning/graph comparison. The ordinary Haskell pairing
+fixes absent scalar reference rows to empty; it cannot detect extra reference
+tuples that its generated facts permit outside live heads. A separate raw-table
+probe therefore retains such rows and compares the complete trace, with a
+live-only projection used solely to demonstrate why display can hide a difference.
+The pinned Choco CLI already reads explicit source with hard constraints and
+integer references. It supplies static satisfiability controls where supported;
+the guarded structural `ChocoInstances` adapter deliberately rejects those forms
+and is not broadened. No new parser, graph-isomorphism library, solver bridge or
+dependency is needed. These are executable comparison boundaries, not new proofs
+or a Lean Choco backend.
+
 ## Native commands and bounds
 
 `compile-behavioral-source` selects this profile; static `compile-source` and
@@ -264,8 +278,10 @@ actual Analyzer field-type inspector, checks a complete declaration/ownership/
 superclass/reference-target bijection and fixes whole-trace observations.
 Integer field endpoints are values; ordinary head occurrences remain identities.
 Every SAT witness is checked under a global graph isomorphism. This comparison
-projects unused compiler scalar slots away, because Haskell only observes values
-of live reference heads. It does not collapse duplicate bag heads.
+projects unused compiler scalar storage away and fixes empty reference rows at
+absent heads. That chosen observation does not establish that Haskell forbids
+additional hidden tuples; the raw-reference probes below test that obligation.
+It does not collapse duplicate bag heads.
 
 Exact source observations preserve time-spanning captured `let` values and
 strict unused-binding definedness. Current Haskell substitution disagrees on the
@@ -274,8 +290,9 @@ explicit reference exclusions, with same-state/shadowing/alpha-renaming controls
 Zero-divisor RHSs remain subject to conservative range rejection even when unused.
 Source headers use the accepted [hard initializer contract](behavioral-frontend.md#hard-declaration-initializers).
 The resolved constant-initializer helper retains its `Initializers.Legacy` meaning.
-[Final initializer/absence reference qualification](https://github.com/kbak/clafer-compiler-lean/issues/127)
-remains a separate gate from the tool upgrade and accepted implementations.
+[Initializer/absence reference qualification](#initializer-and-absence-qualification)
+keeps source expectations and reference discrepancies separate from tool build
+qualification and the accepted implementation proofs.
 
 Parentless abstract local bounds are ineffective because there is no containment
 fiber: Haskell's `0..*` and the frontend's default `1..1` are paired only there.
@@ -332,3 +349,55 @@ Final acceptance requires the immutable candidate's full IntentBond/build/kernel
 native/oracle evidence and independent semantic review. Passing these executable
 fixtures, a hosted check, or IntentBond exit 4 cannot close that gate or authorize
 the upstream/downstream main merges.
+
+## Initializer and absence qualification
+
+The [initializer cases](../tests/behavioral_initializer_cases.py) and
+[absence cases](../tests/behavioral_source_cases.py) are shared by the native
+compiler/Alloy checks and pinned Haskell comparisons in
+[`test_initializer_absence_reference_matrix`](../tests/test_behavioral_source_comparison.py).
+Expected source outcomes come from the accepted initializer and absence contracts.
+Every completed comparison checks supplied identities, actual parents, live sets,
+reference tuples, integer observations, stored frames and the loop edge. A negative
+exact query rules out that candidate at its recorded bounds; it is not unrestricted
+model UNSAT.
+
+The matrix distinguishes every-live `=` from instance-birth, parent-birth and
+global-time-zero `:=`. It includes late heads, rebirth and loop-edge births,
+fresh children after parent replacement, original RHS names and temporal context,
+inherited clocks and conjunctive equations, changing RHSs under `finalref`, empty
+heads with undefined RHSs, repeated bag targets and missing/extra target images.
+Static controls check both operators against hard conflicts; assertions remain
+separate from model constraints. Abstract scalar admission is checked before
+solving, including unused abstracts and static inputs. Conservative range rejection
+and unsupported admission are not satisfiability verdicts.
+
+The following reference limitations are retained against
+`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`. They do not change accepted source meaning.
+The qualification disposition requires independent review in
+[the owning task](https://github.com/kbak/clafer-compiler-lean/issues/127).
+
+| Boundary | Distinguishing observation and consequence |
+| --- | --- |
+| Absent references | The reference permits raw object and integer tuples at absent or never-live heads. A live-only display can be identical while complete reference tables differ. Raw-reference probes retain those tuples and a global-renaming control distinguishes this from symmetry. |
+| Original temporal RHS environment | `Box.x := if X (some flag) then 1 else 0` with Box disappearing has RHS value zero under the original root lifetime. The reference rejects that observation and accepts value one, exposing cancellation after moving the RHS into the child. Both discrepancy directions are replayed. |
+| Temporal selection under `finalref` | A model whose only temporal syntax is `finalref` treats `:=` differently in the two compilers. An explicit `always` control separates selection from birth/finality behavior. No unconditional `:=`/`=` equivalence follows from finality. |
+| Captures and definedness | The registered temporal-`let` exclusions also affect initializer conditions. A captured absent head's strict extraction is undefined even where the reference accepts it; empty initializer heads suppress the complete RHS. |
+| Parented abstract omission | The reference and compiler retain different effective local multiplicities for an omitted parented abstract. The strict declaration-pairing gate records `unpaired`, with both analyzed declarations retained; no relaxed bijection or agreement verdict is substituted. |
+| Abstract scalar admission | The reference admits an unused abstract with a multi-target `:=` RHS. The compiler diagnoses unsupported scalar admission in both static and temporal source; a repeated identical literal is the admitted control. |
+
+Raw scalar probes retain two distinct judgments: `source` is the finite source
+observer's verdict for the live projection, while `reference_domain: violated`
+records extra absent-head tuples forbidden by source structural validity. A SAT
+raw probe is a `target-only` discrepancy even if that projection is satisfied.
+Compiler scalar storage remains total and unobservable at absent heads; it is
+not itself an invalid reference tuple. Replay binds the probe settings and checks
+the full raw tables, including the solver's exact frame count and loop.
+
+Static Choco controls use the existing pinned explicit-source CLI and generated
+scope sidecar, preserving hard constraints and assertions from the same Haskell
+capture. They establish bounded static outcomes only. Temporal Choco solving is
+unsupported and no Lean Choco backend is added. Historical oracle profiles and
+their original receipts remain unchanged. Current bundles retain source hashes,
+decoded JSON and original bytes, tool identities, bounds, actual commands,
+raw witnesses and discrepancy directions outside the repository.

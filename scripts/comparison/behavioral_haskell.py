@@ -97,8 +97,38 @@ def graph(t,scalar):
             for s,rs in f['fields'].items() if s not in scalar for row in rs])
 
 
+def add_hidden_scalar_rows(c, p, trace, alloy, rows):
+    """Keep invalid absent-head tuples visible, separately from scalar storage.
+
+    These tuples have no representation in a valid source trace. They probe the
+    reference generator's domain facts, not the source observer's total slots.
+    """
+    tc.require(type(rows) is list and len(rows) == c['length'], 'hidden row frames')
+    ids, ds = bs.candidate_valid(c, p)
+    primitive = next(d for d, row in ds.items() if row['primitive'])
+    added = False
+    for frame, source, extra in zip(trace['frames'], c['frames'], rows):
+        tc.require(type(extra) is list, 'hidden rows')
+        for row in extra:
+            tc.require(type(row) is list and len(row) == 3 and all(type(x) is int for x in row),
+                       'hidden scalar tuple')
+            d, x, z = row
+            tc.require(d in ds and x in ids and x not in source['live'] and
+                       d in tc.ancestors(ds, ids[x]['type']) and
+                       ds[d]['reference']['target'] == primitive, 'absent scalar reference head')
+            tc.require(p['integers']['lower'] <= z <= p['integers']['upper'], 'hidden scalar range')
+            u = alloy[d]
+            field = f'this/{u}/{u}_ref'
+            tc.require(field in frame['fields'], 'missing declared scalar reference')
+            value = ['object_' + str(x), str(z)]
+            tc.require(value not in frame['fields'][field], 'duplicate hidden scalar tuple')
+            frame['fields'][field].append(value)
+            added = True
+    tc.require(added, 'hidden probe requires an absent reference tuple')
+
+
 # [impl->req~compiler-behavioral-qualification~1]
-def compare(runtime,tools,case,output):
+def compare(runtime,tools,case,output,*,hidden_scalar_rows=None):
     output=oracle.external(output);output.mkdir(parents=True,exist_ok=False)
     oracle.write(output/'case.json',case)
     tc.require(bs.source_identity()==runtime.source and oracle.digest(runtime.compiler)==runtime.identity['compiler'] and
@@ -112,6 +142,9 @@ def compare(runtime,tools,case,output):
     tc.require(g['status']=='captured','Haskell capture failed')
     inspected=pr113.inspect(tools,g,output/'capture')
     trace,scalar,alloy,names=target(c,p,g,inspected)
+    if hidden_scalar_rows is not None:
+        add_hidden_scalar_rows(c,p,trace,alloy,hidden_scalar_rows)
+        oracle.write(output/'settings.json',dict(hidden_scalar_rows=hidden_scalar_rows))
     oracle.write(output/'source-map.json',dict(uids=names,alloy=alloy))
     oracle.write(output/'expected-trace.json',trace)
     fixture,clock=tc.pin(trace,integer_fields=scalar,typed_aliases=True)
@@ -135,6 +168,11 @@ def compare(runtime,tools,case,output):
     answer=dict(profile=tools['tools']['profile']['profile'],source=source['status'],target=result['outcome'],
         directions=[] if (result['outcome']=='sat')==(source['status']=='satisfied') else
             ['target-only' if result['outcome']=='sat' else 'source-only'])
+    if hidden_scalar_rows is not None:
+        # The source verdict describes the live projection. Raw absent-head
+        # reference tuples independently violate the accepted reference domain.
+        answer.update(reference_domain='violated',
+                      directions=['target-only'] if result['outcome']=='sat' else [])
     oracle.write(output/'runtime.json',dict(compiler=runtime.identity,haskell=tools['tools']))
     oracle.write(output/'result.json',answer)
     pr113.index(output)
@@ -148,7 +186,8 @@ def replay(runtime,tools,bundle,output):
     tc.require(actual==temporal.read(bundle/'evidence-index.json'),'changed Haskell replay inventory')
     tc.require(temporal.read(bundle/'runtime.json')==dict(compiler=runtime.identity,haskell=tools['tools']),
                'changed Haskell replay runtime')
-    result=compare(runtime,tools,temporal.read(bundle/'case.json'),output)
+    settings=temporal.read(bundle/'settings.json') if (bundle/'settings.json').exists() else {}
+    result=compare(runtime,tools,temporal.read(bundle/'case.json'),output,**settings)
     tc.require(result==temporal.read(bundle/'result.json'),'changed Haskell replay result')
     return result
 

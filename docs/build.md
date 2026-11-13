@@ -197,7 +197,10 @@ to `--reference-ci`, and `test_behavioral_source_cli` and
 `test_behavioral_source_comparison` to `--source-ci`. It retains every other
 discovered case, including new test modules, plus the normal build, audit and
 kernel gates. The source profile builds the native compiler and runs both complete
-source modules. Every profile rejects missing, empty, skipped or failed suites.
+source modules, including the initializer/absence reference matrix. It provisions
+the existing Choco Java 21 tools for static hard-initializer controls and restores
+the Alloy Java 17 runtime before temporal checks. Every profile rejects missing,
+empty, skipped or failed suites.
 The default local check runs all modules together. Hosted full qualification
 requires all three profiles against the same immutable candidate.
 

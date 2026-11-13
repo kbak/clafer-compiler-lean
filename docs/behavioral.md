@@ -114,7 +114,7 @@ No row is discharged by a Markdown link or an upstream theorem alone.
 | B29 syntax, precedence, aliases, disjoint/multiple binders | P §6.1; T12/CheatSheet; S5 | C7 grammar/elaboration; C8 composition | Quantifier `not`, arrow precedence, capture avoidance / change attachment or lose disjointness |
 | B30 lassos and bounded reporting | P §6.2; T13; S6 | C3/C4; C5 representation, C9 replay | Nonzero prefix, loop-edge birth / empty trace, bad loop, undersized identity pool |
 | B31 integer conversion, operations, extrema, folds | S11; D3; S4 | C6/C7; C8 observation and range proofs | Empty conversion 0, duplicate aggregate heads / zero divisor, infinite/noninteger observation, overflow |
-| B32 hard `=`/`:=`, effective defaults | P §6.1; T10/S1–S2; accepted initializer extension | [Initializer contract](behavioral-frontend.md#hard-declaration-initializers); source/target preservation | Empty-head inactivity, single/collection/global clocks, rebirth, original RHS scope / strict implication sugar, reconstructed defaults or RHS reattachment |
+| B32 hard `=`/`:=`, effective defaults | P §6.1; T10/S1–S2; accepted initializer extension | [Initializer contract](behavioral-frontend.md#hard-declaration-initializers); source/target preservation | [Shared qualification matrix](behavioral-source.md#initializer-and-absence-qualification): empty-head inactivity, single/collection/global and inherited clocks, rebirth, RHS scope, bags and scalar admission; reference discrepancies retained |
 
 The first slice C5 includes resolved guarded structural snapshots, nested presence
 and state-machine obligations, replacement/reappearance, X/F/G/U/W and both source
