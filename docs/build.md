@@ -185,8 +185,8 @@ Acceptance, integration, scheduled and manual runs always select all three jobs,
 when the diff contains only compiler inputs. Unknown event/target classification
 also requires all three. This reuses the existing profile selector, reusable
 workflow, test-group registry and required aggregate. The behavioral source suite
-uses two solver workers; sharing a four-CPU runner with the temporal target suite's
-two solver workers and other regressions creates CPU contention. A separate
+uses the bounded `CLAFER_TEST_JOBS` setting; sharing a four-CPU runner with the
+temporal target suite's two solver workers and other regressions creates CPU contention. A separate
 required source job preserves their query budgets and complete case inventories.
 The reference corpus likewise runs separately from compiler validation.
 No new dependency, license obligation or compiler runtime/proof boundary is added.
