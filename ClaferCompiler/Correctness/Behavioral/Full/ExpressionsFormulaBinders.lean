@@ -37,6 +37,34 @@ variable {v : IR.BehavioralStructural.Validated k} {b : Expression.Ranges.Inputs
   {e : Environment} {t fuel : Nat} {next : Pass k}
 
 -- [proof->req~compiler-behavioral-partial-lowering~1]
+/-- Filtering integer literals by the domain's established interval preserves
+its alias cover, without imposing liveness or integer typing on ordinary heads. -/
+theorem captureAliases_cover (hc : LexicalRows b s τ labels c ρ e)
+    (inside : S ⊆ observedDomain b.width)
+    (bound : Ranges.CollectionBound completeIntegers estimate S) (x : Completion o) (hx : x ∈ S) :
+    ∃ entry ∈ c.captureAliases estimate.values,
+      ∀ t, Mixed.Unary (completionAtom labels) {x} (entry.eval s b.width τ e t) := by
+  obtain ⟨entry, he, rows⟩ := hc.cover x (inside hx)
+  refine ⟨entry, List.mem_filter.mpr ⟨he, ?_⟩, rows⟩
+  change (match entry.code with
+    | [.integer i] => estimate.values.lower ≤ i && i ≤ estimate.values.upper
+    | _ => true) = true
+  split
+  · rename_i i code
+    have eq : entry = Rel.integer i := by cases entry; simpa [Rel.integer] using code
+    subst entry
+    have member := (rows 0 [completionAtom labels x]).mpr ⟨x, by simp, rfl⟩
+    by_cases fits : Backend.Alloy.fitsInt b.width i = true
+    · have same : completionAtom labels x = Atom.integer i := by
+        simpa [Rel.eval, Rel.integer, Rel.fold, RelAlgebra.step, relationAlgebra, fits] using member
+      have same : x = Sum.inr i := (completionAtom labels).injective same
+      subst x
+      simpa [completeIntegers, IR.Expr.Interval.Contains] using
+        bound.values (Sum.inr i) hx ⟨i, rfl⟩
+    · simp [Rel.eval, Rel.integer, Rel.fold, RelAlgebra.step, relationAlgebra, fits] at member
+  · rfl
+
+-- [proof->req~compiler-behavioral-partial-lowering~1]
 theorem formula_quantStep (model : ModelRows v b s τ σ labels)
     (ih : PassObservation v b s τ σ labels next) (built : SyntaxBuilt.PassBuilt next)
     (hc : LexicalRows b s τ labels c ρ e)
@@ -117,7 +145,7 @@ theorem formula_letStep (model : ModelRows v b s τ σ labels)
     let estimate ← collectionEstimate b fuel c d
     let domain ← next.collection c d
     partialMapM domain fun relation =>
-      partialMapM (Backend.Alloy.Behavioral.Full.Value.capture c.lexical.aliases relation estimate.budget)
+      partialMapM (Backend.Alloy.Behavioral.Full.Value.capture (c.captureAliases estimate.values) relation estimate.budget)
         fun frozen => next.formula (c.push frozen estimate) a) = .ok result at success
   cases he : collectionEstimate b fuel c d with
   | error error => rw [he] at success; contradiction
@@ -130,7 +158,7 @@ theorem formula_letStep (model : ModelRows v b s τ σ labels)
       rw [he, hd] at success
       have observed := ih.collection hc t d domain estimate domainBound hd
       let compileBody := fun relation =>
-        partialMapM (Backend.Alloy.Behavioral.Full.Value.capture c.lexical.aliases relation estimate.budget)
+        partialMapM (Backend.Alloy.Behavioral.Full.Value.capture (c.captureAliases estimate.values) relation estimate.budget)
           fun frozen => next.formula (c.push frozen estimate) a
       change partialMapM domain compileBody = .ok result at success
       refine partialMapM_observation domain compileBody result observed.built ?_ success ?_ ?_
@@ -144,18 +172,20 @@ theorem formula_letStep (model : ModelRows v b s τ σ labels)
         obtain ⟨S, hS, _, rows⟩ := observed.sound relation hrel
         have semantic := Ranges.collection_bound model.ranges hc.ranges domainBound hS
         have inside := collection_inside model hc domainBound hS
+        have aliases : ∀ entry ∈ c.captureAliases estimate.values, Stable s b.width τ e entry :=
+          fun entry he => hc.aliases entry (List.mem_filter.mp he).1
         refine partialMapM_observation _ _ body (Value.capture_built _ _ _)
           (fun _ frozen result _ hr => built.formula (c.push frozen estimate) a result hr) hbody ?_ ?_
         · intro _
           obtain ⟨frozen, hcap, _⟩ := source_capture_complete (completionAtom labels).injective rows
-            (fun entry he => (hc.aliases entry he).term)
+            (fun entry he => (aliases entry he).term)
             (fun x hx => by
-              obtain ⟨entry, he, hrows⟩ := hc.cover x (inside hx)
+              obtain ⟨entry, he, hrows⟩ := captureAliases_cover hc inside semantic x hx
               exact ⟨entry, he, hrows t⟩) semantic.card
           exact ⟨frozen, hcap⟩
         · intro frozen result hcap hr
-          have stable := capture_stable hc.aliases hcap
-          have frozenRows := source_capture_frozen rows hc.aliases hcap
+          have stable := capture_stable aliases hcap
+          have frozenRows := source_capture_frozen rows aliases hcap
           have context := hc.push frozen estimate S stable.term frozenRows inside semantic
           exact FormulaObservation.letSet hS (ih.formula context t a result bodyBound hr)
 

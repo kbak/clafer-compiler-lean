@@ -2,6 +2,8 @@
 import copy
 import json
 from pathlib import Path
+import resource
+import signal
 import subprocess
 import tempfile
 import unittest
@@ -28,16 +30,16 @@ class BehavioralSourceCLITests(unittest.TestCase):
         self.source = 'P\n  A ?\n  assert [some A]\n'
         self.bounds = bounds(3)
 
-    def call(self, args, data=None):
+    def call(self, args, data=None, **options):
         return subprocess.run([str(EXE), *args], cwd=self.work, input=data,
-                              env={'PATH': '/nonexistent', 'LANG': 'C'},
-                              capture_output=True, timeout=30)
+                              env=options.pop('env', {'PATH': '/nonexistent', 'LANG': 'C'}),
+                              capture_output=True, timeout=30, **options)
 
-    def compile(self, source=None, b=None, extra=(), output='-'):
+    def compile(self, source=None, b=None, extra=(), output='-', **options):
         (self.work / 'model.cfr').write_text(self.source if source is None else source)
         (self.work / 'bounds.json').write_text(json.dumps(self.bounds if b is None else b))
         return self.call(['compile-behavioral-source', 'model.cfr', '--bounds', 'bounds.json',
-                          '--output', output, '--diagnostics', 'json', *extra])
+                          '--output', output, '--diagnostics', 'json', *extra], **options)
 
     def product(self, **kwargs):
         result = self.compile(extra=['--format', 'json', *kwargs.pop('extra', ())], **kwargs)
@@ -113,6 +115,44 @@ class BehavioralSourceCLITests(unittest.TestCase):
         self.assertEqual(names['p']['super'], names['P']['id'])
         self.assertEqual(names['r']['referenceOwner'], names['r']['id'])
         self.assertIn(': one Int', p['alloy'])
+
+    # [utest->req~compiler-behavioral-partial-lowering~1]
+    def test_nested_capture_and_inherited_modifier_resources(self):
+        source = (ROOT / 'tests/fixtures/behavioral-source/nested-capture.cfr').read_text()
+        b = bounds(2, objects=2, high=0, steps=2)
+        b['minSteps'] = 2
+        b['declarations'] = [dict(id=i, size=1, exact=True) for i in range(2)]
+
+        def limits():
+            # Lean reserves virtual address space for its runtime threads.
+            resource.setrlimit(resource.RLIMIT_AS, (3 * 1024**3,) * 2)
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
+        for text, budget in [(source, b),
+                             ('abstract P\n  finalref finaltarget r -> int ?\np : P\n', bounds(4))]:
+            with self.subTest(source=text):
+                result = self.compile(source=text, b=budget, preexec_fn=limits,
+                    env={'PATH': '/nonexistent', 'LANG': 'C', 'LEAN_NUM_THREADS': '1',
+                         'LEAN_STACK_SIZE_KB': '1024'})
+                self.assertEqual((result.returncode, result.stderr), (0, b''))
+                self.assertIn(b' steps', result.stdout)
+                self.assertLess(len(result.stdout), 2 * 1024**2)
+
+    # [utest->req~compiler-behavioral-integration~1]
+    def test_output_resource_exhaustion_is_operational_and_atomic(self):
+        sentinel = self.work / 'out.als'
+        sentinel.write_text('preserve me')
+
+        def limits():
+            resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
+            signal.signal(signal.SIGXFSZ, signal.SIG_IGN)
+
+        result = self.compile(output='out.als', preexec_fn=limits)
+        self.assertEqual((result.returncode, result.stdout), (1, b''))
+        self.assertEqual(json.loads(result.stderr)['category'], 'operational')
+        self.assertEqual(json.loads(result.stderr)['code'], 'io.write')
+        self.assertEqual(sentinel.read_text(), 'preserve me')
+        self.assertFalse(list(self.work.glob('.clafer-compiler-*.tmp')))
 
     def test_closed_bounds_and_safe_ranges(self):
         cases = []

@@ -1,0 +1,3 @@
+v -> int ?
+[initially (some v && X no v)]
+[initially (let old = v in X (let unused = sum old in some root))]

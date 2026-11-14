@@ -369,11 +369,8 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 self.assertEqual(reference['source'],'satisfied',reference)
                 self.assertEqual(reference['target'],'bounded_unsat' if excluded else 'sat',reference)
                 self.assertEqual(reference['directions'],['source-only'] if excluded else [],reference)
-        # A small signed domain keeps nested capture/aggregate expansion finite
-        # enough for this exact strict-definedness witness (see issue #132).
-        source=('v -> int ?\n[initially (some v && X no v)]\n'
-                '[initially (let old = v in X (let unused = sum old in some root))]\n')
-        c=case(source,2,[(1,1,0)],[[1],[]],interval=(0,0),width=2)
+        source=(ROOT/'tests/fixtures/behavioral-source/nested-capture.cfr').read_text()
+        c=case(source,2,[(1,1,0)],[[1],[]],interval=(0,0),width=4)
         answer=self.runtime.compare(c,self.output/'let-unused-partial')
         self.assertEqual(answer,dict(status='complete',source='undefined',target='bounded_unsat',directions=[]))
         reference=bh.compare(self.runtime,tools,c,self.output/'haskell-let-unused-partial')
@@ -392,6 +389,22 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         output=self.output/'let-unused-divisor';output.mkdir()
         with self.assertRaises(subprocess.CalledProcessError): self.runtime.compile(output,c)
         self.assertIn('behavioral.possible-zero-divisor',(output/'compile-stderr.log').read_text())
+
+    # [utest->req~compiler-behavioral-partial-lowering~1]
+    def test_nested_capture_definedness_and_signs(self):
+        source=(ROOT/'tests/fixtures/behavioral-source/nested-capture.cfr').read_text()
+        negative=source.replace('[initially (let old', '[initially !(let old')
+        assertion=source.replace('[initially (let old', 'assert [initially (let old')
+        defined=source.replace('X no v', 'X some v')
+        for name,text,live,query,expected in (
+            ('negative',negative,[[1],[]],None,'undefined'),
+            ('assertion',assertion,[[1],[]],dict(kind='check',assertion=0),'satisfied'),
+            ('defined',defined,[[1],[1]],None,'satisfied')):
+            with self.subTest(name=name):
+                c=case(text,2,[(1,1,0)],live,interval=(0,0),width=4,query=query)
+                answer=self.runtime.compare(c,self.output/('nested-capture-'+name))
+                self.assertEqual(answer,dict(status='complete',source=expected,
+                    target='sat' if expected=='satisfied' else 'bounded_unsat',directions=[]))
 
     def test_replay_and_mutation_directions(self):
         for name,source,live,mutation,direction in (

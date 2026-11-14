@@ -220,13 +220,16 @@ time and maximum RSS. Python records
 finite observation and overall comparison durations. Each measurement retains
 identity counts, scopes, bitwidth, finite value interval, frame count and loop.
 These are descriptive measurements, not a performance guarantee. Frozen capture
-uses the encoder's finite alias enumeration, which includes signed integer
-candidates: its cost is exponential in identity capacity plus integer-domain
-size. Use the smallest sufficient width; a narrow scalar interval does not shrink
-that signed capture domain. This cost is inherited from the accepted full encoder. Nested captures and
-aggregates can exhaust the native stack even with small object scopes;
-[bounded lowering work](https://github.com/kbak/clafer-compiler-lean/issues/132)
-tracks that operational limitation. Resource failures are not semantic results.
+uses the encoder's finite alias enumeration, retaining every ordinary identity
+and integer literals within the captured expression's proved interval. The
+[capture specialization](behavioral-encoding.md#reuse-assessment) preserves strict
+definedness and both source signs. Nested captures and aggregates can still
+expand exponentially in the retained aliases; this optimization does not supply
+a general polynomial bound or prevent every native resource failure. The
+width-four nested-capture and inherited-reference regressions enforce bounded
+output size and run with a restricted native stack. Resource failures remain
+operational outcomes, distinct from malformed input, unsupported language and
+bounded UNSAT; failed file output preserves the previous destination.
 
 ## Feature and evidence inventory
 
