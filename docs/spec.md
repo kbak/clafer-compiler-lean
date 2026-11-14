@@ -413,6 +413,13 @@ Quantifiers require every admitted member's body to be defined; captures freeze
 the same collection for truth and definedness. Keep raw counting barriers.
 Classical assertion failure negates the complete attached property, including
 definedness. Prove these composition laws and retain distinguishing counterexamples.
+Use proved collection intervals to exclude impossible literal-integer capture
+alternatives while retaining ordinary aliases and all domain obligations. Retain
+the width-four nested unused-aggregate witness and inherited-reference modifier
+witness within the native resource regression limits, without changing their
+source bounds or weakening preservation assumptions. Resource failures must not
+be reported as malformed, unsupported or bounded UNSAT, and must preserve prior
+file output.
 Concrete partial observations, full-profile representation and composed compiler
 soundness/completeness remain required by the [complete encoding contract](behavioral.md#independent-trace-assurance).
 

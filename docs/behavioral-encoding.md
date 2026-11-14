@@ -278,8 +278,17 @@ The full attachment builder reuses the fixed global alias cover for every
 attachment. Root-owned formulas specialize their frozen context to the
 represented root identity. This preserves one attachment construction and avoids
 an extra proof layer solely to omit unused binders. Alloy can eliminate binders
-whose aliases do not occur in a body; captures retain the same explicit finite
-expansion cost.
+whose aliases do not occur in a body. Each capture filters literal integer aliases
+using the existing `CollectionEstimate` interval. The proved `CollectionBound`
+limits integer members of the captured domain, so omitted alternatives cannot
+represent a source member. Ordinary aliases, strict domain guards and frozen
+identities remain unchanged. Standard `List.filter` and its membership lemmas
+supply this specialization; no new dependency or license cost is added.
+The upstream `LetCapture` and `Aggregate` APIs supply meanings, not executable
+target construction. Haskell's reference substitution cannot replace value
+capture across time. A new target binder or shared formula representation would
+require a wider serialization and proof change than this specialization.
+Remaining finite expansion can still be exponential in the retained aliases.
 
 Target arithmetic totality reuses `Integer.range`, checked interval operations
 and the existing arithmetic proof helpers. The first-slice definedness theorem

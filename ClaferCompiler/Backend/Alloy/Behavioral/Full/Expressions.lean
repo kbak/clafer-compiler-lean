@@ -21,6 +21,14 @@ def Context.close (c : Context n) : Context 0 :=
 def Context.shift (c : Context n) (amount : Nat) : Context n :=
   ⟨c.lexical.shift amount, c.estimates⟩
 
+-- [impl->req~compiler-behavioral-partial-lowering~1]
+/-- Integer literals outside the proved domain interval cannot be captured.
+All other aliases are retained, including frozen ordinary identities. -/
+def Context.captureAliases (c : Context n) (range : IR.Expr.Interval) : List Temporal.Rel :=
+  c.lexical.aliases.filter fun alias => match alias.code with
+    | [.integer i] => range.lower ≤ i && i ≤ range.upper
+    | _ => true
+
 def Context.extend (c : Context n) (xs : Vector Temporal.Rel arity)
     (estimate : Expression.Ranges.CollectionEstimate) : Context (n + arity) :=
   ⟨⟨c.lexical.this, fun i => if h : i.val < arity then xs[i.val]
@@ -211,7 +219,7 @@ def lowerStep (v : IR.BehavioralStructural.Validated k) (b : Expression.Ranges.I
       let estimate ← collectionEstimate b fuel c d
       let domain ← next.collection c d
       partialMapM domain fun relation =>
-        partialMapM (Value.capture c.lexical.aliases relation estimate.budget) fun frozen =>
+        partialMapM (Value.capture (c.captureAliases estimate.values) relation estimate.budget) fun frozen =>
           next.formula (c.push frozen estimate) a
 
 /-- Traversal exhaustion remains an explicit unsupported diagnostic. Public
