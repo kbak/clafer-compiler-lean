@@ -76,6 +76,7 @@ def run : IO Unit := do
   sourceFixtures
   let .ok _ := validate profile core certificate | fail "rich core admission"
   let .error _ := validate "m1-effective" core certificate | fail "profile separation"
+  let .error _ := validate "behavioral-0.5.8/v1" core certificate | fail "historical profile admission"
   let .error _ := IR.Structural.validate core.structural certificate | fail "static admission widened"
   let .ok _ := IR.BehavioralSupport.resolve validated support | fail "inherited typed support"
   let wrong := { support with maps := support.maps.set 0 { support.maps[0] with target := 2 } }

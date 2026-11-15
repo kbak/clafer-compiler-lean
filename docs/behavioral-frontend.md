@@ -1,6 +1,6 @@
 # Behavioral source frontend
 
-The explicit `behavioral-0.5.8/v1` parser accepts authored behavioral
+The explicit `behavioral-0.5.8/v2` parser accepts authored behavioral
 syntax and retains the original source. It is separate from the static parser
 and from first-slice `behavioral-core/1` admission. The
 [completion matrix](behavioral.md#complete-feature-and-evidence-matrix) retains

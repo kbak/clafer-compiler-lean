@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 EXE = ROOT / '.lake/build/bin/clafer-compiler'
-PROFILE = 'behavioral-0.5.8/v1'
+PROFILE = 'behavioral-0.5.8/v2'
 
 
 def bounds(count, objects=3, width=4, low=0, high=1, steps=3):
@@ -162,6 +162,7 @@ class BehavioralSourceCLITests(unittest.TestCase):
             cases.append((b, exit_code))
         case(lambda b: b.update(version='clafer-behavioral-bounds/1'), 3)
         case(lambda b: b.update(profile='behavioral-core/1'), 3)
+        case(lambda b: b.update(profile='behavioral-0.5.8/v1'), 3)
         case(lambda b: b.update(unknown=True), 2)
         case(lambda b: b['declarations'].pop(), 2)
         case(lambda b: b['declarations'].append(b['declarations'][0]), 2)

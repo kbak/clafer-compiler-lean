@@ -174,7 +174,7 @@ The original static grammar baseline was Haskell
 | `src/Language/Clafer.hs` | `a87a52ddebd864ac804225900897239688088ce032503fc3f2401de602466ae5` | public parse/layout boundary and same-line sibling guard |
 
 The selected 0.5.8 source is
-[`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a).
+[`dbc06d37ef23eb9186d1016e3bf678858621e92d`](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d).
 Its grammar/lexer and layout boundary are checked separately from those historical
 hashes; the adopted sibling-group and header rules are specified above.
 
@@ -182,7 +182,7 @@ hashes; the adopted sibling-group and header rules are specified above.
 | --- | --- |
 | `src/clafer.cf` | `db446b591613eaffb340b1f0ba46e79b43500521032bb479bf639567376ff6bf` |
 | `src/Language/Clafer/Front/LexClafer.x` | `d888bfe16746efd3ef02f21e8929e044974f3ee6ff9f8c5473b74d73bef83b7e` |
-| `src/Language/Clafer.hs` | `b9b6be7fb94d2561dac6e5394a8dd7f43a3abb72be011a166c02fde2ffb302e9` |
+| `src/Language/Clafer.hs` | `7274332dbb551cf3e28d079a5b5b7dacf652488dfae7d12ab29d8602b2dd50db` |
 | `src/Language/Clafer/Front/LayoutResolver.hs` | `6adb611d36956b0e7978856b77818f3fa67d8ef242428e291d96e1e93f20d1b9` |
 
 No Haskell or paper text/code/fixtures are redistributed. New implementation and

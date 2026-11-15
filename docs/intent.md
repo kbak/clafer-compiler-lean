@@ -63,9 +63,9 @@ records executable/proof boundaries. Existing MIT licensing is retained.
 The [three-way comparison](comparison.md) connects actual native-generated
 Alloy and strict instance decoding to the pinned checker and Haskell comparison.
 Its finite execution evidence complements the independent M1 preservation proofs.
-The structural comparison uses the accepted upstream Haskell 0.5.8 prerelease
-adapter; the behavioral comparison pins the merged 0.5.8 release. These external
-reference profiles do not expand the selected compiler language.
+The structural and behavioral comparisons use the merged Haskell 0.5.8 release
+through the accepted upstream adapter and explicitly selected behavioral profile.
+These external reference profiles do not expand the selected compiler language.
 The historical [temporal comparison tools](oracles.md#temporal-provisioning-execution-and-replay)
 reproduce the pinned 0.5.7 candidate's bounded Alloy queries and retained traces;
 they do not implement behavioral compilation or prove source preservation.

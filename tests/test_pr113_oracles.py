@@ -473,7 +473,7 @@ class Clafer058Oracles(PR113C7Oracles):
         source = self.tools['build'].parent / 'compiler'
         inventory = pr113.read(pr113.corpus(self.tools))
         self.assertEqual(inventory['haskell_commit'], self.tools['tools']['profile']['haskell_commit'])
-        self.assertEqual(inventory['profile'], 'behavioral-0.5.8/v1')
+        self.assertEqual(inventory['profile'], 'behavioral-0.5.8/v2')
         upstream = {c['entry'] for c in self.cases if c['origin'] == 'haskell'}
         self.assertEqual({p.name for p in (source / 'test/positive').glob('tmp_*.cfr')} |
                          {'explicit_dref_navigation.cfr', 'set_reference_keys.cfr'}, upstream)
@@ -489,6 +489,14 @@ class Clafer058Oracles(PR113C7Oracles):
         path = self.output / 'prerelease-tools.json'
         oracle.write(path, stale)
         with self.assertRaisesRegex(ValueError, 'Unregistered PR113 revision'):
+            pr113.load_tools(path)
+
+    def test_historical_profile_receipt_is_not_current(self):
+        stale = copy.deepcopy(self.tools['tools'])
+        stale['profile']['profile'] = 'behavioral-0.5.8/v1'
+        path = self.output / 'historical-profile-tools.json'
+        oracle.write(path, stale)
+        with self.assertRaisesRegex(ValueError, 'Wrong PR113 tools/profile'):
             pr113.load_tools(path)
 
     def test_release_corrections_replay(self):

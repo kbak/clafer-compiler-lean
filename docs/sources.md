@@ -21,9 +21,8 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/e96284c98b103fe0871c00eb96210a40e5c1ea67) | `e96284c98b103fe0871c00eb96210a40e5c1ea67` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
-| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a) | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Structural comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/LICENSE). External tool, not production runtime dependency. |
-| [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Behavioral reference and release corpus; MIT, GSD Lab and ISD Lab. External validation only. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/a450a8062d832fa188794717cf35bc0f60d776f8) | `a450a8062d832fa188794717cf35bc0f60d776f8` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Structural and behavioral comparison/compiler/grammar baseline and release corpus; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/LICENSE). External validation only. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
@@ -43,13 +42,11 @@ A source citation is not a redistribution license.
 
 The behavioral planning sources are registered [separately below](#behavioral-sources).
 The installed semantics pin supplies both the static and behavioral libraries.
-The structural comparison uses the reviewed immutable 0.5.8 prerelease through
-the installed semantics adapter. The behavioral source tools use the merged
-0.5.8 release registered below. Updating the structural producer requires an
-accepted semantics-main adapter pin. Upstream's
-[compiler profile](https://github.com/kbak/clafer-semantics/blob/e96284c98b103fe0871c00eb96210a40e5c1ea67/scripts/verification/compiler_profile.py)
-records archive SHA-256 `fcf7bf883723e7eb22ff2f3c1b6538f0c967cb5eace3a00a89f5fcd2e4a4edc5`,
-source-tree SHA-256 `c9009d0fa8fb3d834b307b6d481a0ac99aa02994ac65200a3f25a0391281be8a`,
+Both comparison profiles use the merged 0.5.8 release registered below. The
+structural producer reuses the accepted semantics-main adapter. Upstream's
+[compiler profile](https://github.com/kbak/clafer-semantics/blob/a450a8062d832fa188794717cf35bc0f60d776f8/scripts/verification/compiler_profile.py)
+records archive SHA-256 `cce8e723fce067687ec9434682b445edc364698dece8fdf49d22b8184bde413c`,
+source-tree SHA-256 `d6822ede588ed020045e1630872c186361b61aa6538c64198da1cf2edc4ac0a1`,
 `generic-aeson-0.5.8/1` and `clafer-generation/2`. Its capture/import/runtime and
 comparison adapters supply strict modifier arrays, paired source/backend maps,
 name-safe candidate pinning and decoding, and validated zero scopes for unused
@@ -88,7 +85,8 @@ Do not relabel historical artifacts as current evidence.
 The accepted semantics pin includes the independently reviewed
 [build/exporter](https://github.com/kbak/clafer-semantics/pull/180),
 [temporal let](https://github.com/kbak/clafer-semantics/pull/181) and
-[source/profile adoption](https://github.com/kbak/clafer-semantics/pull/182).
+[source/profile adoption](https://github.com/kbak/clafer-semantics/pull/182), plus
+the accepted [release adapter and v2 profile](https://github.com/kbak/clafer-semantics/pull/186).
 The compiler uses the accepted
 [super lookup disposition](https://github.com/kbak/clafer-compiler-lean/pull/131).
 The [current behavioral profile](../scripts/oracles/clafer058-profile.json) and
@@ -109,8 +107,9 @@ remain execution errors, never rejection or bounded UNSAT.
 | Historical static 0.5.7 | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Use original compiler revision/semantics `8914ce01386366296e61f049a04bbc6d24db34c4` and receipts. |
 | Historical temporal | `af858ec0fe3ce2ceacb7fd120947c058233086d6` | Retain `temporal-profile.json` unchanged. |
 | Historical PR113 | `9a0f16e` and `c7a2fb7` (full hashes in their profiles) | Retain both inventories, adapters' schema selectors and original receipts. |
-| Current static | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Accepted upstream structural adapter and matching receipts. |
-| Current behavioral/release corpus | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Fresh release receipts, corpus and complete typed trace checks. |
+| Historical 0.5.8 prerelease | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Use the original compiler revision, semantics `e96284c98b103fe0871c00eb96210a40e5c1ea67` and matching receipts. |
+| Historical release `behavioral-0.5.8/v1` | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Replay with compiler `873806d5a1ee2523c6bed86de74065a0dc3ccdfa`, semantics `e96284c98b103fe0871c00eb96210a40e5c1ea67` and original receipts. |
+| Current static and `behavioral-0.5.8/v2` | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Accepted upstream structural adapter, fresh release receipts, corpus and complete typed trace checks. |
 
 The [merged release](https://github.com/gsdlab/clafer/pull/119) uses archive SHA-256
 `cce8e723fce067687ec9434682b445edc364698dece8fdf49d22b8184bde413c`
@@ -119,7 +118,10 @@ and source-tree SHA-256
 Its Stack lock, GHC/resolver and dependencies are unchanged. The existing
 `PR113Export`, typed Analyzer inspector, exact-source comparison and replay
 adapters cover the delta without new infrastructure or license dependencies.
-They remain tested external tools, outside kernel proofs.
+They remain tested external tools, outside kernel proofs. The structural exporter
+uses the release helper with its consumed UID map for inherited set keys. Profile
+`v1` inputs and receipts are rejected by current tools; historical evidence is
+replayed with its original compiler rather than relabeled as `v2`.
 
 Release fixes enforce refined-reference equality, inherited set keys within each
 concrete parent fiber and empty references at absent heads. Top-level abstract
@@ -670,7 +672,7 @@ qualification APIs; compiler qualification retains its own acceptance gate.
 
 | Accepted upstream interface at the installed pin | Downstream use and limit |
 | --- | --- |
-| [Profile and B01–B32](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-profile.md) | Completion inventory, source locators, D1–D5 and two-repository gates |
+| [Profile and B01–B32](https://github.com/kbak/clafer-semantics/blob/a450a8062d832fa188794717cf35bc0f60d776f8/docs/behavioral-profile.md) | Completion inventory, source locators, D1–D5 and two-repository gates |
 | [Trace/snapshot foundation](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-traces.md) | Shared identities, fixed parents, live projection and actual common-fragment assumptions |
 | [Signed formulas/environments](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-formulas.md) | Parent cancellation, capture/current navigation, normalization/lowering; mathematical translations are not a production executable normalizer |
 | [Structural/partial atoms](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-structure.md) | Richer inheritance/references, groups, integer observations, strict temporal definedness and initializer disposition |
@@ -1055,16 +1057,16 @@ retains this limitation without changing source semantics.
 ## Accepted semantics-main dependency
 
 The installed dependency is immutable upstream main
-`e96284c98b103fe0871c00eb96210a40e5c1ea67`, with its accepted
-[0.5.8 source/build/let delta](#clafer-058-source-and-replay),
+`a450a8062d832fa188794717cf35bc0f60d776f8`, with its accepted
+[0.5.8 release adapter and v2 profile](#clafer-058-source-and-replay),
 [production initializer semantics](https://github.com/kbak/clafer-semantics/pull/179),
 [temporal-let capture disposition](https://github.com/kbak/clafer-semantics/pull/181)
 and earlier [absent-reference results](https://github.com/kbak/clafer-semantics/pull/176).
 Current comparison tools use the qualified 0.5.8 profile; historical static
 and behavioral profiles retain their original revisions and adapters.
 
-Relative to the previous installed `8914ce01386366296e61f049a04bbc6d24db34c4` absence revision, the relevant delta
-adds production `Initializers`, `InitializerClassification`, `InitializerBounds`,
+The installed library supplies production `Initializers`,
+`InitializerClassification`, `InitializerBounds`,
 `InitializerTransport`, `InitializerStructure`, `InitializerCompatibility`,
 `InitializerStatic` and `InitializerFinality`, with independent lifecycle and
 transport examples. The historical strict constant-initializer interpretation
@@ -1076,7 +1078,7 @@ is authoritative for classification, original RHS environments, conjunctive
 inheritance, static compatibility and finality assumptions.
 
 The [Haskell 0.5.8 release](https://github.com/gsdlab/clafer/pull/119) at
-`dbc06d37ef23eb9186d1016e3bf678858621e92d` supplies current behavioral implementation context.
+`dbc06d37ef23eb9186d1016e3bf678858621e92d` supplies current structural and behavioral implementation context.
 Hard `:=`, lifetime-start `finalref`, conjunctive inherited equations, original
 RHS temporal context and absent-reference emptiness agree with the adopted
 contracts on the registered distinguishing observations. The inherited-`=`/own-`:=`
@@ -1123,7 +1125,7 @@ adapter, not a kernel-certified finite evaluator. The
 records the exact APIs and assumptions. Earlier locators remain at their inspected
 revisions; new tool receipts must match this installed pin.
 
-The current source profile is `behavioral-0.5.8/v1`, retaining D1–D5 and the
+The current source profile is `behavioral-0.5.8/v2`, retaining D1–D5 and the
 explicit exclusions registered above. Historical `af858ec` and c7 receipts remain
 replayable with their original identities. The accepted c7 comparison retains inherited-set duplicate targets,
 live-union-target disagreement and root-navigation rejection. The upstream

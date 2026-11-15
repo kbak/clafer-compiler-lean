@@ -13,7 +13,7 @@ import temporal_compare as tc
 from behavioral_observation import Observation
 
 ROOT, oracle, temporal = tc.ROOT, tc.oracle, tc.temporal
-PROFILE = 'behavioral-0.5.8/v1'
+PROFILE = 'behavioral-0.5.8/v2'
 SCALAR = 'this/cc0/cc3'
 
 

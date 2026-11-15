@@ -1,6 +1,6 @@
 # Behavioral source workflow
 
-The source workflow selects `behavioral-0.5.8/v1` explicitly and
+The source workflow selects `behavioral-0.5.8/v2` explicitly and
 composes the [authored frontend](behavioral-frontend.md),
 [full encoder](behavioral-encoding.md#full-profile-runtime) and checked temporal
 serializer. The [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix)
@@ -89,7 +89,7 @@ For the source `A ?`, a complete bounds document is:
 ```json
 {
   "version": "clafer-behavioral-bounds/2",
-  "profile": "behavioral-0.5.8/v1",
+  "profile": "behavioral-0.5.8/v2",
   "objects": 2,
   "bitwidth": 3,
   "minSteps": 1,
@@ -269,14 +269,16 @@ by themselves: each fixture and its negative observation remains reviewable.
 ## Source candidate and Haskell comparison disposition
 
 The compiler selects accepted semantics
-`e96284c98b103fe0871c00eb96210a40e5c1ea67` with `behavioral-0.5.8/v1` and Haskell
+`a450a8062d832fa188794717cf35bc0f60d776f8` with `behavioral-0.5.8/v2` and Haskell
 `dbc06d37ef23eb9186d1016e3bf678858621e92d`. The
 [current source register](sources.md#clafer-058-source-and-replay) retains D1–D5,
 accepted later corrections and distinct historical replay identities. No moving
-release branch is selected.
+release branch is selected. Bounds and comparison receipts must select `v2`;
+`behavioral-0.5.8/v1` is rejected rather than silently relabeled. Replay old
+receipts with their recorded compiler and semantics revisions.
 
 The [Haskell adapter](../scripts/comparison/behavioral_haskell.py) uses current
-`behavioral-0.5.8/v1` receipts. It reuses the accepted same-generation receipt and
+`behavioral-0.5.8/v2` receipts. It reuses the accepted same-generation receipt and
 actual Analyzer field-type inspector, checks a complete declaration/ownership/
 superclass/reference-target bijection and fixes whole-trace observations.
 Integer field endpoints are values; ordinary head occurrences remain identities.

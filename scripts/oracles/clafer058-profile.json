@@ -27,7 +27,7 @@
     "tempDirectory": ".",
     "unrolls": -1
   },
-  "profile": "behavioral-0.5.8/v1",
+  "profile": "behavioral-0.5.8/v2",
   "resolver": "nightly-2026-11-11",
   "resources": {
     "heap_mb": 512,
