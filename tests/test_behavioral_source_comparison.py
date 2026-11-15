@@ -62,13 +62,11 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         # A changed reference result requires triage, never automatic adoption.
         target_only = {
             'initializer-undefined-guard-=-True', 'initializer-undefined-guard-:=-True',
-            'initializer-box-original-anchor-1', 'initializer-finalref-later-undefined-=',
+            'initializer-finalref-later-undefined-=',
             'initializer-let-capture-absence-True',
             'absence-captured-empty-extraction-ghost-0', 'absence-captured-empty-extraction-ghost-1',
-            'absence-object-absent-row-True', 'absence-object-never-live-row',
-            'absence-refined-object-absent-row-True',
         }
-        source_only = {'initializer-box-original-anchor-0', 'initializer-finalref-rhs-:=-True',
+        source_only = {'initializer-finalref-rhs-:=-True',
                        'initializer-let-capture-absence-False'}
         fixtures = [('initializer-' + n, e, c) for n, e, c in initializers()]
         fixtures += [('absence-' + n, e, c) for n, e, c in absence_cases()]
@@ -122,7 +120,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         hidden = self.output / 'hidden-reference-scalar'
         answer = bh.compare(self.runtime, tools, c, hidden, hidden_scalar_rows=[[], [[1, 1, 3]]])
         self.assertEqual((answer['source'], answer['reference_domain'], answer['target'], answer['directions']),
-                         ('satisfied', 'violated', 'sat', ['target-only']))
+                         ('satisfied', 'violated', 'bounded_unsat', []))
         self.assertEqual(bh.replay(self.runtime, tools, hidden, self.output / 'hidden-reference-replay'), answer)
         plain = bs.temporal.read(control / 'expected-trace.json')
         raw = bs.temporal.read(hidden / 'expected-trace.json')
@@ -147,7 +145,7 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
             result = bh.compare(self.runtime, tools, fixtures[name], self.output / ('hidden-' + name),
                                 hidden_scalar_rows=[[], [[1, 1, z] for z in values]])
             bs.oracle.write(self.output / ('hidden-' + name + '.json'), result)
-            self.assertEqual(result['target'], 'sat' if name == 'value-ghost-3' else 'bounded_unsat', result)
+            self.assertEqual(result['target'], 'bounded_unsat', result)
 
     # [utest->req~compiler-behavioral-qualification~1]
     def test_static_initializer_reference_backends(self):
@@ -335,11 +333,10 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         for name,answer in results:
             with self.subTest(name=name):
                 # Accepted Structural.Keys requires inherited set uniqueness.
-                # This pinned Haskell generator omits the concrete-fiber key.
-                expected=['target-only'] if name=='inherited-set' else []
-                self.assertEqual(answer['directions'],expected,answer)
+                # The release enforces the same concrete-fiber key.
+                self.assertEqual(answer['directions'],[],answer)
                 if name=='inherited-set':
-                    self.assertEqual((answer['source'],answer['target']),('violated','sat'))
+                    self.assertEqual((answer['source'],answer['target']),('violated','bounded_unsat'))
                 if name=='equation-True':
                     self.assertEqual(bh.replay(self.runtime,tools,self.output/('haskell-'+name),
                         self.output/'haskell-replay'),answer)

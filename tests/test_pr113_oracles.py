@@ -476,8 +476,25 @@ class Clafer058Oracles(PR113C7Oracles):
         self.assertEqual(inventory['profile'], 'behavioral-0.5.8/v1')
         upstream = {c['entry'] for c in self.cases if c['origin'] == 'haskell'}
         self.assertEqual({p.name for p in (source / 'test/positive').glob('tmp_*.cfr')} |
-                         {'explicit_dref_navigation.cfr'}, upstream)
+                         {'explicit_dref_navigation.cfr', 'set_reference_keys.cfr'}, upstream)
         self.assertTrue({c['id'] for c in pr113.read(pr113.CORPUS.parent / 'c7-inventory.json')['cases']}
                         <= {c['id'] for c in self.cases})
         self.assertEqual(self.tools['tools']['profile']['ghc'], '9.12.4')
         self.assertEqual(self.tools['tools']['profile']['resolver'], 'nightly-2026-11-11')
+
+    def test_prerelease_receipt_is_not_the_release(self):
+        stale = copy.deepcopy(self.tools['tools'])
+        # Both producers say 0.5.8; admission must use the immutable revision.
+        stale['profile']['haskell_commit'] = 'fca0deb9c766261f5c0d2ae57af4ba9b07e1279a'
+        path = self.output / 'prerelease-tools.json'
+        oracle.write(path, stale)
+        with self.assertRaisesRegex(ValueError, 'Unregistered PR113 revision'):
+            pr113.load_tools(path)
+
+    def test_release_corrections_replay(self):
+        for name in ('tmp_absent_reference', 'tmp_initialValue07',
+                     'tmp_refined_reference', 'tmp_set_reference_keys', 'set_reference_keys'):
+            with self.subTest(case=name):
+                result = pr113.replay(self.tools, self.output / name,
+                                      self.output / ('release-replay-' + name))
+                self.assertEqual(result, self.results[name])

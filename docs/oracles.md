@@ -630,10 +630,18 @@ The explicitly selected `behavioral-0.5.8/v1` profile reuses the PR113
 same-generation exporter, source map, field-type inspector and complete typed
 trace decoder at the [registered current pin](sources.md#clafer-058-source-and-replay).
 The [0.5.8 inventory](../tests/fixtures/pr113/058-inventory.json) retains the prior
-corpus and current temporal inputs, including initializer inputs as reference
-fixtures only. Current static and temporal integer fields use the inspected target types for
-scalar decoding; the historical PR113 selectors retain their original boundaries. Original and explicit outputs must reach a printer fixed point
-and agree on paired bounded runs/checks. This is not exact-lasso equivalence.
+corpus and all current temporal inputs, including the release's refined-reference,
+inherited set-key, absent-reference and original initializer-context witnesses.
+The static `set_reference_keys` control checks per-concrete-fiber keys without
+a top-level abstract global key, alongside bag sharing. Each new reference
+assertion has a satisfiable model control at the same bounds. Current static and
+temporal integer fields use inspected target types for scalar decoding; historical
+PR113 selectors retain their original boundaries. Original and explicit outputs
+must reach a printer fixed point; bounded outcome differences are registered
+individually. `tmp_initialValue07` retains an original-UNSAT/explicit-SAT assertion
+check because explicit output loses the initializer RHS's temporal context.
+The existing `union-dead-target` discrepancy also remains. Neither fixed points
+nor matching bounded outcomes establish exact-lasso equivalence.
 
 The exclusive reference phase reuses Python's `ThreadPoolExecutor` and the
 runner's `CLAFER_TEST_JOBS=1..4` budget, defaulting to two and capped by available

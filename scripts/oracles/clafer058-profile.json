@@ -7,9 +7,9 @@
     "min_steps": 1,
     "overall": 1
   },
-  "compiler_archive_sha256": "fcf7bf883723e7eb22ff2f3c1b6538f0c967cb5eace3a00a89f5fcd2e4a4edc5",
+  "compiler_archive_sha256": "cce8e723fce067687ec9434682b445edc364698dece8fdf49d22b8184bde413c",
   "ghc": "9.12.4",
-  "haskell_commit": "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a",
+  "haskell_commit": "dbc06d37ef23eb9186d1016e3bf678858621e92d",
   "haskell_version": "0.5.8",
   "java_major": 17,
   "options": {
@@ -35,7 +35,7 @@
   },
   "schema": "clafer-temporal-oracle-profile/1",
   "solver": "sat4j",
-  "source_tree_sha256": "c9009d0fa8fb3d834b307b6d481a0ac99aa02994ac65200a3f25a0391281be8a",
+  "source_tree_sha256": "d6822ede588ed020045e1630872c186361b61aa6538c64198da1cf2edc4ac0a1",
   "stack": "3.11.1",
   "stack_lock": {
     "bytes": 474,

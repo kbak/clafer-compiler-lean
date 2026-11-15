@@ -270,7 +270,7 @@ by themselves: each fixture and its negative observation remains reviewable.
 
 The compiler selects accepted semantics
 `e96284c98b103fe0871c00eb96210a40e5c1ea67` with `behavioral-0.5.8/v1` and Haskell
-`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`. The
+`dbc06d37ef23eb9186d1016e3bf678858621e92d`. The
 [current source register](sources.md#clafer-058-source-and-replay) retains D1–D5,
 accepted later corrections and distinct historical replay identities. No moving
 release branch is selected.
@@ -306,12 +306,10 @@ The exact `inherited-set` counterexample has source
 one root, one `Target` and two `port` heads sharing that target. Accepted upstream
 [`Structural.Keys`](https://github.com/kbak/clafer-semantics/blob/5182c8f5884eddfd8bff8a26b493a8550f0162b6/Clafer/Behavioral/Structural.lean)
 requires distinct targets in the concrete containment fiber. The source observer
-reports `violated` and the Lean target is UNSAT; Haskell 0.5.8 is SAT because
-its output omits that inherited set key. The regression retains this exact
-`target-only` discrepancy, rather than counting it as semantic agreement. The
-source rule is unchanged; the
-[accepted source integration](https://github.com/kbak/clafer-compiler-lean/issues/79)
-retains this Haskell limitation explicitly.
+reports `violated`; both the Lean target and released Haskell 0.5.8 reject the
+exact observation at the supplied bounds. The regression requires agreement on
+that negative case. The source rule is unchanged; historical prerelease evidence
+retains the earlier missing-key discrepancy at its original revision.
 
 ```sh
 python3 scripts/comparison/behavioral_haskell.py run case.json /tmp/haskell-case-UNIQUE --tools "$CLAFER_ORACLE_TOOLS" --haskell-tools "$CLAFER_058_TOOLS"
@@ -376,19 +374,22 @@ solving, including unused abstracts and static inputs. Conservative range reject
 and unsupported admission are not satisfiability verdicts.
 
 The following reference limitations are retained against
-`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`. They do not change accepted source meaning.
-The qualification disposition requires independent review in
-[the owning task](https://github.com/kbak/clafer-compiler-lean/issues/127).
+`dbc06d37ef23eb9186d1016e3bf678858621e92d`. They do not change accepted source meaning.
+The [initializer qualification](https://github.com/kbak/clafer-compiler-lean/issues/127)
+supplies the reviewed source expectations; release comparison acceptance requires
+independent review.
 
 | Boundary | Distinguishing observation and consequence |
 | --- | --- |
-| Absent references | The reference permits raw object and integer tuples at absent or never-live heads. A live-only display can be identical while complete reference tables differ. Raw-reference probes retain those tuples and a global-renaming control distinguishes this from symmetry. |
-| Original temporal RHS environment | `Box.x := if X (some flag) then 1 else 0` with Box disappearing has RHS value zero under the original root lifetime. The reference rejects that observation and accepts value one, exposing cancellation after moving the RHS into the child. Both discrepancy directions are replayed. |
+| Explicit temporal RHS environment | Direct Haskell Alloy generation preserves the parent context of `Box.x := if X (some flag) then 1 else 0`. Its explicit Clafer output loses that context. The release corpus retains the original/explicit mismatch in `tmp_initialValue07`; exact direct comparisons require the source observation with value zero and reject value one. |
 | Temporal selection under `finalref` | A model whose only temporal syntax is `finalref` treats `:=` differently in the two compilers. An explicit `always` control separates selection from birth/finality behavior. No unconditional `:=`/`=` equivalence follows from finality. |
 | Captures and definedness | The registered temporal-`let` exclusions also affect initializer conditions. A captured absent head's strict extraction is undefined even where the reference accepts it; empty initializer heads suppress the complete RHS. |
 | Parented abstract omission | The reference and compiler retain different effective local multiplicities for an omitted parented abstract. The strict declaration-pairing gate records `unpaired`, with both analyzed declarations retained; no relaxed bijection or agreement verdict is substituted. |
 | Abstract scalar admission | The reference admits an unused abstract with a multi-target `:=` RHS. The compiler diagnoses unsupported scalar admission in both static and temporal source; a repeated identical literal is the admitted control. |
 
+The release forbids raw object and integer tuples at absent or never-live heads.
+The regressions require bounded rejection of those invalid observations while
+retaining valid empty-row controls, complete tables and global-renaming checks.
 Raw scalar probes retain two distinct judgments: `source` is the finite source
 observer's verdict for the live projection, while `reference_domain: violated`
 records extra absent-head tuples forbidden by source structural validity. A SAT

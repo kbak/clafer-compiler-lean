@@ -21,7 +21,7 @@ import Language.Clafer.JSONMetaData (generateJSONScopes)
 
 revision :: String
 #ifdef CANDIDATE_058
-revision = "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a"
+revision = "dbc06d37ef23eb9186d1016e3bf678858621e92d"
 #elif defined(CANDIDATE_C7)
 revision = "c7a2fb7d0ba601f52efeac459d12f859a40580fe"
 #else
