@@ -749,6 +749,12 @@ historical static, temporal or PR113 evidence. Preserve captured-value temporal
 unused-undefined inputs are explicit reference exclusions. Choco ordering and
 DOT quoting are reference output changes, not new compiler backends. Initializer
 adoption and final initializer/absence qualification retain their separate owners.
+The current corpus pins the merged 0.5.8 release and checks refined-reference
+equality, inherited per-parent set keys, absence and original temporal initializer
+context against unchanged source expectations. Retain the temporal initializer
+original/explicit discrepancy; direct generation does not establish explicit
+printer preservation. Structural producer adoption follows the accepted upstream
+adapter pin separately.
 
 Covers:
 - `intent~compiler-foundation~1`

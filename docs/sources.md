@@ -22,7 +22,8 @@ no Haskell code or fixtures are redistributed.
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
 | [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/e96284c98b103fe0871c00eb96210a40e5c1ea67) | `e96284c98b103fe0871c00eb96210a40e5c1ea67` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
-| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a) | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/LICENSE). External tool, not production runtime dependency. |
+| [Haskell Clafer](https://github.com/gsdlab/clafer/tree/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a) | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Structural comparison/compiler/grammar baseline; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/LICENSE). External tool, not production runtime dependency. |
+| [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Behavioral reference and release corpus; MIT, GSD Lab and ISD Lab. External validation only. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
@@ -42,9 +43,10 @@ A source citation is not a redistribution license.
 
 The behavioral planning sources are registered [separately below](#behavioral-sources).
 The installed semantics pin supplies both the static and behavioral libraries.
-The structural comparison and current behavioral source tools use the reviewed
-immutable 0.5.8 prerelease. The release PR remains open; this pin does not track
-a moving branch or assert a published release. Upstream's
+The structural comparison uses the reviewed immutable 0.5.8 prerelease through
+the installed semantics adapter. The behavioral source tools use the merged
+0.5.8 release registered below. Updating the structural producer requires an
+accepted semantics-main adapter pin. Upstream's
 [compiler profile](https://github.com/kbak/clafer-semantics/blob/e96284c98b103fe0871c00eb96210a40e5c1ea67/scripts/verification/compiler_profile.py)
 records archive SHA-256 `fcf7bf883723e7eb22ff2f3c1b6538f0c967cb5eace3a00a89f5fcd2e4a4edc5`,
 source-tree SHA-256 `c9009d0fa8fb3d834b307b6d481a0ac99aa02994ac65200a3f25a0391281be8a`,
@@ -107,9 +109,30 @@ remain execution errors, never rejection or bounded UNSAT.
 | Historical static 0.5.7 | `f6ca5b887d7bacc09915c6fc0278064c8371beac` | Use original compiler revision/semantics `8914ce01386366296e61f049a04bbc6d24db34c4` and receipts. |
 | Historical temporal | `af858ec0fe3ce2ceacb7fd120947c058233086d6` | Retain `temporal-profile.json` unchanged. |
 | Historical PR113 | `9a0f16e` and `c7a2fb7` (full hashes in their profiles) | Retain both inventories, adapters' schema selectors and original receipts. |
-| Current static/behavioral | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Fresh 0.5.8 receipts, corpus and complete typed trace checks. |
+| Current static | `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` | Accepted upstream structural adapter and matching receipts. |
+| Current behavioral/release corpus | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Fresh release receipts, corpus and complete typed trace checks. |
 
-The reviewed [release changes](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/CHANGES.md)
+The [merged release](https://github.com/gsdlab/clafer/pull/119) uses archive SHA-256
+`cce8e723fce067687ec9434682b445edc364698dece8fdf49d22b8184bde413c`
+and source-tree SHA-256
+`d6822ede588ed020045e1630872c186361b61aa6538c64198da1cf2edc4ac0a1`.
+Its Stack lock, GHC/resolver and dependencies are unchanged. The existing
+`PR113Export`, typed Analyzer inspector, exact-source comparison and replay
+adapters cover the delta without new infrastructure or license dependencies.
+They remain tested external tools, outside kernel proofs.
+
+Release fixes enforce refined-reference equality, inherited set keys within each
+concrete parent fiber and empty references at absent heads. Top-level abstract
+references have no global key. Initializer temporal RHSs retain their original
+parent context, and warnings describe inherited equations as conjunctive.
+These agree with existing source contracts; the Lean compiler semantics are unchanged.
+The complete temporal corpus includes the new release fixtures and the static
+set-key control. `tmp_initialValue07` retains an original/explicit discrepancy:
+the explicit printer loses the temporal RHS context even though direct Alloy
+generation preserves it. Historical prerelease receipts remain bound to their
+original compiler revision and are not accepted as release receipts.
+
+The reviewed [release changes](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/CHANGES.md)
 include expression `let`, capture avoidance/shadowing, sibling-line groups,
 same-indent header rejection and ambiguous-super diagnostics. The frontend
 contracts and lookup matrix state the adopted subset. Haskell's expression
@@ -123,7 +146,7 @@ The existing Choco comparison consumer is rebuilt against the selected Haskell
 library; the Lean compiler gains neither backend. Source headers use the accepted
 [initializer contract](behavioral-frontend.md#hard-declaration-initializers),
 with the [initializer/absence comparison matrix](behavioral-source.md#initializer-and-absence-qualification)
-retaining the reference discrepancies for independent review.
+recording fixed cases and remaining reference discrepancies for independent review.
 The resolved constant-initializer helper retains its upstream `Initializers.Legacy` meaning.
 Reference fixed points, resolved M1 preservation and full behavioral source
 correctness remain separate evidence; the cancelled source-format project is
@@ -1052,28 +1075,27 @@ The [upstream initializer contract](https://github.com/kbak/clafer-semantics/blo
 is authoritative for classification, original RHS environments, conjunctive
 inheritance, static compatibility and finality assumptions.
 
-The inspected [Haskell 0.5.8 PR](https://github.com/gsdlab/clafer/pull/119) at
-`fca0deb9c766261f5c0d2ae57af4ba9b07e1279a` supplies current implementation context:
-hard `:=`, lifetime-start `finalref`, inherited equations and temporal selection.
-Its blanket inherited-`=`/own-`:=` warning is not adopted: both equations retain
-their own scope and clock and can conflict. Its reference-substitution handling
-of temporal `let` is comparison behavior, not the accepted capture semantics.
-The [current tool qualification](#clafer-058-source-and-replay) does not itself
-discharge the [initializer/absence comparison gate](behavioral-source.md#initializer-and-absence-qualification).
-That matrix reuses the installed semantic pin's `InitializerContractExamples`,
-`InitializerSourceExamples`, `InitializerProductionExamples` and
-`InitializerReplacementExamples` to select distinguishing source observations.
-The inspected Haskell
-[`Desugarer.desugarInit`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/src/Language/Clafer/Intermediate/Desugarer.hs)
-emits hard equations and distinguishes authored singleton/collection clocks;
-[`AlloyLtl.genConstraints`](https://github.com/gsdlab/clafer/blob/fca0deb9c766261f5c0d2ae57af4ba9b07e1279a/src/Language/Clafer/Generator/AlloyLtl.hs)
-guards reference totality by liveness without requiring absent-head emptiness.
-Fresh raw-table probes retain the latter discrepancy. Temporal RHS transport,
-temporal selection and abstract admission remain explicit comparison differences,
-not new source rules. Static Choco checks reuse the registered CLI's `Main`,
-`Normal` and `ExplicitParser` paths with captured explicit input and scopes.
-No Haskell, claferIG, Alloy or Choco revision, historical source hash, dependency
-or license changes are introduced by these comparisons.
+The [Haskell 0.5.8 release](https://github.com/gsdlab/clafer/pull/119) at
+`dbc06d37ef23eb9186d1016e3bf678858621e92d` supplies current behavioral implementation context.
+Hard `:=`, lifetime-start `finalref`, conjunctive inherited equations, original
+RHS temporal context and absent-reference emptiness agree with the adopted
+contracts on the registered distinguishing observations. The inherited-`=`/own-`:=`
+warning states that both equations hold and may conflict. Reference substitution
+for temporal `let` remains comparison behavior, not accepted capture semantics.
+The [initializer/absence comparison gate](behavioral-source.md#initializer-and-absence-qualification)
+retains temporal selection, strict definedness, abstract admission and parented
+abstract pairing differences. It reuses the installed semantic pin's
+`InitializerContractExamples`, `InitializerSourceExamples`,
+`InitializerProductionExamples` and `InitializerReplacementExamples`.
+
+The inspected
+[`AlloyLtl.genConstraints`](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/src/Language/Clafer/Generator/AlloyLtl.hs)
+requires absent-head emptiness as well as live totality; raw-table regressions
+retain invalid absent tuples and require their rejection. `ResolverName` retains
+`initvalue` around temporal RHSs and `AlloyLtl` uses their original parent context.
+The explicit printer discards that marker, so original/explicit equivalence is
+not claimed for those expressions. Static Choco controls reuse its registered
+`Main`, `Normal` and `ExplicitParser` paths with captured explicit input and scopes.
 
 The compiler reuses upstream classification, structural fibers, transport,
 compatibility and finality results with its actual resolved expression evaluator.
@@ -1088,8 +1110,8 @@ Absence still means an empty reference relation, distinct from partial scalar
 extraction and parent cancellation. The compiler reuses absence lemmas with
 `TraceRep.deref_completed`, `object_reference_typed` and `compiled_sound`.
 The historical Haskell `AlloyLtl` generator constrains live values without requiring
-absent-head rows to be empty; this remains comparison evidence rather than source
-meaning. Counter persistence still requires an initial value and enabled transitions.
+absent-head rows to be empty; the release corrects this historical discrepancy.
+Counter persistence still requires an initial value and enabled transitions.
 
 The optional `Clafer.Behavioral` source entrypoint remains separate from
 `Clafer.Behavioral.FiniteComposition`. Full preservation continues to require

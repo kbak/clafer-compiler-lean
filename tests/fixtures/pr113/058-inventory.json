@@ -1655,14 +1655,96 @@
       },
       "id": "tmp_initialValue06",
       "origin": "haskell"
+    },
+    {
+      "entry": "tmp_absent_reference.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat"
+      ],
+      "files": {
+        "tmp_absent_reference.cfr": {
+          "bytes": 469,
+          "sha256": "05cb976c04a95a4417df87ca6469e58b60c2edfe9a307e0a89de5435b55919b0"
+        }
+      },
+      "id": "tmp_absent_reference",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_initialValue07.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat"
+      ],
+      "expected_explicit": [
+        "sat",
+        "sat"
+      ],
+      "expected_status": "discrepancy",
+      "files": {
+        "tmp_initialValue07.cfr": {
+          "bytes": 559,
+          "sha256": "740fbdf480535f4f8b2cca909a7ae1c6e78a0c382c31bd7312c474b90d18efc3"
+        }
+      },
+      "id": "tmp_initialValue07",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_refined_reference.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat"
+      ],
+      "files": {
+        "tmp_refined_reference.cfr": {
+          "bytes": 384,
+          "sha256": "7a9012ce21fb4f30f6a8a0a94e82e7f55f3d6be37e3d2383fa572de53cf9277a"
+        }
+      },
+      "id": "tmp_refined_reference",
+      "origin": "haskell"
+    },
+    {
+      "entry": "tmp_set_reference_keys.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat"
+      ],
+      "files": {
+        "tmp_set_reference_keys.cfr": {
+          "bytes": 291,
+          "sha256": "c21a372e3bf5e48527f304fbe36674c83738610dd0aa82fe19a651399cfcdcda"
+        }
+      },
+      "id": "tmp_set_reference_keys",
+      "origin": "haskell"
+    },
+    {
+      "backend": "als",
+      "entry": "set_reference_keys.cfr",
+      "expected": [
+        "sat",
+        "bounded_unsat"
+      ],
+      "files": {
+        "set_reference_keys.cfr": {
+          "bytes": 603,
+          "sha256": "ac3f07fc9726fc016e385a2efd3b7a43d4c5401c58346653bcfe5d66999ca44c"
+        }
+      },
+      "id": "set_reference_keys",
+      "origin": "haskell"
     }
   ],
-  "haskell_commit": "fca0deb9c766261f5c0d2ae57af4ba9b07e1279a",
+  "haskell_commit": "dbc06d37ef23eb9186d1016e3bf678858621e92d",
   "license": "MIT; external source archive LICENSE",
   "profile": "behavioral-0.5.8/v1",
   "schema": "clafer-pr113-fixtures/1",
   "static_upstream_cases": [
-    "tmp_TrafficLight5"
+    "tmp_TrafficLight5",
+    "set_reference_keys"
   ],
-  "temporal_upstream_count": 70
+  "temporal_upstream_count": 74
 }
