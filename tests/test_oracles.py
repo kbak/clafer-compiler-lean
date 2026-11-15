@@ -276,6 +276,7 @@ class OracleTests(unittest.TestCase):
         bundle = self.captures['bag'][0] / 'capture'
         for i, change in enumerate([
                 dict(compiler_commit='6750e6f591b2131549122c13dee94d3d2257eaea'),
+                dict(compiler_commit='fca0deb9c766261f5c0d2ae57af4ba9b07e1279a'),
                 dict(compiler_version='0.5.4'), dict(export_schema='generic-aeson-0.5.4/1')]):
             with self.subTest(change=change):
                 target = self.output/f'historical-manifest-{i}'

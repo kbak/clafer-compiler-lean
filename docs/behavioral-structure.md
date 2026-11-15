@@ -2,7 +2,7 @@
 
 `impl~compiler-behavioral-structural-bridge~1`
 
-The `behavioral-0.5.8/v1` library APIs supply the structural handoff in
+The `behavioral-0.5.8/v2` library APIs supply the structural handoff in
 the [behavioral matrix](behavioral.md#complete-feature-and-evidence-matrix).
 They use the accepted upstream S4 meaning at the [installed pin](sources.md).
 They do not constitute a behavioral source command or an Alloy temporal encoding.

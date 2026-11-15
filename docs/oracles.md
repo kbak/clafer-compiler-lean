@@ -9,8 +9,8 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 ## Tools and profile
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
-[source register](sources.md) pin Haskell `fca0deb9c766261f5c0d2ae57af4ba9b07e1279a`,
-semantics `e96284c98b103fe0871c00eb96210a40e5c1ea67`, Lean 4.35.0 and Alloy 6.2.0
+[source register](sources.md) pin Haskell `dbc06d37ef23eb9186d1016e3bf678858621e92d`,
+semantics `a450a8062d832fa188794717cf35bc0f60d776f8`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.12.4, `nightly-2026-11-11`, and the reviewed claferIG dependency.
 It reuses the accepted `Data.Map`/aeson exporter; `json-builder` and `StringMap`
@@ -626,7 +626,7 @@ Covers:
 
 ## Current 0.5.8 comparison tools
 
-The explicitly selected `behavioral-0.5.8/v1` profile reuses the PR113
+The explicitly selected `behavioral-0.5.8/v2` profile reuses the PR113
 same-generation exporter, source map, field-type inspector and complete typed
 trace decoder at the [registered current pin](sources.md#clafer-058-source-and-replay).
 The [0.5.8 inventory](../tests/fixtures/pr113/058-inventory.json) retains the prior

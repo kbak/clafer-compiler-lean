@@ -1740,7 +1740,7 @@
   ],
   "haskell_commit": "dbc06d37ef23eb9186d1016e3bf678858621e92d",
   "license": "MIT; external source archive LICENSE",
-  "profile": "behavioral-0.5.8/v1",
+  "profile": "behavioral-0.5.8/v2",
   "schema": "clafer-pr113-fixtures/1",
   "static_upstream_cases": [
     "tmp_TrafficLight5",

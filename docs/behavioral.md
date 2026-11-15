@@ -13,7 +13,7 @@ The [structural contract](architecture.md) remains the implemented regression
 baseline. Each implementation task still requires selection, accepted hard
 dependencies and independent semantic review.
 
-The completion profile is `behavioral-0.5.8/v1`. Its independent source
+The completion profile is `behavioral-0.5.8/v2`. Its independent source
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
@@ -406,7 +406,7 @@ candidate before adopting a later release. The first slice, contract acceptance
 and an IntentBond exit 4 do not authorize main merges, tags or binary releases.
 
 [roadmap]: https://github.com/kbak/clafer-compiler-lean/issues/69
-[profile]: https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-profile.md
+[profile]: https://github.com/kbak/clafer-semantics/blob/a450a8062d832fa188794717cf35bc0f60d776f8/docs/behavioral-profile.md
 [formulas]: https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-formulas.md
 [surface]: https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/docs/behavioral-surface.md
 [C2]: https://github.com/kbak/clafer-compiler-lean/issues/71

@@ -174,7 +174,7 @@ Needs: impl
 
 `req~compiler-behavioral-structural-bridge~1`
 
-Under explicit `behavioral-0.5.8/v1` selection, provide resolved structural
+Under explicit `behavioral-0.5.8/v2` selection, provide resolved structural
 admission, authored identity/default correspondence and typed observation APIs
 for the complete structural prerequisites in B01/B04–B08/B18–B19/B31–B32.
 Use accepted S4 meaning for nested abstracts, refined parents, concrete supers,
@@ -205,7 +205,7 @@ Needs: impl, proof, utest
 
 `req~compiler-behavioral-frontend~1`
 
-Under explicit `behavioral-0.5.8/v1` selection, parse every accepted
+Under explicit `behavioral-0.5.8/v2` selection, parse every accepted
 behavioral modifier, temporal operator/alias, transition/guard/chain, lifetime
 anchor, pattern/scope, assertion and scenario source form. Preserve layout,
 precedence, original spans, syntactic polarity, lexical binders and attachment
@@ -548,7 +548,7 @@ Needs: impl, utest
 
 `req~compiler-behavioral-integration~1`
 
-Expose the complete `behavioral-0.5.8/v1` source frontend and encoder
+Expose the complete `behavioral-0.5.8/v2` source frontend and encoder
 through a separate native command, with closed versioned bounds for nonprimitive
 identity pools, declaration scopes, steps and observed integer values. Preserve
 authored source locations, deterministic output and source maps. Select model
@@ -738,7 +738,7 @@ Retain source-map spans and identifier boundaries. Distinguish recurrence from
 unsupported captures and parse failures without changing independent semantics.
 
 
-The current `behavioral-0.5.8/v1` tools reuse the accepted Data.Map/aeson build
+The current `behavioral-0.5.8/v2` tools reuse the accepted Data.Map/aeson build
 and PR113 typed receipt/trace adapters at the registered immutable Haskell and
 claferIG pins. Revalidate archive/recipe/binary identities, metadata and strict
 complete trace decoding; synthetic backspace/form-feed change escape bytes while
