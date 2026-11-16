@@ -10,7 +10,7 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
 [source register](sources.md) pin Haskell `dbc06d37ef23eb9186d1016e3bf678858621e92d`,
-semantics `a450a8062d832fa188794717cf35bc0f60d776f8`, Lean 4.35.0 and Alloy 6.2.0
+semantics `3c63d760be99741617c6af539a9e304909d18b26`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.12.4, `nightly-2026-11-11`, and the reviewed claferIG dependency.
 It reuses the accepted `Data.Map`/aeson exporter; `json-builder` and `StringMap`
@@ -683,3 +683,11 @@ defined same-state, shadowing and alpha-renaming controls. The separate
 uses these same immutable tools for exact candidates and raw-reference probes,
 with explicit reference discrepancies. Original/explicit corpus success alone
 does not establish initializer or absence agreement.
+
+## Rich/core reference candidate
+
+The separately pinned [rich/core reference](rich-core.md) uses `scripts/oracles/rich.py`
+and `rich-profile.json`. Provision with `--build-cache CACHE OUTPUT` and export
+`CLAFER_RICH_TOOLS=OUTPUT/tools.json`. The full and reference suites require its
+fresh explicit fixed-point and JSON checks. Missing tools fail; historical exporter
+profiles and receipts are not relabeled.

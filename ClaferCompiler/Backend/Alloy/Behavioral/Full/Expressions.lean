@@ -206,6 +206,12 @@ def lowerStep (v : IR.BehavioralStructural.Validated k) (b : Expression.Ranges.I
     | .always a => return Partial.always (parentPresent v c) (← next.formula c a)
     | .strongUntil a d => return Partial.strongUntil (parentPresent v c) (← next.formula c a) (← next.formula c d)
     | .weakUntil a d => return Partial.weakUntil (parentPresent v c) (← next.formula c a) (← next.formula c d)
+    | .previous a => return Partial.previous (parentPresent v c) (← next.formula c a)
+    | .weakPrevious a => return Partial.weakPrevious (parentPresent v c) (← next.formula c a)
+    | .once a => return Partial.once (parentPresent v c) (← next.formula c a)
+    | .historically a => return Partial.historically (parentPresent v c) (← next.formula c a)
+    | .since a d => return Partial.since (parentPresent v c) (← next.formula c a) (← next.formula c d)
+    | .triggered a d => return Partial.triggered (parentPresent v c) (← next.formula c a) (← next.formula c d)
     | .initially a => return Partial.initially (present v c) (← next.formula c a)
     | .finally a => return Partial.finally (present v c) (← next.formula c a)
     | .quant q d a =>

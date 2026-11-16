@@ -23,6 +23,12 @@ noncomputable def interpret (am : ∀ {n}, A n → A' n) (dm : ∀ {n}, D n → 
   | .always a => .always (interpret am dm a)
   | .strongUntil a b => .strongUntil (interpret am dm a) (interpret am dm b)
   | .weakUntil a b => .weakUntil (interpret am dm a) (interpret am dm b)
+  | .previous a => .previous (interpret am dm a)
+  | .weakPrevious a => .weakPrevious (interpret am dm a)
+  | .once a => .once (interpret am dm a)
+  | .historically a => .historically (interpret am dm a)
+  | .since a b => .since (interpret am dm a) (interpret am dm b)
+  | .triggered a b => .triggered (interpret am dm a) (interpret am dm b)
   | .initially a => .initially (interpret am dm a)
   | .finally a => .finally (interpret am dm a)
   | .quant q d a => .quant (quantifier q) (dm d) (interpret am dm a)
@@ -83,7 +89,8 @@ theorem raw_pullback (am : ∀ {n}, A n → A' n) (dm : ∀ {n}, D n → D' n)
     simp_all [interpret, Clafer.Behavioral.Formula.raw, pullbackTotal,
       Clafer.Behavioral.Lifetime.next, Clafer.Behavioral.Lifetime.eventually,
       Clafer.Behavioral.Lifetime.always, Clafer.Behavioral.Lifetime.strongUntil,
-      Clafer.Behavioral.Lifetime.weakUntil]
+      Clafer.Behavioral.Lifetime.weakUntil,
+      Clafer.Behavioral.Lifetime.previous, Clafer.Behavioral.Lifetime.weakPrevious, Clafer.Behavioral.Lifetime.once, Clafer.Behavioral.Lifetime.historically, Clafer.Behavioral.Lifetime.since, Clafer.Behavioral.Lifetime.triggered]
 
 theorem defined_pullback (am : ∀ {n}, A n → A' n) (dm : ∀ {n}, D n → D' n)
     (τ : Clafer.Behavioral.Trace C U) (O : Clafer.Behavioral.PartialObservation A' D' U)
@@ -91,7 +98,8 @@ theorem defined_pullback (am : ∀ {n}, A n → A' n) (dm : ∀ {n}, D n → D' 
     (interpret (fun x => x) (fun x => x) a).Defined τ (pullback am dm O) ρ t ↔
       (interpret am dm a).Defined τ O ρ t := by
   induction a generalizing t <;>
-    simp_all [interpret, Clafer.Behavioral.Formula.Defined, pullback]
+    simp_all [interpret, Clafer.Behavioral.Formula.Defined, pullback,
+      Clafer.Behavioral.Lifetime.weakPrevious, Clafer.Behavioral.Lifetime.historically]
 
 theorem signed_pullback (am : ∀ {n}, A n → A' n) (dm : ∀ {n}, D n → D' n)
     [∀ n, SizeOf (A n)] [∀ n, SizeOf (D n)]

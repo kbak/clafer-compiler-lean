@@ -12,8 +12,8 @@ def temporalExpression : Nat → Expr → Bool :=
   Nat.rec (fun _ => true) fun _ next e => match e with
     | .name _ | .integer _ _ => false
     | .unary op a _ =>
-        ["X", "next", "F", "eventually", "G", "globally", "initially", "finally"].contains op.text || next a
-    | .binary op a b _ => ["U", "until", "W", "weakuntil"].contains op.text || next a || next b
+        ["X", "next", "F", "eventually", "G", "globally", "previous", "once", "historically", "initially", "finally"].contains op.text || next a
+    | .binary op a b _ => ["U", "until", "W", "weakuntil", "since", "triggered"].contains op.text || next a || next b
     | .quantified _ _ _ a b _ => next a || next b
     | .letSet _ _ value body _ => next value || next body
     | .parens a _ => next a

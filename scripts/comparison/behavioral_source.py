@@ -22,6 +22,7 @@ def source_identity():
     result.update(importlib.import_module("pr113").identity())
     for name in ('tests/BehavioralSourceTraceNative.lean', 'tests/test_behavioral_source_comparison.py',
                  'tests/behavioral_source_cases.py', 'tests/behavioral_initializer_cases.py',
+                 'tests/behavioral_past_cases.py', 'tests/test_rich_core.py',
                  'tests/test_behavioral_source_cli.py',
                  'scripts/qualification.py'):
         result[name] = oracle.digest(ROOT/name)
@@ -30,7 +31,7 @@ def source_identity():
 
 def candidate_valid(c, p):
     tc.closed(c, 'version profile root length loop identities frames')
-    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==PROFILE, 'trace profile')
+    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==p['profile'] and c['profile'] in (PROFILE, 'behavioral-rich-core/1'), 'trace profile')
     n, loop = tc.natural(c['length']), tc.natural(c['loop'])
     tc.require(0 <= loop < n and type(c['frames']) is list and len(c['frames'])==n, 'lasso shape')
     tc.require(type(c['identities']) is list and c['identities'], 'identity inventory')
@@ -161,7 +162,8 @@ class Runtime:
 
     def decode(self,directory,trace,name):
         oracle.write(directory/(name+'.json'),trace)
-        tc.run([self.native,directory/'input.cfr',directory/(name+'.json')],directory,name)
+        tc.run([self.native,directory/'input.cfr',directory/(name+'.json'),
+                temporal.read(directory/'compilation.json')['profile']],directory,name)
         decoded=temporal.read(directory/(name+'-stdout.log'))
         tc.require('status' not in decoded,'native trace decode failed: '+str(decoded))
         return decoded

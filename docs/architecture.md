@@ -16,6 +16,10 @@ links supported features to their contracts and evidence. The theorem shapes
 below are specifications. Component contracts state the exact proved boundaries,
 while [requirements](spec.md) record the compiler and workflow obligations.
 
+The selected [rich/core interchange](rich-core.md) adds resolved intent and a
+self-contained core input for the same behavioral backend. [Past operators](past.md)
+retain the original parent-lifetime attachment through every lowering stage.
+
 ## Ownership and dependencies
 
 Use a separate Lake package with one-way imports:

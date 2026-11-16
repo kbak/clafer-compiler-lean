@@ -15,7 +15,7 @@ import unittest
 
 ISOLATED_GROUPS = {
     # This corpus runs exclusively, preserving its per-query solver budgets.
-    '--pr113-worker': {'test_pr113_oracles'},
+    '--pr113-worker': {'test_pr113_oracles', 'test_rich_reference'},
     '--behavioral-cli-worker': {'test_behavioral_source_cli'},
     '--behavioral-source-worker': {'test_behavioral_source_comparison'},
     '--temporal-target-worker': {'test_alloy_temporal'},
@@ -28,7 +28,7 @@ ISOLATED_GROUPS = {
         'test_structural_alloy', 'test_structural_ir', 'test_structural_representation'},
 }
 ISOLATED_MODULES = set.union(*ISOLATED_GROUPS.values())
-REFERENCE_MODULES = {'test_pr113_oracles', 'test_temporal_oracles'}
+REFERENCE_MODULES = {'test_pr113_oracles', 'test_temporal_oracles', 'test_rich_reference'}
 SOURCE_MODULES = ISOLATED_GROUPS['--behavioral-source-worker'] | ISOLATED_GROUPS['--behavioral-cli-worker']
 
 

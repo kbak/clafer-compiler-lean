@@ -21,7 +21,7 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/a450a8062d832fa188794717cf35bc0f60d776f8) | `a450a8062d832fa188794717cf35bc0f60d776f8` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/3c63d760be99741617c6af539a9e304909d18b26) | `3c63d760be99741617c6af539a9e304909d18b26` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Structural and behavioral comparison/compiler/grammar baseline and release corpus; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/LICENSE). External validation only. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
@@ -1134,3 +1134,23 @@ classifies subsequent `eb2f653a02979d0db35451ed6abf131eaf7c355a` and
 `8cfa0f3740f1cfb515f9862bc8993b826fa08a67` as build, documentation and negative-fixture
 changes. Those historical ledger entries are not the basis for current
 0.5.8 adoption; the separately accepted source/build/profile review above is.
+
+## Rich/core and past candidate
+
+The installed semantics candidate is
+[14e8f24](https://github.com/kbak/clafer-semantics/commit/3c63d760be99741617c6af539a9e304909d18b26),
+covering parent-lifetime past definitions, partial domains, history-aware finite
+checking and initializer core lowering. It preserves the behavioral paper §5,
+Definitions 3–5 and §6.1 attachment/binding rules and explicitly extends past
+syntax. Independent acceptance is tracked in [semantics #189](https://github.com/kbak/clafer-semantics/pull/189).
+
+The supplementary Haskell candidate is
+[186d8e0](https://github.com/gsdlab/clafer/tree/186d8e0a350e4c8895b1c489eb587fa3a1bc2b61),
+particularly `doc/rich-and-core-explicit.md`, `Intermediate/Core.hs`,
+`Intermediate/Initializers.hs`, `Intermediate/InitializerChecks.hs`,
+`Generator/AlloyLtl.hs` and `Generator/Explicit.hs`. Its MIT notice was checked;
+no compiler implementation is copied. The separate [reference profile](../scripts/oracles/rich-profile.json)
+pins the source archive/tree, Stack/GHC, resolver and generated lock. Earlier
+0.5.8 and PR113 profiles remain unchanged. [Rich/core](rich-core.md) distinguishes
+Lean's resolved JSON interfaces from Haskell's explicit Clafer syntax, and
+[past](past.md) states the source/target and observer assumptions.

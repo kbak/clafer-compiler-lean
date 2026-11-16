@@ -18,6 +18,10 @@ while retaining complete qualification before acceptance.
 
 Needs: req
 
+The selected [rich/core extension](rich-core.md) preserves resolved modeling
+intent and adds [parent-lifetime past operators](past.md) under a separate profile.
+Its upstream candidate and compiler integration require independent review.
+
 ## Current boundary
 
 The compiler accepts the selected structural and behavioral source languages

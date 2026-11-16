@@ -116,6 +116,8 @@ python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 \
   --static-tools "$CLAFER_ORACLE_TOOLS" \
   --build-cache /tmp/clafer-058-build-UNIQUE /tmp/clafer-058-tools-UNIQUE
 export CLAFER_058_TOOLS=/tmp/clafer-058-tools-UNIQUE/tools.json
+python3 scripts/oracles/rich.py --build-cache /tmp/clafer-rich-build-UNIQUE /tmp/clafer-rich-tools-UNIQUE
+export CLAFER_RICH_TOOLS=/tmp/clafer-rich-tools-UNIQUE/tools.json
 ```
 
 Full qualification also requires the [Choco instance tools](docs/choco-adapter.md#setup),

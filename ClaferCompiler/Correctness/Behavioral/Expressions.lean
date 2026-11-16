@@ -179,6 +179,66 @@ theorem formulaAt_meaning (v : IR.Structural.Layout k) (w : Nat)
         cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, until_meaning, Encoding.weakUntil_meaning,
           SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
           parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | previous a =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, previous_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, previous_meaning, weakPrevious_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | weakPrevious a =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, weakPrevious_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, weakPrevious_meaning, previous_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | once a =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, once_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, once_meaning, historically_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | historically a =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, historically_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, historically_meaning, once_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | since a b =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, since_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, since_meaning, triggered_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
+    | triggered a b =>
+      cases p with
+      | none =>
+        simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, triggered_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.raw,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ir]
+      | some b =>
+        cases b <;> simp (maxDischargeDepth := 100) [formulaAt_succ, formulaStep, part, sourcePart, triggered_meaning, since_meaning,
+          SemanticsBridge.Behavioral.formula, Clafer.Behavioral.Formula.denote,
+          parentPresent_meaning v w σ τ f hp c ρ e hc, ip, im]
     | initially a =>
       cases p with
       | none =>

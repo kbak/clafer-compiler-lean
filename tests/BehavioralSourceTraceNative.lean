@@ -9,15 +9,18 @@ open Lean
 -- [utest->req~compiler-behavioral-integration~1]
 -- [utest->req~compiler-behavioral-qualification~1]
 def run (args : List String) : IO Unit := do
-  let [sourcePath, tracePath] := args | throw (IO.userError "expected source and Analyzer trace")
+  let (sourcePath, tracePath, profile) ← match args with
+    | [sourcePath, tracePath] => pure (sourcePath, tracePath, IR.BehavioralStructural.profile)
+    | [sourcePath, tracePath, profile] => pure (sourcePath, tracePath, profile)
+    | _ => throw (IO.userError "expected source, Analyzer trace and optional profile")
   let source ← IO.FS.readFile sourcePath
   let trace ← IO.FS.readFile tracePath
   let result : Except Driver.Diagnostic Json := do
-    let p ← Frontend.Behavioral.parseAndElaborate IR.BehavioralStructural.profile "input.cfr" source
+    let p ← Frontend.Behavioral.parseAndElaborate profile "input.cfr" source
       |>.mapError Driver.Diagnostic.ofSource
     let v := p.elaborated.model.structural
     let ⟨_, _, l⟩ ← Driver.BehavioralSourceTrace.decode v "trace.json" trace
-    return Driver.BehavioralSourceTrace.json v.core.structural l
+    return Driver.BehavioralSourceTrace.json v.core.structural l profile
   IO.println (match result with
     | .ok j => j
     | .error d => Json.mkObj [("status", toJson "malformed"), ("diagnostic", d.json)]).compress

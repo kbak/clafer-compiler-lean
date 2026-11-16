@@ -165,6 +165,10 @@ def formulaStep (m : IR.Structural.Core k) (fuel : Nat)
     arity n 2
     let a ← next (← arg n 1)
     return ⟨.always a.value, a.weight + k + depth + 1, by have := a.enough; simp <;> omega⟩
+  | "previous" => throw (unsupported n "past operators require the rich/core explicit profile")
+  | "weakPrevious" => throw (unsupported n "past operators require the rich/core explicit profile")
+  | "once" => throw (unsupported n "past operators require the rich/core explicit profile")
+  | "historically" => throw (unsupported n "past operators require the rich/core explicit profile")
   | "initially" =>
     arity n 2
     let a ← next (← arg n 1)
@@ -203,6 +207,8 @@ def formulaStep (m : IR.Structural.Core k) (fuel : Nat)
     let b ← next (← arg n 2)
     return ⟨.xor a.value b.value, a.weight + b.weight + k + depth + 1, by
       have := a.enough; have := b.enough; simp <;> omega⟩
+  | "since" => throw (unsupported n "past operators require the rich/core explicit profile")
+  | "triggered" => throw (unsupported n "past operators require the rich/core explicit profile")
   | "strongUntil" =>
     arity n 3
     let a ← next (← arg n 1)

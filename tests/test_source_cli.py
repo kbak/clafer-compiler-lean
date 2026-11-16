@@ -50,6 +50,12 @@ class SourceCLITests(unittest.TestCase):
         self.assertEqual((self.work / 'out.als').read_bytes(), r.stdout)
         self.assertEqual(self.compile(extra=['--objects', '4', '--bitwidth', '5']).returncode, 0)
 
+    def test_past_spellings_remain_static_identifiers(self):
+        for word in ['previous', 'once', 'historically', 'since', 'triggered']:
+            source = f'{word} -> int\nb -> int\n[{word} = 0]\n[b = 1]\n'.encode()
+            result = self.compile(source=source)
+            self.assertEqual((result.returncode, result.stderr), (0, b''))
+
     def test_closed_bounds_and_integer_tokens(self):
         cases = []
         def case(edit, exit_code):

@@ -180,6 +180,25 @@ def parseAndElaborate (profile file source : String) : Except Diagnostic ParsedM
   let doc ← parseBehavioral profile file source
   return ⟨doc, ← elaborate profile doc⟩
 
+-- [impl->req~compiler-rich-core-explicit~1]
+def ParsedModel.warnings (p : ParsedModel) : List Warning :=
+  let e := p.elaborated
+  let d := e.declarations
+  let initializers := e.headers.filterMap fun prop => do
+    let row := d.resolved.admitted.core.structural.get prop.declaration
+    let single := match row.localBounds.upper with
+      | .finite n => n ≤ 1 | .unbounded => false
+    if prop.kind == .transition || d.resolved.admitted.core.authoredAbstract[prop.declaration] || !single then none else do
+      let _ ← IR.BehavioralSupport.referenceView d.resolved.admitted prop.declaration
+      let header ← d.resolved.candidate.paths[prop.declaration].bind (headerAt d.expanded)
+      let (op, rhs) ← header.initializer
+      let values ← Warnings.literalUnion (p.source.source.utf8ByteSize + 1) rhs
+      if 1 < values.eraseDups.length then
+        some (Warnings.warningAt p.source rhs "behavioral.initializer-multiple-literals" op.text
+          "Each reference has one target, but this initializer contains multiple distinct literals; its required equation may be unsatisfiable.")
+      else none
+  (Warnings.document p.source ++ initializers).mergeSort (fun a b => a.primary.startByte ≤ b.primary.startByte)
+
 /-- Reporting is additive: the existing parsed-model API and error type stay
 unchanged. Warnings are available only after the entire model elaborates. -/
 structure Report where
@@ -189,7 +208,7 @@ structure Report where
 -- [impl->req~compiler-diagnostics~1]
 def parseAndElaborateReport (profile file source : String) : Except Diagnostic Report := do
   let model ← parseAndElaborate profile file source
-  return ⟨model, Warnings.document model.source⟩
+  return ⟨model, model.warnings⟩
 
 /-- An assertion index selects its full authored property. The request never
 source-negates its body; counterexamples negate complete property satisfaction. -/

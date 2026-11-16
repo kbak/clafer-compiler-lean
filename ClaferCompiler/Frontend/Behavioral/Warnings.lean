@@ -55,6 +55,17 @@ def warningAt (doc : Document) (e : Expr) (code operator message : String) : War
   let d := Constraints.errorAt ⟨doc.file, doc.source, []⟩ e.span code message
   ⟨code, message, operator, d.primary, d.line, d.column⟩
 
+/-- Literal unions only: this warning is not a satisfiability analysis. -/
+def literalUnion : Nat → Expr → Option (List Int) :=
+  Nat.rec (fun _ => none) (fun _ next e => match e with
+    | .integer _ z => some [Int.ofNat z]
+    | .parens a _ => next a
+    | .unary op (.integer _ z) _ => if op.text == "-" then some [-Int.ofNat z] else none
+    | .binary op a b _ => if op.text == "++" || op.text == "," then do
+        return (← next a) ++ (← next b)
+      else none
+    | _ => none)
+
 -- [impl->req~compiler-diagnostics~1]
 -- [impl->req~compiler-behavioral-elaboration~1]
 /-- Call only after successful elaboration. A rewritten maximal chain emits one

@@ -86,6 +86,39 @@ def weakUntil (parent : TFormula) (a b : Translation) : Translation :=
         (.binary .conj a.truth.negative b.truth.negative)⟩,
     totalAlways parent (.binary .conj a.defined b.defined)⟩
 
+-- [impl->req~compiler-past-operators~1]
+def previous (parent : TFormula) (a : Translation) : Translation :=
+  ⟨⟨Behavioral.previous parent a.truth.raw, Behavioral.previous parent a.truth.positive,
+      Behavioral.weakPrevious parent a.truth.negative⟩,
+    Behavioral.weakPrevious parent a.defined⟩
+
+def weakPrevious (parent : TFormula) (a : Translation) : Translation :=
+  ⟨⟨Behavioral.weakPrevious parent a.truth.raw, Behavioral.weakPrevious parent a.truth.positive,
+      Behavioral.previous parent a.truth.negative⟩,
+    Behavioral.weakPrevious parent a.defined⟩
+
+def once (parent : TFormula) (a : Translation) : Translation :=
+  ⟨⟨Behavioral.once parent a.truth.raw, Behavioral.once parent a.truth.positive,
+      Behavioral.historically parent a.truth.negative⟩,
+    Behavioral.historically parent a.defined⟩
+
+def historically (parent : TFormula) (a : Translation) : Translation :=
+  ⟨⟨Behavioral.historically parent a.truth.raw, Behavioral.historically parent a.truth.positive,
+      Behavioral.once parent a.truth.negative⟩,
+    Behavioral.historically parent a.defined⟩
+
+def since (parent : TFormula) (a b : Translation) : Translation :=
+  ⟨⟨Behavioral.since parent a.truth.raw b.truth.raw,
+      Behavioral.since parent a.truth.positive b.truth.positive,
+      Behavioral.triggered parent a.truth.negative b.truth.negative⟩,
+    Behavioral.historically parent (.binary .conj a.defined b.defined)⟩
+
+def triggered (parent : TFormula) (a b : Translation) : Translation :=
+  ⟨⟨Behavioral.triggered parent a.truth.raw b.truth.raw,
+      Behavioral.triggered parent a.truth.positive b.truth.positive,
+      Behavioral.since parent a.truth.negative b.truth.negative⟩,
+    Behavioral.historically parent (.binary .conj a.defined b.defined)⟩
+
 def initially (present : TFormula) (a : Translation) : Translation :=
   ⟨a.truth.map (Behavioral.initially present), Behavioral.initially present a.defined⟩
 

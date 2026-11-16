@@ -159,6 +159,75 @@ theorem weakUntil_domain (hp : p.Built) (ha : Built a) (hb : Built b) :
         a.defined.Holds s w τ e j ∧ b.defined.Holds s w τ e j :=
   strongUntil_domain hp ha hb
 
+-- [proof->req~compiler-past-operators~1]
+theorem previous_built (hp : p.Built) (ha : Built a) : Built (previous p a) :=
+  ⟨⟨Encoding.previous_built hp ha.truth.raw, Encoding.previous_built hp ha.truth.positive,
+      Encoding.weakPrevious_built hp ha.truth.negative⟩, Encoding.weakPrevious_built hp ha.defined⟩
+
+theorem previous_domain (hp : p.Built) (ha : Built a) :
+    (previous p a).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.weakPrevious (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j) t :=
+  Encoding.weakPrevious_meaning s w τ e p a.defined hp ha.defined t
+
+theorem weakPrevious_built (hp : p.Built) (ha : Built a) : Built (weakPrevious p a) :=
+  ⟨⟨Encoding.weakPrevious_built hp ha.truth.raw, Encoding.weakPrevious_built hp ha.truth.positive,
+      Encoding.previous_built hp ha.truth.negative⟩, Encoding.weakPrevious_built hp ha.defined⟩
+
+theorem weakPrevious_domain (hp : p.Built) (ha : Built a) :
+    (weakPrevious p a).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.weakPrevious (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j) t :=
+  Encoding.weakPrevious_meaning s w τ e p a.defined hp ha.defined t
+
+theorem once_built (hp : p.Built) (ha : Built a) : Built (once p a) :=
+  ⟨⟨Encoding.once_built hp ha.truth.raw, Encoding.once_built hp ha.truth.positive,
+      Encoding.historically_built hp ha.truth.negative⟩, Encoding.historically_built hp ha.defined⟩
+
+theorem once_domain (hp : p.Built) (ha : Built a) :
+    (once p a).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.historically (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j) t :=
+  Encoding.historically_meaning s w τ e p a.defined hp ha.defined t
+
+theorem historically_built (hp : p.Built) (ha : Built a) : Built (historically p a) :=
+  ⟨⟨Encoding.historically_built hp ha.truth.raw, Encoding.historically_built hp ha.truth.positive,
+      Encoding.once_built hp ha.truth.negative⟩, Encoding.historically_built hp ha.defined⟩
+
+theorem historically_domain (hp : p.Built) (ha : Built a) :
+    (historically p a).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.historically (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j) t :=
+  Encoding.historically_meaning s w τ e p a.defined hp ha.defined t
+
+theorem since_built (hp : p.Built) (ha : Built a) (hb : Built b) : Built (since p a b) :=
+  ⟨⟨Encoding.since_built hp ha.truth.raw hb.truth.raw,
+      Encoding.since_built hp ha.truth.positive hb.truth.positive,
+      Encoding.triggered_built hp ha.truth.negative hb.truth.negative⟩,
+    Encoding.historically_built hp (.binary .conj ha.defined hb.defined)⟩
+
+theorem since_domain (hp : p.Built) (ha : Built a) (hb : Built b) :
+    (since p a b).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.historically (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j ∧ b.defined.Holds s w τ e j) t := by
+  change (Backend.Alloy.Behavioral.historically p (.binary .conj a.defined b.defined)).Holds _ _ _ _ _ ↔ _
+  rw [Encoding.historically_meaning s w τ e p _ hp (.binary .conj ha.defined hb.defined) t]
+  simp only [holds_and ha.defined hb.defined]
+
+theorem triggered_built (hp : p.Built) (ha : Built a) (hb : Built b) : Built (triggered p a b) :=
+  ⟨⟨Encoding.triggered_built hp ha.truth.raw hb.truth.raw,
+      Encoding.triggered_built hp ha.truth.positive hb.truth.positive,
+      Encoding.since_built hp ha.truth.negative hb.truth.negative⟩,
+    Encoding.historically_built hp (.binary .conj ha.defined hb.defined)⟩
+
+theorem triggered_domain (hp : p.Built) (ha : Built a) (hb : Built b) :
+    (triggered p a b).defined.Holds s w τ e t ↔
+      Clafer.Behavioral.Lifetime.historically (fun j => p.Holds s w τ e j)
+        (fun j => a.defined.Holds s w τ e j ∧ b.defined.Holds s w τ e j) t := by
+  change (Backend.Alloy.Behavioral.historically p (.binary .conj a.defined b.defined)).Holds _ _ _ _ _ ↔ _
+  rw [Encoding.historically_meaning s w τ e p _ hp (.binary .conj ha.defined hb.defined) t]
+  simp only [holds_and ha.defined hb.defined]
+
 theorem initially_domain (hp : p.Built) (ha : Built a) :
     (initially p a).defined.Holds s w τ e t ↔
       ((p.Holds s w τ e t ∧ (t = 0 ∨ ∃ j, t = j + 1 ∧ ¬ p.Holds s w τ e j)) →

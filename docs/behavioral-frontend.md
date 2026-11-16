@@ -559,3 +559,8 @@ capture, disjoint exclusions, outer captures, nested shadowing and joint counts.
 Grammar recognition and token/AST correspondence remain tested boundaries.
 Independent semantic review and source-matched qualification are required for C7
 acceptance; this API inventory does not grant that acceptance.
+
+The separately selected `behavioral-rich-core/1` parser adds [past operators](past.md).
+[Rich export](rich-core.md) retains resolved operation graphs and explicit initializer
+clocks. Successful reporting warns about distinct literal unions on concrete,
+at-most-one reference declarations, including inherited references; it does not reject those concrete models.

@@ -17,7 +17,7 @@ The completion profile is `behavioral-0.5.8/v2`. Its independent source
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
-source truth. The Lake dependency pins accepted upstream main; its
+source truth. The Lake dependency now pins the [past integration candidate](past.md); the accepted 0.5.8 comparison profile retains its original contract. Its
 [source delta](sources.md#clafer-058-source-and-replay) selects current Haskell
 comparison pins while retaining the static regression corpus and historical receipts. Candidate acceptance still
 requires independent review.
@@ -419,3 +419,7 @@ and an IntentBond exit 4 do not authorize main merges, tags or binary releases.
 [C9]: https://github.com/kbak/clafer-compiler-lean/issues/78
 [C10]: https://github.com/kbak/clafer-compiler-lean/issues/79
 [C11]: https://github.com/kbak/clafer-compiler-lean/issues/80
+
+The separately selected `behavioral-rich-core/1` extension is specified in
+[rich/core interchange](rich-core.md) and [past operators](past.md). It does not
+rename or silently broaden the qualified 0.5.8 profile.

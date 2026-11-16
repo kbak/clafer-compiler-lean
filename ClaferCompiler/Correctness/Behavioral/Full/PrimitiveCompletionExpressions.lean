@@ -342,6 +342,12 @@ mutual
     | .always a => (formula_transport h a).always
     | .strongUntil a b => (formula_transport h a).strongUntil (formula_transport h b)
     | .weakUntil a b => (formula_transport h a).weakUntil (formula_transport h b)
+    | .previous a => (formula_transport h a).previous
+    | .weakPrevious a => (formula_transport h a).weakPrevious
+    | .once a => (formula_transport h a).once
+    | .historically a => (formula_transport h a).historically
+    | .since a b => (formula_transport h a).since (formula_transport h b)
+    | .triggered a b => (formula_transport h a).triggered (formula_transport h b)
     | .initially a => (formula_transport h a).initially
     | .finally a => (formula_transport h a).«finally»
     | .quant q d a => MeaningTransport.quant (SemanticsBridge.Behavioral.quantifier q)

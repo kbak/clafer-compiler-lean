@@ -16,6 +16,7 @@ theorem observed_formula_raw {U : Type} {A D : Nat → Type}
     simp_all [Clafer.Behavioral.Formula.raw, Clafer.Behavioral.Lifetime.next,
       Clafer.Behavioral.Lifetime.eventually, Clafer.Behavioral.Lifetime.always,
       Clafer.Behavioral.Lifetime.strongUntil, Clafer.Behavioral.Lifetime.weakUntil,
+      Clafer.Behavioral.Lifetime.previous, Clafer.Behavioral.Lifetime.weakPrevious, Clafer.Behavioral.Lifetime.once, Clafer.Behavioral.Lifetime.historically, Clafer.Behavioral.Lifetime.since, Clafer.Behavioral.Lifetime.triggered,
       Clafer.Behavioral.Lifetime.Through, Clafer.Behavioral.Trace.ParentPresent,
       Clafer.Behavioral.Trace.Starts, Clafer.Behavioral.Trace.Ends, Clafer.Behavioral.Structural.observed]
 
@@ -26,6 +27,7 @@ theorem observed_formula_defined {U : Type} {A D : Nat → Type}
     a.Defined (Clafer.Behavioral.Structural.observed m τ) O ρ t ↔ a.Defined τ O ρ t := by
   induction a generalizing t <;>
     simp_all [Clafer.Behavioral.Formula.Defined, Clafer.Behavioral.Lifetime.Through,
+      Clafer.Behavioral.Lifetime.weakPrevious, Clafer.Behavioral.Lifetime.historically,
       Clafer.Behavioral.Trace.ParentPresent,
       Clafer.Behavioral.Trace.Starts, Clafer.Behavioral.Trace.Ends, Clafer.Behavioral.Structural.observed]
 
@@ -270,6 +272,60 @@ theorem weakUntil (ha : MeaningTransport h a a') (hb : MeaningTransport h b b') 
   · intro s ρ t
     cases s <;> simp only [Formula.denote, Lifetime.strongUntil, Lifetime.weakUntil,
       Lifetime.always, Lifetime.Through, environment_this, h.parentPresent_iff, ha.denote, hb.denote]
+
+theorem previous (ha : MeaningTransport h a a') : MeaningTransport h (.previous a) (.previous a') := by
+  constructor
+  · intro ρ t
+    cases t <;> simp only [Formula.Defined, Lifetime.weakPrevious, environment_this, h.parentPresent_iff, ha.defined]
+  · intro ρ t
+    cases t <;> simp only [Formula.raw, Lifetime.previous, environment_this, h.parentPresent_iff, ha.raw]
+  · intro s ρ t
+    cases s <;> cases t <;> simp only [Formula.denote, Lifetime.previous, Lifetime.weakPrevious, environment_this, h.parentPresent_iff, ha.denote]
+
+theorem weakPrevious (ha : MeaningTransport h a a') : MeaningTransport h (.weakPrevious a) (.weakPrevious a') := by
+  constructor
+  · intro ρ t
+    cases t <;> simp only [Formula.Defined, Lifetime.weakPrevious, environment_this, h.parentPresent_iff, ha.defined]
+  · intro ρ t
+    cases t <;> simp only [Formula.raw, Lifetime.weakPrevious, environment_this, h.parentPresent_iff, ha.raw]
+  · intro s ρ t
+    cases s <;> cases t <;> simp only [Formula.denote, Lifetime.weakPrevious, Lifetime.previous, environment_this, h.parentPresent_iff, ha.denote]
+
+theorem once (ha : MeaningTransport h a a') : MeaningTransport h (.once a) (.once a') := by
+  constructor
+  · intro ρ t
+    simp only [Formula.Defined, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.defined]
+  · intro ρ t
+    simp only [Formula.raw, Lifetime.once, Lifetime.Through, environment_this, h.parentPresent_iff, ha.raw]
+  · intro s ρ t
+    cases s <;> simp only [Formula.denote, Lifetime.once, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.denote]
+
+theorem historically (ha : MeaningTransport h a a') : MeaningTransport h (.historically a) (.historically a') := by
+  constructor
+  · intro ρ t
+    simp only [Formula.Defined, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.defined]
+  · intro ρ t
+    simp only [Formula.raw, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.raw]
+  · intro s ρ t
+    cases s <;> simp only [Formula.denote, Lifetime.historically, Lifetime.once, Lifetime.Through, environment_this, h.parentPresent_iff, ha.denote]
+
+theorem since (ha : MeaningTransport h a a') (hb : MeaningTransport h b b') : MeaningTransport h (.since a b) (.since a' b') := by
+  constructor
+  · intro ρ t
+    simp only [Formula.Defined, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.defined, hb.defined]
+  · intro ρ t
+    simp only [Formula.raw, Lifetime.since, Lifetime.Through, environment_this, h.parentPresent_iff, ha.raw, hb.raw]
+  · intro s ρ t
+    cases s <;> simp only [Formula.denote, Lifetime.since, Lifetime.triggered, Lifetime.Through, environment_this, h.parentPresent_iff, ha.denote, hb.denote]
+
+theorem triggered (ha : MeaningTransport h a a') (hb : MeaningTransport h b b') : MeaningTransport h (.triggered a b) (.triggered a' b') := by
+  constructor
+  · intro ρ t
+    simp only [Formula.Defined, Lifetime.historically, Lifetime.Through, environment_this, h.parentPresent_iff, ha.defined, hb.defined]
+  · intro ρ t
+    simp only [Formula.raw, Lifetime.triggered, Lifetime.Through, environment_this, h.parentPresent_iff, ha.raw, hb.raw]
+  · intro s ρ t
+    cases s <;> simp only [Formula.denote, Lifetime.triggered, Lifetime.since, Lifetime.Through, environment_this, h.parentPresent_iff, ha.denote, hb.denote]
 
 theorem initially (ha : MeaningTransport h a a') : MeaningTransport h (.initially a) (.initially a') :=
   ⟨fun ρ t => imp_congr (h.starts_iff ρ.this t) (ha.defined ρ t),

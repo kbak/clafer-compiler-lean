@@ -18,11 +18,12 @@ def decode (v : IR.BehavioralStructural.Validated k) (file text : String) :
 
 /-- Scalar observations belong to fixed reference heads, including unused rows;
 ordinary target identities are never conflated with integer values. -/
-def json (m : IR.Structural.Core k) (l : Behavioral.Full.ObservedLasso k o steps) : Json :=
+def json (m : IR.Structural.Core k) (l : Behavioral.Full.ObservedLasso k o steps)
+    (profile : String := IR.BehavioralStructural.profile) : Json :=
   let ids := l.objects.identities
   Json.mkObj [
     ("version", toJson "clafer-behavioral-trace/2"),
-    ("profile", toJson IR.BehavioralStructural.profile),
+    ("profile", toJson profile),
     ("root", toJson ids.ids[ids.root]), ("length", toJson steps),
     ("loop", toJson l.objects.loop.val),
     ("identities", toJson ((List.finRange o).map fun x => Json.mkObj [

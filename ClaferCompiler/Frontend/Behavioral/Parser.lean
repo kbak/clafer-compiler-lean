@@ -12,8 +12,10 @@ def excluded (text : String) : Bool :=
   ["string", "real", "double", "bool", "boolean", "minimize", "maximize",
    "[alloy|", "[choco|", "<<", ">>", "\\", "\""].contains text
 
+def pastWords : List String := ["previous", "once", "historically", "since", "triggered"]
+
 def binaryPower : String → Option Nat
-  | "U" | "until" => some 8 | "W" | "weakuntil" => some 9
+  | "U" | "until" | "since" => some 8 | "W" | "weakuntil" | "triggered" => some 9
   | "*" | "/" | "%" => some 18 | "<:" => some 21 | ":>" => some 22
   | "," => some 23 | "&" => some 26
   | t => Frontend.binaryPower t
@@ -24,7 +26,7 @@ def expressionPower : Expr → Nat
   | .transition .. => 0
   | .unary t _ _ =>
     if ["initially", "finally"].contains t.text then 2
-    else if ["X", "next", "F", "eventually", "G", "globally"].contains t.text then 10
+    else if ["X", "next", "F", "eventually", "G", "globally", "previous", "once", "historically"].contains t.text then 10
     else if t.text == "!" then 11
     else if ["max", "min"].contains t.text then 19
     else if ["#", "-", "sum", "product"].contains t.text then 20 else 16
@@ -98,7 +100,7 @@ def pattern (previous : Parsers) (kind : Token) (first : Expr)
     else pure (none, none, none)
   return .pattern kind first second scope opener closer (extent start (← get).previous.span)
 
-def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
+def expressionStep (pastEnabled : Bool) (previous : Parsers) (minimum : Nat) : P Expr := do
   let t ← pop
   let left ←
     if t.text == "(" then do
@@ -142,7 +144,8 @@ def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
         pure (.unary t body (extent t.span body.span))
     else if let some (power, bodyPower) :=
       if ["initially", "finally"].contains t.text then some (2, 3)
-      else if ["X", "next", "F", "eventually", "G", "globally"].contains t.text then some (10, 10)
+      else if ["X", "next", "F", "eventually", "G", "globally"].contains t.text ||
+          (pastEnabled && ["previous", "once", "historically"].contains t.text) then some (10, 10)
       else if t.text == "!" then some (11, 11)
       else if ["max", "min"].contains t.text then some (19, 20)
       else if ["-", "#", "sum", "product"].contains t.text then some (20, 21)
@@ -155,7 +158,7 @@ def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
     else reject t "behavioral.expression" "expected a behavioral expression"
   previous.tail minimum left
 
-def tailStep (previous : Parsers) (minimum : Nat) (left : Expr) : P Expr := do
+def tailStep (pastEnabled : Bool) (previous : Parsers) (minimum : Nat) (left : Expr) : P Expr := do
   let t ← peek
   if ["-->", "-->>", "-["].contains t.text && minimum == 0 && expressionPower left ≥ 1 then
     let (op, guard) ← arrow previous
@@ -169,6 +172,7 @@ def tailStep (previous : Parsers) (minimum : Nat) (left : Expr) : P Expr := do
     let right ← previous.expression 3
     let result ← pattern previous kind left (some right) left.span
     return ← previous.tail minimum result
+  if !pastEnabled && pastWords.contains t.text then return left
   let some power := binaryPower t.text | return left
   if power < minimum || expressionPower left < power then return left
   if t.text == "not" && !((← get).rest.drop 1).head?.any (fun x => x.text == "in") then return left
@@ -274,22 +278,23 @@ def elementsStep (previous : Parsers) (top : Bool) (column previousDecl : Option
   let e ← previous.element top column.isSome
   return e :: (← previous.elements top column (if isDecl then some t.line else previousDecl))
 
-def parserStep (previous : Parsers) : Parsers :=
-  ⟨expressionStep previous, tailStep previous, bodiesStep previous, elementStep previous, elementsStep previous⟩
+def parserStep (pastEnabled : Bool) (previous : Parsers) : Parsers :=
+  ⟨expressionStep pastEnabled previous, tailStep pastEnabled previous, bodiesStep previous, elementStep previous, elementsStep previous⟩
 
 -- [impl->req~compiler-behavioral-frontend~1]
 -- [impl->req~compiler-diagnostics~1]
 def parseBehavioral (profile file source : String) : Except Diagnostic Document := do
-  if profile != IR.BehavioralStructural.profile then
+  if !IR.BehavioralStructural.knownProfile profile then
     throw (lexError file 0 0 1 1 .unsupported "behavioral.profile" "unsupported behavioral profile")
   let tokens ← lexWith excluded file source
+  let pastEnabled := profile == IR.BehavioralStructural.richProfile
   let eof : Token := tokens.back?.getD ⟨"", ⟨file, source.utf8ByteSize, source.utf8ByteSize⟩, 1, 1, 1⟩
   let action : P (List Element) := do
-    let grammar := Nat.repeat parserStep (4 * tokens.size + 4) parserBase
+    let grammar := Nat.repeat (parserStep pastEnabled) (4 * tokens.size + 4) parserBase
     let es ← grammar.elements true (some 1) none
     let _ ← expect ""
     return es
-  let (elements, _) ← action.run ⟨tokens.toList, eof, eof⟩
+  let (elements, _) ← action.run ⟨tokens.toList, eof, eof, if pastEnabled then pastWords else []⟩
   return ⟨file, source, elements⟩
 
 end ClaferCompiler.Frontend.Behavioral

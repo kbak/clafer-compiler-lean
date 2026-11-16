@@ -15,6 +15,7 @@ sys.path.insert(0,str(ROOT/'scripts/comparison'))
 import behavioral_source as bs
 from behavioral_source_cases import absence_cases, case, features, patterns
 from behavioral_initializer_cases import initializers
+from behavioral_past_cases import past_cases
 import behavioral_haskell as bh
 
 
@@ -40,6 +41,18 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         if not tools: raise AssertionError('CLAFER_ORACLE_TOOLS required')
         cls.runtime=bs.Runtime(tools,cls.output/'runtime')
         print(f'Full source evidence: {cls.output}',flush=True)
+
+    # [utest->req~compiler-past-operators~1]
+    def test_past_exact_source_and_target(self):
+        for name, expected, candidate in past_cases():
+            with self.subTest(name=name):
+                result = self.runtime.compare(candidate, self.output / ('past-' + name))
+                self.assertEqual(result, dict(status='complete', source=expected,
+                    target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
+        name, expected, candidate = next(past_cases())
+        result = self.runtime.compare(candidate, self.output / 'past-mutation', mutation='drop-constraints')
+        self.assertEqual(expected, 'violated')
+        self.assertEqual(result['directions'], ['target-only'])
 
     # [utest->req~compiler-behavioral-elaboration~1]
     # [utest->req~compiler-full-behavioral-correctness~1]

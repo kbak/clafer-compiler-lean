@@ -52,6 +52,24 @@ theorem partial_weakUntil (hp : FormulaPure p) (ha : PartialPure a) (hb : Partia
     PartialPure (Partial.weakUntil p a b) := by
   have domain := pure_totalAlways hp ((pure_binary .conj _ _).mpr ⟨ha.2.2.2, hb.2.2.2⟩)
   simp_all [PartialPure, Partial.weakUntil, strongUntil, weakUntil, always, Formula.weakUntil]
+theorem partial_previous (hp : FormulaPure p) (ha : PartialPure a) :
+    PartialPure (Partial.previous p a) := by
+  simp_all [PartialPure, Partial.previous, previous, weakPrevious]
+theorem partial_weakPrevious (hp : FormulaPure p) (ha : PartialPure a) :
+    PartialPure (Partial.weakPrevious p a) := by
+  simp_all [PartialPure, Partial.weakPrevious, weakPrevious, previous]
+theorem partial_once (hp : FormulaPure p) (ha : PartialPure a) :
+    PartialPure (Partial.once p a) := by
+  simp_all [PartialPure, Partial.once, once, historically]
+theorem partial_historically (hp : FormulaPure p) (ha : PartialPure a) :
+    PartialPure (Partial.historically p a) := by
+  simp_all [PartialPure, Partial.historically, historically, once]
+theorem partial_since (hp : FormulaPure p) (ha : PartialPure a) (hb : PartialPure b) :
+    PartialPure (Partial.since p a b) := by
+  simp_all [PartialPure, Partial.since, since, historically, once, triggered]
+theorem partial_triggered (hp : FormulaPure p) (ha : PartialPure a) (hb : PartialPure b) :
+    PartialPure (Partial.triggered p a b) := by
+  simp_all [PartialPure, Partial.triggered, triggered, historically, once, since]
 theorem partial_initially (hp : FormulaPure p) (ha : PartialPure a) : PartialPure (Partial.initially p a) := by
   simp_all [PartialPure, Partial.initially, Translation.map, initially, Formula.birth]
 theorem partial_finally (hp : FormulaPure p) (ha : PartialPure a) : PartialPure (Partial.«finally» p a) := by

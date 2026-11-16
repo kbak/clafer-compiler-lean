@@ -172,6 +172,22 @@ theorem formulaAt_built (v : IR.Structural.Layout k) (fuel : Nat) {n : Nat}
       exact ⟨weakUntil_built hp (ih _ _ _).raw (ih _ _ _).raw,
         weakUntil_built hp (ih _ _ _).positive (ih _ _ _).positive,
         until_built hp (ih _ _ _).negative (.binary .conj (ih _ _ _).negative (ih _ _ _).negative)⟩
+    | previous a =>
+      exact ⟨previous_built hp (ih _ _ _).raw, previous_built hp (ih _ _ _).positive, weakPrevious_built hp (ih _ _ _).negative⟩
+    | weakPrevious a =>
+      exact ⟨weakPrevious_built hp (ih _ _ _).raw, weakPrevious_built hp (ih _ _ _).positive, previous_built hp (ih _ _ _).negative⟩
+    | once a =>
+      exact ⟨once_built hp (ih _ _ _).raw, once_built hp (ih _ _ _).positive, historically_built hp (ih _ _ _).negative⟩
+    | historically a =>
+      exact ⟨historically_built hp (ih _ _ _).raw, historically_built hp (ih _ _ _).positive, once_built hp (ih _ _ _).negative⟩
+    | since a b =>
+      exact ⟨since_built hp (ih _ _ _).raw (ih _ _ _).raw,
+        since_built hp (ih _ _ _).positive (ih _ _ _).positive,
+        triggered_built hp (ih _ _ _).negative (ih _ _ _).negative⟩
+    | triggered a b =>
+      exact ⟨triggered_built hp (ih _ _ _).raw (ih _ _ _).raw,
+        triggered_built hp (ih _ _ _).positive (ih _ _ _).positive,
+        since_built hp (ih _ _ _).negative (ih _ _ _).negative⟩
     | initially a =>
       exact ⟨initially_built hl (ih _ _ _).raw, initially_built hl (ih _ _ _).positive, initially_built hl (ih _ _ _).negative⟩
     | «finally» a =>
