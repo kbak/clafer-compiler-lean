@@ -10,6 +10,7 @@ structure Cursor where
   rest : List Token
   previous : Token
   eof : Token
+  extraReserved : List String := []
 
 abbrev P := StateT Cursor (Except Diagnostic)
 
@@ -34,7 +35,7 @@ def accept (text : String) : P (Option Token) := do
 
 def name : P Name := do
   let t ← peek
-  if isName t then pop else reject t "parser.name" "expected an unqualified name"
+  if isName t && !(← get).extraReserved.contains t.text then pop else reject t "parser.name" "expected an unqualified name"
 
 /-- Layout inserts a body only at greater indentation; braces disable it.
 Sibling lines begin separate declarations in the selected 0.5.8 grammar. -/
@@ -251,7 +252,7 @@ def parse (file source : String) : Except Diagnostic Document := do
     let es ← grammar.elements (some 1) none
     let _ ← expect ""
     return es
-  let (es, _) ← action.run ⟨tokens.toList, eof, eof⟩
+  let (es, _) ← action.run ⟨tokens.toList, eof, eof, []⟩
   return ⟨file, source, es⟩
 
 end ClaferCompiler.Frontend

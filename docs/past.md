@@ -4,7 +4,8 @@ The `behavioral-rich-core/1` source profile adds `previous`, `once`, `historical
 `since` and `triggered`. Weak previous is an internal signed/core constructor.
 Prefix operators use the existing temporal-prefix precedence; since and triggered
 use the strong/weak temporal binary precedence levels. Static source and the
-qualified `behavioral-0.5.8/v2` profile reject these new keywords.
+qualified `behavioral-0.5.8/v2` profile reject past-operator syntax while retaining
+these spellings as identifiers. Only the new profile reserves them as keywords.
 
 The independent meanings are [upstream Past, Denotation and PartialObservation](https://github.com/kbak/clafer-semantics/tree/14e8f24bf983d4b331b7fe4ba10e2df0cf24047c/Clafer/Behavioral).
 The behavioral paper §5, Definitions 3–5 and §6.1 remain the source for attachment,

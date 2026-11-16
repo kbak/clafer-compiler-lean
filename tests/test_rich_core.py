@@ -49,8 +49,18 @@ class ExplicitTests(unittest.TestCase):
             source = f'P\n  A ?\n  [{expression}]\n'
             self.ok(source, 3)
             result = self.call(source, 3, profile='behavioral-0.5.8/v2')
-            self.assertEqual(result.returncode, 3)
-            self.assertEqual(json.loads(result.stderr)['code'], 'behavioral.past-profile')
+            self.assertIn(result.returncode, (2, 3))
+            self.assertEqual(result.stdout, b'')
+
+    def test_old_profile_past_spellings_remain_identifiers(self):
+        for word in ['previous', 'once', 'historically', 'since', 'triggered']:
+            source = f'P\n  {word} ?\n  [some {word}]\n'
+            self.ok(source, 3, 'json', profile='behavioral-0.5.8/v2')
+            explicit = self.call(source, 3, profile='behavioral-0.5.8/v2')
+            self.assertEqual(explicit.returncode, 3)
+            self.assertEqual(json.loads(explicit.stderr)['code'], 'behavioral.profile')
+            rejected = self.call(source, 3)
+            self.assertNotEqual(rejected.returncode, 0)
 
     def test_fixed_points_and_same_target(self):
         cases = [

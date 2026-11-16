@@ -120,6 +120,11 @@ def explicitText (format : String) (j : Lean.Json) : String :=
 
 def sourceOutput (p : BehavioralSource.Product) (format : String)
     (warnings : List Frontend.Behavioral.Warning) : Except Diagnostic String := do
+  if ["rich", "core", "rich-json", "core-json"].contains format &&
+      p.profile != IR.BehavioralStructural.richProfile then
+    throw {
+      code := "behavioral.profile", phase := "serialization", category := .unsupported
+      message := "explicit output requires behavioral-rich-core/1" : Diagnostic }
   if ["core", "core-json"].contains format then
     return explicitText format (← ExplicitCore.encode p.request (p.fuel + 1) warnings)
   else if ["rich", "rich-json"].contains format then
