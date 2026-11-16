@@ -17,6 +17,9 @@ def combine (op : String) (a b : Expression.Collection k n) : Expression.Collect
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 def unary (v : IR.BehavioralStructural.Validated k) (op : String) (a : Value k n) : Except String (Value k n) := do
+  if op == "previous" then return .formula (.previous (← boolean a))
+  if op == "once" then return .formula (.once (← boolean a))
+  if op == "historically" then return .formula (.historically (← boolean a))
   if op == "!" then return .formula (.not (← boolean a))
   if op == "X" || op == "next" then return .formula (.next (← boolean a))
   if op == "F" || op == "eventually" then return .formula (.eventually (← boolean a))
@@ -58,13 +61,14 @@ def compareValues (v : IR.BehavioralStructural.Validated k) (op : String) (a b :
 
 -- [impl->req~compiler-behavioral-elaboration~1]
 def binary (v : IR.BehavioralStructural.Validated k) (op : String) (a b : Value k n) : Except String (Value k n) := do
-  if op ∈ ["&&", "||", "=>", "<=>", "xor", "U", "until", "W", "weakuntil"] then
+  if op ∈ ["&&", "||", "=>", "<=>", "xor", "U", "until", "W", "weakuntil", "since", "triggered"] then
     let a ← boolean a
     let b ← boolean b
     return .formula (match op with
       | "&&" => .and a b | "||" => .or a b | "=>" => .implies a b
       | "<=>" => .iff a b | "xor" => .xor a b
-      | "U" | "until" => .strongUntil a b | _ => .weakUntil a b)
+      | "U" | "until" => .strongUntil a b | "since" => .since a b
+      | "triggered" => .triggered a b | _ => .weakUntil a b)
   if op ∈ ["+", "-", "*", "/", "%", "<", ">", "<=", ">="] then
     let a ← integer v a
     let b ← integer v b

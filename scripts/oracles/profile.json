@@ -1,6 +1,6 @@
 {
   "schema": "clafer-oracle-profile/1",
-  "semantics_commit": "a450a8062d832fa188794717cf35bc0f60d776f8",
+  "semantics_commit": "14e8f24bf983d4b331b7fe4ba10e2df0cf24047c",
   "haskell_commit": "dbc06d37ef23eb9186d1016e3bf678858621e92d",
   "haskell_version": "0.5.8",
   "stack": "3.11.1",

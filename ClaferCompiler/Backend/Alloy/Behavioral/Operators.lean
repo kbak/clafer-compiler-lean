@@ -24,6 +24,25 @@ def strongUntil (parent left right : Temporal.Formula) : Temporal.Formula :=
 def weakUntil (parent left right : Temporal.Formula) : Temporal.Formula :=
   .binary .disj (always parent left) (strongUntil parent left right)
 
+-- [impl->req~compiler-past-operators~1]
+def previous (parent body : Temporal.Formula) : Temporal.Formula :=
+  .unary .before (.binary .conj parent body)
+
+def weakPrevious (parent body : Temporal.Formula) : Temporal.Formula :=
+  .unary .neg (previous parent (.unary .neg body))
+
+def once (parent body : Temporal.Formula) : Temporal.Formula :=
+  .binary .since parent (.binary .conj parent body)
+
+def historically (parent body : Temporal.Formula) : Temporal.Formula :=
+  .unary .neg (once parent (.unary .neg body))
+
+def since (parent left right : Temporal.Formula) : Temporal.Formula :=
+  .binary .since (.binary .conj parent left) (.binary .conj parent right)
+
+def triggered (parent left right : Temporal.Formula) : Temporal.Formula :=
+  .unary .neg (since parent (.unary .neg left) (.unary .neg right))
+
 def initially (present body : Temporal.Formula) : Temporal.Formula :=
   .binary .implies present.birth body
 

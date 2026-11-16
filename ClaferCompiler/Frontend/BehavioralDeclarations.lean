@@ -22,7 +22,7 @@ def enumLiteral (name literal : Name) : Element :=
 -- [impl->req~compiler-behavioral-structural-bridge~1]
 def expandEnum (selectedProfile : String) (name : Name) (literals : List Name)
     (span : SourceSpan) : Except Diagnostic EnumExpansion := do
-  if selectedProfile != IR.BehavioralStructural.profile then
+  if !IR.BehavioralStructural.knownProfile selectedProfile then
     throw (Resolution.errorAt name "behavioral.profile" "unsupported behavioral profile" .unsupported)
   if literals.isEmpty then
     throw (Resolution.errorAt name "behavioral.enum-empty" "an enum requires a literal")

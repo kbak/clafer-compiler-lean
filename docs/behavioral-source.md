@@ -344,8 +344,8 @@ reference corpora run with fresh tools bound to the installed semantics pin
 during qualification. Preserve
 the accepted `union-dead-target` original-SAT/explicit-UNSAT discrepancy and the
 ill-typed `root-navigation-unsupported` case. Unsupported/timeouts are not agreement.
-This native workflow emits Alloy directly; it does not offer a Haskell explicit
-normalization command or claim exact original-versus-explicit equivalence.
+The native workflow also offers [Lean rich/core interchange](rich-core.md).
+It does not claim Haskell wire-format compatibility or blanket original-versus-explicit equivalence.
 Those accepted tooling comparisons remain separately identified.
 
 Final acceptance requires the immutable candidate's full IntentBond/build/kernel/
@@ -407,3 +407,9 @@ unsupported and no Lean Choco backend is added. Historical oracle profiles and
 their original receipts remain unchanged. Current bundles retain source hashes,
 decoded JSON and original bytes, tool identities, bounds, actual commands,
 raw witnesses and discrepancy directions outside the repository.
+
+## Selected rich/core extension
+
+Bounds with `profile: "behavioral-rich-core/1"` enable [past operators](past.md).
+The [rich/core interface](rich-core.md) documents explicit output, independent core
+input, fixed points, diagnostic preservation and the new reference qualification.

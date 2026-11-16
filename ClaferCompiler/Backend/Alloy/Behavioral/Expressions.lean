@@ -149,6 +149,32 @@ def formulaStep (v : IR.Structural.Layout k) (fuel : Nat)
       let p := parentPresent v c
       ⟨weakUntil p a.raw b.raw, weakUntil p a.positive b.positive,
         strongUntil p b.negative (.binary .conj a.negative b.negative)⟩
+  | .previous a => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.previous.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨previous p a.raw, previous p a.positive, weakPrevious p a.negative⟩
+  | .weakPrevious a => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.weakPrevious.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨weakPrevious p a.raw, weakPrevious p a.positive, previous p a.negative⟩
+  | .once a => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.once.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨once p a.raw, once p a.positive, historically p a.negative⟩
+  | .historically a => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.historically.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨historically p a.raw, historically p a.positive, once p a.negative⟩
+  | .since a b => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.since.sizeOf_spec] at h; omega)
+      let b := recur c b (by simp only [IR.Behavioral.FormulaF.since.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨since p a.raw b.raw, since p a.positive b.positive, triggered p a.negative b.negative⟩
+  | .triggered a b => fun h =>
+      let a := recur c a (by simp only [IR.Behavioral.FormulaF.triggered.sizeOf_spec] at h; omega)
+      let b := recur c b (by simp only [IR.Behavioral.FormulaF.triggered.sizeOf_spec] at h; omega)
+      let p := parentPresent v c
+      ⟨triggered p a.raw b.raw, triggered p a.positive b.positive, since p a.negative b.negative⟩
   | .initially a => fun h => (recur c a (by simp only [IR.Behavioral.FormulaF.initially.sizeOf_spec] at h; omega)).map (initially (present v c))
   | .finally a => fun h => (recur c a (by simp only [IR.Behavioral.FormulaF.finally.sizeOf_spec] at h; omega)).map (atEnd (present v c))
   | .letSet d a => fun h =>

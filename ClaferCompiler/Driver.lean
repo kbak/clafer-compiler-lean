@@ -4,6 +4,7 @@ public import ClaferCompiler.Driver.Decode
 public import ClaferCompiler.Driver.Source
 public import ClaferCompiler.Driver.Behavioral
 public import ClaferCompiler.Driver.BehavioralSource
+public import ClaferCompiler.Driver.ExplicitRich
 public import ClaferCompiler.Backend.Alloy.Print
 
 @[expose] public section
@@ -17,11 +18,11 @@ open Backend.Alloy
 
 def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-source (selected static)\n" ++
   "ir: clafer-ir/1; bounds: clafer-bounds/1 (IR), clafer-bounds/2 (source)\n" ++
-  "semantics: a450a8062d832fa188794717cf35bc0f60d776f8\n" ++
+  "semantics: 14e8f24bf983d4b331b7fe4ba10e2df0cf24047c\n" ++
   "haskell-reference: dbc06d37ef23eb9186d1016e3bf678858621e92d\n" ++
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
-  ++ "\nbehavioral-source: behavioral-0.5.8/v2; clafer-behavioral-bounds/2"
+  ++ "\nbehavioral-source: behavioral-0.5.8/v2, behavioral-rich-core/1; clafer-behavioral-bounds/2"
   ++ "\nbehavioral-source-policy: literal-empty-navigation/1; warnings: clafer-warning/1"
 
 def usage : String := "usage: clafer-compiler --version | --help\n" ++
@@ -29,9 +30,10 @@ def usage : String := "usage: clafer-compiler --version | --help\n" ++
   "       clafer-compiler compile-source INPUT --bounds BOUNDS --output OUTPUT\n" ++
   "       clafer-compiler compile-behavioral-ir INPUT --bounds BOUNDS --output OUTPUT\n" ++
   "       clafer-compiler compile-behavioral-source INPUT --bounds BOUNDS --output OUTPUT\n" ++
+  "       clafer-compiler compile-behavioral-explicit INPUT --bounds BOUNDS --output OUTPUT\n" ++
   "         [--assertion N | --scenario FILE [--owner ID]]\n" ++
   "         [--objects N] [--bitwidth N] [--diagnostics text|json]\n" ++
-  "Behavioral compilation additionally accepts --format alloy|json.\n" ++
+  "Behavioral compilation accepts --format alloy|json; source/explicit also accept rich|core|rich-json|core-json.\n" ++
   "Use - for stdin/stdout (only one input may use stdin).\n" ++
   "Bounds are required; no inference or solver execution."
 
@@ -51,6 +53,8 @@ structure Options where
   assertion : Option Nat := none
   scenario : Option String := none
   owner : Option Nat := none
+  explicit : Bool := false
+  explicitFormat : String := "alloy"
 
 def argumentError (message : String) : Diagnostic :=
   { code := "cli.arguments", phase := "arguments", message }
@@ -70,7 +74,7 @@ def optionPairs (args : List String) : Except Diagnostic (List (String × String
 
 def options (args : List String) : Except Diagnostic Options := do
   let command :: input :: rest := args | throw (argumentError usage)
-  if !["compile-ir", "compile-source", "compile-behavioral-ir", "compile-behavioral-source"].contains command then
+  if !["compile-ir", "compile-source", "compile-behavioral-ir", "compile-behavioral-source", "compile-behavioral-explicit"].contains command then
     throw (argumentError usage)
   if input.isEmpty then throw (argumentError "empty input path")
   let pairs ← optionPairs rest
@@ -82,9 +86,16 @@ def options (args : List String) : Except Diagnostic Options := do
   if let some format := get "--diagnostics" then
     if format != "text" && format != "json" then throw (argumentError "unknown diagnostic format")
   if let some format := get "--format" then
-    if !(command == "compile-behavioral-ir" || command == "compile-behavioral-source") ||
-        (format != "alloy" && format != "json") then
-      throw (argumentError "--format alloy|json requires behavioral compilation")
+    if command == "compile-behavioral-source" || command == "compile-behavioral-explicit" then
+      unless ["alloy", "json", "rich", "core", "rich-json", "core-json"].contains format do
+        throw (argumentError "unknown behavioral output format")
+      if command == "compile-behavioral-explicit" && format == "json" then
+        throw (argumentError "select rich-json or core-json for explicit input")
+      if ["rich", "rich-json"].contains format &&
+          ((get "--assertion").isSome || (get "--scenario").isSome) then
+        throw (argumentError "rich export requires the model; use core export for a selected query")
+    else if command != "compile-behavioral-ir" || !(format == "alloy" || format == "json") then
+      throw (argumentError "--format requires behavioral compilation")
   if ["--assertion", "--scenario", "--owner"].any (fun key => (get key).isSome) &&
       command != "compile-behavioral-source" then
     throw (argumentError "property/scenario options require compile-behavioral-source")
@@ -101,7 +112,37 @@ def options (args : List String) : Except Diagnostic Options := do
     return n
   return ⟨input, bounds, output, ← number "--objects", ← number "--bitwidth",
     command == "compile-source", command == "compile-behavioral-ir", get "--format" == some "json",
-    command == "compile-behavioral-source", ← number "--assertion", get "--scenario", ← number "--owner"⟩
+    command == "compile-behavioral-source", ← number "--assertion", get "--scenario", ← number "--owner",
+    command == "compile-behavioral-explicit", (get "--format").getD "alloy"⟩
+
+def explicitText (format : String) (j : Lean.Json) : String :=
+  (if format.endsWith "-json" then j.compress else j.pretty) ++ "\n"
+
+def sourceOutput (p : BehavioralSource.Product) (format : String)
+    (warnings : List Frontend.Behavioral.Warning) : Except Diagnostic String := do
+  if ["core", "core-json"].contains format then
+    return explicitText format (← ExplicitCore.encode p.request (p.fuel + 1) warnings)
+  else if ["rich", "rich-json"].contains format then
+    return explicitText format (← ExplicitRich.encode p.parsed (BehavioralSource.budget p.parsed.source.source .model))
+  else return if format == "json" then p.json.compress ++ "\n" else p.text
+
+def compileExplicit (inputFile input boundsFile boundsText format : String)
+    (objects bitwidth : Option Nat) : Except Diagnostic (String × List Frontend.Behavioral.Warning) := do
+  let n ← Decode.parse inputFile input true
+  let kind ← Decode.string (← Decode.field n "version")
+  if kind == "clafer-explicit-rich/1" then
+    let p ← ExplicitRich.decode inputFile input
+    let selected ← BehavioralSource.selectedProfile boundsFile boundsText
+    if selected != IR.BehavioralStructural.richProfile then
+      throw { code := "behavioral.profile", phase := "bounds", category := .unsupported, message := "explicit input requires behavioral-rich-core/1" : Diagnostic }
+    let compiled ← BehavioralSource.compileReport p.source.file p.source.source boundsFile boundsText .model objects bitwidth
+    return (← sourceOutput compiled.product format compiled.warnings, compiled.warnings)
+  else if kind == "clafer-explicit-core/1" then
+    if ["rich", "rich-json"].contains format then
+      throw { code := "explicit.intent-unavailable", phase := "serialization", category := .unsupported, message := "core input has no authored rich intent; use the rich export" : Diagnostic }
+    let ⟨_, compiled⟩ ← ExplicitCore.compile inputFile input boundsFile boundsText objects bitwidth
+    return (if ["core", "core-json"].contains format then explicitText format compiled.core else compiled.text, compiled.warnings)
+  else throw { code := "explicit.version", phase := "decode", category := .unsupported, message := "unsupported explicit version" : Diagnostic }
 
 /-- Recognize diagnostic pairs only in the option suffix, never path arguments. -/
 def jsonDiagnostics (args : List String) : Bool :=
@@ -213,10 +254,12 @@ def run (args : List String) : IO UInt32 := do
       | .error d => emitDiagnostic json d
       | .ok bounds =>
         let query ← behavioralQuery opts
-        let result := if opts.behavioralSource then
+        let result := if opts.explicit then
+          compileExplicit (logicalFile opts.input) input (logicalFile opts.bounds) bounds opts.explicitFormat opts.objects opts.bitwidth
+        else if opts.behavioralSource then
           (query.bind fun q => BehavioralSource.compileReport (logicalFile opts.input) input
-            (logicalFile opts.bounds) bounds q opts.objects opts.bitwidth).map (fun p =>
-              (if opts.formatJson then p.product.json.compress ++ "\n" else p.product.text, p.warnings))
+            (logicalFile opts.bounds) bounds q opts.objects opts.bitwidth).bind (fun p => do
+              return (← sourceOutput p.product opts.explicitFormat p.warnings, p.warnings))
         else if opts.behavioral then
           (Behavioral.compileText (logicalFile opts.input) input (logicalFile opts.bounds)
             bounds opts.objects opts.bitwidth).map (fun p =>

@@ -166,7 +166,7 @@ def properties {source : Document} (b : BoundDeclarations source) :
 -- [impl->req~compiler-behavioral-elaboration~1]
 def bindDeclarations (profile : String) (source : Document) :
     Except Diagnostic (BoundDeclarations source) := do
-  if profile != IR.BehavioralStructural.profile then
+  if !IR.BehavioralStructural.knownProfile profile then
     throw (errorAt ⟨"", ⟨source.file, 0, 0⟩, 1, 1, 1⟩ "behavioral.profile"
       "unsupported behavioral profile" .unsupported)
   let expanded ← expandAt (source.source.utf8ByteSize + 1) true source.elements

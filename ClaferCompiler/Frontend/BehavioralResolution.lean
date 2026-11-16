@@ -90,7 +90,7 @@ structure Elaborated (doc : Document) where
 /-- Explicit profile selection precedes all work. Parsing full behavioral syntax
 belongs to the behavioral frontend; this API accepts the authored declaration tree. -/
 def elaborate (selectedProfile : String) (doc : Document) : Except Diagnostic (Elaborated doc) := do
-  if selectedProfile != IR.BehavioralStructural.profile then
+  if !IR.BehavioralStructural.knownProfile selectedProfile then
     throw (errorAt (startToken doc) "behavioral.profile" "unsupported behavioral profile" .unsupported)
   let (raw, paths, groups, realized) ← prepareWith true doc
   let c ← (bindCandidate raw paths groups realized).mapError

@@ -346,6 +346,12 @@ theorem lowerStep_formula (c : Expressions.Context n) (a : IR.Behavioral.Express
         Encoding.weakUntil_built parent ha.truth.positive hd.truth.positive,
         Encoding.until_built parent hd.truth.negative (.binary .conj ha.truth.negative hd.truth.negative)⟩,
         Partial.totalAlways_built parent (.binary .conj ha.defined hd.defined)⟩))
+  | previous a => exact bind (ih.formula c a) (fun _ h => pure (Partial.previous_built parent h))
+  | weakPrevious a => exact bind (ih.formula c a) (fun _ h => pure (Partial.weakPrevious_built parent h))
+  | once a => exact bind (ih.formula c a) (fun _ h => pure (Partial.once_built parent h))
+  | historically a => exact bind (ih.formula c a) (fun _ h => pure (Partial.historically_built parent h))
+  | since a d => exact bind (ih.formula c a) (fun _ ha => bind (ih.formula c d) (fun _ hd => pure (Partial.since_built parent ha hd)))
+  | triggered a d => exact bind (ih.formula c a) (fun _ ha => bind (ih.formula c d) (fun _ hd => pure (Partial.triggered_built parent ha hd)))
   | initially a => exact bind (ih.formula c a) (fun _ h => pure
       ⟨⟨Encoding.initially_built present h.truth.raw, Encoding.initially_built present h.truth.positive,
         Encoding.initially_built present h.truth.negative⟩, Encoding.initially_built present h.defined⟩)

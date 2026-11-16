@@ -135,7 +135,7 @@ theorem validated_wellFormed (v : Validated n) : (interpret v.core).WellFormed :
 
 theorem validate_preserves (selected : String) (m : Core n) (k : Certificate n)
     (v : Validated n) (h : validate selected m k = .ok v) :
-    selected = profile ∧ v.core = m ∧ v.certificate = k := by
+    knownProfile selected = true ∧ v.core = m ∧ v.certificate = k := by
   unfold validate at h
   split at h
   · cases h

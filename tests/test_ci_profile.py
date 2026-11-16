@@ -142,7 +142,7 @@ class CIProfileTests(unittest.TestCase):
             names = [p.name for p in (ROOT/'tests').glob('test_*.py')]
             for name in names:
                 (root/'tests'/name).write_text(good)
-            references = ['test_pr113_oracles.py', 'test_temporal_oracles.py']
+            references = ['test_pr113_oracles.py', 'test_temporal_oracles.py', 'test_rich_reference.py']
             sources = ['test_behavioral_source_cli.py', 'test_behavioral_source_comparison.py']
             for name in references + sources:
                 (root/'tests'/name).write_text(bad)
@@ -152,7 +152,7 @@ class CIProfileTests(unittest.TestCase):
                     capture_output=True, text=True, timeout=15)
             compiler = run('--compiler-ci')
             self.assertEqual(compiler.returncode, 0, compiler.stdout+compiler.stderr)
-            self.assertEqual(compiler.stderr.count('test_ok ('), len(names)-4)
+            self.assertEqual(compiler.stderr.count('test_ok ('), len(names)-len(references)-len(sources))
             self.assertNotEqual(run().returncode, 0)
             self.assertNotEqual(run('--reference-ci').returncode, 0)
             self.assertNotEqual(run('--source-ci').returncode, 0)
@@ -162,7 +162,7 @@ class CIProfileTests(unittest.TestCase):
                 (root/'tests'/name).write_text(good)
             reference = run('--reference-ci')
             self.assertEqual(reference.returncode, 0, reference.stderr)
-            self.assertEqual(reference.stderr.count('test_ok ('), 2)
+            self.assertEqual(reference.stderr.count('test_ok ('), len(references))
             for name in sources:
                 (root/'tests'/name).write_text(good)
             source = run('--source-ci')

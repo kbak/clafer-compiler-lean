@@ -25,11 +25,19 @@ inductive Query where
   | check (assertion : Nat)
   | run (scenario : Scenario)
 
+-- [impl->req~compiler-past-operators~1]
+def selectedProfile (file text : String) : Except Diagnostic String := do
+  let n ← parse file text true
+  let p ← string (← field n "profile")
+  if !IR.BehavioralStructural.knownProfile p then
+    throw ({ bad n "unsupported behavioral profile" with code := "behavioral.profile", category := .unsupported })
+  return p
+
 -- [impl->req~compiler-behavioral-integration~1]
 def bounds (file text : String) : Except Diagnostic Full.Bounds := do
   let n ← parse file text true
   version n "version" "clafer-behavioral-bounds/2" "bounds.version"
-  version n "profile" IR.BehavioralStructural.profile "behavioral.profile"
+  let _ ← selectedProfile file text
   closed n ["version", "profile", "objects", "bitwidth", "declarations", "minSteps", "maxSteps", "integers"]
   let low ← natural (← field n "minSteps")
   let high ← natural (← field n "maxSteps")
@@ -56,7 +64,8 @@ def completeScopes (file : String) (v : IR.BehavioralStructural.Validated k)
       message := "each nonprimitive declaration ID requires exactly one scope" }
 
 -- [impl->req~compiler-behavioral-integration~1]
-def request (p : Frontend.Behavioral.ParsedModel) (query : Query) :
+def request (p : Frontend.Behavioral.ParsedModel) (query : Query)
+    (profile : String := IR.BehavioralStructural.profile) :
     Except Diagnostic (Full.Request p.elaborated.declarations.resolved.count) := do
   match query with
   | .model => return ⟨p.elaborated.model, .run []⟩
@@ -70,7 +79,7 @@ def request (p : Frontend.Behavioral.ParsedModel) (query : Query) :
         | none => throw {
             code := "behavioral.scenario-owner", phase := "elaboration"
             file := scenario.file, declaration := some id, message := "unknown scenario owner ID" }
-    let doc ← Frontend.Behavioral.parseBehavioral IR.BehavioralStructural.profile
+    let doc ← Frontend.Behavioral.parseBehavioral profile
       scenario.file scenario.text |>.mapError Diagnostic.ofSource
     p.elaborated.run [⟨owner, doc⟩] |>.mapError Diagnostic.ofSource
 
@@ -118,6 +127,7 @@ structure Product where
   mappings : List Text.Mapping
   inspected : Json
   compiled_checked : Behavioral.Full.compile request bounds fuel = .ok compiled
+  profile : String := IR.BehavioralStructural.profile
 
 def encodingDiagnostic (boundsFile : String) (e : IR.Structural.Diagnostic) : Diagnostic := {
   code := e.code, phase := "encoding", file := boundsFile, pointer := e.pointer
@@ -134,9 +144,10 @@ def bodyDiagnostic (source : String)
 -- [impl->req~compiler-behavioral-integration~1]
 def compile (file source boundsFile boundsText : String) (query : Query := .model)
     (objects bitwidth : Option Nat := none) : Except Diagnostic Product := do
-  let p ← Frontend.Behavioral.parseAndElaborate IR.BehavioralStructural.profile file source
+  let profile ← selectedProfile boundsFile boundsText
+  let p ← Frontend.Behavioral.parseAndElaborate profile file source
     |>.mapError Diagnostic.ofSource
-  let r ← request p query
+  let r ← request p query profile
   let b ← bounds boundsFile boundsText
   let b := { b with objects := objects.getD b.objects, bitwidth := bitwidth.getD b.bitwidth }
   completeScopes boundsFile r.model.structural b
@@ -157,7 +168,7 @@ def compile (file source boundsFile boundsText : String) (query : Query := .mode
   let rendered ← Temporal.Text.render out.val.module (names r.model.structural) |>.mapError fun _ =>
     { code := "compiler.render", phase := "serialization", category := .operational
       message := "generated temporal text failed checked reconstruction" : Diagnostic }
-  return ⟨p, r, b, fuel, out.val, rendered.text, rendered.mappings, encoded.json, out.property⟩
+  return ⟨p, r, b, fuel, out.val, rendered.text, rendered.mappings, encoded.json, out.property, profile⟩
 
 /-- Additive reporting API; the compiled product and its closed schema are unchanged. -/
 structure Report where
@@ -171,11 +182,11 @@ def compileReport (file source boundsFile boundsText : String) (query : Query :=
   let product ← compile file source boundsFile boundsText query objects bitwidth
   let scenarioWarnings ← match query with
     | .run s => do
-      let doc ← Frontend.Behavioral.parseBehavioral IR.BehavioralStructural.profile s.file s.text
+      let doc ← Frontend.Behavioral.parseBehavioral product.profile s.file s.text
         |>.mapError Diagnostic.ofSource
       pure (Frontend.Behavioral.Warnings.document doc)
     | _ => pure []
-  return ⟨product, Frontend.Behavioral.Warnings.document product.parsed.source ++ scenarioWarnings⟩
+  return ⟨product, product.parsed.warnings ++ scenarioWarnings⟩
 
 -- [impl->req~compiler-diagnostics~1]
 def warningJson (w : Frontend.Behavioral.Warning) : Json :=
@@ -205,7 +216,7 @@ def Product.json (p : Product) : Json :=
   let m := p.compiled.module.raw
   Json.mkObj [
     ("version", toJson "clafer-behavioral-compilation/2"),
-    ("profile", toJson IR.BehavioralStructural.profile), ("alloy", toJson p.text),
+    ("profile", toJson p.profile), ("alloy", toJson p.text),
     ("command", match p.request.command with
       | .run _ => Json.mkObj [("kind", toJson "run")]
       | .check i => Json.mkObj [("kind", toJson "check"), ("assertion", toJson i.val)]),

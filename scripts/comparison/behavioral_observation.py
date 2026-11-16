@@ -1,7 +1,7 @@
 """Supplementary finite source observations, independent of target lowering.
 
 Constructor equations follow the MIT source at clafer-semantics
-5182c8f5884eddfd8bff8a26b493a8550f0162b6: Denotation, PartialObservation,
+14e8f24bf983d4b331b7fe4ba10e2df0cf24047c: Denotation, PartialObservation,
 Lifetime, Modifiers and Structural. Copyright 2026 Kacper Bak.
 This Python adapter is tested, not kernel proved. The verified first-slice
 checker and full compiler preservation theorems retain their own boundaries.
@@ -35,6 +35,11 @@ class Observation:
         self.ids = {r['id']: r for r in candidate['identities']}
         self.frames, self.loop = candidate['frames'], candidate['loop']
         self.root = candidate['root']
+        # A uniform, compositional periodicity bound, not a search horizon.
+        # See docs/past.md. It includes temporal conditions inside values and
+        # bodies under frozen environments and changed attachment contexts.
+        self.period = len(self.frames) - self.loop
+        self.stable = self.periodic_from(compiled.get('resolved', {}))
         self.primitive = next(d['id'] for d in self.ds.values() if d['primitive'])
 
     def index(self, t):
@@ -43,14 +48,44 @@ class Observation:
     def frame(self, t):
         return self.frames[self.index(t)]
 
+    # [impl->req~compiler-past-operators~1]
+    def periodic_from(self, tree):
+        """Uniform prefix after which value AND definedness repeat each period.
+
+        Leaves repeat from loop; birth has one predecessor of memory. A past
+        accumulator over periodic inputs reaches a periodic fixed point after
+        at most one period: its Boolean period transfer is identity or constant.
+        Future operators preserve the prefix. All other constructors combine
+        child bounds by max, uniformly in fixed contexts/captured environments.
+        """
+        base = self.loop + 1
+        if isinstance(tree, dict):
+            return max([base, *(self.periodic_from(x) for x in tree.values())])
+        if not isinstance(tree, list):
+            return base
+        bound = max([base, *(self.periodic_from(x) for x in tree)])
+        tag = tree[0] if tree and isinstance(tree[0], str) else None
+        if tag in ('previous', 'weakPrevious'):
+            return bound + 1
+        if tag in ('once', 'historically', 'since', 'triggered'):
+            return bound + self.period
+        return bound
+
     def orbit(self, t):
-        # The first visit to a loop state has different birth history. Preserve
-        # the predecessor as well as the current stored frame before repeating.
+        # Only merge states once every inspected subexpression's history,
+        # including strict definedness, has reached its proved periodic suffix.
         seen, result = set(), []
-        while (key := (self.index(t), None if t == 0 else self.index(t-1))) not in seen:
+        while (key := (t if t < self.stable else self.stable + self.index(t))) not in seen:
             seen.add(key)
             result.append(t)
             t += 1
+        return result
+
+    def history(self, c, t):
+        result = []
+        for j in range(t, -1, -1):
+            if not self.parent_present(c, j): break
+            result.append(j)
         return result
 
     def ancestors(self, d):
@@ -225,6 +260,13 @@ class Observation:
             for j in self.active(c, t)[0]:
                 for a in args: self.defined(a, c, e, j)
             return
+        if tag in ('previous', 'weakPrevious'):
+            if t > 0 and self.parent_present(c, t-1): self.defined(args[0], c, e, t-1)
+            return
+        if tag in ('once', 'historically', 'since', 'triggered'):
+            for j in self.history(c, t):
+                for a in args: self.defined(a, c, e, j)
+            return
         if tag in ('initially', 'finally'):
             if (self.starts if tag == 'initially' else self.ends)(c, t): self.defined(args[0], c, e, t)
             return
@@ -272,6 +314,22 @@ class Observation:
             return ((value(a, False) or value(b, True)) and (value(a, True) or value(d, True)) if sign else
                     (value(a, True) and value(b, False)) or (value(a, False) and value(d, False)))
         if tag == 'next': return not self.parent_present(c, t+1) or value(args[0], j=t+1)
+        if tag in ('previous', 'weakPrevious'):
+            available = t > 0 and self.parent_present(c, t-1)
+            weak = (tag == 'weakPrevious') != (sign is False)
+            return value(args[0], j=t-1) if available else weak
+        if tag in ('once', 'historically'):
+            xs = [value(args[0], j=j) for j in self.history(c, t)]
+            return all(xs) if (tag == 'historically') != (sign is False) else any(xs)
+        if tag in ('since', 'triggered'):
+            dual = (tag == 'triggered') != (sign is False)
+            prefix = True
+            for j in self.history(c, t):
+                left, right = [value(a, j=j) for a in args]
+                if dual: left, right = not left, not right
+                if prefix and right: return not dual
+                prefix = prefix and left
+            return dual
         if tag in ('initially', 'finally'):
             active = (self.starts if tag == 'initially' else self.ends)(c, t)
             return not active or value(args[0])

@@ -437,6 +437,12 @@ theorem lowerStep_formula (c : Expressions.Context n) (a : IR.Behavioral.Express
       (fun _ hd => pure (partial_strongUntil parent ha hd)))
   | weakUntil a d => exact bind (ih.formula c a) (fun _ ha => bind (ih.formula c d)
       (fun _ hd => pure (partial_weakUntil parent ha hd)))
+  | previous a => exact bind (ih.formula c a) (fun _ h => pure (partial_previous parent h))
+  | weakPrevious a => exact bind (ih.formula c a) (fun _ h => pure (partial_weakPrevious parent h))
+  | once a => exact bind (ih.formula c a) (fun _ h => pure (partial_once parent h))
+  | historically a => exact bind (ih.formula c a) (fun _ h => pure (partial_historically parent h))
+  | since a d => exact bind (ih.formula c a) (fun _ ha => bind (ih.formula c d) (fun _ hd => pure (partial_since parent ha hd)))
+  | triggered a d => exact bind (ih.formula c a) (fun _ ha => bind (ih.formula c d) (fun _ hd => pure (partial_triggered parent ha hd)))
   | initially a => exact bind (ih.formula c a) (fun _ h => pure (partial_initially present h))
   | «finally» a => exact bind (ih.formula c a) (fun _ h => pure (partial_finally present h))
   | quant q domain body =>

@@ -50,6 +50,12 @@ inductive FormulaF (A D : Nat → Type) : Nat → Type where
   | always (a : FormulaF A D n) : FormulaF A D n
   | strongUntil (a b : FormulaF A D n) : FormulaF A D n
   | weakUntil (a b : FormulaF A D n) : FormulaF A D n
+  | previous (a : FormulaF A D n) : FormulaF A D n
+  | weakPrevious (a : FormulaF A D n) : FormulaF A D n
+  | once (a : FormulaF A D n) : FormulaF A D n
+  | historically (a : FormulaF A D n) : FormulaF A D n
+  | since (a b : FormulaF A D n) : FormulaF A D n
+  | triggered (a b : FormulaF A D n) : FormulaF A D n
   | initially (a : FormulaF A D n) : FormulaF A D n
   | finally (a : FormulaF A D n) : FormulaF A D n
   | quant (q : Quantifier) (domain : D n) (body : FormulaF A D (n + 1)) : FormulaF A D n
@@ -89,6 +95,14 @@ def FormulaF.normalizeStep {A D : Nat → Type} [∀ n, SizeOf (A n)] [∀ n, Si
           else .weakUntil (next b (by simp_all; omega) false) (.and (next a (by simp_all; omega) false) (next b (by simp_all; omega) false))
       | .weakUntil a b => fun _h s => if s then .weakUntil (next a (by simp_all; omega) true) (next b (by simp_all; omega) true)
           else .strongUntil (next b (by simp_all; omega) false) (.and (next a (by simp_all; omega) false) (next b (by simp_all; omega) false))
+      | .previous a => fun _h s => if s then .previous (next a (by simp_all; omega) true) else .weakPrevious (next a (by simp_all; omega) false)
+      | .weakPrevious a => fun _h s => if s then .weakPrevious (next a (by simp_all; omega) true) else .previous (next a (by simp_all; omega) false)
+      | .once a => fun _h s => if s then .once (next a (by simp_all; omega) true) else .historically (next a (by simp_all; omega) false)
+      | .historically a => fun _h s => if s then .historically (next a (by simp_all; omega) true) else .once (next a (by simp_all; omega) false)
+      | .since a b => fun _h s => if s then .since (next a (by simp_all; omega) true) (next b (by simp_all; omega) true)
+          else .triggered (next a (by simp_all; omega) false) (next b (by simp_all; omega) false)
+      | .triggered a b => fun _h s => if s then .triggered (next a (by simp_all; omega) true) (next b (by simp_all; omega) true)
+          else .since (next a (by simp_all; omega) false) (next b (by simp_all; omega) false)
       | .initially a => fun _h s => .initially (next a (by simp_all; omega) s)
       | .finally a => fun _h s => .finally (next a (by simp_all; omega) s)
       | .quant .all d a => fun _h s => if s then .quant .all d (next a (by simp_all; omega) true)

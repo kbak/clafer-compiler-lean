@@ -13,7 +13,7 @@ def excluded (text : String) : Bool :=
    "[alloy|", "[choco|", "<<", ">>", "\\", "\""].contains text
 
 def binaryPower : String → Option Nat
-  | "U" | "until" => some 8 | "W" | "weakuntil" => some 9
+  | "U" | "until" | "since" => some 8 | "W" | "weakuntil" | "triggered" => some 9
   | "*" | "/" | "%" => some 18 | "<:" => some 21 | ":>" => some 22
   | "," => some 23 | "&" => some 26
   | t => Frontend.binaryPower t
@@ -24,7 +24,7 @@ def expressionPower : Expr → Nat
   | .transition .. => 0
   | .unary t _ _ =>
     if ["initially", "finally"].contains t.text then 2
-    else if ["X", "next", "F", "eventually", "G", "globally"].contains t.text then 10
+    else if ["X", "next", "F", "eventually", "G", "globally", "previous", "once", "historically"].contains t.text then 10
     else if t.text == "!" then 11
     else if ["max", "min"].contains t.text then 19
     else if ["#", "-", "sum", "product"].contains t.text then 20 else 16
@@ -142,7 +142,7 @@ def expressionStep (previous : Parsers) (minimum : Nat) : P Expr := do
         pure (.unary t body (extent t.span body.span))
     else if let some (power, bodyPower) :=
       if ["initially", "finally"].contains t.text then some (2, 3)
-      else if ["X", "next", "F", "eventually", "G", "globally"].contains t.text then some (10, 10)
+      else if ["X", "next", "F", "eventually", "G", "globally", "previous", "once", "historically"].contains t.text then some (10, 10)
       else if t.text == "!" then some (11, 11)
       else if ["max", "min"].contains t.text then some (19, 20)
       else if ["-", "#", "sum", "product"].contains t.text then some (20, 21)
@@ -280,9 +280,13 @@ def parserStep (previous : Parsers) : Parsers :=
 -- [impl->req~compiler-behavioral-frontend~1]
 -- [impl->req~compiler-diagnostics~1]
 def parseBehavioral (profile file source : String) : Except Diagnostic Document := do
-  if profile != IR.BehavioralStructural.profile then
+  if !IR.BehavioralStructural.knownProfile profile then
     throw (lexError file 0 0 1 1 .unsupported "behavioral.profile" "unsupported behavioral profile")
   let tokens ← lexWith excluded file source
+  if profile == IR.BehavioralStructural.profile then
+    if let some token := tokens.find? (fun t => ["previous", "once", "historically", "since", "triggered"].contains t.text) then
+      throw (lexError file token.span.startByte token.span.endByte token.line token.column
+        .unsupported "behavioral.past-profile" "Past operators require behavioral-rich-core/1.")
   let eof : Token := tokens.back?.getD ⟨"", ⟨file, source.utf8ByteSize, source.utf8ByteSize⟩, 1, 1, 1⟩
   let action : P (List Element) := do
     let grammar := Nat.repeat parserStep (4 * tokens.size + 4) parserBase

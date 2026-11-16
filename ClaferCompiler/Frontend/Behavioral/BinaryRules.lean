@@ -20,6 +20,8 @@ def booleanBinary (op : String) (a b : Expression.Formula k n) : Option (Express
   | "xor" => some (.xor a b)
   | "U" | "until" => some (.strongUntil a b)
   | "W" | "weakuntil" => some (.weakUntil a b)
+  | "since" => some (.since a b)
+  | "triggered" => some (.triggered a b)
   | _ => none
 
 def integerBinary (op : String) (a b : Expression.Integer k n) : Option (Value k n) :=
@@ -204,6 +206,16 @@ theorem binary_sound {a b c : Value k n} (h : Values.binary v op a b = .ok c) : 
     simp [Values.binary, bind_success, pure, Except.pure] at h
     rcases h with ⟨x, hx, y, hy, rfl⟩
     exact .boolean (boolean_sound hx) (boolean_sound hy) rfl
+  by_cases hsince : op = "since"
+  · subst op
+    simp [Values.binary, bind_success, pure, Except.pure] at h
+    rcases h with ⟨x, hx, y, hy, rfl⟩
+    exact .boolean (boolean_sound hx) (boolean_sound hy) rfl
+  by_cases htriggered : op = "triggered"
+  · subst op
+    simp [Values.binary, bind_success, pure, Except.pure] at h
+    rcases h with ⟨x, hx, y, hy, rfl⟩
+    exact .boolean (boolean_sound hx) (boolean_sound hy) rfl
   by_cases hop9 : op = "+"
   · subst op
     simp [Values.binary, bind_success, pure, Except.pure] at h
@@ -328,6 +340,6 @@ theorem binary_sound {a b c : Value k n} (h : Values.binary v op a b = .ok c) : 
   · subst op
     simp [Values.binary] at h
     exact compare_sound (by simp) h
-  simp [Values.binary, hop0, hop1, hop2, hop3, hop4, hop5, hop6, hop7, hop8, hop9, hop10, hop11, hop12, hop13, hop14, hop15, hop16, hop17, hop18, hop19, hop20, hop21, hop22, hop23, hop24, hop25, hop26, hop27, hop28] at h
+  simp [Values.binary, hop0, hop1, hop2, hop3, hop4, hop5, hop6, hop7, hop8, hsince, htriggered, hop9, hop10, hop11, hop12, hop13, hop14, hop15, hop16, hop17, hop18, hop19, hop20, hop21, hop22, hop23, hop24, hop25, hop26, hop27, hop28] at h
 
 end ClaferCompiler.Frontend.Behavioral.ValueRules

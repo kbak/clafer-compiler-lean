@@ -162,6 +162,174 @@ theorem weakUntil (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
       exact (holds_and hx.truth.negative hy.truth.negative).trans
         (and_congr ((ha j).negative (hd j hj ht).1) ((hb j).negative (hd j hj ht).2))
 
+-- [proof->req~compiler-past-operators~1]
+theorem previous (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.previous a) (previous p x) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.previous_built hp (ha t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.previous_domain hp (ha t).built, he]
+    cases t with
+    | zero => rfl
+    | succ j => exact imp_congr_right (fun _ => (ha j).defined)
+  · intro hd
+    change (Backend.Alloy.Behavioral.previous p x.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.previous_meaning s w τ e p x.truth.raw hp (ha t).built.truth.raw t, he]
+    apply Clafer.Behavioral.Lifetime.previous_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).raw (hd live)
+  · intro hd
+    change (Backend.Alloy.Behavioral.previous p x.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.previous_meaning s w τ e p x.truth.positive hp (ha t).built.truth.positive t, he]
+    apply Clafer.Behavioral.Lifetime.previous_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).positive (hd live)
+  · intro hd
+    change (Backend.Alloy.Behavioral.weakPrevious p x.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.weakPrevious_meaning s w τ e p x.truth.negative hp (ha t).built.truth.negative t, he]
+    apply Clafer.Behavioral.Lifetime.weakPrevious_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).negative (hd live)
+
+-- [proof->req~compiler-past-operators~1]
+theorem weakPrevious (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.weakPrevious a) (weakPrevious p x) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.weakPrevious_built hp (ha t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.weakPrevious_domain hp (ha t).built, he]
+    cases t with
+    | zero => rfl
+    | succ j => exact imp_congr_right (fun _ => (ha j).defined)
+  · intro hd
+    change (Backend.Alloy.Behavioral.weakPrevious p x.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.weakPrevious_meaning s w τ e p x.truth.raw hp (ha t).built.truth.raw t, he]
+    apply Clafer.Behavioral.Lifetime.weakPrevious_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).raw (hd live)
+  · intro hd
+    change (Backend.Alloy.Behavioral.weakPrevious p x.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.weakPrevious_meaning s w τ e p x.truth.positive hp (ha t).built.truth.positive t, he]
+    apply Clafer.Behavioral.Lifetime.weakPrevious_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).positive (hd live)
+  · intro hd
+    change (Backend.Alloy.Behavioral.previous p x.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.previous_meaning s w τ e p x.truth.negative hp (ha t).built.truth.negative t, he]
+    apply Clafer.Behavioral.Lifetime.previous_congr
+    cases t with
+    | zero => trivial
+    | succ j => exact fun live => (ha j).negative (hd live)
+
+-- [proof->req~compiler-past-operators~1]
+theorem once (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.once a) (once p x) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.once_built hp (ha t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.once_domain hp (ha t).built, he]
+    exact forall_congr' (fun j => imp_congr_right (fun _ => imp_congr_right (fun _ => (ha j).defined)))
+  · intro hd
+    change (Backend.Alloy.Behavioral.once p x.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.once_meaning s w τ e p x.truth.raw hp (ha t).built.truth.raw t, he]
+    exact Clafer.Behavioral.Lifetime.once_congr (fun j hj live => (ha j).raw (hd j hj live))
+  · intro hd
+    change (Backend.Alloy.Behavioral.once p x.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.once_meaning s w τ e p x.truth.positive hp (ha t).built.truth.positive t, he]
+    exact Clafer.Behavioral.Lifetime.once_congr (fun j hj live => (ha j).positive (hd j hj live))
+  · intro hd
+    change (Backend.Alloy.Behavioral.historically p x.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.historically_meaning s w τ e p x.truth.negative hp (ha t).built.truth.negative t, he]
+    exact Clafer.Behavioral.Lifetime.historically_congr (fun j hj live => (ha j).negative (hd j hj live))
+
+-- [proof->req~compiler-past-operators~1]
+theorem historically (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.historically a) (historically p x) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.historically_built hp (ha t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.historically_domain hp (ha t).built, he]
+    exact forall_congr' (fun j => imp_congr_right (fun _ => imp_congr_right (fun _ => (ha j).defined)))
+  · intro hd
+    change (Backend.Alloy.Behavioral.historically p x.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.historically_meaning s w τ e p x.truth.raw hp (ha t).built.truth.raw t, he]
+    exact Clafer.Behavioral.Lifetime.historically_congr (fun j hj live => (ha j).raw (hd j hj live))
+  · intro hd
+    change (Backend.Alloy.Behavioral.historically p x.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.historically_meaning s w τ e p x.truth.positive hp (ha t).built.truth.positive t, he]
+    exact Clafer.Behavioral.Lifetime.historically_congr (fun j hj live => (ha j).positive (hd j hj live))
+  · intro hd
+    change (Backend.Alloy.Behavioral.once p x.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.once_meaning s w τ e p x.truth.negative hp (ha t).built.truth.negative t, he]
+    exact Clafer.Behavioral.Lifetime.once_congr (fun j hj live => (ha j).negative (hd j hj live))
+
+-- [proof->req~compiler-past-operators~1]
+theorem since (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hb : ∀ j, FormulaObservation s w τ e j σ O ρ b y)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.since a b) (since p x y) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.since_built hp (ha t).built (hb t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.since_domain hp (ha t).built (hb t).built, he]
+    exact forall_congr' (fun j => imp_congr_right (fun _ => imp_congr_right (fun _ => and_congr (ha j).defined (hb j).defined)))
+  · intro hd
+    change (Backend.Alloy.Behavioral.since p x.truth.raw y.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.since_meaning s w τ e p x.truth.raw y.truth.raw hp (ha t).built.truth.raw (hb t).built.truth.raw t, he]
+    exact Clafer.Behavioral.Lifetime.since_congr
+      (fun j hj live => (ha j).raw (hd j hj live).1)
+      (fun j hj live => (hb j).raw (hd j hj live).2)
+  · intro hd
+    change (Backend.Alloy.Behavioral.since p x.truth.positive y.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.since_meaning s w τ e p x.truth.positive y.truth.positive hp (ha t).built.truth.positive (hb t).built.truth.positive t, he]
+    exact Clafer.Behavioral.Lifetime.since_congr
+      (fun j hj live => (ha j).positive (hd j hj live).1)
+      (fun j hj live => (hb j).positive (hd j hj live).2)
+  · intro hd
+    change (Backend.Alloy.Behavioral.triggered p x.truth.negative y.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.triggered_meaning s w τ e p x.truth.negative y.truth.negative hp (ha t).built.truth.negative (hb t).built.truth.negative t, he]
+    exact Clafer.Behavioral.Lifetime.triggered_congr
+      (fun j hj live => (ha j).negative (hd j hj live).1)
+      (fun j hj live => (hb j).negative (hd j hj live).2)
+
+-- [proof->req~compiler-past-operators~1]
+theorem triggered (ha : ∀ j, FormulaObservation s w τ e j σ O ρ a x)
+    (hb : ∀ j, FormulaObservation s w τ e j σ O ρ b y)
+    (hp : p.Built) (parent : ∀ j, p.Holds s w τ e j ↔ σ.ParentPresent ρ.this j) :
+    FormulaObservation s w τ e t σ O ρ (.triggered a b) (triggered p x y) := by
+  have he : (fun j => p.Holds s w τ e j) = σ.ParentPresent ρ.this :=
+    funext (fun j => propext (parent j))
+  refine ⟨Partial.triggered_built hp (ha t).built (hb t).built, ?_, ?_, ?_, ?_⟩
+  · rw [Partial.triggered_domain hp (ha t).built (hb t).built, he]
+    exact forall_congr' (fun j => imp_congr_right (fun _ => imp_congr_right (fun _ => and_congr (ha j).defined (hb j).defined)))
+  · intro hd
+    change (Backend.Alloy.Behavioral.triggered p x.truth.raw y.truth.raw).Holds s w τ e t ↔ _
+    rw [Encoding.triggered_meaning s w τ e p x.truth.raw y.truth.raw hp (ha t).built.truth.raw (hb t).built.truth.raw t, he]
+    exact Clafer.Behavioral.Lifetime.triggered_congr
+      (fun j hj live => (ha j).raw (hd j hj live).1)
+      (fun j hj live => (hb j).raw (hd j hj live).2)
+  · intro hd
+    change (Backend.Alloy.Behavioral.triggered p x.truth.positive y.truth.positive).Holds s w τ e t ↔ _
+    rw [Encoding.triggered_meaning s w τ e p x.truth.positive y.truth.positive hp (ha t).built.truth.positive (hb t).built.truth.positive t, he]
+    exact Clafer.Behavioral.Lifetime.triggered_congr
+      (fun j hj live => (ha j).positive (hd j hj live).1)
+      (fun j hj live => (hb j).positive (hd j hj live).2)
+  · intro hd
+    change (Backend.Alloy.Behavioral.since p x.truth.negative y.truth.negative).Holds s w τ e t ↔ _
+    rw [Encoding.since_meaning s w τ e p x.truth.negative y.truth.negative hp (ha t).built.truth.negative (hb t).built.truth.negative t, he]
+    exact Clafer.Behavioral.Lifetime.since_congr
+      (fun j hj live => (ha j).negative (hd j hj live).1)
+      (fun j hj live => (hb j).negative (hd j hj live).2)
+
 -- [proof->req~compiler-behavioral-partial-lowering~1]
 theorem initially (ha : FormulaObservation s w τ e t σ O ρ a x)
     (hp : p.Built) (present : ∀ j, p.Holds s w τ e j ↔ ρ.this ∈ σ.live j) :

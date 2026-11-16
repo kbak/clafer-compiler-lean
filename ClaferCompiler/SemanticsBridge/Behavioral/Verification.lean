@@ -39,10 +39,10 @@ def toSet {k n} (a : SetExpr k n) : U.SetExpr (Fin k) n :=
     (fun a go => match a with
       | .empty => .empty | .this => .this | .root => .root
       | .var v => .var v | .extent d => .extent d
-      | .union a b => .union (go a (by change sizeOf _ < sizeOf _; simp; omega)) (go b (by change sizeOf _ < sizeOf _; simp; omega))
-      | .inter a b => .inter (go a (by change sizeOf _ < sizeOf _; simp; omega)) (go b (by change sizeOf _ < sizeOf _; simp; omega))
-      | .diff a b => .diff (go a (by change sizeOf _ < sizeOf _; simp; omega)) (go b (by change sizeOf _ < sizeOf _; simp; omega))
-      | .step s a => .step (toStep s) (go a (by change sizeOf _ < sizeOf _; simp; omega))
+      | .union a b => .union (go a (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.union.sizeOf_spec]; omega)) (go b (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.union.sizeOf_spec]; omega))
+      | .inter a b => .inter (go a (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.inter.sizeOf_spec]; omega)) (go b (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.inter.sizeOf_spec]; omega))
+      | .diff a b => .diff (go a (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.diff.sizeOf_spec]; omega)) (go b (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.diff.sizeOf_spec]; omega))
+      | .step s a => .step (toStep s) (go a (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.SetExpr.step.sizeOf_spec]; omega))
       | .thisStep s => .thisStep (toStep s)) a
 
 theorem toSet_unfold (a : SetExpr k n) : toSet a = toSetStep toSet a := by
@@ -82,6 +82,12 @@ def lowerStep (go : {n : Nat} → Formula k n → SourceCore k n)
       | .always a => .weakUntil (.and (.atom .parentPresent) (go a)) (.not (.atom .parentPresent))
       | .strongUntil a b => .strongUntil (.and (.atom .parentPresent) (go a)) (.or (.not (.atom .parentPresent)) (go b))
       | .weakUntil a b => .or (.weakUntil (.and (.atom .parentPresent) (go a)) (.not (.atom .parentPresent))) (.strongUntil (.and (.atom .parentPresent) (go a)) (.or (.not (.atom .parentPresent)) (go b)))
+      | .previous a => .previous (.and (.atom .parentPresent) (go a))
+      | .weakPrevious a => .not (.previous (.and (.atom .parentPresent) (.not (go a))))
+      | .once a => .since (.atom .parentPresent) (.and (.atom .parentPresent) (go a))
+      | .historically a => .not (.since (.atom .parentPresent) (.and (.atom .parentPresent) (.not (go a))))
+      | .since a b => .since (.and (.atom .parentPresent) (go a)) (.and (.atom .parentPresent) (go b))
+      | .triggered a b => .not (.since (.and (.atom .parentPresent) (.not (go a))) (.and (.atom .parentPresent) (.not (go b))))
       | .initially a => .or (.not (.atom .starts)) (go a)
       | .finally a => .or (.not (.atom .ends)) (go a)
       | .quant q d a => .quant (toQuantifier q) (toSet d) (go a)
@@ -95,22 +101,28 @@ def lower {k n} (a : Formula k n) : SourceCore k n :=
     (fun p go => match p with
       | ⟨_, .truth⟩ => .truth
       | ⟨_, .atom a⟩ => .atom (.source (toAtom a))
-      | ⟨_, .not a⟩ => .not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .and a b⟩ => .and (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .or a b⟩ => .or (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .implies a b⟩ => .or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .iff a b⟩ => .and (.or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.or (.not (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega)))
-      | ⟨_, .xor a b⟩ => .not (.and (.or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.or (.not (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))))
-      | ⟨_, .ite c a b⟩ => .and (.or (.not (go ⟨_, c⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.or (.not (.not (go ⟨_, c⟩ (by change sizeOf _ < sizeOf _; simp; omega)))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega)))
-      | ⟨_, .next a⟩ => .next (.or (.not (.atom .parentPresent)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega)))
-      | ⟨_, .eventually a⟩ => .eventually (.or (.not (.atom .parentPresent)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega)))
-      | ⟨_, .always a⟩ => .weakUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.not (.atom .parentPresent))
-      | ⟨_, .strongUntil a b⟩ => .strongUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.or (.not (.atom .parentPresent)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega)))
-      | ⟨_, .weakUntil a b⟩ => .or (.weakUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.not (.atom .parentPresent))) (.strongUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) (.or (.not (.atom .parentPresent)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp; omega))))
-      | ⟨_, .initially a⟩ => .or (.not (.atom .starts)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .finally a⟩ => .or (.not (.atom .ends)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .quant q d a⟩ => .quant (toQuantifier q) (toSet d) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))
-      | ⟨_, .letSet d a⟩ => .letSet (toSet d) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp; omega))) ⟨n, a⟩
+      | ⟨_, .not a⟩ => .not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.not.sizeOf_spec]; omega))
+      | ⟨_, .and a b⟩ => .and (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.and.sizeOf_spec]; omega)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.and.sizeOf_spec]; omega))
+      | ⟨_, .or a b⟩ => .or (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.or.sizeOf_spec]; omega)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.or.sizeOf_spec]; omega))
+      | ⟨_, .implies a b⟩ => .or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.implies.sizeOf_spec]; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.implies.sizeOf_spec]; omega))
+      | ⟨_, .iff a b⟩ => .and (.or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec]; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec]; omega))) (.or (.not (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec]; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.iff.sizeOf_spec]; omega)))
+      | ⟨_, .xor a b⟩ => .not (.and (.or (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec]; omega))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec]; omega))) (.or (.not (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec]; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.xor.sizeOf_spec]; omega))))
+      | ⟨_, .ite c a b⟩ => .and (.or (.not (go ⟨_, c⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec]; omega))) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec]; omega))) (.or (.not (.not (go ⟨_, c⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec]; omega)))) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.ite.sizeOf_spec]; omega)))
+      | ⟨_, .next a⟩ => .next (.or (.not (.atom .parentPresent)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.next.sizeOf_spec]; omega)))
+      | ⟨_, .eventually a⟩ => .eventually (.or (.not (.atom .parentPresent)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.eventually.sizeOf_spec]; omega)))
+      | ⟨_, .always a⟩ => .weakUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.always.sizeOf_spec]; omega))) (.not (.atom .parentPresent))
+      | ⟨_, .strongUntil a b⟩ => .strongUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.strongUntil.sizeOf_spec]; omega))) (.or (.not (.atom .parentPresent)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.strongUntil.sizeOf_spec]; omega)))
+      | ⟨_, .weakUntil a b⟩ => .or (.weakUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.weakUntil.sizeOf_spec]; omega))) (.not (.atom .parentPresent))) (.strongUntil (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.weakUntil.sizeOf_spec]; omega))) (.or (.not (.atom .parentPresent)) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.weakUntil.sizeOf_spec]; omega))))
+      | ⟨_, .previous a⟩ => .previous (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.previous.sizeOf_spec]; omega)))
+      | ⟨_, .weakPrevious a⟩ => .not (.previous (.and (.atom .parentPresent) (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.weakPrevious.sizeOf_spec]; omega)))))
+      | ⟨_, .once a⟩ => .since (.atom .parentPresent) (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.once.sizeOf_spec]; omega)))
+      | ⟨_, .historically a⟩ => .not (.since (.atom .parentPresent) (.and (.atom .parentPresent) (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.historically.sizeOf_spec]; omega)))))
+      | ⟨_, .since a b⟩ => .since (.and (.atom .parentPresent) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.since.sizeOf_spec]; omega))) (.and (.atom .parentPresent) (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.since.sizeOf_spec]; omega)))
+      | ⟨_, .triggered a b⟩ => .not (.since (.and (.atom .parentPresent) (.not (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.triggered.sizeOf_spec]; omega)))) (.and (.atom .parentPresent) (.not (go ⟨_, b⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.triggered.sizeOf_spec]; omega)))))
+      | ⟨_, .initially a⟩ => .or (.not (.atom .starts)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.initially.sizeOf_spec]; omega))
+      | ⟨_, .finally a⟩ => .or (.not (.atom .ends)) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.finally.sizeOf_spec]; omega))
+      | ⟨_, .quant q d a⟩ => .quant (toQuantifier q) (toSet d) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.quant.sizeOf_spec]; omega))
+      | ⟨_, .letSet d a⟩ => .letSet (toSet d) (go ⟨_, a⟩ (by change sizeOf _ < sizeOf _; simp only [IR.Behavioral.FormulaF.letSet.sizeOf_spec]; omega))) ⟨n, a⟩
 
 theorem lower_unfold (a : Formula k n) : lower a = lowerStep lower a := by
   unfold lower

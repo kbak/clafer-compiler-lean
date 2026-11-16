@@ -9,6 +9,12 @@ open Structural
 -- [impl->req~compiler-behavioral-structural-bridge~1]
 def profile : String := "behavioral-0.5.8/v2"
 
+/-- Explicit selection of the rich/core and past extension; the qualified
+0.5.8 profile remains separately selectable. -/
+def richProfile : String := "behavioral-rich-core/1"
+
+def knownProfile (selected : String) : Bool := selected == profile || selected == richProfile
+
 /-- Declared references stay declared: inherited references are views of their
 original owner. Authored abstractness and group provenance are retained separately. -/
 structure Core (n : Nat) where
@@ -100,7 +106,7 @@ def childDeclarations (v : Validated n) (d : Fin n) : List (Fin n) :=
 
 def validate (selectedProfile : String) (m : Core n) (k : Certificate n) :
     Except Diagnostic (Validated n) :=
-  if selectedProfile ≠ profile then
+  if !knownProfile selectedProfile then
     .error ⟨.unsupported, "behavioral.profile", "", none⟩
   else if hs : supported m then
     let a := analyze m

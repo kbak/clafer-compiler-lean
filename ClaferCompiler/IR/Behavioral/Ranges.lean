@@ -223,6 +223,26 @@ def analyzeStep (b : Inputs k) (next : Pass b) : Pass b where
     | always a => exact do
         let a ← next.formula a Γ
         return ⟨.always a.property⟩
+    | previous a => exact do
+        let a ← next.formula a Γ
+        return ⟨.previous a.property⟩
+    | weakPrevious a => exact do
+        let a ← next.formula a Γ
+        return ⟨.weakPrevious a.property⟩
+    | once a => exact do
+        let a ← next.formula a Γ
+        return ⟨.once a.property⟩
+    | historically a => exact do
+        let a ← next.formula a Γ
+        return ⟨.historically a.property⟩
+    | since a c => exact do
+        let a ← next.formula a Γ
+        let c ← next.formula c Γ
+        return ⟨.since a.property c.property⟩
+    | triggered a c => exact do
+        let a ← next.formula a Γ
+        let c ← next.formula c Γ
+        return ⟨.triggered a.property c.property⟩
     | initially a => exact do
         let a ← next.formula a Γ
         return ⟨.initially a.property⟩

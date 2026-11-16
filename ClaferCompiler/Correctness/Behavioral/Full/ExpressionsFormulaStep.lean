@@ -73,6 +73,86 @@ theorem formulaStep (model : ModelRows v b s τ σ labels)
         subst result
         exact FormulaObservation.always (fun j => ih.formula hc j a body bound hs)
           Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | previous a =>
+    cases bound with
+    | previous bound =>
+      change (do let body ← next.formula c a; pure (Backend.Alloy.Behavioral.Partial.previous (parentPresent v c) body)) = .ok result at success
+      cases hs : next.formula c a with
+      | error error => rw [hs] at success; contradiction
+      | ok body =>
+        rw [hs] at success
+        have same := Except.ok.inj success
+        subst result
+        exact FormulaObservation.previous (fun j => ih.formula hc j a body bound hs)
+          Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | weakPrevious a =>
+    cases bound with
+    | weakPrevious bound =>
+      change (do let body ← next.formula c a; pure (Backend.Alloy.Behavioral.Partial.weakPrevious (parentPresent v c) body)) = .ok result at success
+      cases hs : next.formula c a with
+      | error error => rw [hs] at success; contradiction
+      | ok body =>
+        rw [hs] at success
+        have same := Except.ok.inj success
+        subst result
+        exact FormulaObservation.weakPrevious (fun j => ih.formula hc j a body bound hs)
+          Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | once a =>
+    cases bound with
+    | once bound =>
+      change (do let body ← next.formula c a; pure (Backend.Alloy.Behavioral.Partial.once (parentPresent v c) body)) = .ok result at success
+      cases hs : next.formula c a with
+      | error error => rw [hs] at success; contradiction
+      | ok body =>
+        rw [hs] at success
+        have same := Except.ok.inj success
+        subst result
+        exact FormulaObservation.once (fun j => ih.formula hc j a body bound hs)
+          Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | historically a =>
+    cases bound with
+    | historically bound =>
+      change (do let body ← next.formula c a; pure (Backend.Alloy.Behavioral.Partial.historically (parentPresent v c) body)) = .ok result at success
+      cases hs : next.formula c a with
+      | error error => rw [hs] at success; contradiction
+      | ok body =>
+        rw [hs] at success
+        have same := Except.ok.inj success
+        subst result
+        exact FormulaObservation.historically (fun j => ih.formula hc j a body bound hs)
+          Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | since a d =>
+    cases bound with
+    | since left right =>
+      change (do let x ← next.formula c a; let y ← next.formula c d; pure (Backend.Alloy.Behavioral.Partial.since (parentPresent v c) x y)) = .ok result at success
+      cases hx : next.formula c a with
+      | error error => rw [hx] at success; contradiction
+      | ok x =>
+        cases hy : next.formula c d with
+        | error error => rw [hx, hy] at success; contradiction
+        | ok y =>
+          rw [hx, hy] at success
+          have same := Except.ok.inj success
+          subst result
+          exact FormulaObservation.since (fun j => ih.formula hc j a x left hx)
+            (fun j => ih.formula hc j d y right hy)
+            Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
+  | triggered a d =>
+    cases bound with
+    | triggered left right =>
+      change (do let x ← next.formula c a; let y ← next.formula c d; pure (Backend.Alloy.Behavioral.Partial.triggered (parentPresent v c) x y)) = .ok result at success
+      cases hx : next.formula c a with
+      | error error => rw [hx] at success; contradiction
+      | ok x =>
+        cases hy : next.formula c d with
+        | error error => rw [hx, hy] at success; contradiction
+        | ok y =>
+          rw [hx, hy] at success
+          have same := Except.ok.inj success
+          subst result
+          exact FormulaObservation.triggered (fun j => ih.formula hc j a x left hx)
+            (fun j => ih.formula hc j d y right hy)
+            Sets.parentPresent_built (Sets.parentPresent_meaning model.primitive hc.context)
   | initially a =>
     cases bound with
     | initially bound =>

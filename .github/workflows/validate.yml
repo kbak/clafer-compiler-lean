@@ -286,6 +286,11 @@ jobs:
           python3 scripts/oracles/pr113.py prepare --candidate 0.5.8 --static-tools "$RUNNER_TEMP/oracle-tools/tools.json" \
             --build-cache "$CLAFER_058_CACHE" "$RUNNER_TEMP/clafer-058-tools" 2>&1 | tee "$RUNNER_TEMP/clafer-058-setup.log"
           echo "CLAFER_058_TOOLS=$RUNNER_TEMP/clafer-058-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Prepare rich/core candidate tools
+        if: inputs.profile != 'routine'
+        run: |
+          python3 scripts/oracles/rich.py --build-cache "$RUNNER_TEMP/clafer-rich-build" "$RUNNER_TEMP/clafer-rich-tools"
+          echo "CLAFER_RICH_TOOLS=$RUNNER_TEMP/clafer-rich-tools/tools.json" >> "$GITHUB_ENV"
       - name: Save verified 0.5.8 exporter and sources
         if: (inputs.profile != 'routine') && steps.clafer058.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

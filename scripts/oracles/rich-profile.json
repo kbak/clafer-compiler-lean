@@ -1,0 +1,44 @@
+{
+  "alloy_jar_sha256": "6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d",
+  "alloy_version": "6.2.0",
+  "bounds": {
+    "bitwidth": 8,
+    "max_steps": 10,
+    "min_steps": 1,
+    "overall": 1
+  },
+  "compiler_archive_sha256": "b55f7599b00aec75952eed2dcde338f0108fc14472b62c7a568d77ce7c6c99b1",
+  "ghc": "9.12.4",
+  "haskell_commit": "186d8e0a350e4c8895b1c489eb587fa3a1bc2b61",
+  "haskell_version": "0.5.9",
+  "java_major": 17,
+  "options": {
+    "coreGranularity": 0,
+    "coreMinimization": 2,
+    "decompose_mode": 0,
+    "decompose_threads": 1,
+    "inferPartialInstance": false,
+    "noOverflow": true,
+    "originalFilename": "model.als",
+    "recordKodkod": false,
+    "skolemDepth": 0,
+    "solverDirectory": "",
+    "symmetry": 0,
+    "tempDirectory": ".",
+    "unrolls": -1
+  },
+  "profile": "behavioral-rich-core/1",
+  "resolver": "nightly-2026-11-15",
+  "resources": {
+    "heap_mb": 512,
+    "timeout": 30
+  },
+  "schema": "clafer-rich-core-reference/1",
+  "solver": "sat4j",
+  "source_tree_sha256": "9f396f07af14c14b6e0c590093c5ec97aa79a695ccc8287f0efcb649a79be0ad",
+  "stack": "3.11.1",
+  "stack_lock": {
+    "bytes": 474,
+    "sha256": "2d9a60c08ab15b97e32207bc4236c751382129a186035711da50628eaab7c108"
+  }
+}

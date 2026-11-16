@@ -9,7 +9,7 @@ import subprocess
 from ci_scope import digest
 
 
-REFERENCE_TESTS = {'test_pr113_oracles.py', 'test_temporal_oracles.py'}
+REFERENCE_TESTS = {'test_pr113_oracles.py', 'test_temporal_oracles.py', 'test_rich_reference.py'}
 
 
 def compiler_only(path):

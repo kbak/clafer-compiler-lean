@@ -1641,3 +1641,48 @@ of the qualification candidate.
 The [roadmap](https://github.com/kbak/clafer-compiler-lean/issues/4) owns scheduling.
 Upstream requirement IDs retain their upstream repository namespace; citing a
 theorem or ticket does not import its coverage into this repository.
+
+## Rich/core explicit interchange
+
+`req~compiler-rich-core-explicit~1`
+
+The separately selected `behavioral-rich-core/1` profile exposes resolved rich
+intent and an independently compilable core. Preserve enumerations, scoped
+patterns, transitions, initializer spelling, explicit clocks, original RHS
+attachments, effective bounds and resolved identities. Reuse the certified
+frontend's single lowering. Provide versioned, closed, readable and compact
+interchange, with fixed-point replay, retained diagnostics and explicit rejection
+of stale annotations or unavailable rich intent. Initializer admission precedes
+all outputs; a multiple-literal reference warning is informative. Keep existing
+cardinality/fragment analyses and preserve solution sets. Imported core requests
+reuse full target soundness and bounded completeness under their actual primitive,
+structural, arithmetic and observation assumptions. Serialization is tested.
+Qualify the immutable Haskell rich/core candidate separately from historical
+profiles; do not infer source truth from reference agreement. The precise format
+and consumer boundaries are in [rich/core](rich-core.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Parent-lifetime past operators
+
+`req~compiler-past-operators~1`
+
+Support `previous`, `once`, `historically`, `since`, `triggered` and internal weak
+previous through parsing, signed normalization, source bridges, partial domains,
+native observations and Alloy. Use the original attachment's parent's current
+lifetime, including across binders. Child birth does not reset that history;
+parent absence/rebirth does. Previous demands only an available predecessor;
+other past operators demand all operands over active history. Keep raw and signed
+meanings distinct. Full finite checking must retain history beyond repeated input
+frames and cover nested future/past formulas and temporal conditions in values.
+Preserve guarded initializer definedness and original RHS frames. Maintain
+kernel-checked preservation and independent exact-trace/negative witnesses as
+specified in [past operators](past.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest

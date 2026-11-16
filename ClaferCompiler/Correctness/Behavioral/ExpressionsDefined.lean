@@ -101,7 +101,7 @@ theorem formulaAt_relational (v : IR.Structural.Layout k) (fuel : Nat) {n : Nat}
       cases q <;> simp [formulaAt_succ, formulaStep, Relational, Translation.atomic, hr, hp, hn]
     | _ => simp [formulaAt_succ, formulaStep, Relational, Translation.atomic, Translation.map,
         conjunction, disjunction, implication, equivalence, negation, atom_noArithmetic,
-        next, eventually, always, strongUntil, weakUntil, Formula.weakUntil, initially, atEnd,
+        next, eventually, always, strongUntil, weakUntil, previous, weakPrevious, once, historically, since, triggered, Formula.weakUntil, initially, atEnd,
         Formula.birth, parentPresent, present, hr, hp, hn]
 
 theorem formulaAt_defined (v : IR.Structural.Layout k) (fuel : Nat) (c : Context n)

@@ -98,6 +98,9 @@ inductive BooleanUnary : String → Expression.Formula k n → Expression.Formul
   | next (h : (op == "X" || op == "next") = true) : BooleanUnary op a (.next a)
   | eventually (h : (op == "F" || op == "eventually") = true) : BooleanUnary op a (.eventually a)
   | always (h : (op == "G" || op == "globally") = true) : BooleanUnary op a (.always a)
+  | previous (h : (op == "previous") = true) : BooleanUnary op a (.previous a)
+  | once (h : (op == "once") = true) : BooleanUnary op a (.once a)
+  | historically (h : (op == "historically") = true) : BooleanUnary op a (.historically a)
   | initially (h : (op == "initially") = true) : BooleanUnary op a (.initially a)
   | finally (h : (op == "finally") = true) : BooleanUnary op a (.finally a)
 
@@ -121,100 +124,97 @@ inductive Unary (v : IR.BehavioralStructural.Validated k) : String → Value k n
 theorem unary_sound (v : IR.BehavioralStructural.Validated k) {a b : Value k n}
     (h : Values.unary v op a = .ok b) : Unary v op a b := by
   unfold Values.unary at h
-  by_cases hop : (op == "!") = true
+  by_cases hop : (op == "previous") = true
   · simp only [ite_eq_left hop] at h
     cases hb : boolean a with
     | error err => simp [hb, bind, Except.bind] at h
     | ok value =>
       simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
       cases h
-      exact .boolean (boolean_sound hb) (.not hop)
+      exact .boolean (boolean_sound hb) (.previous hop)
   · simp only [ite_eq_right hop] at h
-    by_cases hop : (op == "X" || op == "next") = true
+    by_cases hop : (op == "once") = true
     · simp only [ite_eq_left hop] at h
       cases hb : boolean a with
       | error err => simp [hb, bind, Except.bind] at h
       | ok value =>
         simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
         cases h
-        exact .boolean (boolean_sound hb) (.next hop)
+        exact .boolean (boolean_sound hb) (.once hop)
     · simp only [ite_eq_right hop] at h
-      by_cases hop : (op == "F" || op == "eventually") = true
+      by_cases hop : (op == "historically") = true
       · simp only [ite_eq_left hop] at h
         cases hb : boolean a with
         | error err => simp [hb, bind, Except.bind] at h
         | ok value =>
           simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
           cases h
-          exact .boolean (boolean_sound hb) (.eventually hop)
+          exact .boolean (boolean_sound hb) (.historically hop)
       · simp only [ite_eq_right hop] at h
-        by_cases hop : (op == "G" || op == "globally") = true
+        by_cases hop : (op == "!") = true
         · simp only [ite_eq_left hop] at h
           cases hb : boolean a with
           | error err => simp [hb, bind, Except.bind] at h
           | ok value =>
             simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
             cases h
-            exact .boolean (boolean_sound hb) (.always hop)
+            exact .boolean (boolean_sound hb) (.not hop)
         · simp only [ite_eq_right hop] at h
-          by_cases hop : (op == "initially") = true
+          by_cases hop : (op == "X" || op == "next") = true
           · simp only [ite_eq_left hop] at h
             cases hb : boolean a with
             | error err => simp [hb, bind, Except.bind] at h
             | ok value =>
               simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
               cases h
-              exact .boolean (boolean_sound hb) (.initially hop)
+              exact .boolean (boolean_sound hb) (.next hop)
           · simp only [ite_eq_right hop] at h
-            by_cases hop : (op == "finally") = true
+            by_cases hop : (op == "F" || op == "eventually") = true
             · simp only [ite_eq_left hop] at h
               cases hb : boolean a with
               | error err => simp [hb, bind, Except.bind] at h
               | ok value =>
                 simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                 cases h
-                exact .boolean (boolean_sound hb) (.finally hop)
+                exact .boolean (boolean_sound hb) (.eventually hop)
             · simp only [ite_eq_right hop] at h
-              by_cases hop : (op == "-") = true
+              by_cases hop : (op == "G" || op == "globally") = true
               · simp only [ite_eq_left hop] at h
-                cases hb : Values.integer v a with
+                cases hb : boolean a with
                 | error err => simp [hb, bind, Except.bind] at h
                 | ok value =>
                   simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                   cases h
-                  exact .negative hop (integer_sound v hb)
+                  exact .boolean (boolean_sound hb) (.always hop)
               · simp only [ite_eq_right hop] at h
-                by_cases hop : (op == "#") = true
+                by_cases hop : (op == "initially") = true
                 · simp only [ite_eq_left hop] at h
-                  cases hb : heads a with
+                  cases hb : boolean a with
                   | error err => simp [hb, bind, Except.bind] at h
                   | ok value =>
-                    rcases value with ⟨type, value⟩
                     simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                     cases h
-                    exact .cardinality hop (heads_sound hb)
+                    exact .boolean (boolean_sound hb) (.initially hop)
                 · simp only [ite_eq_right hop] at h
-                  by_cases hop : (op == "some") = true
+                  by_cases hop : (op == "finally") = true
                   · simp only [ite_eq_left hop] at h
-                    cases hb : heads a with
+                    cases hb : boolean a with
                     | error err => simp [hb, bind, Except.bind] at h
                     | ok value =>
-                      rcases value with ⟨type, value⟩
                       simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                       cases h
-                      exact .some hop (heads_sound hb)
+                      exact .boolean (boolean_sound hb) (.finally hop)
                   · simp only [ite_eq_right hop] at h
-                    by_cases hop : (op == "no" || op == "not") = true
+                    by_cases hop : (op == "-") = true
                     · simp only [ite_eq_left hop] at h
-                      cases hb : heads a with
+                      cases hb : Values.integer v a with
                       | error err => simp [hb, bind, Except.bind] at h
                       | ok value =>
-                        rcases value with ⟨type, value⟩
                         simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                         cases h
-                        exact .no hop (heads_sound hb)
+                        exact .negative hop (integer_sound v hb)
                     · simp only [ite_eq_right hop] at h
-                      by_cases hop : (op == "one") = true
+                      by_cases hop : (op == "#") = true
                       · simp only [ite_eq_left hop] at h
                         cases hb : heads a with
                         | error err => simp [hb, bind, Except.bind] at h
@@ -222,9 +222,9 @@ theorem unary_sound (v : IR.BehavioralStructural.Validated k) {a b : Value k n}
                           rcases value with ⟨type, value⟩
                           simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                           cases h
-                          exact .one hop (heads_sound hb)
+                          exact .cardinality hop (heads_sound hb)
                       · simp only [ite_eq_right hop] at h
-                        by_cases hop : (op == "lone") = true
+                        by_cases hop : (op == "some") = true
                         · simp only [ite_eq_left hop] at h
                           cases hb : heads a with
                           | error err => simp [hb, bind, Except.bind] at h
@@ -232,24 +232,54 @@ theorem unary_sound (v : IR.BehavioralStructural.Validated k) {a b : Value k n}
                             rcases value with ⟨type, value⟩
                             simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                             cases h
-                            exact .lone hop (heads_sound hb)
+                            exact .some hop (heads_sound hb)
                         · simp only [ite_eq_right hop] at h
-                          by_cases hop : (op == "min" || op == "max") = true
+                          by_cases hop : (op == "no" || op == "not") = true
                           · simp only [ite_eq_left hop] at h
-                            cases ht : target v a with
-                            | error err => simp [ht, bind, Except.bind] at h
+                            cases hb : heads a with
+                            | error err => simp [hb, bind, Except.bind] at h
                             | ok value =>
-                              cases hh : heads value with
-                              | error err => simp [ht, hh, bind, Except.bind] at h
-                              | ok pair =>
-                                rcases pair with ⟨type, value⟩
-                                simp only [ht, hh, bind, Except.bind] at h
-                                by_cases hn : (type == Ty.integers || type == Ty.empty) = true
-                                · simp only [ite_eq_left hn] at h
-                                  simp only [pure, Except.pure, Except.ok.injEq] at h
+                              rcases value with ⟨type, value⟩
+                              simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
+                              cases h
+                              exact .no hop (heads_sound hb)
+                          · simp only [ite_eq_right hop] at h
+                            by_cases hop : (op == "one") = true
+                            · simp only [ite_eq_left hop] at h
+                              cases hb : heads a with
+                              | error err => simp [hb, bind, Except.bind] at h
+                              | ok value =>
+                                rcases value with ⟨type, value⟩
+                                simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
+                                cases h
+                                exact .one hop (heads_sound hb)
+                            · simp only [ite_eq_right hop] at h
+                              by_cases hop : (op == "lone") = true
+                              · simp only [ite_eq_left hop] at h
+                                cases hb : heads a with
+                                | error err => simp [hb, bind, Except.bind] at h
+                                | ok value =>
+                                  rcases value with ⟨type, value⟩
+                                  simp only [hb, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at h
                                   cases h
-                                  exact .extreme hop (target_sound v ht) (heads_sound hh) hn
-                                · simp [hn] at h
-                          · simp [hop] at h
+                                  exact .lone hop (heads_sound hb)
+                              · simp only [ite_eq_right hop] at h
+                                by_cases hop : (op == "min" || op == "max") = true
+                                · simp only [ite_eq_left hop] at h
+                                  cases ht : target v a with
+                                  | error err => simp [ht, bind, Except.bind] at h
+                                  | ok value =>
+                                    cases hh : heads value with
+                                    | error err => simp [ht, hh, bind, Except.bind] at h
+                                    | ok pair =>
+                                      rcases pair with ⟨type, value⟩
+                                      simp only [ht, hh, bind, Except.bind] at h
+                                      by_cases hn : (type == Ty.integers || type == Ty.empty) = true
+                                      · simp only [ite_eq_left hn] at h
+                                        simp only [pure, Except.pure, Except.ok.injEq] at h
+                                        cases h
+                                        exact .extreme hop (target_sound v ht) (heads_sound hh) hn
+                                      · simp [hn] at h
+                                · simp [hop] at h
 
 end ClaferCompiler.Frontend.Behavioral.ValueRules

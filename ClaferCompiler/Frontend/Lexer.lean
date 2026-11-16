@@ -50,7 +50,7 @@ def excludedWords : List String :=
    "finalref", "finaltarget", "assert", "min", "max", "minimize", "maximize",
    "sum", "product", "if", "then", "else", "let", "disj", "never", "sometime",
    "lonce", "always", "must", "precede", "follow", "initially", "finally", "U",
-   "until", "W", "weakuntil", "F", "eventually", "G", "globally", "X", "next",
+   "until", "W", "weakuntil", "F", "eventually", "G", "globally", "previous", "once", "historically", "since", "triggered", "X", "next",
    "before", "after", "between", "and"]
 
 def excludedSymbols : List String :=
