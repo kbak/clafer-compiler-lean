@@ -7,7 +7,7 @@ use the strong/weak temporal binary precedence levels. Static source and the
 qualified `behavioral-0.5.8/v2` profile reject past-operator syntax while retaining
 these spellings as identifiers. Only the new profile reserves them as keywords.
 
-The independent meanings are [upstream Past, Denotation and PartialObservation](https://github.com/kbak/clafer-semantics/tree/14e8f24bf983d4b331b7fe4ba10e2df0cf24047c/Clafer/Behavioral).
+The independent meanings are [upstream Past, Denotation and PartialObservation](https://github.com/kbak/clafer-semantics/tree/3c63d760be99741617c6af539a9e304909d18b26/Clafer/Behavioral).
 The behavioral paper §5, Definitions 3–5 and §6.1 remain the source for attachment,
 future lifetime restrictions and bindings; past is an explicitly selected
 extension. The original attachment's parent's current lifetime bounds history.

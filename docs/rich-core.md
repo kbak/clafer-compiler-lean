@@ -1,8 +1,9 @@
 # Rich and core explicit models
 
 The selected extension `behavioral-rich-core/1` preserves modeling intent alongside
-resolved meaning. Its source semantics is pinned to [clafer-semantics #189](https://github.com/kbak/clafer-semantics/pull/189);
-independent acceptance of that dependency and this compiler extension remains a
+resolved meaning. Its source semantics was accepted in [clafer-semantics #189](https://github.com/kbak/clafer-semantics/pull/189).
+The dependency also pins the [native-search correction #191](https://github.com/kbak/clafer-semantics/pull/191);
+independent acceptance of that correction and this compiler extension remains a
 review obligation. The qualified `behavioral-0.5.8/v2` profile remains available
 and rejects new past syntax. The static frontend and first-slice JSON v1 retain
 their existing admission boundaries.

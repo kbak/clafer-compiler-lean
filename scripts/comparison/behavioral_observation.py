@@ -1,7 +1,7 @@
 """Supplementary finite source observations, independent of target lowering.
 
 Constructor equations follow the MIT source at clafer-semantics
-14e8f24bf983d4b331b7fe4ba10e2df0cf24047c: Denotation, PartialObservation,
+3c63d760be99741617c6af539a9e304909d18b26: Denotation, PartialObservation,
 Lifetime, Modifiers and Structural. Copyright 2026 Kacper Bak.
 This Python adapter is tested, not kernel proved. The verified first-slice
 checker and full compiler preservation theorems retain their own boundaries.
