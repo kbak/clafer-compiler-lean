@@ -1056,7 +1056,7 @@ retains this limitation without changing source semantics.
 
 ## Accepted semantics-main dependency
 
-The installed dependency is immutable upstream main
+The earlier dependency baseline is immutable upstream main
 `a450a8062d832fa188794717cf35bc0f60d776f8`, with its accepted
 [0.5.8 release adapter and v2 profile](#clafer-058-source-and-replay),
 [production initializer semantics](https://github.com/kbak/clafer-semantics/pull/179),
@@ -1137,8 +1137,8 @@ changes. Those historical ledger entries are not the basis for current
 
 ## Rich/core and past candidate
 
-The installed semantics candidate is
-[14e8f24](https://github.com/kbak/clafer-semantics/commit/3c63d760be99741617c6af539a9e304909d18b26),
+The rich/core and past baseline is
+[3c63d76](https://github.com/kbak/clafer-semantics/commit/3c63d760be99741617c6af539a9e304909d18b26),
 covering parent-lifetime past definitions, partial domains, history-aware finite
 checking and initializer core lowering. It preserves the behavioral paper §5,
 Definitions 3–5 and §6.1 attachment/binding rules and explicitly extends past
@@ -1154,3 +1154,27 @@ pins the source archive/tree, Stack/GHC, resolver and generated lock. Earlier
 0.5.8 and PR113 profiles remain unchanged. [Rich/core](rich-core.md) distinguishes
 Lean's resolved JSON interfaces from Haskell's explicit Clafer syntax, and
 [past](past.md) states the source/target and observer assumptions.
+
+
+## Finality core reduction
+
+The installed semantics dependency is immutable accepted main
+[`773ecf6a511c0110f89b54acdcfddc777f516898`](https://github.com/kbak/clafer-semantics/commit/773ecf6a511c0110f89b54acdcfddc777f516898),
+which adds [modifier lowering](https://github.com/kbak/clafer-semantics/pull/195)
+to the rich/core and past baseline. It preserves the earlier meanings and exposes
+`Modifiers.lowerCore`, `lowerCore_partial_agrees`, `lowerCore_agrees` and
+`loweredHolds_iff`. The compiler reuses the existing executable captured-set
+expansion and proves correspondence with this independent reduction.
+
+The source authority remains behavioral paper §5 Definitions 3–5 and §§6.1–6.2,
+p. 2:32, together with the accepted D5 completion. The paper does not define
+`finalref` or `finaltarget`. Equivalence retains `Structural.Valid`, original
+placement and the total inherited-set adapter; arbitrary partial observations
+retain their strict domains. Runtime modules do not import the noncomputable
+semantic lowering. This update adds no dependency or license cost beyond the
+existing MIT semantic library.
+
+The pinned Haskell rich/core candidate and historical comparison profiles remain
+unchanged. Later Haskell `release-0-5-9` proposals are not adopted by this task.
+The [rich/core contract](rich-core.md#finality-lowering) records reusable machinery,
+finite attachment specialization, version migration and proof/runtime boundaries.

@@ -52,7 +52,8 @@ def structureJson (v : IR.BehavioralStructural.Validated k) : Json :=
     ("groups", toJson (v.core.groups.toList.map groupJson))]
 
 -- [impl->req~compiler-rich-core-explicit~1]
-def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.Warning := []) : Except Diagnostic Json := do
+def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.Warning := []) (legacy : Bool := false) : Except Diagnostic Json := do
+  let r := if legacy then r else ModifierLowering.lower r
   let v := r.model.structural
   let pass := BehavioralSyntax.encode v.core.structural budget
   let property := fun (c : Constraint k) => do
@@ -61,13 +62,13 @@ def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.W
   let command ← match r.command with
     | .check i => pure (Json.mkObj [("kind", toJson "check"), ("assertion", toJson i.val)])
     | .run cs => do pure (Json.mkObj [("kind", toJson "run"), ("scenario", toJson (← cs.mapM property))])
-  return Json.mkObj [("version", toJson "clafer-explicit-core/1"),
+  return Json.mkObj <| [("version", toJson (if legacy then "clafer-explicit-core/1" else "clafer-explicit-core/2")),
     ("profile", toJson IR.BehavioralStructural.richProfile),
     ("structure", structureJson v),
-    ("modifiers", toJson (r.model.modifiers.toList.map fun ms => ms.map BehavioralSource.modifierName)),
     ("constraints", toJson (← r.model.constraints.mapM property)),
     ("assertions", toJson (← r.model.assertions.mapM property)), ("command", command),
-    ("warnings", toJson (warnings.map BehavioralSource.warningJson))]
+    ("warnings", toJson (warnings.map BehavioralSource.warningJson))] ++
+      if legacy then [("modifiers", toJson (r.model.modifiers.toList.map fun ms => ms.map BehavioralSource.modifierName))] else []
 
 def group (n : Node) : Except Diagnostic Frontend.Resolution.Group := do
   match ← Behavioral.tag n with
@@ -121,11 +122,16 @@ structure Input (k : Nat) where
 -- [impl->req~compiler-rich-core-explicit~1]
 def decode (file text : String) : Except Diagnostic (Σ k, Input k) := do
   let n ← parse file text true
-  version n "version" "clafer-explicit-core/1" "explicit.version"
+  let schema ← string (← field n "version")
+  unless schema == "clafer-explicit-core/1" || schema == "clafer-explicit-core/2" do
+    throw { bad n "unsupported explicit version" with code := "explicit.version", category := .unsupported }
+  let legacy := schema == "clafer-explicit-core/1"
   version n "profile" IR.BehavioralStructural.richProfile "behavioral.profile"
-  closed n ["version", "profile", "structure", "modifiers", "constraints", "assertions", "command", "warnings"]
+  closed n (["version", "profile", "structure", "constraints", "assertions", "command", "warnings"] ++
+    if legacy then ["modifiers"] else [])
   let ⟨k, v⟩ ← structureRead (← field n "structure")
-  let ms ← array (fun n => (array modifier n).map Array.toList) (← field n "modifiers")
+  let ms ← if legacy then array (fun n => (array modifier n).map Array.toList) (← field n "modifiers")
+    else pure (Array.replicate k [])
   if length : ms.size = k then
     let model : Properties.Model k (Expression.Atom k) (Expression.Collection k) := {
       structural := v, modifiers := ⟨ms, length⟩

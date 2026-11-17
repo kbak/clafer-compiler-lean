@@ -8,7 +8,7 @@ warningAsError = true
 [[require]]
 name = "clafer"
 git = "https://github.com/kbak/clafer-semantics.git"
-rev = "3c63d760be99741617c6af539a9e304909d18b26"
+rev = "773ecf6a511c0110f89b54acdcfddc777f516898"
 
 [[lean_lib]]
 name = "ClaferCompiler"

@@ -135,14 +135,14 @@ def compileExplicit (inputFile input boundsFile boundsText format : String)
     (objects bitwidth : Option Nat) : Except Diagnostic (String × List Frontend.Behavioral.Warning) := do
   let n ← Decode.parse inputFile input true
   let kind ← Decode.string (← Decode.field n "version")
-  if kind == "clafer-explicit-rich/1" then
+  if kind == "clafer-explicit-rich/1" || kind == "clafer-explicit-rich/2" then
     let p ← ExplicitRich.decode inputFile input
     let selected ← BehavioralSource.selectedProfile boundsFile boundsText
     if selected != IR.BehavioralStructural.richProfile then
       throw { code := "behavioral.profile", phase := "bounds", category := .unsupported, message := "explicit input requires behavioral-rich-core/1" : Diagnostic }
     let compiled ← BehavioralSource.compileReport p.source.file p.source.source boundsFile boundsText .model objects bitwidth
     return (← sourceOutput compiled.product format compiled.warnings, compiled.warnings)
-  else if kind == "clafer-explicit-core/1" then
+  else if kind == "clafer-explicit-core/1" || kind == "clafer-explicit-core/2" then
     if ["rich", "rich-json"].contains format then
       throw { code := "explicit.intent-unavailable", phase := "serialization", category := .unsupported, message := "core input has no authored rich intent; use the rich export" : Diagnostic }
     let ⟨_, compiled⟩ ← ExplicitCore.compile inputFile input boundsFile boundsText objects bitwidth

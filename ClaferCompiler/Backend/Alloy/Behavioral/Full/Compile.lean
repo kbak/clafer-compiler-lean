@@ -2,7 +2,7 @@ module
 
 public import ClaferCompiler.Backend.Alloy.Behavioral.Full.Expressions
 public import ClaferCompiler.Backend.Alloy.Behavioral.Compile
-public import ClaferCompiler.IR.Behavioral.Properties
+public import ClaferCompiler.IR.Behavioral.ModifierLowering
 
 @[expose] public section
 namespace ClaferCompiler.Backend.Alloy.Behavioral.Full
@@ -68,26 +68,8 @@ def boundFacts (v : IR.BehavioralStructural.Validated k) (b : Bounds) : List Tem
     ((List.finRange k).filter fun d => !integerDeclaration v d).map
       (fun d => scopeFact (declaredScope v b d) (pool v d))
 
-/-- Modifier expansion uses the same accepted surface shapes and placements. -/
-def modifierInitial (d : Fin k) : Expression.Formula k 0 :=
-  .initially (.atom (.primitive (.inhabited (.set (.thisStep (.child d))))))
-
-def modifierView (d : Fin k) : Surface.Modifiers.View k → SetExpr k n
-  | .heads _ => .thisStep (.child d)
-  | .reference _ => .thisStep (.deref d)
-  | .targets _ => .step (.deref d) (.thisStep (.child d))
-
-def modifierStable (view : SetExpr k 0) (later : SetExpr k 1) : Expression.Formula k 0 :=
-  .letSet (.set view) (.next (.implies (.atom (.primitive (.inhabited (.set .this))))
-    (.atom (.primitive (.equal (.set (.var 0)) (.set later))))))
-
-def modifierExpansions (d : Fin k) : Surface.Modifiers.Modifier →
-    List (Surface.Modifiers.Placement k × Expression.Formula k 0)
-  | .initial => [(.parents d, modifierInitial d)]
-  | .final => [(.all, modifierStable (modifierView d (.heads d)) (modifierView d (.heads d))),
-      (.heads d, modifierStable (modifierView d (.reference d)) (modifierView d (.reference d)))]
-  | .finalref => [(.heads d, modifierStable (modifierView d (.reference d)) (modifierView d (.reference d)))]
-  | .finaltarget => [(.all, modifierStable (modifierView d (.targets d)) (modifierView d (.targets d)))]
+-- The executable expansion is shared with explicit core erasure.
+export IR.Behavioral.ModifierLowering (modifierInitial modifierView modifierStable modifierExpansions)
 
 def placement (v : IR.BehavioralStructural.Validated k) : Surface.Modifiers.Placement k → Temporal.Rel
   | .all => live v
@@ -153,8 +135,7 @@ def compile (r : Request k) (b : Bounds) (fuel : Nat) : Except IR.Structural.Dia
   validateBounds v b
   validateModifiers v r.model.modifiers
   let constraints ← r.model.constraints.mapM (constraint v b fuel)
-  let modifiers ← ((List.finRange k).flatMap fun d =>
-    (IR.Behavioral.Modifiers.effective v r.model.modifiers d).flatMap (modifierExpansions d)).mapM
+  let modifiers ← (IR.Behavioral.ModifierLowering.obligations v r.model.modifiers).mapM
       fun (where_, body) => attached v b fuel (placement v where_) body
   let (kind, body) ← match r.command with
     | .check i => do pure (.check, ← constraint v b fuel r.model.assertions[i])

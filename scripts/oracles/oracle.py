@@ -17,7 +17,7 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
-SEMANTICS = "3c63d760be99741617c6af539a9e304909d18b26"
+SEMANTICS = "773ecf6a511c0110f89b54acdcfddc777f516898"
 UPSTREAM = ROOT / ".lake/packages/clafer"
 PROFILE = ROOT / "scripts/oracles/profile.json"
 CORPUS = ROOT / "tests/fixtures/oracles/inventory.json"

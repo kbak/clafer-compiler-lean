@@ -94,7 +94,7 @@ def clockName : Initializers.Clock → String
   | .instanceBirth => "instance-birth" | .parentBirth => "parent-birth" | .globalZero => "global-zero"
 
 -- [impl->req~compiler-rich-core-explicit~1]
-def encode (p : ParsedModel) (allocation : Nat) : Except Diagnostic Json := do
+def encode (p : ParsedModel) (allocation : Nat) (legacy : Bool := false) : Except Diagnostic Json := do
   let e := p.elaborated
   let d := e.declarations
   let v := d.resolved.admitted
@@ -127,8 +127,8 @@ def encode (p : ParsedModel) (allocation : Nat) : Except Diagnostic Json := do
           | throw { code := "explicit.enum-origin", phase := "serialization", message := "missing enum origin" : Diagnostic }
         return Json.mkObj [("name", toJson name), ("id", toJson row.id)]
       return Json.mkObj [("family", ← resolve name.text), ("literals", toJson (← literals.mapM fun l => resolve l.text))]
-  let core ← ExplicitCore.encode ⟨e.model, .run []⟩ allocation p.warnings
-  return Json.mkObj [("version", toJson "clafer-explicit-rich/1"),
+  let core ← ExplicitCore.encode ⟨e.model, .run []⟩ allocation p.warnings legacy
+  return Json.mkObj [("version", toJson (if legacy then "clafer-explicit-rich/1" else "clafer-explicit-rich/2")),
     ("profile", toJson IR.BehavioralStructural.richProfile),
     ("source", Json.mkObj [("file", toJson p.source.file), ("text", toJson p.source.source)]),
     ("enumerations", toJson enums), ("properties", toJson properties), ("headers", toJson headers),
@@ -139,7 +139,9 @@ single source elaboration. It never trusts a stale edited lowering or metadata. 
 -- [impl->req~compiler-rich-core-explicit~1]
 def decode (file text : String) : Except Diagnostic ParsedModel := do
   let n ← parse file text true
-  version n "version" "clafer-explicit-rich/1" "explicit.version"
+  let schema ← string (← field n "version")
+  unless schema == "clafer-explicit-rich/1" || schema == "clafer-explicit-rich/2" do
+    throw { bad n "unsupported explicit version" with code := "explicit.version", category := .unsupported }
   version n "profile" IR.BehavioralStructural.richProfile "behavioral.profile"
   closed n ["version", "profile", "source", "enumerations", "properties", "headers", "lowered", "warnings"]
   let origin ← field n "source"
@@ -147,7 +149,7 @@ def decode (file text : String) : Except Diagnostic ParsedModel := do
   let source ← string (← field origin "text")
   let p ← parseAndElaborate IR.BehavioralStructural.richProfile (← string (← field origin "file")) source
     |>.mapError Diagnostic.ofSource
-  let canonical ← encode p (BehavioralSource.budget source .model)
+  let canonical ← encode p (BehavioralSource.budget source .model) (schema == "clafer-explicit-rich/1")
   unless canonical == n.value do
     throw (bad n "rich metadata or lowering differs from resolved source; re-export the edited source")
   return p
