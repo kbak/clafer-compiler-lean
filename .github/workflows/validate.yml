@@ -342,7 +342,7 @@ jobs:
             lake build "${modules[@]/#/+}"
             python3 scripts/project_modules.py --dependencies
             lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean
-            lake env leanchecker --verbose ClaferCompiler Main tests
+            lake env lean -j "${CLAFER_KERNEL_THREADS:-2}" --run .lake/packages/clafer/tests/leanchecker.lean --verbose ClaferCompiler Main tests
             lake env python3 -m unittest -v tests.test_cli tests.test_source_cli tests.test_ci_scope
           } 2>&1 | tee "$RUNNER_TEMP/build-and-cli.log"
           echo 'Lean build, axiom audit, kernel replay and native CLI tests passed. Full IntentBond qualification runs locally or by manual dispatch.' >> "$GITHUB_STEP_SUMMARY"

@@ -77,16 +77,17 @@ theorem groupFact_complete (rep : TraceRep v source target) (p : Fin k)
     have notRoot : x ≠ (completeTrace v p source).identities.root := by
       intro eq
       exact (valid.states t).root_separate d nonroot (eq ▸ hx.1)
-    have bounded (y : Completion o) (h : Clafer.Semantics.Groups.ChildObjects
+    let children : Set (Completion o) := {y | Clafer.Semantics.Groups.ChildObjects
         (SemanticsBridge.BehavioralStructural.interpret v.core).family
         ((completeTrace v p source).raw
-          (SemanticsBridge.BehavioralStructural.interpret v.core).toEffectiveCore t) d x y) : y ∈ observedDomain w := by
+          (SemanticsBridge.BehavioralStructural.interpret v.core).toEffectiveCore t) d x y}
+    have bounded (y : Completion o) (h : y ∈ children) : y ∈ observedDomain w := by
       cases y with
       | inl y => trivial
       | inr z =>
         obtain ⟨_, _, c, _, contained⟩ := h
         exact (notRoot ((completeContains_integer v p primitive source t c x z).mp contained).1).elim
-    have rows := Mixed.unary_congr
+    have rows := Mixed.unary_congr (B := children)
       (rep.bounded_childHeads_completed p primitive shape ordinary w positive small t (valid.root_live t) d x hx.2)
       (fun y => show (_ ∧ y ∈ observedDomain w) ↔ _ from ⟨And.left, fun h => ⟨h, bounded y h⟩⟩)
     apply Mixed.interval_complete rep.atoms.injective rows _ (fits x hx.1)

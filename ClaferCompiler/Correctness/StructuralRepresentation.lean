@@ -17,14 +17,13 @@ are absent; no auxiliary atom can manufacture a source object. -/
 abbrev Objects (o : Observation n) := {x : Nat // x ∈ o.objects}
 
 instance objectsFintype (o : Observation n) : Fintype (Objects o) :=
-  Fintype.ofFinset o.objects.toFinset (by
+  Fintype.subtype o.objects.toFinset (by
     intro x
-    change x ∈ o.objects.toFinset ↔ x ∈ o.objects
     simp)
 
 theorem objects_card (o : Observation n) :
     Fintype.card (Objects o) = o.objects.toFinset.card :=
-  Fintype.card_ofFinset _ _
+  Fintype.subtype_card _ _
 
 /-- Interpret only data equations into the independent upstream configuration. -/
 def realize (o : Observation n) (hr : o.root ∈ o.objects) :

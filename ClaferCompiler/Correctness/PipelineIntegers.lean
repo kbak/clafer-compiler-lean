@@ -26,7 +26,7 @@ theorem integer_completion (ordinary : Finset Atom)
     exact Atom.integer.inj (congrArg Subtype.val h)
   let : Infinite P := Infinite.of_injective embed hembed
   obtain ⟨base⟩ : Nonempty (Int ≃ P) := nonempty_equiv_of_countable
-  let : Fintype {z : Int // z ∈ observed} := Fintype.ofFinset observed (by intro z; rfl)
+  let : Fintype {z : Int // z ∈ observed} := Fintype.subtype observed (by intro z; rfl)
   obtain ⟨σ,hσ⟩ := Equiv.Perm.exists_extending_pair
     (fun z : {z : Int // z ∈ observed} => base z.val)
     (fun z : {z : Int // z ∈ observed} => embed z.val)

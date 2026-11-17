@@ -28,7 +28,7 @@ theorem mapM_id_eq (sources : List (Option Int)) (zs : List Int) :
   induction sources generalizing zs with
   | nil => cases zs <;> simp
   | cons a rest ih =>
-    cases a <;> cases zs <;> cases hm : rest.mapM id <;> simp_all
+    cases a <;> cases zs <;> cases hm : rest.mapM id <;> simp [List.mapM_cons, hm] <;> simp_all
 
 theorem observation_values
     (observations : List.Forall₂ (IntegerObservation s w τ e t) sources values)

@@ -72,7 +72,6 @@ if [[ "$*" == *axiom_audit.lean* ]]; then
   echo 'audit completed' >> "$CALLS"
 fi
 if [[ "$*" == *leanchecker* ]]; then
-  echo "kernel threads=$LEAN_NUM_THREADS" >> "$CALLS"
   echo "cache=$LAKE_ARTIFACT_CACHE restore=$LAKE_RESTORE_ARTIFACTS" >> "$CALLS"
   echo 'kernel completed' >> "$CALLS"
 fi
@@ -102,8 +101,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('lake build +ClaferCompiler +ClaferCompiler.IR.Hidden +Main +tests', calls)
         self.assertIn('lake env lean -DwarningAsError=true .lake/validation/axiom_audit.lean', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
-        self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
-        self.assertIn('kernel threads=2', calls)
+        self.assertIn('lake env lean -j 2 --run .lake/packages/clafer/tests/leanchecker.lean --verbose ClaferCompiler Main tests', calls)
         self.assertLess(calls.index('lake env python3 scripts/run_tests.py'),
                         calls.index('kernel completed'))
         self.assertLess(calls.index('audit completed'),
@@ -122,8 +120,7 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
     def test_kernel_worker_override_preserves_failure_and_inventory(self):
         result, calls = self.run_check(kernel_threads='4', fail='leanchecker')
         self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
-        self.assertIn('kernel threads=4', calls)
-        self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
+        self.assertIn('lake env lean -j 4 --run .lake/packages/clafer/tests/leanchecker.lean --verbose ClaferCompiler Main tests', calls)
         self.assertIn('audit completed', calls)
         self.assertIn('kernel completed', calls)
         self.assertNotIn('All build', result.stdout)

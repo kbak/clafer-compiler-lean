@@ -24,7 +24,7 @@ The adopted keyword and numeric child defaults agree with the 0.5.7 reference on
 the tested common domain. General Haskell expression
 navigation, nested explicit abstracts and relocation exceed this source profile.
 
-Lean 4.35.0 `List`, `Array`, `Vector`, `Option`, `Except`, finite decisions and
+Lean 4.36.0 `List`, `Array`, `Vector`, `Option`, `Except`, finite decisions and
 `Nat.repeat` provide traversal, lookup and iteration. Existing Std/Lean name
 resolution is for Lean namespaces/macros, not Clafer's declaration scopes and
 primitive origins; it cannot supply these language rules. No graph, parser or

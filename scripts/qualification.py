@@ -339,9 +339,10 @@ def builds(args):
         'cold': measure(['lake', 'build'], output, 'cold-build', cwd=source, env=env, timeout=1800),
         'warm': measure(['lake', 'build'], output, 'warm-build', cwd=source, env=env, timeout=1800)}
     for phase in ('first', 'repeat'):
-        result['kernel_'+phase] = measure(['lake', 'env', 'leanchecker', '--verbose',
+        result['kernel_'+phase] = measure(['lake', 'env', 'lean', '-j', '2', '--run',
+            '.lake/packages/clafer/tests/leanchecker.lean', '--verbose',
             'ClaferCompiler', 'Main', 'tests'], output, 'kernel-'+phase, cwd=source,
-            env={**env, 'LEAN_NUM_THREADS': '2'}, timeout=600)
+            env=env, timeout=600)
     result['axiom_audit'] = measure(['lake', 'env', 'lean', '-DwarningAsError=true',
         '.lake/validation/axiom_audit.lean'], output, 'axiom-audit', cwd=source, env=env)
     result['binary'] = sha(source/'.lake/build/bin/clafer-compiler')

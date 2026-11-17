@@ -79,9 +79,8 @@ or assumed to fit an Alloy scope. -/
 theorem exists_encoding (live : List Nat) (g : Nat → Atom) (hg : Function.Injective g) :
     ∃ f : Atom → Nat, Function.Injective f ∧ ∀ a ∈ live, f (g a) = a := by
   classical
-  let : Fintype {a : Nat // a ∈ live} := Fintype.ofFinset live.toFinset (by
+  let : Fintype {a : Nat // a ∈ live} := Fintype.subtype live.toFinset (by
     intro a
-    change a ∈ live.toFinset ↔ a ∈ live
     simp)
   obtain ⟨σ, hσ⟩ := Equiv.Perm.exists_extending_pair
     (fun a : {a : Nat // a ∈ live} => atomCode (g a.val)) Subtype.val

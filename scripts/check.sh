@@ -79,7 +79,7 @@ run_step 'Axiom audit' lake env lean -DwarningAsError=true .lake/validation/axio
 test_status=0
 run_step 'Regression groups' lake env python3 scripts/run_tests.py "${regression_args[@]}" || test_status=$?
 kernel_status=0
-run_step 'Kernel replay' env LEAN_NUM_THREADS="$kernel_threads" lake env leanchecker --verbose ClaferCompiler Main tests || kernel_status=$?
+run_step 'Kernel replay' lake env lean -j "$kernel_threads" --run .lake/packages/clafer/tests/leanchecker.lean --verbose ClaferCompiler Main tests || kernel_status=$?
 if (( audit_status != 0 )); then exit "$audit_status"; fi
 if (( test_status != 0 )); then exit "$test_status"; fi
 if (( kernel_status != 0 )); then exit "$kernel_status"; fi

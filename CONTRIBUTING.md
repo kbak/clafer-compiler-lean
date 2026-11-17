@@ -94,7 +94,7 @@ Python 3.11+, Git, Bash, Java 17+, Elan, a C toolchain, `ldd`, GNU time, coreuti
 with working user namespaces are required for validation. The native runtime
 check currently targets Linux/glibc; ordinary compilation needs only the
 [documented native runtime](docs/cli.md#native-runtime).
-`lean-toolchain` selects Lean 4.35.0. Prepare the manifest-pinned dependencies:
+`lean-toolchain` selects Lean 4.36.0. Prepare the manifest-pinned dependencies:
 
 ```sh
 bash scripts/prepare_dependencies.sh

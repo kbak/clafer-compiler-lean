@@ -51,6 +51,21 @@ class AxiomAuditTest(unittest.TestCase):
         self.assertIn("New assumptions: none", result.stdout)
         self.assertNotIn("ClaferCompiler: 0 declarations", result.stdout)
 
+    def test_generated_constructor_tag_implementations(self):
+        result = self.audit("public inductive Choice (α : Type) | empty | value (x : α)")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_mismatched_constructor_tag_implementations(self):
+        for body, index in [("0", "fun | .left => 0 | .right => 1"),
+                            ("getObjTagNat _x", "fun _ => 0")]:
+            with self.subTest(body=body):
+                result = self.audit(f"""set_option genCtorIdx false in
+public inductive Choice | left | right
+public unsafe def Choice.ctorIdx._impl (_x : Choice) : Nat := {body}
+@[implemented_by Choice.ctorIdx._impl] public def Choice.ctorIdx : Choice → Nat := {index}""")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("unsafe or partial project declaration", result.stdout)
+
     def test_new_axioms_in_every_root_are_rejected(self):
         for root in ["ClaferCompiler", "Main", "tests"]:
             with self.subTest(root=root):

@@ -68,7 +68,7 @@ scope inference are excluded. Full Haskell compatibility is not promised.
 ## Build and compile
 
 Install Elan, Git, Python 3.11+, Bash and a C toolchain. The repository pins
-Lean 4.35.0 and its dependency graph. Fetch and build those dependencies, then
+Lean 4.36.0 and its dependency graph. Fetch and build those dependencies, then
 build the compiler:
 
 ```sh

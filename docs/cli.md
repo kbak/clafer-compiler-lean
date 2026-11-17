@@ -24,7 +24,7 @@ from the developer JSON protocol. The pinned
 upstream `Clafer/Verification/ImportMain.lean` also requires external strict JSON
 decoding and imports proof machinery, so it cannot serve the standalone driver.
 
-Lean 4.35.0 supplies `Std.Internal.Parsec`, `Lean.Json`, UTF-8 validation, streams,
+Lean 4.36.0 supplies `Std.Internal.Parsec`, `Lean.Json`, UTF-8 validation, streams,
 exclusive file creation and rename. Its JSON parser overwrites duplicate keys,
 normalizes number tokens and replaces unmatched surrogate escapes with U+FFFD.
 Those behaviors conflict with the accepted [IR interchange](ir.md). Reuse its

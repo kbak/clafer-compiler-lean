@@ -144,7 +144,7 @@ The accepted parser, resolution, constraint, expression and pipeline tests suppl
 the feature witnesses. The guarded M1 comparison remains guarded; source
 comparisons use the [pipeline's observation bridge](pipeline.md#composed-assurance).
 
-Lean 4.35.0 supplies `IO.monoNanosNow`; its existing driver APIs and Lake linker
+Lean 4.36.0 supplies `IO.monoNanosNow`; its existing driver APIs and Lake linker
 response file suffice for an external native stage probe. The probe is test code,
 does not enter the production executable, and must emit the same bytes as the
 ordinary source command. Python's `subprocess`, `statistics`, `hashlib`, `tarfile`

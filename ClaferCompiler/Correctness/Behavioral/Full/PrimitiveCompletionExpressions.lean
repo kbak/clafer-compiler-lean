@@ -198,7 +198,7 @@ mutual
   decreasing_by
     all_goals subst_vars
     all_goals simp
-    all_goals omega
+    omega
 
   theorem predicate_image (h : ObservesCompletion v p l τ R objects)
       (e : IR.Behavioral.Expression.Predicate k n)
@@ -320,7 +320,7 @@ mutual
   decreasing_by
     all_goals subst_vars
     all_goals simp
-    all_goals omega
+    omega
 
   -- [proof->req~compiler-full-behavioral-correctness~1]
   theorem formula_transport (h : ObservesCompletion v p l τ R objects)

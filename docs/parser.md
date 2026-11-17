@@ -8,7 +8,7 @@ semantic validity, M1 admission, satisfiability or compiler correctness.
 
 ## Reuse and representation
 
-[Lexer](../ClaferCompiler/Frontend/Lexer.lean) reuses the pinned Lean 4.35.0
+[Lexer](../ClaferCompiler/Frontend/Lexer.lean) reuses the pinned Lean 4.36.0
 `Std.Internal.Parsec` primitives, alternatives and UTF-8 `String.Pos` cursor.
 [Parser](../ClaferCompiler/Frontend/Parser.lean) uses the standard `StateT`/`Except`
 types. String scanning and comment searches reuse the standard string library.

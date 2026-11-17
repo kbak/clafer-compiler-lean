@@ -28,7 +28,7 @@ theorem ancestor_sound (paths : a.Valid m)
       (interpret m).toEffectiveCore.Ancestor d p from this _ d rfl hp
   intro r
   induction r using Nat.strong_induction_on with
-  | h r ih =>
+  | ind r ih =>
     intro d hd hp
     rw [paths.1 d] at hp
     rcases List.mem_cons.mp hp with he | hp
@@ -56,7 +56,7 @@ theorem owner_sound (paths : a.Valid m)
       Clafer.Behavioral.InheritedReference.Owner (interpret m).family d o from this _ d rfl ho
   intro r
   induction r using Nat.strong_induction_on with
-  | h r ih =>
+  | ind r ih =>
     intro d hd ho
     rw [paths.2 d] at ho
     split at ho
