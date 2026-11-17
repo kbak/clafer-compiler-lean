@@ -55,6 +55,7 @@ class BehavioralElaborationTests(unittest.TestCase):
             'ClaferCompiler.Frontend.Behavioral.InitializerClassification',
             'ClaferCompiler.Frontend.Behavioral.InitializerBounds',
             'ClaferCompiler.Frontend.Behavioral.TemporalSelection',
+            'ClaferCompiler.Frontend.Behavioral.AbstractMultiplicity',
             'ClaferCompiler.Frontend.Behavioral.Elaborate',
             'tests.BehavioralElaborationNative',
         ], 'tests.BehavioralElaborationNative',
