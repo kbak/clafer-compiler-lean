@@ -14,6 +14,8 @@ commands and bounds schema. Its [aggregate contract](abstract-multiplicity.md)
 adds authored abstract counts and rich/core interchange, including models without
 temporal syntax. Compilation JSON retains `authoredBounds` separately from
 effective `localBounds`; omitted authored bounds are `null`.
+The [initializer clock profile](behavioral-frontend.md#explicit-initializer-clocks)
+uses the same commands and adds authored timing choices to these bounds.
 
 ## Reuse and boundaries
 

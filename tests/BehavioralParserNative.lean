@@ -104,6 +104,16 @@ def run (files : List String) : IO Unit := do
     | throw (IO.userError "profile selection was bypassed")
   unless e.code == "behavioral.profile" && e.category == .unsupported do
     throw (IO.userError "wrong profile diagnostic")
+  -- [utest->req~compiler-initializer-clocks~1]
+  for choice in [ClockChoice.perInstance, .perCollection] do
+    let source := "abstract r -> int 0..3 := " ++ choice.keyword ++ " 1"
+    let .ok doc := parseBehavioral IR.BehavioralStructural.clockProfile "fixture.cfr" source
+      | throw (IO.userError "explicit initializer failed to parse")
+    let [.declaration h [] _] := doc.elements | throw (IO.userError "expected one declaration")
+    let some ann := h.clockAnnotation | throw (IO.userError "missing authored clock")
+    unless ann.choice == choice && Parser.spanValid source ann.span &&
+        h.structural.cardinality.isSome && h.initializer.any (fun (op, _) => op.text == ":=") do
+      throw (IO.userError "clock annotation lost its declaration context")
   for file in files do
     IO.println (← observe (← IO.FS.readFile file))
     IO.println "END"

@@ -20,6 +20,7 @@ def productionClock : Option Frontend.Behavioral.Initializers.Clock → Clafer.B
   | some .parentBirth => .parentBirth
   | some .globalZero => .globalZero
 
+-- [proof->req~compiler-initializer-clocks~1]
 -- [proof->req~compiler-behavioral-elaboration~1]
 /-- The executable classification and its provenance certificate construct the
 accepted production obligation, with the actual resolved RHS retained. -/
@@ -34,7 +35,7 @@ theorem classifies_production {source : Frontend.Behavioral.Document}
       (BehavioralStructural.interpret b.resolved.admitted.core) p.declaration
       (if op.text = "=" then .constant else .initial)
       ((header.structural.cardinality.map Frontend.Resolution.cardBounds).map Structural.bounds)
-      (Frontend.Behavioral.Initializers.scalarAt b.resolved.candidate.core (source.source.utf8ByteSize + 1) a) a =
+      (Frontend.Behavioral.Initializers.scalarAt b.resolved.candidate.core (source.source.utf8ByteSize + 1) a) a (header.clockChoice.map choice) =
         .ok ⟨p.declaration, if (b.resolved.candidate.core.get p.declaration).parent.isSome then .parent else .root,
           productionClock c, a⟩ := by
   rw [Clafer.Behavioral.Initializers.Structure.elaborate, ← metadata_agrees b p.declaration header provenance]
@@ -42,7 +43,7 @@ theorem classifies_production {source : Frontend.Behavioral.Document}
   · simp [op, Clafer.Behavioral.Initializers.elaborate, metadata,
       Frontend.Behavioral.Initializers.metadata, productionClock]
   · have agree := classify_agrees (Frontend.Behavioral.Initializers.metadata b p.declaration header)
-      (Frontend.Behavioral.Initializers.scalarAt b.resolved.candidate.core (source.source.utf8ByteSize + 1) a)
+      (Frontend.Behavioral.Initializers.scalarAt b.resolved.candidate.core (source.source.utf8ByteSize + 1) a) header.clockChoice
     rw [classified] at agree
     rw [ite_eq_right (by rw [op]; decide)]
     simp only [Clafer.Behavioral.Initializers.elaborate, ← agree]

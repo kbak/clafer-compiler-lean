@@ -151,3 +151,57 @@ def qualification_cases():
         'P\n  abstract xs -> int * := 0\n  x : xs\n' + TEMPORAL, 4,
         [(1, 1, 0), (2, 3, 1), (3, 3, 1)], [[1, 2], [1, 3]],
         values=[{2: 0}, {3: 1}], supers={3: 2})
+
+
+CLOCK_PROFILE = 'behavioral-initializer-clocks/1'
+
+
+def clock_cases():
+    def model(*args, **kwargs):
+        c = case(*args, **kwargs)
+        c['candidate']['profile'] = c['bounds']['profile'] = CLOCK_PROFILE
+        return c
+
+    for word in ('each', 'together'):
+        each = word == 'each'
+        yield 'late-seven-' + word, 'violated' if each else 'satisfied', model(
+            f'abstract Val -> int 0..3 := {word} 1\nv : Val *\n', 3,
+            [(1, 2, 0)], [[], [1]], values=[{}, {1: 7}], supers={2: 1}, interval=(0, 7))
+        yield 'head-rebirth-' + word, 'violated' if each else 'satisfied', model(
+            f'P\n  r -> int ? := {word} 0\n', 3, [(1, 1, 0), (2, 2, 1)],
+            [[1, 2], [1], [1, 2]], values=[{2: 0}, {}, {2: 1}])
+        yield 'parent-rebirth-' + word, 'violated', model(
+            f'P ?\n  r -> int * := {word} 0\n', 3, [(1, 1, 0), (2, 2, 1)],
+            [[1, 2], [], [1, 2]], values=[{2: 0}, {}, {2: 1}])
+        # Capture a live reference whose scalar extraction at the next frame
+        # is undefined. Only the selected initializer's head set changes.
+        for present in (False, True):
+            rhs = 'if (let old = v in X (sum old = 0)) then 0 else 0'
+            yield f'partial-{word}-{present}', 'undefined' if present else 'satisfied', model(
+                f'v -> int ?\nr -> int * := {word} {rhs}\n', 3, [(1, 1, 0), (2, 2, 0)],
+                [[1, 2] if present else [1], []], interval=(0, 0))
+        yield 'static-plural-' + word, 'violated' if each else 'satisfied', model(
+            f'r ->> int 2 := {word} 0, 1\n', 2, [(1, 1, 0), (2, 1, 0)], [[1, 2]],
+            values=[{1: 0, 2: 1}])
+        yield 'duplicate-bag-target-' + word, 'satisfied', model(
+            f'r ->> int 2 := {word} 1\n', 2, [(1, 1, 0), (2, 1, 0)], [[1, 2]],
+            values=[{1: 1, 2: 1}])
+
+    # A late birth satisfies the global-zero initializer but still exceeds the bound.
+    yield 'late-upper-bound', 'violated', model(
+        'abstract R ->> int ? := together 1\nr : R *\n', 3, [(1, 2, 0), (2, 2, 0)],
+        [[], [1, 2]], supers={2: 1})
+    # Only the global union across both actual parents has both required targets.
+    yield 'global-across-parents', 'satisfied', model(
+        'abstract R ->> int 1..* := together 0, 1\nP *\n  a : R ?\n', 4,
+        [(1, 2, 0), (2, 2, 0), (3, 3, 1), (4, 3, 2)], [[1, 2, 3, 4]],
+        values=[{3: 0, 4: 1}], supers={3: 1})
+    # The concrete view narrows the multiplicity and adds its own equation.
+    # On a late birth the inherited each still fires, while its * shorthand would not.
+    yield 'inherited-each', 'violated', model(
+        'P\n  abstract R -> int * := each 0\n  a : R ? := together 1\n' + TEMPORAL, 4,
+        [(1, 1, 0), (2, 3, 1)], [[1], [1, 2]], values=[{}, {2: 1}], supers={3: 2})
+    # An annotated sibling alone cannot switch an existing := from static-first.
+    yield 'mixed-shorthand', 'violated', model(
+        's -> int ? := each 0\nr -> int ? := 0\n', 3,
+        [(1, 2, 0)], [[1], [1]], values=[{1: 0}, {1: 1}])

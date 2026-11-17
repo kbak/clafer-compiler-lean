@@ -103,7 +103,7 @@ def elaborate (selectedProfile : String) (doc : Document) : Except Diagnostic (E
   if !IR.BehavioralStructural.knownProfile selectedProfile then
     throw (errorAt (startToken doc) "behavioral.profile" "unsupported behavioral profile" .unsupported)
   let (raw, paths, groups, realized) ← prepareWith true doc
-  let aggregate := selectedProfile == IR.BehavioralStructural.aggregateProfile
+  let aggregate := IR.BehavioralStructural.aggregateEnabled selectedProfile
   let raw := { raw with declarations := raw.declarations.map (fun d =>
     { d with localBounds := localBounds aggregate (d.authored.map (·.isAbstract) |>.getD false) (d.authored.bind (·.localBounds)) d.localBounds }) }
   let c ← (bindCandidate raw paths groups realized).mapError

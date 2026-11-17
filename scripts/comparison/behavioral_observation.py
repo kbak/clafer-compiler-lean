@@ -401,7 +401,7 @@ class Observation:
                 # [impl->req~compiler-abstract-multiplicity~1]
                 # Independent source counts use original authored intervals, not
                 # the generated formulas or lowered effective metadata.
-                if self.compiled.get('profile') == 'behavioral-abstract-multiplicity/1' and row['abstract']:
+                if self.compiled.get('profile') in ('behavioral-abstract-multiplicity/1', 'behavioral-initializer-clocks/1') and row['abstract']:
                     bound = row['authoredBounds'] or dict(lower=0, upper=None)
                     counts = ([len(heads)] if row['parent'] is None else
                               [sum(self.parent(x) == p for x in heads)

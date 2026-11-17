@@ -13,7 +13,7 @@ Analyzer correspondence are tested separately.
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
 [manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`6093ed5ac584ddc5d110c094e3da914897725d6b` and its inherited Mathlib/dependency commits.
+`1749f3e62c22fc3903145897681d14c36169bdf5` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.

@@ -38,8 +38,9 @@ the legacy projection before migration. Parser/native execution and serializatio
 remain tested boundaries.
 
 `compile-behavioral-source` accepts `--format rich`, `core`, `rich-json` and
-`core-json` when the bounds select `behavioral-rich-core/1` or the
-[aggregate abstract multiplicity extension](abstract-multiplicity.md), alongside existing
+`core-json` for `behavioral-rich-core/1`, the
+[aggregate abstract multiplicity profile](abstract-multiplicity.md) and the
+[initializer clock profile](behavioral-frontend.md#explicit-initializer-clocks), alongside existing
 Alloy/compilation JSON outputs. The first pair
 prints readable JSON; the second prints compact JSON of the same versioned
 schemas. These are Lean's resolved interchange formats, not Haskell's `.cfr`
@@ -54,7 +55,10 @@ Patterns and transitions remain identifiable even inside conditions and binders.
 The graph records empty-navigation tails as intentionally ignored. Initializers
 retain `=`/`:=`, declaration ID, original RHS attachment and a separate explicit
 clock (`every-live`, `instance-birth`, `parent-birth`, `global-zero`); temporal
-selection is recorded separately. Effective structure is available in the
+selection is recorded separately. An authored clock also produces
+`clockAnnotation` with its keyword and byte span. The `temporal` flag on each
+header records whether it uses birth timing for `:=`, including an explicitly
+selected clock in an otherwise non-temporal model. Effective structure is available in the
 lowered model. Making bounds explicit cannot silently reclassify an omitted
 abstract multiplicity.
 

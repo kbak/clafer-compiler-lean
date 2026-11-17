@@ -279,16 +279,18 @@ theorem body_expansion {source : Frontend.Behavioral.Document}
     (p : Frontend.Behavioral.BoundHeaderProperty b.resolved.candidate.core)
     (clock : Option Frontend.Behavioral.Initializers.Clock)
     (right : Expression.Collection b.resolved.count 0)
-    (reference : (IR.BehavioralSupport.referenceView b.resolved.admitted p.declaration).isSome = true) :
-    Frontend.Behavioral.initializerBody b p clock right =
+    (reference : (IR.BehavioralSupport.referenceView b.resolved.admitted p.declaration).isSome = true)
+    (selected : Option Frontend.Behavioral.ClockChoice := none) :
+    Frontend.Behavioral.initializerBody b p clock right selected =
       Frontend.Behavioral.initializerFormula p.declaration
         ((BehavioralStructural.interpret b.resolved.admitted.core).family.parent p.declaration).isSome
-        true source.temporal clock right := by
+        true (selected.isSome || source.temporal) clock right := by
   unfold Frontend.Behavioral.initializerBody
   rw [reference, b.resolved.sameCore]
   rfl
 
 -- [proof->req~compiler-behavioral-elaboration~1]
+-- [proof->req~compiler-initializer-clocks~1]
 /-- Certified classification of the authored header selects the production
 meaning of the actual generated formula. Reference and validity premises describe
 structural observations; neither supplies initializer truth. -/
@@ -306,15 +308,15 @@ theorem body_meaning {U : Type} {source : Frontend.Behavioral.Document}
       (BehavioralStructural.interpret b.resolved.admitted.core).family p.declaration o) :
     let m := BehavioralStructural.interpret b.resolved.admitted.core
     (Expression.formula m.toEffectiveCore (Clafer.Behavioral.Structural.observed m τ) R
-      (Frontend.Behavioral.initializerBody b p clock right)).PartialAttached
+      (Frontend.Behavioral.initializerBody b p clock right header.clockChoice)).PartialAttached
       (Clafer.Behavioral.Structural.observed m τ) Expression.observation
       (Clafer.Behavioral.Initializers.Structure.contexts m τ p.declaration) ↔
     Clafer.Behavioral.Initializers.Meaning τ (Clafer.Behavioral.Initializers.Structure.view m τ valid owner) (rhs m τ R)
       ⟨p.declaration, Clafer.Behavioral.Initializers.Structure.origin m p.declaration,
-        if source.temporal then productionClock clock else .everyLive, right⟩ := by
+        if header.clockChoice.isSome || source.temporal then productionClock clock else .everyLive, right⟩ := by
   dsimp only
-  rw [body_expansion b p clock right reference]
-  cases temporal : source.temporal with
+  rw [body_expansion b p clock right reference header.clockChoice]
+  cases temporal : (header.clockChoice.isSome || source.temporal) with
   | false =>
     rw [Production.static_formula]
     exact Production.every_meaning _ τ R valid owner right

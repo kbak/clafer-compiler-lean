@@ -14,6 +14,8 @@ def excluded (text : String) : Bool :=
 
 def pastWords : List String := ["previous", "once", "historically", "since", "triggered"]
 
+def clockChoices : List ClockChoice := [.perInstance, .perCollection]
+
 def binaryPower : String → Option Nat
   | "U" | "until" | "since" => some 8 | "W" | "weakuntil" | "triggered" => some 9
   | "*" | "/" | "%" => some 18 | "<:" => some 21 | ":>" => some 22
@@ -154,7 +156,10 @@ def expressionStep (pastEnabled : Bool) (previous : Parsers) (minimum : Nat) : P
         let body ← previous.expression bodyPower
         pure (.unary t body (extent t.span body.span))
     else if let some n := t.text.toNat? then pure (.integer t n)
-    else if isName t || t.text == "noclafer" then pure (.name t)
+    else if isName t || t.text == "noclafer" then do
+      if (← get).extraReserved.contains t.text && clockChoices.any (·.keyword == t.text) then
+        reject t "parser.name" "expected an expression, found a reserved keyword"
+      pure (.name t)
     else reject t "behavioral.expression" "expected a behavioral expression"
   previous.tail minimum left
 
@@ -222,11 +227,16 @@ def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
     if [".", "++", "--", "**", "&", ",", "("].contains (← peek).text then
       reject (← peek) "behavioral.type-expression" "type positions require a single name" .unsupported
   let card ← cardinality layout start false
-  let initializer ← if (← headerContinues layout start) && ((← peek).text == "=" || (← peek).text == ":=") then do
+  let (initializer, clockAnnotation) ← if (← headerContinues layout start) && ((← peek).text == "=" || (← peek).text == ":=") then do
       let op ← pop
+      let t ← peek
+      let annotation ← if op.text == ":=" && (← get).extraReserved.contains t.text then
+          (clockChoices.find? (·.keyword == t.text)).mapM fun choice => do
+            return (⟨choice, (← pop).span⟩ : ClockAnnotation)
+        else pure none
       let value ← previous.expression 0
-      pure (some (op, value))
-    else pure none
+      pure (some (op, value), annotation)
+    else pure (none, none)
   let trans ← if (← headerContinues layout start) && ["-->", "-->>", "-["].contains (← peek).text then do
       let (op, guard) ← arrow previous
       let target ← previous.expression 0
@@ -235,7 +245,7 @@ def header (previous : Parsers) (layout : Bool) (start : Token) : P Header := do
   return {
     structural := { name := n, abstractToken, group, super, superPath, reference, cardinality := card }
     modifiers := mods
-    initializer
+    initializer, clockAnnotation
     transition := trans }
 
 def elementStep (previous : Parsers) (top layout : Bool) : P Element := do
@@ -288,13 +298,15 @@ def parseBehavioral (profile file source : String) : Except Diagnostic Document 
     throw (lexError file 0 0 1 1 .unsupported "behavioral.profile" "unsupported behavioral profile")
   let tokens ← lexWith excluded file source
   let pastEnabled := IR.BehavioralStructural.explicitProfile profile
+  let clocks := profile == IR.BehavioralStructural.clockProfile
+  let reserved := (if pastEnabled then pastWords else []) ++ (if clocks then clockChoices.map (·.keyword) else [])
   let eof : Token := tokens.back?.getD ⟨"", ⟨file, source.utf8ByteSize, source.utf8ByteSize⟩, 1, 1, 1⟩
   let action : P (List Element) := do
     let grammar := Nat.repeat (parserStep pastEnabled) (4 * tokens.size + 4) parserBase
     let es ← grammar.elements true (some 1) none
     let _ ← expect ""
     return es
-  let (elements, _) ← action.run ⟨tokens.toList, eof, eof, if pastEnabled then pastWords else []⟩
+  let (elements, _) ← action.run ⟨tokens.toList, eof, eof, reserved⟩
   return ⟨file, source, elements⟩
 
 end ClaferCompiler.Frontend.Behavioral
