@@ -566,3 +566,8 @@ The separately selected `behavioral-rich-core/1` parser adds [past operators](pa
 [Rich export](rich-core.md) retains resolved operation graphs and explicit initializer
 clocks. Successful reporting warns about distinct literal unions on concrete,
 at-most-one reference declarations, including inherited references; it does not reject those concrete models.
+
+[Core export](rich-core.md#finality-lowering) materializes the complete effective
+modifier expansion before erasing modifier declarations. Rich source retains the
+authored modifiers; core replay uses ordinary constraints and does not need rich
+provenance to interpret finality.

@@ -78,10 +78,47 @@ class ExplicitTests(unittest.TestCase):
                 self.assertEqual(self.ok(core.decode(), count, explicit=True).stdout, core)
                 self.assertEqual(self.ok(rich.decode(), count, 'rich-json', explicit=True).stdout, rich)
                 self.assertEqual(self.ok(rich.decode(), count, explicit=True).stdout, core)
-                for form in (rich, core):
-                    self.assertEqual(self.ok(form.decode(), count, 'alloy', explicit=True).stdout, target)
+                self.assertEqual(self.ok(rich.decode(), count, 'alloy', explicit=True).stdout, target)
+                core_target = self.ok(core.decode(), count, 'alloy', explicit=True).stdout
+                if source.startswith('enum '):
+                    # Enum literals carry finality. Core v2 materializes its
+                    # attachments; exact-trace tests establish semantic agreement.
+                    self.assertNotEqual(core_target, target)
+                else:
+                    self.assertEqual(core_target, target)
                 pretty = self.ok(core.decode(), count, 'core', explicit=True).stdout
                 self.assertEqual(self.ok(pretty.decode(), count, 'core', explicit=True).stdout, pretty)
+
+    def test_finality_erasure_and_legacy_migration(self):
+        source = 'abstract final R ->> int\nr : R *\n'
+        core = json.loads(self.ok(source, 3).stdout)
+        self.assertEqual(core['version'], 'clafer-explicit-core/2')
+        self.assertNotIn('modifiers', core)
+        self.assertTrue(core['constraints'])
+        self.assertEqual(json.loads(self.ok(json.dumps(core), 3, explicit=True).stdout), core)
+        rich = json.loads(self.ok(source, 3, 'rich-json').stdout)
+        self.assertEqual(rich['version'], 'clafer-explicit-rich/2')
+        self.assertIn('final', rich['source']['text'])
+        self.assertEqual(rich['lowered'], core)
+        bad = copy.deepcopy(core)
+        bad['modifiers'] = [['final'] for _ in bad['structure']['declarations']]
+        self.assertEqual(self.call(json.dumps(bad), 3, explicit=True).returncode, 2)
+        legacy_source = json.loads((ROOT / 'tests/fixtures/explicit-v1/rich.json').read_text())['source']['text']
+        legacy_target = self.ok(legacy_source, 2, 'alloy').stdout
+        for kind in ('core', 'rich'):
+            legacy = (ROOT / f'tests/fixtures/explicit-v1/{kind}.json').read_text()
+            self.assertEqual(self.ok(legacy, 2, 'alloy', explicit=True).stdout, legacy_target)
+            result = self.ok(legacy, 2, explicit=True)
+            self.assertEqual(json.loads(result.stdout)['version'], 'clafer-explicit-core/2')
+            self.assertEqual(self.ok(result.stdout.decode(), 2, explicit=True).stdout, result.stdout)
+            if kind == 'rich':
+                migrated = json.loads(self.ok(legacy, 2, 'rich-json', explicit=True).stdout)
+                self.assertEqual(migrated['version'], 'clafer-explicit-rich/2')
+                self.assertEqual(migrated['source']['text'], legacy_source)
+                self.assertEqual(migrated['lowered'], json.loads(result.stdout))
+                edited = json.loads(legacy)
+                edited['lowered']['modifiers'] = [[] for _ in edited['lowered']['modifiers']]
+                self.assertEqual(self.call(json.dumps(edited), 2, explicit=True).returncode, 2)
 
     def test_rich_intent_clocks_and_stale_annotations(self):
         source = ('enum E = a | b\nabstract P\n  r -> int := 1\n'

@@ -69,7 +69,7 @@ theorem validateModifiers_properties (v : IR.BehavioralStructural.Validated k)
 -- [proof->req~compiler-full-behavioral-correctness~1]
 theorem compile_output (r : Request k) (b : Bounds) (fuel : Nat) (c : Compiled)
     (success : compile r b fuel = .ok c) : Nonempty (CompileOutput r b fuel c) := by
-  unfold compile at success
+  unfold compile IR.Behavioral.ModifierLowering.obligations at success
   cases hb : validateBounds r.model.structural b with
   | error err => simp [hb, bind, Except.bind] at success
   | ok value =>

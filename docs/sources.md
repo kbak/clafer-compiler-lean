@@ -1056,7 +1056,7 @@ retains this limitation without changing source semantics.
 
 ## Accepted semantics-main dependency
 
-The installed dependency is immutable upstream main
+The earlier dependency baseline is immutable upstream main
 `a450a8062d832fa188794717cf35bc0f60d776f8`, with its accepted
 [0.5.8 release adapter and v2 profile](#clafer-058-source-and-replay),
 [production initializer semantics](https://github.com/kbak/clafer-semantics/pull/179),
@@ -1156,6 +1156,30 @@ Lean's resolved JSON interfaces from Haskell's explicit Clafer syntax, and
 [past](past.md) states the source/target and observer assumptions.
 
 
+## Finality core reduction
+
+The finality reduction was accepted at immutable upstream main
+[`773ecf6a511c0110f89b54acdcfddc777f516898`](https://github.com/kbak/clafer-semantics/commit/773ecf6a511c0110f89b54acdcfddc777f516898),
+which adds [modifier lowering](https://github.com/kbak/clafer-semantics/pull/195)
+to the rich/core and past baseline. It preserves the earlier meanings and exposes
+`Modifiers.lowerCore`, `lowerCore_partial_agrees`, `lowerCore_agrees` and
+`loweredHolds_iff`. The compiler reuses the existing executable captured-set
+expansion and proves correspondence with this independent reduction.
+
+The source authority remains behavioral paper §5 Definitions 3–5 and §§6.1–6.2,
+p. 2:32, together with the accepted D5 completion. The paper does not define
+`finalref` or `finaltarget`. Equivalence retains `Structural.Valid`, original
+placement and the total inherited-set adapter; arbitrary partial observations
+retain their strict domains. Runtime modules do not import the noncomputable
+semantic lowering. This update adds no dependency or license cost beyond the
+existing MIT semantic library.
+
+The pinned Haskell rich/core candidate and historical comparison profiles remain
+unchanged. Later Haskell `release-0-5-9` proposals are not adopted by this task.
+The [rich/core contract](rich-core.md#finality-lowering) records reusable machinery,
+finite attachment specialization, version migration and proof/runtime boundaries.
+
+
 ## Aggregate abstract multiplicity
 
 The installed semantics revision is
@@ -1169,11 +1193,11 @@ every-state obligations and static snapshot/constant-trace agreement. The
 [upstream contract](https://github.com/kbak/clafer-semantics/blob/6093ed5ac584ddc5d110c094e3da914897725d6b/docs/abstract-multiplicity.md)
 distinguishes this extension from historical parentless-local vacuity.
 
-The pin delta also includes the additive finality core-lowering development from
-[semantics #192](https://github.com/kbak/clafer-semantics/pull/192); the compiler's
-existing finality lowering is unchanged. Toolchain and transitive dependency pins
-are unchanged. Fresh comparison receipts bind the installed semantics revision;
-older receipts retain their original identities.
+The installed pin also includes the accepted
+[finality core reduction](#finality-core-reduction) and its compiler integration.
+Aggregate constraints and finality constraints coexist in explicit core v2.
+Toolchain and transitive dependency pins are unchanged. Fresh comparison receipts
+bind the installed semantics revision; older receipts retain their original identities.
 
 The inspected Haskell `Intermediate/ResolverInheritance.hs` `analyzeCard` at
 [186d8e0](https://github.com/gsdlab/clafer/blob/186d8e0a350e4c8895b1c489eb587fa3a1bc2b61/src/Language/Clafer/Intermediate/ResolverInheritance.hs)

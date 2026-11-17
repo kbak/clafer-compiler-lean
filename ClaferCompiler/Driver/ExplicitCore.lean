@@ -53,7 +53,9 @@ def structureJson (v : IR.BehavioralStructural.Validated k) : Json :=
 
 -- [impl->req~compiler-rich-core-explicit~1]
 def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.Warning := [])
+    (legacy : Bool := false)
     (profile : String := IR.BehavioralStructural.richProfile) : Except Diagnostic Json := do
+  let r := if legacy then r else ModifierLowering.lower r
   let v := r.model.structural
   let pass := BehavioralSyntax.encode v.core.structural budget
   let property := fun (c : Constraint k) => do
@@ -62,13 +64,13 @@ def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.W
   let command ← match r.command with
     | .check i => pure (Json.mkObj [("kind", toJson "check"), ("assertion", toJson i.val)])
     | .run cs => do pure (Json.mkObj [("kind", toJson "run"), ("scenario", toJson (← cs.mapM property))])
-  return Json.mkObj [("version", toJson "clafer-explicit-core/1"),
+  return Json.mkObj <| [("version", toJson (if legacy then "clafer-explicit-core/1" else "clafer-explicit-core/2")),
     ("profile", toJson profile),
     ("structure", structureJson v),
-    ("modifiers", toJson (r.model.modifiers.toList.map fun ms => ms.map BehavioralSource.modifierName)),
     ("constraints", toJson (← r.model.constraints.mapM property)),
     ("assertions", toJson (← r.model.assertions.mapM property)), ("command", command),
-    ("warnings", toJson (warnings.map BehavioralSource.warningJson))]
+    ("warnings", toJson (warnings.map BehavioralSource.warningJson))] ++
+      if legacy then [("modifiers", toJson (r.model.modifiers.toList.map fun ms => ms.map BehavioralSource.modifierName))] else []
 
 def group (n : Node) : Except Diagnostic Frontend.Resolution.Group := do
   match ← Behavioral.tag n with
@@ -123,13 +125,18 @@ structure Input (k : Nat) where
 -- [impl->req~compiler-rich-core-explicit~1]
 def decode (file text : String) : Except Diagnostic (Σ k, Input k) := do
   let n ← parse file text true
-  version n "version" "clafer-explicit-core/1" "explicit.version"
+  let schema ← string (← field n "version")
+  unless schema == "clafer-explicit-core/1" || schema == "clafer-explicit-core/2" do
+    throw { bad n "unsupported explicit version" with code := "explicit.version", category := .unsupported }
+  let legacy := schema == "clafer-explicit-core/1"
   let profile ← string (← field n "profile")
   unless IR.BehavioralStructural.explicitProfile profile do
     throw { bad n "unsupported explicit profile" with code := "behavioral.profile", category := .unsupported }
-  closed n ["version", "profile", "structure", "modifiers", "constraints", "assertions", "command", "warnings"]
+  closed n (["version", "profile", "structure", "constraints", "assertions", "command", "warnings"] ++
+    if legacy then ["modifiers"] else [])
   let ⟨k, v⟩ ← structureRead (← field n "structure")
-  let ms ← array (fun n => (array modifier n).map Array.toList) (← field n "modifiers")
+  let ms ← if legacy then array (fun n => (array modifier n).map Array.toList) (← field n "modifiers")
+    else pure (Array.replicate k [])
   if length : ms.size = k then
     let model : Properties.Model k (Expression.Atom k) (Expression.Collection k) := {
       structural := v, modifiers := ⟨ms, length⟩
@@ -178,6 +185,6 @@ def compile (file text boundsFile boundsText : String) (objects bitwidth : Optio
     |>.mapError (BehavioralSource.encodingDiagnostic boundsFile)
   let rendered ← Backend.Alloy.Temporal.Text.render out.val.module (BehavioralSource.names r.model.structural)
     |>.mapError fun _ => { code := "compiler.render", phase := "serialization", category := .operational, message := "generated temporal text failed checked reconstruction" : Diagnostic }
-  return ⟨k, ⟨r, b, fuel, out.val, rendered.text, ← encode r (text.utf8ByteSize + 1) input.warnings input.profile, input.warnings, out.property⟩⟩
+  return ⟨k, ⟨r, b, fuel, out.val, rendered.text, ← encode r (text.utf8ByteSize + 1) input.warnings (profile := input.profile), input.warnings, out.property⟩⟩
 
 end ClaferCompiler.Driver.ExplicitCore

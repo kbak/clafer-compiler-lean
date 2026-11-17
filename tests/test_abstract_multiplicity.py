@@ -37,10 +37,22 @@ class AbstractMultiplicityTests(unittest.TestCase):
         for source, count in sources:
             rich = self.ok(source, count, 'rich-json', profile=PROFILE).stdout
             core = self.ok(source, count, 'core-json', profile=PROFILE).stdout
+            self.assertEqual(json.loads(core)['version'], 'clafer-explicit-core/2')
+            self.assertNotIn('modifiers', json.loads(core))
             target = self.ok(source, count, 'alloy', profile=PROFILE).stdout
             self.assertEqual(self.ok(rich.decode(), count, 'rich-json', explicit=True, profile=PROFILE).stdout, rich)
             self.assertEqual(self.ok(rich.decode(), count, explicit=True, profile=PROFILE).stdout, core)
             self.assertEqual(self.ok(core.decode(), count, explicit=True, profile=PROFILE).stdout, core)
+            legacy_core = json.loads(core)
+            legacy_core['version'] = 'clafer-explicit-core/1'
+            legacy_core['modifiers'] = [[] for _ in legacy_core['structure']['declarations']]
+            legacy_rich = json.loads(rich)
+            legacy_rich['version'] = 'clafer-explicit-rich/1'
+            legacy_rich['lowered'] = legacy_core
+            for legacy in (legacy_core, legacy_rich):
+                self.assertEqual(self.ok(json.dumps(legacy), count, explicit=True, profile=PROFILE).stdout, core)
+            self.assertEqual(self.ok(json.dumps(legacy_rich), count, 'rich-json', explicit=True,
+                                     profile=PROFILE).stdout, rich)
             for form in (rich, core):
                 self.assertEqual(self.ok(form.decode(), count, 'alloy', explicit=True, profile=PROFILE).stdout, target)
             erased = json.loads(core)

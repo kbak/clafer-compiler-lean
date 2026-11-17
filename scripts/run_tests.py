@@ -29,7 +29,8 @@ ISOLATED_GROUPS = {
 }
 ISOLATED_MODULES = set.union(*ISOLATED_GROUPS.values())
 REFERENCE_MODULES = {'test_pr113_oracles', 'test_temporal_oracles', 'test_rich_reference'}
-SOURCE_MODULES = ISOLATED_GROUPS['--behavioral-source-worker'] | ISOLATED_GROUPS['--behavioral-cli-worker']
+SOURCE_MODULES = (ISOLATED_GROUPS['--behavioral-source-worker'] |
+                  ISOLATED_GROUPS['--behavioral-cli-worker'] | {'test_finality_core'})
 
 
 def cases(suite):

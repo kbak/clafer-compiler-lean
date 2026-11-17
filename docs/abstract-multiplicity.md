@@ -39,6 +39,10 @@ owners at every time. No synthetic parent edge is added to an abstract type.
 The constraints enter the common model before Alloy compilation or rich/core
 export. Imported core preserves them even when all optional authored metadata is
 removed. Rich replay re-elaborates and checks the entire lowered model.
+Explicit core v2 carries aggregate and finality constraints together, with no
+modifier table. Legacy v1 rich/core imports retain the selected profile and
+migrate to v2 using the shared modifier lowering. Combined exact candidates
+check stable populations, identity swaps and both aggregate endpoints.
 
 The existing bitwidth, arithmetic range and finite observation checks also apply
 to aggregate literals and counts. The integer value interval does not restrict

@@ -19,6 +19,9 @@ while [requirements](spec.md) record the compiler and workflow obligations.
 The selected [rich/core interchange](rich-core.md) adds resolved intent and a
 self-contained core input for the same behavioral backend. [Past operators](past.md)
 retain the original parent-lifetime attachment through every lowering stage.
+[Finality erasure](rich-core.md#finality-lowering) shares the existing captured-set
+expansion with Alloy compilation and preserves its complete inherited obligations
+in independently replayable core constraints.
 
 ## Ownership and dependencies
 
