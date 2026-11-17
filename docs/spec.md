@@ -1653,7 +1653,14 @@ attachments, effective bounds and resolved identities. Reuse the certified
 frontend's single lowering. Provide versioned, closed, readable and compact
 interchange, with fixed-point replay, retained diagnostics and explicit rejection
 of stale annotations or unavailable rich intent. Initializer admission precedes
-all outputs; a multiple-literal reference warning is informative. Keep existing
+all outputs; a multiple-literal reference warning is informative. Materialize all
+effective finality obligations through the shared capture/equality expansion,
+including both components of `final` and the full distinct `finaltarget` image.
+Core version 2 contains no modifier declarations; preserve original attachment,
+inherited owners, strict definedness and lifetime resets. Prove erasure agreement
+with the accepted upstream core reduction and compose it with target preservation.
+Retain version 1 input semantics through explicit migration and test both formats,
+fixed points, distinguishing traces and mutations. Keep existing
 cardinality/fragment analyses and preserve solution sets. Imported core requests
 reuse full target soundness and bounded completeness under their actual primitive,
 structural, arithmetic and observation assumptions. Serialization is tested.

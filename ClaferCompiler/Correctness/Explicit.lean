@@ -1,7 +1,7 @@
 module
 
 public import ClaferCompiler.Driver.ExplicitCore
-public import ClaferCompiler.Correctness.Behavioral.Full.CompilerCorrectness
+public import ClaferCompiler.Correctness.Behavioral.Full.ModifierCore
 
 @[expose] public noncomputable section
 namespace ClaferCompiler.Correctness.Explicit

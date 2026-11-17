@@ -20,7 +20,9 @@ Needs: req
 
 The selected [rich/core extension](rich-core.md) preserves resolved modeling
 intent and adds [parent-lifetime past operators](past.md) under a separate profile.
-Its upstream candidate and compiler integration require independent review.
+Its compiler integration requires independent review. Finality core erasure keeps
+both shallow head/reference stability and complete target-image stability while
+preserving independently replayable constraints.
 
 ## Current boundary
 

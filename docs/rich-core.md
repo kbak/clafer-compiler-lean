@@ -1,14 +1,41 @@
 # Rich and core explicit models
 
 The selected extension `behavioral-rich-core/1` preserves modeling intent alongside
-resolved meaning. Its source semantics was accepted in [clafer-semantics #189](https://github.com/kbak/clafer-semantics/pull/189).
-The dependency also pins the [native-search correction #191](https://github.com/kbak/clafer-semantics/pull/191);
-independent acceptance of that correction and this compiler extension remains a
-review obligation. The qualified `behavioral-0.5.8/v2` profile remains available
-and rejects new past syntax. The static frontend and first-slice JSON v1 retain
-their existing admission boundaries.
+resolved meaning. It uses the accepted [past semantics](https://github.com/kbak/clafer-semantics/pull/189),
+[native-search correction](https://github.com/kbak/clafer-semantics/pull/191) and
+[modifier core reduction](https://github.com/kbak/clafer-semantics/pull/195).
+The qualified `behavioral-0.5.8/v2` profile remains available and rejects new past
+syntax. The static frontend and first-slice JSON v1 retain their existing admission
+boundaries.
 
 ## Interfaces and lowering
+
+### Finality lowering
+
+Finality erasure reuses the existing captured-set expansion, inherited modifier
+collection, checked expression lowering and strict explicit decoder. The accepted
+upstream `Modifiers.lowerCore_agrees` and `loweredHolds_iff` supply the independent
+semantic reduction. The executable expansion remains downstream because upstream
+lowering is noncomputable and runtime modules cannot import proof dependencies.
+No additional package, runtime or license dependency is needed; the upstream
+library and existing implementation are MIT.
+
+The shared expansion retains each obligation's placement. Explicit core converts
+all-object placement to ordinary constraints on each nonprimitive declaration;
+overlapping inherited heads repeat a conjunct without changing its meaning.
+Primitive completion contributes only empty, stable views at integer owners.
+Head placement remains on the head, and parent placement uses the original
+declared parent. This reuses the existing constraint and capture machinery rather
+than adding a second attachment language or relying on rich metadata at replay.
+The preservation proof discharges these placement and primitive boundaries,
+in addition to the existing strict expression and modifier equivalence results.
+
+Version 2 output erases modifier declarations after materializing their complete
+obligations, including `final`'s per-head reference stability. Version 1 remains
+readable with its original semantics. Rich version 2 retains authored modifiers
+in its source and validates the new core projection; legacy rich replay checks
+the legacy projection before migration. Parser/native execution and serialization
+remain tested boundaries.
 
 `compile-behavioral-source` accepts `--format rich`, `core`, `rich-json` and
 `core-json` when the bounds select `behavioral-rich-core/1`, alongside existing
@@ -19,7 +46,7 @@ printer syntax. `compile-behavioral-explicit` reads either form with explicit
 bounds and emits Alloy or the requested explicit form. Rich export describes a
 model; selected assertions and scenarios use core export. Output is atomic.
 
-`clafer-explicit-rich/1` retains the authored source with logical locations,
+`clafer-explicit-rich/2` retains the authored source with logical locations,
 enumerations mapped to declaration IDs, and a resolved expression graph. Every
 node retains its operation, typed value, operands, binding slots and attachment.
 Patterns and transitions remain identifiable even inside conditions and binders.
@@ -37,8 +64,8 @@ to change a rich model. `Driver.ExplicitRich.expression` reuses the existing
 resolver for all nodes, including cursor navigation and generated binder slots.
 It does not reconstruct intent heuristically from expanded formulas.
 
-`clafer-explicit-core/1` contains checked effective declarations, group provenance,
-rank certificates, declared modifiers, resolved constraints/assertions and a
+`clafer-explicit-core/2` contains checked effective declarations, group provenance,
+rank certificates, resolved constraints/assertions and a
 model/check/scenario command. It has no dependency on source replay. The full
 seven-family decoder checks constructor arities, IDs and lexical indices before
 calling the same full compiler. Source spans and warning metadata survive replay;
@@ -52,7 +79,14 @@ explicit context transport. No `:=` remains in core. The core retains strict
 `initially`/`finally` guards as semantic primitives; ordinary temporal target
 lowering expands their birth/death tests with previous/next. Replacing these
 guards with ordinary strict source implication would change undefinedness.
-Existing finality lowering is unchanged.
+All effective modifiers become ordinary constraints, including both head and
+reference stability for `final`, per-head `finalref`, target-set `finaltarget`
+and initial-presence obligations. The version 2 schema has no modifier table;
+inserting one is rejected. The shared capture/equality expansion is also used by
+source-to-Alloy compilation. Core replay compiles the materialized constraints
+with an empty modifier table, so obligations are not enforced twice. The resulting
+Alloy text may differ from direct source compilation because finite declaration
+attachments replace all-object placement; exact candidate tests compare meanings.
 
 ## Consumers and assurance
 
@@ -65,13 +99,26 @@ must preserve solutions independently of whether its opportunity came from
 explicit intent or analysis.
 
 `Correctness.Explicit.sound` and `complete` reuse the actual compiler's full
-preservation theorems for imported core requests. They require a distinguished
-integer declaration; bounded completeness requires the existing source `Fits`
-conditions, including occurrence capacity, ranges, scopes and lasso length.
-Parser/printer round trips, rich annotation replay and native execution are
-separate tested boundaries. Tests check rich and core fixed points, identical
-Alloy output, selected queries, warning preservation, stale annotations, bad
-lexical slots and negative intent-recovery requests.
+preservation theorems for imported core requests. `ModifierCore.upstream_agrees`
+connects the shared executable expansion to upstream `Modifiers.LoweredHolds`.
+`ModifierCore.result_agrees` proves that materialization and erasure preserve the
+original model, assertions and scenarios; `compiled_lower_sound` and
+`compiled_lower_complete` compose that result with actual target preservation.
+They retain structural validity, total inherited-set observations and the existing
+ordinary finite-carrier types. Soundness derives ordinary types from target facts;
+bounded completeness uses `Fits`, including occurrence capacity, integer ranges,
+scopes and lasso length. `ModifierLowering.lower_idempotent` proves that repeated
+lowering adds no obligations.
+
+Parser/printer round trips, rich annotation replay and native execution remain
+separate tested boundaries. Tests retain legacy core/rich input, reject stale
+metadata and modifier tables in version 2, and check fixed points, selected queries
+and warnings. Exact source/rich/core Alloy observations cover additions, losses,
+swaps, replacement, repeated bag targets, inherited owners, parent and head gaps,
+shallow finality and enum literals. Mutations remove reference/target stability or
+replace the attachment survival guard with root survival.
+Rich replay must emit the identical source target before sharing its exact-trace
+result; materialized core targets are solved independently.
 
 The representation reuses `Frontend.Behavioral.ParsedModel`, the resolved
 expression families, `BehavioralSyntax`, strict JSON parsing and the existing

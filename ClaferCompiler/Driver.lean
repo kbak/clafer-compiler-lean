@@ -18,7 +18,7 @@ open Backend.Alloy
 
 def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-source (selected static)\n" ++
   "ir: clafer-ir/1; bounds: clafer-bounds/1 (IR), clafer-bounds/2 (source)\n" ++
-  "semantics: 3c63d760be99741617c6af539a9e304909d18b26\n" ++
+  "semantics: 773ecf6a511c0110f89b54acdcfddc777f516898\n" ++
   "haskell-reference: dbc06d37ef23eb9186d1016e3bf678858621e92d\n" ++
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
@@ -135,14 +135,14 @@ def compileExplicit (inputFile input boundsFile boundsText format : String)
     (objects bitwidth : Option Nat) : Except Diagnostic (String × List Frontend.Behavioral.Warning) := do
   let n ← Decode.parse inputFile input true
   let kind ← Decode.string (← Decode.field n "version")
-  if kind == "clafer-explicit-rich/1" then
+  if kind == "clafer-explicit-rich/1" || kind == "clafer-explicit-rich/2" then
     let p ← ExplicitRich.decode inputFile input
     let selected ← BehavioralSource.selectedProfile boundsFile boundsText
     if selected != IR.BehavioralStructural.richProfile then
       throw { code := "behavioral.profile", phase := "bounds", category := .unsupported, message := "explicit input requires behavioral-rich-core/1" : Diagnostic }
     let compiled ← BehavioralSource.compileReport p.source.file p.source.source boundsFile boundsText .model objects bitwidth
     return (← sourceOutput compiled.product format compiled.warnings, compiled.warnings)
-  else if kind == "clafer-explicit-core/1" then
+  else if kind == "clafer-explicit-core/1" || kind == "clafer-explicit-core/2" then
     if ["rich", "rich-json"].contains format then
       throw { code := "explicit.intent-unavailable", phase := "serialization", category := .unsupported, message := "core input has no authored rich intent; use the rich export" : Diagnostic }
     let ⟨_, compiled⟩ ← ExplicitCore.compile inputFile input boundsFile boundsText objects bitwidth

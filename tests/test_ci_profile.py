@@ -143,7 +143,8 @@ class CIProfileTests(unittest.TestCase):
             for name in names:
                 (root/'tests'/name).write_text(good)
             references = ['test_pr113_oracles.py', 'test_temporal_oracles.py', 'test_rich_reference.py']
-            sources = ['test_behavioral_source_cli.py', 'test_behavioral_source_comparison.py']
+            sources = ['test_behavioral_source_cli.py', 'test_behavioral_source_comparison.py',
+                       'test_finality_core.py']
             for name in references + sources:
                 (root/'tests'/name).write_text(bad)
             def run(*args):
@@ -167,7 +168,7 @@ class CIProfileTests(unittest.TestCase):
                 (root/'tests'/name).write_text(good)
             source = run('--source-ci')
             self.assertEqual(source.returncode, 0, source.stderr)
-            self.assertEqual(source.stderr.count('test_ok ('), 2)
+            self.assertEqual(source.stderr.count('test_ok ('), len(sources))
             for name in sources:
                 for text in ['', bad, good.replace(' def test_ok', ' @unittest.skip("fixture")\n def test_ok')]:
                     (root/'tests'/name).write_text(text)
