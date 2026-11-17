@@ -28,6 +28,7 @@ class FinalityCoreReplayTests(unittest.TestCase):
 
     # [utest->req~compiler-rich-core-explicit~1]
     # [utest->req~compiler-full-behavioral-correctness~1]
+    # [utest->req~compiler-abstract-multiplicity~1]
     def test_finality_core_exact_replay(self):
         rows = [(n, e, c) for n, _, e, c in features()
                 if n.startswith(('modifier-', 'inherited-final', 'inherited-initial'))]
@@ -36,11 +37,22 @@ class FinalityCoreReplayTests(unittest.TestCase):
             [(1, 1, 0), (2, 2, 1)], [[1, 2], [1, 2]], values=[{2: 0}, {2: 1}], width=3)))
         rows.append(('enum-final', 'satisfied', case('enum E = a | b\n', 4,
             [(1, 2, 0), (2, 3, 0)], [[1, 2], [1, 2]], width=3, supers={2: 1, 3: 1})))
+        # Stable counts do not imply stable identities, and finality cannot
+        # replace either endpoint of the independently authored aggregate bound.
+        for name, expected, identities, live in (
+            ('stable', 'satisfied', [(1, 2, 0)], [[1], [1]]),
+            ('swap', 'violated', [(1, 2, 0), (2, 2, 0)], [[1], [2]]),
+            ('underflow', 'violated', [], [[], []]),
+            ('overflow', 'violated', [(i, 2, 0) for i in range(1, 4)], [[1, 2, 3], [1, 2, 3]])):
+            rows.append(('aggregate-final-' + name, expected, case(
+                'abstract A 1..2\nfinal a : A *\n', 3, identities, live, supers={2: 1})))
         mutation_names = {'modifier-False-final-swap', 'modifier-False-finaltarget-gap', 'inherited-final-True'}
         def replay(row):
             name, expected, original = row
             c = copy.deepcopy(original)
-            c['bounds']['profile'] = c['candidate']['profile'] = 'behavioral-rich-core/1'
+            c['bounds']['profile'] = c['candidate']['profile'] = (
+                'behavioral-abstract-multiplicity/1' if name.startswith('aggregate-final-')
+                else 'behavioral-rich-core/1')
             directory = self.output / ('core-finality-' + name.replace(' ', '-'))
             result = self.runtime.compare(c, directory)
             p = bs.temporal.read(directory / 'compilation.json')

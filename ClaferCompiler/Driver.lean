@@ -18,11 +18,11 @@ open Backend.Alloy
 
 def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-source (selected static)\n" ++
   "ir: clafer-ir/1; bounds: clafer-bounds/1 (IR), clafer-bounds/2 (source)\n" ++
-  "semantics: 773ecf6a511c0110f89b54acdcfddc777f516898\n" ++
+  "semantics: 6093ed5ac584ddc5d110c094e3da914897725d6b\n" ++
   "haskell-reference: dbc06d37ef23eb9186d1016e3bf678858621e92d\n" ++
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"
-  ++ "\nbehavioral-source: behavioral-0.5.8/v2, behavioral-rich-core/1; clafer-behavioral-bounds/2"
+  ++ "\nbehavioral-source: behavioral-0.5.8/v2, behavioral-rich-core/1, behavioral-abstract-multiplicity/1; clafer-behavioral-bounds/2"
   ++ "\nbehavioral-source-policy: literal-empty-navigation/1; warnings: clafer-warning/1"
 
 def usage : String := "usage: clafer-compiler --version | --help\n" ++
@@ -121,12 +121,12 @@ def explicitText (format : String) (j : Lean.Json) : String :=
 def sourceOutput (p : BehavioralSource.Product) (format : String)
     (warnings : List Frontend.Behavioral.Warning) : Except Diagnostic String := do
   if ["rich", "core", "rich-json", "core-json"].contains format &&
-      p.profile != IR.BehavioralStructural.richProfile then
+      !IR.BehavioralStructural.explicitProfile p.profile then
     throw {
       code := "behavioral.profile", phase := "serialization", category := .unsupported
-      message := "explicit output requires behavioral-rich-core/1" : Diagnostic }
+      message := "explicit output requires a rich/core profile" : Diagnostic }
   if ["core", "core-json"].contains format then
-    return explicitText format (← ExplicitCore.encode p.request (p.fuel + 1) warnings)
+    return explicitText format (← ExplicitCore.encode p.request (p.fuel + 1) warnings (profile := p.profile))
   else if ["rich", "rich-json"].contains format then
     return explicitText format (← ExplicitRich.encode p.parsed (BehavioralSource.budget p.parsed.source.source .model))
   else return if format == "json" then p.json.compress ++ "\n" else p.text
@@ -138,8 +138,8 @@ def compileExplicit (inputFile input boundsFile boundsText format : String)
   if kind == "clafer-explicit-rich/1" || kind == "clafer-explicit-rich/2" then
     let p ← ExplicitRich.decode inputFile input
     let selected ← BehavioralSource.selectedProfile boundsFile boundsText
-    if selected != IR.BehavioralStructural.richProfile then
-      throw { code := "behavioral.profile", phase := "bounds", category := .unsupported, message := "explicit input requires behavioral-rich-core/1" : Diagnostic }
+    if selected != (← Decode.string (← Decode.field n "profile")) then
+      throw { code := "behavioral.profile", phase := "bounds", category := .unsupported, message := "explicit input and bounds profiles must match" : Diagnostic }
     let compiled ← BehavioralSource.compileReport p.source.file p.source.source boundsFile boundsText .model objects bitwidth
     return (← sourceOutput compiled.product format compiled.warnings, compiled.warnings)
   else if kind == "clafer-explicit-core/1" || kind == "clafer-explicit-core/2" then

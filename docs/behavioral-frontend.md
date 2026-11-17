@@ -561,6 +561,8 @@ Independent semantic review and source-matched qualification are required for C7
 acceptance; this API inventory does not grant that acceptance.
 
 The separately selected `behavioral-rich-core/1` parser adds [past operators](past.md).
+`behavioral-abstract-multiplicity/1` also selects that syntax and the
+[aggregate abstract-bound lowering](abstract-multiplicity.md).
 [Rich export](rich-core.md) retains resolved operation graphs and explicit initializer
 clocks. Successful reporting warns about distinct literal unions on concrete,
 at-most-one reference declarations, including inherited references; it does not reject those concrete models.

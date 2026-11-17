@@ -287,7 +287,7 @@ def parseBehavioral (profile file source : String) : Except Diagnostic Document 
   if !IR.BehavioralStructural.knownProfile profile then
     throw (lexError file 0 0 1 1 .unsupported "behavioral.profile" "unsupported behavioral profile")
   let tokens ← lexWith excluded file source
-  let pastEnabled := profile == IR.BehavioralStructural.richProfile
+  let pastEnabled := IR.BehavioralStructural.explicitProfile profile
   let eof : Token := tokens.back?.getD ⟨"", ⟨file, source.utf8ByteSize, source.utf8ByteSize⟩, 1, 1, 1⟩
   let action : P (List Element) := do
     let grammar := Nat.repeat (parserStep pastEnabled) (4 * tokens.size + 4) parserBase

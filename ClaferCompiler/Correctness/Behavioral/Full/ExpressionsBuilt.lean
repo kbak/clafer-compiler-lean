@@ -254,7 +254,7 @@ theorem lowerStep_integer (c : Expressions.Context n) (a : IR.Behavioral.Express
   | extract a => exact bind_any (fun range => bind (ih.collection c a) (fun value built =>
       pure (Value.bind_built _ _ built (IntegerObservation.extractionBody_built range.values))))
   | cardinality a => exact bind_any (fun range => bind (ih.collection c a) (fun value built =>
-      pure (Value.bind_built _ _ built (IntegerObservation.cardinalityBody_built c.lexical.aliases range.budget))))
+      pure (Value.bind_built _ _ built (IntegerObservation.cardinalityBody_built (c.captureAliases range.values) range.budget))))
   | binary op a d => exact bind (ih.integer c a) (fun left hl => bind (ih.integer c d)
       (fun right hr => pure (integerBinary op left right hl hr)))
   | negate a => exact bind (ih.integer c a) (fun value built => pure (Value.map_built value _ built))

@@ -26,9 +26,18 @@ instance (doc : Document) (c : Candidate n) (p : Path) (name : Option Name)
   unfold SuperRule
   cases j <;> cases q <;> cases name <;> simp only <;> infer_instance
 
-/-- Independent source/table correspondence, retaining the behavioral
-nested-abstract domain and its plain/qualified superclass policy. -/
-def SourceRow (doc : Document) (c : Candidate n) (i : Fin n) : Prop :=
+/-- Lower only valid authored abstract ranges; invalid source intervals remain
+visible to ordinary structural validation. Historical defaults are unchanged. -/
+-- [impl->req~compiler-abstract-multiplicity~1]
+def localBounds (aggregate : Bool) (abstract : Bool) (authored : Option Bounds)
+    (default : Bounds) : Bounds :=
+  if aggregate && abstract && decide (authored.getD {}).Valid then {}
+  else authored.getD default
+
+/-- Independent source/table correspondence, retaining original metadata and
+the explicitly selected abstract-bound lowering. -/
+def SourceRow (doc : Document) (c : Candidate n) (i : Fin n)
+    (aggregate : Bool := false) : Prop :=
   match c.paths[i], c.header doc i with
   | some path, some h =>
     let d := c.core.get i
@@ -45,16 +54,16 @@ def SourceRow (doc : Document) (c : Candidate n) (i : Fin n) : Prop :=
     ReferenceRule doc c path h.reference d.reference ∧
     c.groups[i] = (h.group.map authoredGroup).getD (super.getD (.bounds {})) ∧
     d.groupBounds = c.groups[i].range ∧
-    d.localBounds = (h.cardinality.map cardBounds).getD
+    d.localBounds = localBounds aggregate h.abstractToken.isSome (h.cardinality.map cardBounds)
       ((d.parent.map (fun p => c.groups[p].childDefault)).getD ⟨1, .finite 1⟩) ∧
     d.isAbstract = (h.abstractToken.isSome || (parent.map (·.isAbstract)).getD false) ∧
     CoversChildren doc c path
   | _, _ => False
 
-instance (doc : Document) (c : Candidate n) (i : Fin n) : Decidable (SourceRow doc c i) := by
+instance (doc : Document) (c : Candidate n) (i : Fin n) (aggregate : Bool) : Decidable (SourceRow doc c i aggregate) := by
   unfold SourceRow; split <;> infer_instance
 
-def Elaboration (doc : Document) (c : Candidate n) : Prop :=
+def Elaboration (doc : Document) (c : Candidate n) (aggregate : Bool := false) : Prop :=
   c.core.root.val = 0 ∧
   (∀ i : Fin n, (c.core.get i).id = i.val) ∧
   CoversChildren doc c [] ∧
@@ -70,11 +79,11 @@ def Elaboration (doc : Document) (c : Candidate n) : Prop :=
       c.groups[i] = .bounds {} ∧ (c.core.get i).groupBounds = {} ∧
       (c.core.get i).localBounds = {} ∧ i.val + 1 = n ∧
       ((∃ j : Fin n, (c.core.get j).reference.target = some i) ∨ hasConstraints doc c = true)
-   else SourceRow doc c i) ∧
+   else SourceRow doc c i aggregate) ∧
   (∀ i j : Fin n, PathOrder c i j)
 
 set_option synthInstance.maxSize 1024 in
-instance (doc : Document) (c : Candidate n) : Decidable (Elaboration doc c) := by
+instance (doc : Document) (c : Candidate n) (aggregate : Bool) : Decidable (Elaboration doc c aggregate) := by
   unfold Elaboration; infer_instance
 
 def core (doc : Document) (c : Candidate n) : IR.BehavioralStructural.Core n :=
@@ -83,7 +92,8 @@ def core (doc : Document) (c : Candidate n) : IR.BehavioralStructural.Core n :=
 structure Elaborated (doc : Document) where
   count : Nat
   candidate : Candidate count
-  correspondence : Elaboration doc candidate
+  aggregate : Bool := false
+  correspondence : Elaboration doc candidate aggregate
   admitted : IR.BehavioralStructural.Validated count
   sameCore : admitted.core = core doc candidate
 
@@ -93,14 +103,17 @@ def elaborate (selectedProfile : String) (doc : Document) : Except Diagnostic (E
   if !IR.BehavioralStructural.knownProfile selectedProfile then
     throw (errorAt (startToken doc) "behavioral.profile" "unsupported behavioral profile" .unsupported)
   let (raw, paths, groups, realized) ← prepareWith true doc
+  let aggregate := selectedProfile == IR.BehavioralStructural.aggregateProfile
+  let raw := { raw with declarations := raw.declarations.map (fun d =>
+    { d with localBounds := localBounds aggregate (d.authored.map (·.isAbstract) |>.getD false) (d.authored.bind (·.localBounds)) d.localBounds }) }
   let c ← (bindCandidate raw paths groups realized).mapError
     (fun e => errorAt (startToken doc) e.code "invalid resolved table" e.category)
-  if h : Elaboration doc c then
+  if h : Elaboration doc c aggregate then
     let m := core doc c
     if hs : IR.BehavioralStructural.supported m then
       let a := IR.BehavioralStructural.analyze m
       if hc : IR.BehavioralStructural.checks m c.certificate a then
-        return ⟨_, c, h, ⟨m, c.certificate, a, hc, hs⟩, rfl⟩
+        return ⟨_, c, aggregate, h, ⟨m, c.certificate, a, hc, hs⟩, rfl⟩
       else throw (errorAt (startToken doc) "behavioral.structural-admission" "invalid behavioral declaration relationships")
     else throw (errorAt (startToken doc) "behavioral.primitive-domain" "unsupported primitive domain" .unsupported)
   else throw (errorAt (startToken doc) "behavioral.correspondence" "declarative elaboration validation failed")

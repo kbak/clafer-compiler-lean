@@ -36,33 +36,7 @@ variable {v : IR.BehavioralStructural.Validated k} {b : Expression.Ranges.Inputs
   {labels : Fin o ↪ Nat} {c : Context n} {ρ : Clafer.Behavioral.Environment (Completion o) n}
   {e : Environment} {t fuel : Nat} {next : Pass k}
 
--- [proof->req~compiler-behavioral-partial-lowering~1]
-/-- Filtering integer literals by the domain's established interval preserves
-its alias cover, without imposing liveness or integer typing on ordinary heads. -/
-theorem captureAliases_cover (hc : LexicalRows b s τ labels c ρ e)
-    (inside : S ⊆ observedDomain b.width)
-    (bound : Ranges.CollectionBound completeIntegers estimate S) (x : Completion o) (hx : x ∈ S) :
-    ∃ entry ∈ c.captureAliases estimate.values,
-      ∀ t, Mixed.Unary (completionAtom labels) {x} (entry.eval s b.width τ e t) := by
-  obtain ⟨entry, he, rows⟩ := hc.cover x (inside hx)
-  refine ⟨entry, List.mem_filter.mpr ⟨he, ?_⟩, rows⟩
-  change (match entry.code with
-    | [.integer i] => estimate.values.lower ≤ i && i ≤ estimate.values.upper
-    | _ => true) = true
-  split
-  · rename_i i code
-    have eq : entry = Rel.integer i := by cases entry; simpa [Rel.integer] using code
-    subst entry
-    have member := (rows 0 [completionAtom labels x]).mpr ⟨x, by simp, rfl⟩
-    by_cases fits : Backend.Alloy.fitsInt b.width i = true
-    · have same : completionAtom labels x = Atom.integer i := by
-        simpa [Rel.eval, Rel.integer, Rel.fold, RelAlgebra.step, relationAlgebra, fits] using member
-      have same : x = Sum.inr i := (completionAtom labels).injective same
-      subst x
-      simpa [completeIntegers, IR.Expr.Interval.Contains] using
-        bound.values (Sum.inr i) hx ⟨i, rfl⟩
-    · simp [Rel.eval, Rel.integer, Rel.fold, RelAlgebra.step, relationAlgebra, fits] at member
-  · rfl
+
 
 -- [proof->req~compiler-behavioral-partial-lowering~1]
 theorem formula_quantStep (model : ModelRows v b s τ σ labels)

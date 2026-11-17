@@ -96,6 +96,8 @@ def clockName : Initializers.Clock → String
 -- [impl->req~compiler-rich-core-explicit~1]
 def encode (p : ParsedModel) (allocation : Nat) (legacy : Bool := false) : Except Diagnostic Json := do
   let e := p.elaborated
+  let profile := if e.declarations.resolved.aggregate then
+    IR.BehavioralStructural.aggregateProfile else IR.BehavioralStructural.richProfile
   let d := e.declarations
   let v := d.resolved.admitted
   let m := v.core.structural
@@ -127,9 +129,9 @@ def encode (p : ParsedModel) (allocation : Nat) (legacy : Bool := false) : Excep
           | throw { code := "explicit.enum-origin", phase := "serialization", message := "missing enum origin" : Diagnostic }
         return Json.mkObj [("name", toJson name), ("id", toJson row.id)]
       return Json.mkObj [("family", ← resolve name.text), ("literals", toJson (← literals.mapM fun l => resolve l.text))]
-  let core ← ExplicitCore.encode ⟨e.model, .run []⟩ allocation p.warnings legacy
+  let core ← ExplicitCore.encode ⟨e.model, .run []⟩ allocation p.warnings legacy profile
   return Json.mkObj [("version", toJson (if legacy then "clafer-explicit-rich/1" else "clafer-explicit-rich/2")),
-    ("profile", toJson IR.BehavioralStructural.richProfile),
+    ("profile", toJson profile),
     ("source", Json.mkObj [("file", toJson p.source.file), ("text", toJson p.source.source)]),
     ("enumerations", toJson enums), ("properties", toJson properties), ("headers", toJson headers),
     ("lowered", core), ("warnings", toJson (p.warnings.map BehavioralSource.warningJson))]
@@ -142,12 +144,14 @@ def decode (file text : String) : Except Diagnostic ParsedModel := do
   let schema ← string (← field n "version")
   unless schema == "clafer-explicit-rich/1" || schema == "clafer-explicit-rich/2" do
     throw { bad n "unsupported explicit version" with code := "explicit.version", category := .unsupported }
-  version n "profile" IR.BehavioralStructural.richProfile "behavioral.profile"
+  let profile ← string (← field n "profile")
+  unless IR.BehavioralStructural.explicitProfile profile do
+    throw { bad n "unsupported explicit profile" with code := "behavioral.profile", category := .unsupported }
   closed n ["version", "profile", "source", "enumerations", "properties", "headers", "lowered", "warnings"]
   let origin ← field n "source"
   closed origin ["file", "text"]
   let source ← string (← field origin "text")
-  let p ← parseAndElaborate IR.BehavioralStructural.richProfile (← string (← field origin "file")) source
+  let p ← parseAndElaborate profile (← string (← field origin "file")) source
     |>.mapError Diagnostic.ofSource
   let canonical ← encode p (BehavioralSource.budget source .model) (schema == "clafer-explicit-rich/1")
   unless canonical == n.value do

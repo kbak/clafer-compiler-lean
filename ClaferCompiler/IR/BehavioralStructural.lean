@@ -13,7 +13,13 @@ def profile : String := "behavioral-0.5.8/v2"
 0.5.8 profile remains separately selectable. -/
 def richProfile : String := "behavioral-rich-core/1"
 
-def knownProfile (selected : String) : Bool := selected == profile || selected == richProfile
+-- [impl->req~compiler-abstract-multiplicity~1]
+def aggregateProfile : String := "behavioral-abstract-multiplicity/1"
+
+def explicitProfile (selected : String) : Bool :=
+  selected == richProfile || selected == aggregateProfile
+
+def knownProfile (selected : String) : Bool := selected == profile || explicitProfile selected
 
 /-- Declared references stay declared: inherited references are views of their
 original owner. Authored abstractness and group provenance are retained separately. -/

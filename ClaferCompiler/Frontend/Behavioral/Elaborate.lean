@@ -1,5 +1,6 @@
 module
 
+public import ClaferCompiler.Frontend.Behavioral.AbstractMultiplicity
 public import ClaferCompiler.Frontend.Behavioral.Parser
 public import ClaferCompiler.Frontend.Behavioral.Expressions
 public import ClaferCompiler.Frontend.Behavioral.Warnings
@@ -37,7 +38,7 @@ def Elaborated.generated {source : Document} (e : Elaborated source) :
 def Elaborated.model {source : Document} (e : Elaborated source) :
     Properties.Model e.declarations.resolved.count (Expression.Atom e.declarations.resolved.count) (Expression.Collection e.declarations.resolved.count) :=
   ⟨e.declarations.resolved.admitted, e.modifiers.declared,
-    e.authored .constraint ++ e.generated, e.authored .assertion⟩
+    e.authored .constraint ++ e.generated ++ AbstractMultiplicity.constraints e.declarations, e.authored .assertion⟩
 
 /-- Generated heads retain the declaration of origin; source name lookup is
 used only for the initializer's authored right-hand side. -/

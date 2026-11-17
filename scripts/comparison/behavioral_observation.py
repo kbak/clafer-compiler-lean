@@ -2,7 +2,8 @@
 
 Constructor equations follow the MIT source at clafer-semantics
 3c63d760be99741617c6af539a9e304909d18b26: Denotation, PartialObservation,
-Lifetime, Modifiers and Structural. Copyright 2026 Kacper Bak.
+Lifetime, Modifiers and Structural. Aggregate obligations additionally follow
+6093ed5ac584ddc5d110c094e3da914897725d6b: AbstractMultiplicity. Copyright 2026 Kacper Bak.
 This Python adapter is tested, not kernel proved. The verified first-slice
 checker and full compiler preservation theorems retain their own boundaries.
 """
@@ -397,6 +398,15 @@ class Observation:
                 if row['primitive']: continue
                 heads = self.heads(d,t)
                 if row['reference']['kind'] != 'basic' and any(len(self.reference(d,x,t)) != 1 for x in heads): return False
+                # [impl->req~compiler-abstract-multiplicity~1]
+                # Independent source counts use original authored intervals, not
+                # the generated formulas or lowered effective metadata.
+                if self.compiled.get('profile') == 'behavioral-abstract-multiplicity/1' and row['abstract']:
+                    bound = row['authoredBounds'] or dict(lower=0, upper=None)
+                    counts = ([len(heads)] if row['parent'] is None else
+                              [sum(self.parent(x) == p for x in heads)
+                               for p in self.heads(row['parent'], t)])
+                    if any(not fits(bound, count) for count in counts): return False
                 if row['parent'] is not None:
                     parents = self.heads(row['parent'],t)
                     if any(self.parent(x) not in parents for x in heads): return False

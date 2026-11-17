@@ -142,7 +142,9 @@ def lowerStep (v : IR.BehavioralStructural.Validated k) (b : Expression.Ranges.I
           Value.guard guard (integerFold .sum (heads.map fun alias =>
             Value.pure (Temporal.Integer.scalar estimate.values.lower estimate.values.upper alias)))
     | .extract a => return integerExtract (← collectionEstimate b fuel c a).values (← next.collection c a)
-    | .cardinality a => return integerCardinality c.lexical.aliases (← collectionEstimate b fuel c a).budget (← next.collection c a)
+    | .cardinality a =>
+      let estimate ← collectionEstimate b fuel c a
+      return integerCardinality (c.captureAliases estimate.values) estimate.budget (← next.collection c a)
     | .binary op a d => return integerBinary op (← next.integer c a) (← next.integer c d)
     | .negate a => return integerNegate (← next.integer c a)
     | .fold op ds a =>

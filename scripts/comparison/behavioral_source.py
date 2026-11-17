@@ -23,6 +23,7 @@ def source_identity():
     for name in ('tests/BehavioralSourceTraceNative.lean', 'tests/test_behavioral_source_comparison.py',
                  'tests/behavioral_source_cases.py', 'tests/behavioral_initializer_cases.py',
                  'tests/behavioral_past_cases.py', 'tests/test_rich_core.py',
+                 'tests/behavioral_abstract_multiplicity_cases.py', 'tests/test_abstract_multiplicity.py',
                  'tests/test_behavioral_source_cli.py',
                  'scripts/qualification.py'):
         result[name] = oracle.digest(ROOT/name)
@@ -31,7 +32,7 @@ def source_identity():
 
 def candidate_valid(c, p):
     tc.closed(c, 'version profile root length loop identities frames')
-    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==p['profile'] and c['profile'] in (PROFILE, 'behavioral-rich-core/1'), 'trace profile')
+    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==p['profile'] and c['profile'] in (PROFILE, 'behavioral-rich-core/1', 'behavioral-abstract-multiplicity/1'), 'trace profile')
     n, loop = tc.natural(c['length']), tc.natural(c['loop'])
     tc.require(0 <= loop < n and type(c['frames']) is list and len(c['frames'])==n, 'lasso shape')
     tc.require(type(c['identities']) is list and c['identities'], 'identity inventory')
@@ -168,7 +169,7 @@ class Runtime:
         tc.require('status' not in decoded,'native trace decode failed: '+str(decoded))
         return decoded
 
-    def solve(self,directory,text,trace,p):
+    def solve(self,directory,text,trace,p,*,heap_mb=512):
         directory.mkdir()
         pin,scopes=tc.pin(trace,integer_fields=[SCALAR],typed_aliases=True,positions=True)
         (directory/'model.als').write_text(text+'\n'+pin)
@@ -180,21 +181,22 @@ class Runtime:
                      for name,rows in trace['frames'][0]['signatures'].items()}
         request=dict(command_index=0,overall=1,bitwidth=p['bitwidth'],min_steps=trace['length'],
                      max_steps=trace['length'],identities=populations|scopes)
-        answer=temporal.solve(self.runtime,self.api,directory,request,timeout=120,integer_fields=[SCALAR])
+        answer=temporal.solve(self.runtime,self.api,directory,request,timeout=120,
+                              heap_mb=heap_mb,integer_fields=[SCALAR])
         oracle.write(directory/'result.json',answer)
         return answer
 
-    def compare(self,case,output,*,mutation='none'):
+    def compare(self,case,output,*,mutation='none',heap_mb=512):
         output=oracle.external(output);output.mkdir(parents=True,exist_ok=False)
         oracle.write(output/'case.json',case);oracle.write(output/'runtime.json',self.identity)
-        oracle.write(output/'settings.json',dict(mutation=mutation))
+        oracle.write(output/'settings.json',dict(mutation=mutation,heap_mb=heap_mb))
         started=time.monotonic()
         try:
             tc.require(source_identity()==self.source and oracle.digest(self.compiler)==self.identity['compiler'] and
                        oracle.digest(self.native)==self.identity['decoder'],'runtime changed')
             tc.closed(case,'version source query bounds candidate')
             tc.require(case['version']=='clafer-behavioral-source-case/1','case version')
-            tc.require(mutation in ('none','reject-all','drop-constraints'),'mutation')
+            tc.require(mutation in ('none','reject-all','drop-constraints','drop-core-constraints'),'mutation')
             p=self.compile(output,case);c=case['candidate']
             trace=within_bounds(c,p,case['bounds'])
             decoded=self.decode(output,trace,'candidate')
@@ -211,7 +213,21 @@ class Runtime:
                            'mutation requires whole-line constraints')
                 altered=dict(case,source=''.join(line for line in lines if not line.strip().startswith('[')))
                 md=output/'mutation';md.mkdir();text=self.compile(md,altered)['alloy']
-            answer=self.solve(output/'compiler',text,trace,p)
+            if mutation=='drop-core-constraints':
+                # Mutate the independently compilable core. Removing authored
+                # bracket syntax alone cannot remove generated aggregate facts.
+                tc.require(case['query']['kind']=='model','core mutation requires a model query')
+                md=output/'mutation';md.mkdir()
+                tc.run([self.compiler,'compile-behavioral-source',output/'input.cfr',
+                        '--bounds',output/'bounds.json','--format','core-json','--output','-'],md,'export-core')
+                core=temporal.read(md/'export-core-stdout.log')
+                tc.require(bool(core['constraints']),'mutation requires core constraints')
+                core['constraints']=[]
+                oracle.write(md/'core.json',core)
+                tc.run([self.compiler,'compile-behavioral-explicit',md/'core.json',
+                        '--bounds',output/'bounds.json','--format','alloy','--output','-'],md,'compile-core')
+                text=(md/'compile-core-stdout.log').read_text()
+            answer=self.solve(output/'compiler',text,trace,p,heap_mb=heap_mb)
             if answer['status']=='timeout': raise TimeoutError('solver wall-clock limit')
             tc.require(answer['status']=='ok','inconclusive solver: '+str({k:answer.get(k) for k in ('status','stage','detail')}))
             sat=answer['outcome']=='sat'

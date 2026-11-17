@@ -17,7 +17,8 @@ The completion profile is `behavioral-0.5.8/v2`. Its independent source
 meaning is the [accepted upstream profile][profile], including the reviewed
 departures D1–D5, at the immutable [source revision](sources.md#behavioral-sources).
 The Haskell candidate guides syntax and comparison; its output does not define
-source truth. The Lake dependency now pins the [past integration candidate](past.md); the accepted 0.5.8 comparison profile retains its original contract. Its
+source truth. The Lake dependency now includes the accepted
+[aggregate abstract multiplicity source](abstract-multiplicity.md); the accepted 0.5.8 comparison profile retains its original contract. Its
 [source delta](sources.md#clafer-058-source-and-replay) selects current Haskell
 comparison pins while retaining the static regression corpus and historical receipts. Candidate acceptance still
 requires independent review.
