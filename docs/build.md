@@ -273,8 +273,12 @@ persistent service, custom dependency resolver or result cache is added. These t
 Live log forwarding reuses the pinned upstream workflow's `tail --pid` pattern;
 the full retained log and check exit status remain authoritative.
 
-CI sets `LEAN_NUM_THREADS=2` and `CLAFER_TEST_JOBS=3`; kernel replay also uses two
-workers, after all regression groups finish.
+CI sets `LEAN_NUM_THREADS=2` and `CLAFER_TEST_JOBS=3`; kernel replay defaults to two
+workers, after all regression groups finish. `CLAFER_KERNEL_THREADS=1..4` can
+select its worker limit on hosts with sufficient memory. This reuses the pinned
+Lean checker's existing task pool; every module and declaration is still replayed.
+More workers trade memory for throughput without changing the check deadline,
+proof boundary or dependencies.
 The cache layout reuses the pinned semantics repository's native Lake cache,
 verified-exporter receipt checks, independent download caches and timing wrapper.
 Lake 4.35's `enableArtifactCache` and `restoreAllArtifacts` provide source/options/

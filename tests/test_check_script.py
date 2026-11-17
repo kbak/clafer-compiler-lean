@@ -48,7 +48,8 @@ if [[ "$*" == *linkInfoExport* && "$FAIL_NATIVE" == 1 ]]; then exit 23; fi
                     self.assertEqual(calls[-1], native if fail == '1' else
                                      'python3 scripts/project_modules.py --dependencies')
 
-    def run_check(self, fail='', missing_lake=False, args=(), artifact_cache='false'):
+    def run_check(self, fail='', missing_lake=False, args=(), artifact_cache='false',
+                  kernel_threads='2'):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'scripts').mkdir()
@@ -88,7 +89,8 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
                 path.chmod(0o755)
             env = dict(os.environ, PATH=str(binary), CALLS=str(root / 'calls'),
                        FAIL_STEP=fail, CLAFER_COMPILER_PACKAGES='',
-                       LAKE_ARTIFACT_CACHE=artifact_cache)
+                       LAKE_ARTIFACT_CACHE=artifact_cache,
+                       CLAFER_KERNEL_THREADS=kernel_threads)
             result = subprocess.run(['bash', str(root / 'scripts/check.sh'), *args],
                                     env=env, capture_output=True, text=True, timeout=10)
             calls = root / 'calls'
@@ -116,6 +118,22 @@ if [[ -n "$FAIL_STEP" && "$*" == *"$FAIL_STEP"* ]]; then exit 23; fi
         self.assertIn('kernel completed', calls)
         self.assertIn('lake env python3 scripts/run_tests.py', calls)
         self.assertIn('[check] Kernel replay: exit 0,', result.stdout)
+
+    def test_kernel_worker_override_preserves_failure_and_inventory(self):
+        result, calls = self.run_check(kernel_threads='4', fail='leanchecker')
+        self.assertEqual(result.returncode, 23, result.stdout + result.stderr)
+        self.assertIn('kernel threads=4', calls)
+        self.assertIn('lake env leanchecker --verbose ClaferCompiler Main tests', calls)
+        self.assertIn('audit completed', calls)
+        self.assertIn('kernel completed', calls)
+        self.assertNotIn('All build', result.stdout)
+
+    def test_invalid_kernel_worker_limit_fails_before_gates(self):
+        for workers in ('0', '5', 'invalid'):
+            with self.subTest(workers=workers):
+                result, calls = self.run_check(kernel_threads=workers)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertEqual(calls, [])
 
     def test_compiler_profile_keeps_build_audit_kernel_and_compiler_regressions(self):
         result, calls = self.run_check(args=['--compiler-ci'])

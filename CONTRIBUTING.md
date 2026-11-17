@@ -215,6 +215,8 @@ The axiom audit, regression suite and kernel replay run in sequence to avoid CPU
 and memory contention. After the exclusive PR113 phase, regression groups default
 to two workers; CI selects three. Set `CLAFER_TEST_JOBS=1..4`
 to select a limit, still bounded by CPU availability.
+Kernel replay defaults to two workers; `CLAFER_KERNEL_THREADS=1..4` selects its
+worker limit without changing the replayed declarations or check deadline.
 CI summaries and retained logs report gate and regression-group durations.
 Preparation builds all imported upstream modules, including telematics examples.
 The workflow permits only the exact reviewed `120` → `600` and `600` → `1200` deadline migrations;

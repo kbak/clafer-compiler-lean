@@ -18,6 +18,11 @@ export PYTHONDONTWRITEBYTECODE=1
 export LAKE_ARTIFACT_CACHE="${LAKE_ARTIFACT_CACHE:-false}"
 export LAKE_RESTORE_ARTIFACTS=true
 export LEAN_NUM_THREADS="${LEAN_NUM_THREADS:-4}"
+kernel_threads="${CLAFER_KERNEL_THREADS:-2}"
+case "$kernel_threads" in
+  1|2|3|4) ;;
+  *) echo 'CLAFER_KERNEL_THREADS must be an integer from 1 to 4.' >&2; exit 2 ;;
+esac
 
 # Reuse the pinned semantics check's timing wrapper; a cached build still runs
 # every validation gate against the restored artifacts.
@@ -74,7 +79,7 @@ run_step 'Axiom audit' lake env lean -DwarningAsError=true .lake/validation/axio
 test_status=0
 run_step 'Regression groups' lake env python3 scripts/run_tests.py "${regression_args[@]}" || test_status=$?
 kernel_status=0
-run_step 'Kernel replay' env LEAN_NUM_THREADS=2 lake env leanchecker --verbose ClaferCompiler Main tests || kernel_status=$?
+run_step 'Kernel replay' env LEAN_NUM_THREADS="$kernel_threads" lake env leanchecker --verbose ClaferCompiler Main tests || kernel_status=$?
 if (( audit_status != 0 )); then exit "$audit_status"; fi
 if (( test_status != 0 )); then exit "$test_status"; fi
 if (( kernel_status != 0 )); then exit "$kernel_status"; fi
