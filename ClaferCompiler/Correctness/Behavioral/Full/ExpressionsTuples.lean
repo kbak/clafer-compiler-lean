@@ -246,8 +246,8 @@ theorem countP_assignments {U : Type} (decode : Rel → U) (domain : List Rel)
       exact ⟨⟨xs, hx, rfl⟩, hp⟩
     · rintro ⟨⟨xs, hx, rfl⟩, hp⟩
       exact ⟨xs, ⟨hx, hp⟩, rfl⟩
-  rw [← image, (assignment_injective decode domain injective disjoint arity).mono
-    (fun _ hx => hx.1) |>.ncard_image]
+  have subset : source ⊆ {xs | xs ∈ Expressions.tuples domain disjoint arity} := fun _ hx => hx.1
+  rw [← image, ((assignment_injective decode domain injective disjoint arity).mono subset).ncard_image]
   have eq : source = ↑((Expressions.tuples domain disjoint arity).filter
       (fun xs => decide (P (assignment decode xs)))).toFinset := by
     ext xs
@@ -277,7 +277,8 @@ theorem count_eval {U : Type} (q : IR.Behavioral.Grouped.Count) (S : Set U)
       · intro y hy
         exact Set.mem_singleton_iff.mp (eq ▸ hy)
   | lone =>
-    rw [Set.ncard_le_one (finite.subset (fun _ h => h.1))]
+    have finiteSat : {x | x ∈ S ∧ P x}.Finite := finite.subset (fun _ h => h.1)
+    rw [Set.ncard_le_one finiteSat]
     change (∀ x ∈ S, ∀ y ∈ S, P x → P y → x = y) ↔ _
     constructor
     · exact fun h x hx y hy => h x hx.1 y hy.1 hx.2 hy.2

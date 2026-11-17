@@ -12,8 +12,8 @@ Analyzer correspondence are tested separately.
 ## Package and module ownership
 
 The [toolchain](../lean-toolchain), [Lake configuration](../lakefile.toml) and
-[manifest](../lake-manifest.json) pin Lean 4.35.0, Clafer Semantics
-`1749f3e62c22fc3903145897681d14c36169bdf5` and its inherited Mathlib/dependency commits.
+[manifest](../lake-manifest.json) pin Lean 4.36.0, Clafer Semantics
+`51bac9cf986951ff35d2aa5ebc60f5928acf900a` and its inherited Mathlib/dependency commits.
 There is no path dependency, semantic fork or vendored semantic definition.
 Haskell remains the syntax/comparison guide pinned in [sources](sources.md);
 its [comparison profile](oracles.md) is external to the native runtime.
@@ -58,8 +58,9 @@ are trusted inputs; the audit does not recheck all upstream declarations.
 [The full check](../scripts/check.sh) discovers sources before building. Lake's
 recursive globs and explicit targets cover every module and Lean test, including
 unimported helpers. It then checks clean Git identities for every dependency,
-generates an `import all` audit, exercises native/Python regressions and invokes
-`leanchecker --verbose ClaferCompiler Main tests`. Kernel replay and axiom audit
+generates an `import all` audit, exercises native/Python regressions and replays the
+`ClaferCompiler`, `Main` and `tests` roots using the pinned semantics package's
+Lean 4.36 checker launcher. Kernel replay and axiom audit
 run on every full check and routine CI run, even when Lake reuses unchanged
 compiled artifacts.
 
@@ -68,8 +69,11 @@ retry can reuse completed compilation. It caches no audit, test or kernel verdic
 the full check still runs every gate against the current source.
 
 [The axiom audit](../scripts/axiom_audit.lean) selects declarations by originating
-module, including private names and generated declarations. It rejects project
-axioms and unsafe/partial definitions, and checks transitive axiom dependencies
+module, including private names and generated declarations. For [Lean’s native constructor
+indices](https://github.com/leanprover/lean4/blob/v4.36.0/src/lean/Lean/Meta/Constructions/CtorIdx.lean),
+it checks the registered implementation, its exact tag-read body and the kernel
+index of every constructor. It rejects project axioms and all other unsafe or
+partial definitions, and checks transitive axiom dependencies
 against Lean's standard `propext`, `Classical.choice`, `Quot.sound` allowlist.
 The inventory additionally rejects textual proof escapes even in an unreferenced
 `example` with warnings disabled. Comments and strings are not declarations.

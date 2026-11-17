@@ -80,7 +80,8 @@ theorem occurrences_indexed {sets : List (Set U)} {lists : List (List U)}
       {ix | ix ∈ indexedFrom 0 lists} := by
   ext ix
   rcases ix with ⟨i, x⟩
-  rw [Set.mem_ofPred_eq, indexedFrom_zero_member]
+  change _ ↔ (i, x) ∈ indexedFrom 0 lists
+  rw [indexedFrom_zero_member]
   constructor
   · rintro ⟨⟨j, y⟩, hy, eq⟩
     have ji : j.val = i := congrArg Prod.fst eq

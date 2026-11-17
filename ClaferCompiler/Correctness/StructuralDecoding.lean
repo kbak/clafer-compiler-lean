@@ -109,7 +109,7 @@ theorem declarations_live (s : Schema) (i : Instance)
       ∀ x ∈ i.signatures[k]?.getD [], x ∈ i.signatures[0]?.getD [] := by
     intro k
     induction k using Nat.strong_induction_on with
-    | h k ih =>
+    | ind k ih =>
       intro d hd x hx
       by_cases hz : k = 0
       · simpa [hz] using hx

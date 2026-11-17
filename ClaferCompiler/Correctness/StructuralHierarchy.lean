@@ -47,7 +47,7 @@ theorem occupied_reachable (s : Schema) (i : Instance) (x : Nat)
     (hx : x ∈ i.signatures[k]?.getD []) :
     Relation.ReflTransGen (OccupiedEdge s i x) 0 k := by
   induction k using Nat.strong_induction_on generalizing d with
-  | h k ih =>
+  | ind k ih =>
     cases hp : d.parent with
     | none => simpa [root k d hd hp] using
         (Relation.ReflTransGen.refl : Relation.ReflTransGen (OccupiedEdge s i x) 0 0)

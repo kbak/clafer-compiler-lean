@@ -626,8 +626,10 @@ Retain the pure version and empty-argument response equations; those equations
 prove neither IO nor compiler correctness.
 
 Every full check must replay the project/test kernel declarations and audit their
-module origins, including private/generated declarations. Reject project axioms,
-`sorry`/`admit`, unsafe/partial declarations, and transitive axioms other than
+module origins, including private/generated declarations. Check Lean’s generated
+native constructor indices against their registered implementation, exact tag-read
+body and logical result on every constructor. Reject project axioms,
+`sorry`/`admit`, all other unsafe/partial declarations, and transitive axioms other than
 `propext`, `Classical.choice` and `Quot.sound`. Check the executable import closure
 excludes upstream semantics and proof-only modules. Document native IO/tooling
 trust. Fail on absent tools, failed gates, empty/skipped regressions and unknown

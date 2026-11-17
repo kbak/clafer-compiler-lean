@@ -3,6 +3,8 @@ module
 -- PROJECT_IMPORTS
 public meta import Lean.Elab.Command
 public meta import Lean.Util.CollectAxioms
+public meta import Lean.Meta.Constructions.CtorIdx
+public meta import Lean.Compiler.ImplementedByAttr
 
 /-!
 Audit every declaration originating in the project, including generated/private
@@ -14,6 +16,36 @@ Adapted from clafer-semantics at 1454e3bd2ce9697923cdcef3863c816651ffc147
 module inventory before execution. Running this template alone fails the empty
 audit guard. Module origins, not declaration namespaces, select declarations.
 -/
+
+open Lean Meta in
+/-- Lean 4.36 compiles constructor indices with a native tag read. Check the
+registered implementation, its exact body, and the logical index of every constructor. -/
+private meta def checkedCtorIdxImpl (env : Environment) (impl : DefinitionVal) : MetaM Bool := do
+  let .str index "_impl" := impl.name | return false
+  let some ind := isCtorIdxCore? env index | return false
+  let some (.defnInfo spec) := env.find? index | return false
+  unless ind.numCtors > 1 && !ind.isUnsafe && spec.safety == .safe &&
+      spec.type == impl.type && spec.levelParams == impl.levelParams &&
+      spec.levelParams == ind.levelParams &&
+      env.getModuleIdxFor? ind.name == env.getModuleIdxFor? impl.name &&
+      env.getModuleIdxFor? index == env.getModuleIdxFor? impl.name &&
+      Compiler.getImplementedBy? env index == some impl.name do return false
+  let nativeMatches ← forallTelescope spec.type fun args result => do
+    let some x := args.back? | return false
+    let ty ← inferType x
+    unless ty.getAppFn.isConstOf ind.name && result.isConstOf ``Nat do return false
+    let tag := mkApp2 (mkConst ``getObjTagNat [← getLevel ty]) ty x
+    return impl.value == (← mkLambdaFVars args tag)
+  unless nativeMatches do return false
+  let levels := ind.levelParams.map mkLevelParam
+  for ctorName in ind.ctors do
+    let ctor ← getConstInfoCtor ctorName
+    let correct ← forallTelescope ctor.type fun args ty => do
+      let value := mkAppN (mkConst ctorName levels) args
+      let indexApp := mkApp (mkAppN (mkConst index levels) ty.getAppArgs) value
+      withTransparency .all <| isDefEq indexApp (mkNatLit ctor.cidx)
+    unless correct do return false
+  return true
 
 open Lean in
 -- [utest->req~compiler-build~1]
@@ -38,7 +70,12 @@ run_cmd do
       if roots[i]!.isPrefixOf origin then
         counts := counts.modify i (· + 1)
     if info.isUnsafe || info.isPartial then
-      throwError "unsafe or partial project declaration: {name}"
+      let accepted ← match info with
+        | .defnInfo d =>
+          if d.safety != .unsafe then pure false
+          else Elab.Command.liftTermElabM (checkedCtorIdxImpl env d)
+        | _ => pure false
+      unless accepted do throwError "unsafe or partial project declaration: {name}"
     if let .axiomInfo _ := info then
       throwError "new project axiom: {name}"
     let axioms ← collectAxioms name

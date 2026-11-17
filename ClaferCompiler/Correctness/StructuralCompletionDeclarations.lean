@@ -39,7 +39,7 @@ theorem source_top {U : Type} (v : IR.Structural.Layout n)
     ∃ e, (v.core.get e).super = none ∧ x ∈ s.head e := by
   generalize hk : v.certificate.superRank[d] = k
   induction k using Nat.strong_induction_on generalizing d with
-  | h k ih =>
+  | ind k ih =>
     cases hp : (v.core.get d).super with
     | none => exact ⟨d, hp, hx⟩
     | some p =>

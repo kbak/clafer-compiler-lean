@@ -61,7 +61,7 @@ private theorem shorthand_agrees (d : Metadata) (scalar : Bool) :
         Bool.and_false, Bool.and_true, decide_true,
         Bool.false_eq_true, ↓reduceIte]
     all_goals split_ifs <;> simp_all [IR.Structural.Bounds.mk.injEq, DPGraph.Predicates.Range.mk.injEq]
-    all_goals split_ifs <;> rfl
+    first | done | split_ifs <;> rfl
 
 -- [proof->req~compiler-initializer-clocks~1]
 theorem classify_agrees (d : Metadata) (scalar : Bool) (selected : Option Frontend.Behavioral.ClockChoice := none) :

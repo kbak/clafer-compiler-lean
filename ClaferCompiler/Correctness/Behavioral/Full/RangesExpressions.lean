@@ -143,7 +143,7 @@ mutual
   termination_by sizeOf a
   decreasing_by
     all_goals (subst_vars; simp)
-    all_goals omega
+    omega
 end
 
 /-- Each accepted scalar derivation bounds its successful value by the target

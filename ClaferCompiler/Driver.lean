@@ -18,7 +18,7 @@ open Backend.Alloy
 
 def version : String := "clafer-compiler 0.1.0\nprofiles: m1-effective; m2-source (selected static)\n" ++
   "ir: clafer-ir/1; bounds: clafer-bounds/1 (IR), clafer-bounds/2 (source)\n" ++
-  "semantics: 1749f3e62c22fc3903145897681d14c36169bdf5\n" ++
+  "semantics: 51bac9cf986951ff35d2aa5ebc60f5928acf900a\n" ++
   "haskell-reference: dbc06d37ef23eb9186d1016e3bf678858621e92d\n" ++
   "source-text: selected static; compilation does not run a solver"
   ++ "\nbehavioral: behavioral-core/1; clafer-behavioral-ir/1; clafer-behavioral-bounds/1"

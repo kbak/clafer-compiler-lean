@@ -21,9 +21,9 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/1749f3e62c22fc3903145897681d14c36169bdf5) | `1749f3e62c22fc3903145897681d14c36169bdf5` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/51bac9cf986951ff35d2aa5ebc60f5928acf900a) | `51bac9cf986951ff35d2aa5ebc60f5928acf900a` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Structural and behavioral comparison/compiler/grammar baseline and release corpus; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/LICENSE). External validation only. |
-| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
+| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/51bac9cf986951ff35d2aa5ebc60f5928acf900a/lean-toolchain): `leanprover/lean4:v4.36.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/51bac9cf986951ff35d2aa5ebc60f5928acf900a/lakefile.toml): `fc4f59e577feb1a4956671bc04ac18aaaf8cd842` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `f9b4f9e40722dc6a83067ac9e62480159322dd09` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
 
@@ -463,7 +463,7 @@ The four-byte `A ?` source in `tests/fixtures/comparison` is original project co
 
 The [authored parser correspondence](parser.md#sources-and-comparison) records the
 exact grammar, generated Alex character classes and public Haskell parse checks.
-It reuses Lean 4.35.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
+It reuses Lean 4.36.0's Apache-2.0 `Std.Internal.Parsec` and UTF-8 cursor rather than
 copying parser infrastructure. New Clafer-specific code and fixtures are original
 MIT project code. Native properties and the existing hash-checked Haskell capture
 adapter test syntax only. M1 capture rejection after parsing is not an M2 semantic
@@ -555,7 +555,7 @@ admission/backend/text APIs. S6 `Generator/Alloy.hs` (`genModule`, `header`) and
 `ClaferArgs.hs` were inspected: Haskell's inferred scopes, optional validation and
 multiple output modes do not replace the adopted explicit-bound, compiler-only
 command. The pinned upstream `Verification/ImportMain.lean` documents its external
-strict-decoding boundary. Lean 4.35.0 `Lean/Data/Json/Parser.lean` and
+strict-decoding boundary. Lean 4.36.0 `Lean/Data/Json/Parser.lean` and
 `Std/Internal/Parsec` supply reusable parser primitives; `Init/System/IO.lean`
 supplies strict UTF-8, streams, exclusive creation and rename. The driver adds
 strict duplicate-key/surrogate/natural-token checks instead of using the generic
@@ -607,7 +607,7 @@ The [qualification adapters](qualification.md) reuse the full accepted corpus,
 S5/S6's public `Language.Clafer` pipeline and `Generator.Alloy.genModule`, the
 existing verified external build recipe, and S7's actual parser for independent
 scope/bitwidth auditing. They never widen the M1 semantic comparison guard.
-Lean 4.35.0 `Init/System/IO.lean` supplies monotonic stage timestamps; Lake's actual
+Lean 4.36.0 `Init/System/IO.lean` supplies monotonic stage timestamps; Lake's actual
 linker response supplies the native object closure. Python's standard libraries
 and GNU time supply process measurement, source export and receipts. These tools
 run externally; their source is not copied. The adapters and generated inputs are

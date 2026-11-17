@@ -11,10 +11,10 @@ open IR.Behavioral
 open Frontend.Behavioral.Initializers
 open Clafer.Behavioral (Trace Environment)
 
-private theorem bound_scalar (r : IR.Structural.Bounds) (S : Set U)
+private theorem bound_scalar (r : IR.Structural.Bounds) (p : U → Prop)
     (small : singleBound r = true)
-    (bound : DPGraph.Predicates.InRange (Structural.bounds r) {x // x ∈ S}) :
-    S.Subsingleton := by
+    (bound : DPGraph.Predicates.InRange (Structural.bounds r) {x // p x}) :
+    {x | p x}.Subsingleton := by
   rcases r with ⟨lo, hi⟩
   cases hi with
   | unbounded => simp [singleBound] at small
