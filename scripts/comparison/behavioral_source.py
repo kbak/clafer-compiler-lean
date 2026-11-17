@@ -32,7 +32,7 @@ def source_identity():
 
 def candidate_valid(c, p):
     tc.closed(c, 'version profile root length loop identities frames')
-    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==p['profile'] and c['profile'] in (PROFILE, 'behavioral-rich-core/1', 'behavioral-abstract-multiplicity/1'), 'trace profile')
+    tc.require(c['version']=='clafer-behavioral-trace/2' and c['profile']==p['profile'] and c['profile'] in (PROFILE, 'behavioral-rich-core/1', 'behavioral-abstract-multiplicity/1', 'behavioral-initializer-clocks/1'), 'trace profile')
     n, loop = tc.natural(c['length']), tc.natural(c['loop'])
     tc.require(0 <= loop < n and type(c['frames']) is list and len(c['frames'])==n, 'lasso shape')
     tc.require(type(c['identities']) is list and c['identities'], 'identity inventory')
@@ -196,7 +196,7 @@ class Runtime:
                        oracle.digest(self.native)==self.identity['decoder'],'runtime changed')
             tc.closed(case,'version source query bounds candidate')
             tc.require(case['version']=='clafer-behavioral-source-case/1','case version')
-            tc.require(mutation in ('none','reject-all','drop-constraints','drop-core-constraints'),'mutation')
+            tc.require(mutation in ('none','reject-all','drop-constraints','drop-core-constraints','infer-instance-clock'),'mutation')
             p=self.compile(output,case);c=case['candidate']
             trace=within_bounds(c,p,case['bounds'])
             decoded=self.decode(output,trace,'candidate')
@@ -213,6 +213,14 @@ class Runtime:
                            'mutation requires whole-line constraints')
                 altered=dict(case,source=''.join(line for line in lines if not line.strip().startswith('[')))
                 md=output/'mutation';md.mkdir();text=self.compile(md,altered)['alloy']
+            if mutation=='infer-instance-clock':
+                # Leave the original observation intact and recompile the target
+                # with the fixture's explicit per-head clock inferred from its bound.
+                tc.require(case['source'].count(':= each ') == 1, 'expected one explicit instance clock')
+                altered = dict(case, source=case['source'].replace(':= each ', ':= '))
+                directory = output / 'mutation'
+                directory.mkdir()
+                text = self.compile(directory, altered)['alloy']
             if mutation=='drop-core-constraints':
                 # Mutate the independently compilable core. Removing authored
                 # bracket syntax alone cannot remove generated aggregate facts.

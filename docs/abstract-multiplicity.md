@@ -50,7 +50,8 @@ cardinality results. Oversized literals or count ranges produce diagnostics;
 they cannot wrap into a weaker constraint. Bounded parentless abstract `:=`
 initializers retain the explicit unsupported clock diagnostic. Only the already
 admitted omitted/unrestricted clock forms are available; aggregate support does
-not select the separate bounded-initializer extension.
+not select an initializer clock. To combine those bounds with an authored clock,
+select the [initializer clock profile](behavioral-frontend.md#explicit-initializer-clocks).
 
 ## Proof and executable boundaries
 

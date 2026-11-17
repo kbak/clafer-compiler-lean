@@ -54,7 +54,8 @@ def InitializerClassification {source : Document} (d : BoundDeclarations source)
     (rhs : Expression.Collection d.resolved.count 0) (clock : Option Initializers.Clock) : Prop :=
   (op.text = "=" ∧ clock = none) ∨ (op.text = ":=" ∧ ∃ c,
     Initializers.classify (Initializers.metadata d p.declaration header)
-      (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs) = .ok c ∧ clock = some c)
+      (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs)
+      header.clockChoice = .ok c ∧ clock = some c)
 
 def initializerSingle (clock : Option Initializers.Clock) (temporal : Bool) : Bool :=
   temporal && clock == some .instanceBirth
@@ -80,9 +81,11 @@ def initializerFormula (declaration : Fin k) (parented referenced temporal : Boo
 -- [impl->req~compiler-behavioral-elaboration~1]
 def initializerBody {source : Document} (d : BoundDeclarations source)
     (p : BoundHeaderProperty d.resolved.candidate.core) (clock : Option Initializers.Clock)
-    (rhs : Expression.Collection d.resolved.count 0) : Expression.Formula d.resolved.count 0 :=
+    (rhs : Expression.Collection d.resolved.count 0) (choice : Option ClockChoice := none) :
+    Expression.Formula d.resolved.count 0 :=
   initializerFormula p.declaration (d.resolved.candidate.core.get p.declaration).parent.isSome
-    (IR.BehavioralSupport.referenceView d.resolved.admitted p.declaration).isSome source.temporal clock rhs
+    (IR.BehavioralSupport.referenceView d.resolved.admitted p.declaration).isSome
+    (choice.isSome || source.temporal) clock rhs
 
 inductive HeaderElaborates {source : Document} (d : BoundDeclarations source)
     (p : BoundHeaderProperty d.resolved.candidate.core) : Expression.Formula d.resolved.count 0 → Prop where
@@ -99,22 +102,26 @@ inductive HeaderElaborates {source : Document} (d : BoundDeclarations source)
       (equation : ValueRules.Binary d.resolved.admitted "="
         (.collection (.objects p.declaration) (.set (initializerHeads d p))) value eqn)
       (boolean : ValueRules.Boolean eqn formula) :
-      HeaderElaborates d p (initializerBody d p clock collection)
+      HeaderElaborates d p (initializerBody d p clock collection header.clockChoice)
 
 def classifyInitializer {source : Document} (d : BoundDeclarations source)
     (p : BoundHeaderProperty d.resolved.candidate.core) (header : Header) (op : Token)
     (rhs : Expression.Collection d.resolved.count 0) :
     Except Diagnostic {clock // InitializerClassification d p header op rhs clock} := do
+  if header.clockChoice.isSome && (d.profile != IR.BehavioralStructural.clockProfile || op.text != ":=") then
+    throw (Resolution.errorAt op "behavioral.initializer-clock" "An explicit clock requires := in the initializer clock profile." .unsupported)
   if constant : op.text = "=" then
     return ⟨none, Or.inl ⟨constant, rfl⟩⟩
   else if initial : op.text = ":=" then
     match classified : Initializers.classify (Initializers.metadata d p.declaration header)
-        (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs) with
+        (Initializers.scalarAt d.resolved.candidate.core (source.source.utf8ByteSize + 1) rhs) header.clockChoice with
     | .ok clock => return ⟨some clock, Or.inr ⟨initial, clock, classified, rfl⟩⟩
     | .error error =>
       let (code, message, category) := match error with
         | .invalidMultiplicity => ("behavioral.initializer-multiplicity", "Invalid initializer multiplicity.", IR.Structural.Category.malformed)
-        | .parentlessMultiplicity => ("behavioral.initializer-parentless-multiplicity", "Parentless abstract initializers support omitted or explicitly unrestricted multiplicity only.", IR.Structural.Category.unsupported)
+        | .parentlessMultiplicity => if d.profile == IR.BehavioralStructural.clockProfile then
+            ("behavioral.initializer-clock-required", "A parentless abstract with this bound requires := each or := together.", IR.Structural.Category.unsupported)
+          else ("behavioral.initializer-parentless-multiplicity", "Parentless abstract initializers support omitted or explicitly unrestricted multiplicity only.", IR.Structural.Category.unsupported)
         | .scalarNotEstablished => ("behavioral.initializer-scalar", "The supported rules cannot establish an at-most-one RHS bound for this abstract initializer.", IR.Structural.Category.unsupported)
       throw (Resolution.errorAt op code message category)
   else throw (Resolution.errorAt op "behavioral.initializer-token" "Invalid initializer token.")
@@ -145,7 +152,7 @@ def elaborateHeaderCertified {source : Document} (d : BoundDeclarations source)
           let equation ← (MonadAttach.attach (Values.binary d.resolved.admitted "=" left right.val)).mapError
             (Expressions.failure source p.expression)
           let boolean ← (Expressions.booleanCertified equation.val).mapError (Expressions.failure source p.expression)
-          return ⟨initializerBody d p clock.val collection.val.2,
+          return ⟨initializerBody d p clock.val collection.val.2 header.clockChoice,
             .initializer hk hh hi provenance right.property (ValueRules.target_sound _ converted.property)
               (ValueRules.heads_sound collection.property) clock.property
               (ValueRules.binary_sound equation.property) boolean.property⟩

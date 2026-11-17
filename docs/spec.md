@@ -240,15 +240,17 @@ Implement initial/final/inherited-reference expansions, enum finality, hard `=`
 and `:=` initializers, all thirty pattern cells and required transition chains.
 An empty initializer head suppresses its entire RHS observation; ordinary
 implication remains strict. Retain authored abstractness, omitted/explicit
-multiplicity and effective group provenance. Classify concrete singles and
+multiplicity and effective group provenance. For unannotated `:=`, classify concrete singles and
 abstract omitted multiplicities at instance birth, collections at parent birth,
 and parentless abstract explicit `*`/`0..*` at global time zero. Reject other
-parentless abstract explicit bounds and abstract singles without independent
-scalar evidence. Evaluate complete RHS expressions in their original enclosing
+parentless abstract explicit bounds on unannotated initializers. Require
+independent scalar evidence for abstract per-instance initializers. Evaluate complete RHS expressions in their original enclosing
 context, preserving temporal cancellation and lexical captures. Inherited and
 own equations remain conjunctive in their original views and clocks. Determine
 temporal selection from authored syntax before generated anchors and enum
-finality; non-temporal initializers use the ordinary aggregate equation.
+finality. For shorthand in a non-temporal model use the ordinary aggregate
+equation. In the initializer-clock extension an annotation selects its own
+birth clock even in such a model.
 The [initializer contract](behavioral-frontend.md#hard-declaration-initializers)
 records the classification, transport and compatibility proof boundaries. Preserve
 response-between and first-opener precedence-after corrections and the distinct
@@ -1714,6 +1716,32 @@ source/target preservation under explicit finite-observation and `Fits` premises
 Qualify independent exact candidates, later-state and absent-parent boundaries,
 metadata-free replay and a dropped-aggregate mutation. The semantic, runtime and
 reuse boundaries are specified in [aggregate abstract multiplicity](abstract-multiplicity.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest
+
+## Explicit initializer clocks
+
+`req~compiler-initializer-clocks~1`
+
+In `behavioral-initializer-clocks/1`, parse an optional `each` or `together`
+immediately after `:=` and preserve its source location. The choice overrides
+multiplicity inference for that declaration alone. Classify instance births,
+original parent births and global time zero according to upstream. Require an
+explicit choice on bounded parentless abstract initializers, and preserve the
+abstract per-instance scalar admission check. Keep mixed own and inherited
+equations conjunctive in their original RHS frames.
+
+Retain historical identifier spellings, unannotated defaults, strict ordinary
+implication and every-live equality. Preserve truth and guarded definedness in
+the shared target lowering, including for empty collections, rebirth and
+plural concrete per-instance equations on constant traces. Rich replay must
+verify the annotation and resolved clock against source. Core replay must
+work from independently lowered constraints. The
+[grammar and semantics](behavioral-frontend.md#explicit-initializer-clocks)
+define the profile and its proof and comparison boundaries.
 
 Covers:
 - `intent~compiler-foundation~1`

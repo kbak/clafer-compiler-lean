@@ -123,6 +123,7 @@ def declarationDocument (source : Document) (elements : List Frontend.Element) :
 /-- The retained expanded document owns properties, initializers and transitions.
 The projection and domain marker are inputs to structural binding only. -/
 structure BoundDeclarations (source : Document) where
+  profile : String
   expandedElements : List Element
   expansion : ExpandsList true source.elements expandedElements
   projectedElements : List Frontend.Element
@@ -172,6 +173,6 @@ def bindDeclarations (profile : String) (source : Document) :
   let expanded ← expandAt (source.source.utf8ByteSize + 1) true source.elements
   let projected ← projectAt (source.source.utf8ByteSize + 1) expanded.val
   let resolved ← BehavioralResolution.elaborate profile (declarationDocument source projected.val)
-  return ⟨expanded.val, expanded.property, projected.val, projected.property, resolved⟩
+  return ⟨profile, expanded.val, expanded.property, projected.val, projected.property, resolved⟩
 
 end ClaferCompiler.Frontend.Behavioral

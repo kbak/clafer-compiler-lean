@@ -120,6 +120,66 @@ class ExplicitTests(unittest.TestCase):
                 edited['lowered']['modifiers'] = [[] for _ in edited['lowered']['modifiers']]
                 self.assertEqual(self.call(json.dumps(edited), 2, explicit=True).returncode, 2)
 
+    # [utest->req~compiler-initializer-clocks~1]
+    def test_explicit_clock_precedence_and_admission(self):
+        profile = 'behavioral-initializer-clocks/1'
+        for word, clock in [('each', 'instance-birth'), ('together', 'global-zero')]:
+            for bound in ['', '?', '0..3', '*', '1..*']:
+                with self.subTest(word=word, bound=bound):
+                    source = f'abstract R -> int {bound} := {word} 1\na : R *\n'
+                    rich = json.loads(self.ok(source, 3, 'rich-json', profile=profile, narrow=True).stdout)
+                    self.assertEqual(rich['headers'][0]['clock'], clock)
+                    self.assertTrue(rich['headers'][0]['temporal'])
+        for bound in ('0', '?', '2', '1..*'):
+            result = self.call(f'abstract R -> int {bound} := 1\n', 2, profile=profile)
+            self.assertEqual(result.returncode, 3)
+            self.assertEqual(json.loads(result.stderr)['code'], 'behavioral.initializer-clock-required')
+        for bound, clock in [('', 'instance-birth'), ('*', 'global-zero'), ('0..*', 'global-zero')]:
+            rich = json.loads(self.ok(f'abstract R -> int {bound} := 1\n', 2, 'rich-json',
+                                      profile=profile, narrow=True).stdout)
+            self.assertEqual(rich['headers'][0]['clock'], clock)
+            self.assertFalse(rich['headers'][0]['temporal'])
+        bad = self.call('abstract R -> int * := each 0, 1\n', 2, profile=profile)
+        self.assertEqual(json.loads(bad.stderr)['code'], 'behavioral.initializer-scalar')
+
+    # [utest->req~compiler-initializer-clocks~1]
+    def test_explicit_clock_identifier_compatibility(self):
+        for word in ('each', 'together'):
+            source = f'{word} -> int\nx -> int := {word}\n'
+            for old in ('behavioral-0.5.8/v2', PROFILE, 'behavioral-abstract-multiplicity/1'):
+                self.ok(source, 3, 'json', profile=old, narrow=True)
+            for invalid in (source, f'x -> int = {word} 1\n',
+                            f'x -> int := {word} {word} 1\n', f'x -> int := {word}\n'):
+                with self.subTest(invalid=invalid):
+                    self.assertEqual(self.call(invalid, 2, profile='behavioral-initializer-clocks/1').returncode, 2)
+
+    # [utest->req~compiler-initializer-clocks~1]
+    def test_explicit_clock_replay(self):
+        profile = 'behavioral-initializer-clocks/1'
+        for word, clock in [('each', 'instance-birth'), ('together', 'parent-birth')]:
+            source = f'P\n  r -> int * := {word} 1\n'
+            rich = self.ok(source, 3, 'rich-json', profile=profile, narrow=True).stdout
+            core = self.ok(source, 3, 'core-json', profile=profile, narrow=True).stdout
+            alloy = self.ok(source, 3, 'alloy', profile=profile, narrow=True).stdout
+            def replay(text, fmt):
+                return self.ok(text.decode(), 3, fmt, explicit=True, profile=profile, narrow=True).stdout
+            self.assertEqual(replay(rich, 'rich-json'), rich)
+            self.assertEqual(replay(rich, 'core-json'), core)
+            self.assertEqual(replay(core, 'core-json'), core)
+            for form in (rich, core):
+                self.assertEqual(replay(form, 'alloy'), alloy)
+            metadata = json.loads(rich)
+            self.assertEqual(metadata['headers'][0]['clock'], clock)
+            annotation = metadata['headers'][0]['clockAnnotation']
+            self.assertEqual(annotation['keyword'], word)
+            location = annotation['source']
+            self.assertEqual(source.encode()[location['startByte']:location['endByte']].decode(), word)
+            metadata['headers'][0]['clock'] = 'parent-birth' if word == 'each' else 'instance-birth'
+            self.assertEqual(self.call(json.dumps(metadata), 3, explicit=True, profile=profile).returncode, 2)
+            metadata['headers'][0]['clock'] = clock
+            del metadata['headers'][0]['clockAnnotation']
+            self.assertEqual(self.call(json.dumps(metadata), 3, explicit=True, profile=profile).returncode, 2)
+
     def test_rich_intent_clocks_and_stale_annotations(self):
         source = ('enum E = a | b\nabstract P\n  r -> int := 1\n'
                   'p : P\n  [never some r after some r]\n')

@@ -62,6 +62,7 @@ theorem lowerAt_preserves (model : ModelRows v b s τ σ labels) (fuel depth : N
       exact formulaStep model ih built hc bound success
 
 -- [proof->req~compiler-behavioral-partial-lowering~1]
+-- [proof->req~compiler-initializer-clocks~1]
 /-- The public checked lowering obtains its entire range derivation from the
 actual admission result, without assuming any source satisfaction. -/
 theorem lower_preserves (model : ModelRows v b s τ σ labels)

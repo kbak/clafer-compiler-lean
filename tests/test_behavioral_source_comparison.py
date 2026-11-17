@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts/comparison'))
 import behavioral_source as bs
 from behavioral_source_cases import absence_cases, case, features, patterns
-from behavioral_initializer_cases import initializers
+from behavioral_initializer_cases import clock_cases, initializers
 from behavioral_past_cases import past_cases
 from behavioral_abstract_multiplicity_cases import aggregate_cases
 import behavioral_haskell as bh
@@ -90,6 +90,26 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
                 self.assertEqual(result, dict(status='complete', source=expected,
                     target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
         bs.oracle.write(self.output / 'initializer-results.json', results)
+
+    # [utest->req~compiler-initializer-clocks~1]
+    def test_explicit_initializer_clocks(self):
+        def compare(row):
+            name, expected, candidate = row
+            result = self.runtime.compare(candidate, self.output / ('clock-' + name))
+            return name, expected, result
+
+        cases = list(clock_cases())
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            for name, expected, result in pool.map(compare, cases):
+                with self.subTest(name=name):
+                    self.assertEqual(result, dict(status='complete', source=expected,
+                        target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
+
+        candidate = next(c for name, _, c in cases if name == 'inherited-each')
+        altered = self.runtime.compare(candidate, self.output / 'inferred-clock-mutation',
+                                      mutation='infer-instance-clock')
+        self.assertEqual(altered, dict(status='complete', source='violated',
+                                      target='sat', directions=['target-only']))
 
     # [utest->req~compiler-behavioral-qualification~1]
     def test_initializer_absence_reference_matrix(self):

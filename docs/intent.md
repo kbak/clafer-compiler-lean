@@ -22,7 +22,9 @@ The selected [rich/core extension](rich-core.md) preserves resolved modeling
 intent and adds [parent-lifetime past operators](past.md) under a separate profile.
 Its compiler integration requires independent review. Finality core erasure keeps
 both shallow head/reference stability and complete target-image stability while
-preserving independently replayable constraints.
+preserving independently replayable constraints. Modelers can select initializer
+timing independently of declaration multiplicity in the
+[initializer clock profile](behavioral-frontend.md#explicit-initializer-clocks).
 
 ## Current boundary
 

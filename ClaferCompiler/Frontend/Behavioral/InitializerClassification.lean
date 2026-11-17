@@ -27,14 +27,19 @@ def plural (r : Bounds) : Bool := match r.upper with
   | .unbounded => true
 
 -- [impl->req~compiler-behavioral-elaboration~1]
+-- [impl->req~compiler-initializer-clocks~1]
 /-- Native counterpart of the accepted upstream resolved classifier. Scalar
 admission is a separate obligation, never a choice of initialization clock. -/
-def classify (d : Metadata) (scalar : Bool) : Except AdmissionError Clock :=
+def classify (d : Metadata) (scalar : Bool) (choice : Option ClockChoice := none) : Except AdmissionError Clock :=
   let invalid := match d.authored with
     | none => false
     | some r => !decide r.Valid
   let selected : Except AdmissionError Clock :=
-    if d.abstract && !d.parented then
+    if let some explicit := choice then
+      .ok (match explicit with
+        | .perInstance => .instanceBirth
+        | .perCollection => if d.parented then .parentBirth else .globalZero)
+    else if d.abstract && !d.parented then
       match d.authored with
       | none => .ok .instanceBirth
       | some r => if r = ({} : Bounds) then .ok .globalZero else .error .parentlessMultiplicity

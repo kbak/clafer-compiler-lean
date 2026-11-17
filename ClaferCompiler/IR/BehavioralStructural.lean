@@ -16,8 +16,14 @@ def richProfile : String := "behavioral-rich-core/1"
 -- [impl->req~compiler-abstract-multiplicity~1]
 def aggregateProfile : String := "behavioral-abstract-multiplicity/1"
 
+-- [impl->req~compiler-initializer-clocks~1]
+def clockProfile : String := "behavioral-initializer-clocks/1"
+
+def aggregateEnabled (selected : String) : Bool :=
+  selected == aggregateProfile || selected == clockProfile
+
 def explicitProfile (selected : String) : Bool :=
-  selected == richProfile || selected == aggregateProfile
+  selected == richProfile || aggregateEnabled selected
 
 def knownProfile (selected : String) : Bool := selected == profile || explicitProfile selected
 

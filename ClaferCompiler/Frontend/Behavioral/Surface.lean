@@ -33,11 +33,27 @@ inductive PropertyKind where
   | constraint | assertion
   deriving BEq, DecidableEq, Repr
 
+-- [impl->req~compiler-initializer-clocks~1]
+inductive ClockChoice where
+  | perInstance | perCollection
+  deriving DecidableEq, BEq, Repr
+
+def ClockChoice.keyword : ClockChoice → String
+  | .perInstance => "each"
+  | .perCollection => "together"
+
+structure ClockAnnotation where
+  choice : ClockChoice
+  span : SourceSpan
+
 structure Header where
   structural : Frontend.Header
   modifiers : List Token := []
   initializer : Option (Token × Expr) := none
   transition : Option (Token × Option Expr × Expr) := none
+  clockAnnotation : Option ClockAnnotation := none
+
+def Header.clockChoice (h : Header) : Option ClockChoice := h.clockAnnotation.map (·.choice)
 
 inductive Element where
   | declaration (header : Header) (children : List Element) (span : SourceSpan)

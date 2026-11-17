@@ -22,6 +22,10 @@ def clock : Clock → Upstream.Clock
   | .parentBirth => .parentBirth
   | .globalZero => .globalZero
 
+def choice : Frontend.Behavioral.ClockChoice → Clafer.Behavioral.Initializers.Classification.Selection
+  | .perInstance => .instance
+  | .perCollection => .collection
+
 def diagnostic : AdmissionError → Upstream.Error
   | .invalidMultiplicity => .invalidMultiplicity
   | .parentlessMultiplicity => .parentlessMultiplicity
@@ -34,7 +38,7 @@ def result : Except AdmissionError Clock → Except Upstream.Error Upstream.Cloc
 -- [proof->req~compiler-behavioral-elaboration~1]
 /-- The runtime classifier has exactly the accepted clocks and diagnostics,
 including omitted versus unrestricted abstract multiplicities. -/
-theorem classify_agrees (d : Metadata) (scalar : Bool) :
+private theorem shorthand_agrees (d : Metadata) (scalar : Bool) :
     result (classify d scalar) =
       Clafer.Behavioral.Initializers.Classification.classify (metadata d) scalar := by
   rcases d with ⟨abstract, parented, authored, group⟩
@@ -59,6 +63,22 @@ theorem classify_agrees (d : Metadata) (scalar : Bool) :
     all_goals split_ifs <;> simp_all [IR.Structural.Bounds.mk.injEq, DPGraph.Predicates.Range.mk.injEq]
     all_goals split_ifs <;> rfl
 
+-- [proof->req~compiler-initializer-clocks~1]
+theorem classify_agrees (d : Metadata) (scalar : Bool) (selected : Option Frontend.Behavioral.ClockChoice := none) :
+    result (classify d scalar selected) =
+      Clafer.Behavioral.Initializers.Classification.classify (metadata d) scalar (selected.map choice) := by
+  cases selected with
+  | none => exact shorthand_agrees d scalar
+  | some c =>
+    have valid (r : IR.Structural.Bounds) :
+        decide r.Valid = Clafer.Behavioral.Initializers.Classification.valid (Structural.bounds r) := by
+      cases r with | mk lo hi => cases hi <;> rfl
+    rcases d with ⟨abstract, parented, authored, group⟩
+    cases authored <;> cases c <;> cases parented <;> cases abstract <;> cases scalar <;>
+      simp [classify, metadata, Clafer.Behavioral.Initializers.Classification.classify,
+        choice, Clafer.Behavioral.Initializers.Classification.Selection.resolve,
+        result, clock, diagnostic, valid] <;> split_ifs <;> rfl
+
 -- [proof->req~compiler-behavioral-structural-bridge~1]
 /-- The certified authored header, retained parent/group data and accepted
 structural core provide exactly the production classifier's metadata. -/
@@ -78,17 +98,22 @@ theorem metadata_agrees {source : Frontend.Behavioral.Document}
       Resolution.group]
 
 -- [proof->req~compiler-behavioral-elaboration~1]
-theorem global_parentless (d : Metadata) (scalar : Bool)
-    (h : classify d scalar = .ok .globalZero) : d.parented = false := by
+theorem global_parentless (d : Metadata) (scalar : Bool) {selected : Option Frontend.Behavioral.ClockChoice}
+    (h : classify d scalar selected = .ok .globalZero) : d.parented = false := by
   rcases d with ⟨abstract, parented, authored, group⟩
   cases parented with
   | false => rfl
   | true =>
-    cases abstract <;> cases scalar <;> cases authored <;>
-      simp only [classify, Bool.not_true, Bool.and_false, Bool.false_and,
-        Bool.true_and, Bool.not_false, Option.isNone_none, Option.isNone_some,
-        Option.getD_none, Option.getD_some, Bool.false_eq_true, ↓reduceIte] at h
-    all_goals try split_ifs at h
-    all_goals cases h
+    cases selected with
+    | some c =>
+      cases c <;> cases abstract <;> cases scalar <;>
+        simp [classify] at h <;> split_ifs at h <;> cases h
+    | none =>
+      cases abstract <;> cases scalar <;> cases authored <;>
+        simp only [classify, Bool.not_true, Bool.and_false, Bool.false_and,
+          Bool.true_and, Bool.not_false, Option.isNone_none, Option.isNone_some,
+          Option.getD_none, Option.getD_some, Bool.false_eq_true, ↓reduceIte] at h
+      all_goals try split_ifs at h
+      all_goals cases h
 
 end ClaferCompiler.SemanticsBridge.Behavioral.Initializers

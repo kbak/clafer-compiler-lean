@@ -120,7 +120,7 @@ its explicit strict operand-definedness contract; source headers use the new rul
 
 [`InitializerClassification`](../ClaferCompiler/Frontend/Behavioral/InitializerClassification.lean)
 uses authored abstractness, omission versus explicit multiplicity, structural
-parent and effective parent group. Concrete at-most-one declarations use
+parent and effective parent group. In the shorthand, concrete at-most-one declarations use
 `instanceBirth`; plural declarations use `parentBirth`. Abstract omitted
 multiplicity uses `instanceBirth` regardless of the group default. Parentless
 abstract explicit `*` or `0..*` uses `globalZero`; other explicit bounds are
@@ -150,7 +150,8 @@ refinement does not replace an inherited obligation or split a global collection
 An own `:=` under inherited `=` is accepted without a blanket tautology warning.
 Temporal selection scans authored syntax before enum/header expansion. An
 initializer token alone does not select temporal semantics; without an authored
-temporal feature both operators use the ordinary aggregate equation.
+temporal feature, unannotated initializers use the ordinary aggregate equation.
+An [explicit clock](#explicit-initializer-clocks) applies only to its own header.
 
 [`InitializerClassification`](../ClaferCompiler/SemanticsBridge/Behavioral/InitializerClassification.lean)
 connects checked provenance and native classification to upstream
@@ -571,3 +572,57 @@ at-most-one reference declarations, including inherited references; it does not 
 modifier expansion before erasing modifier declarations. Rich source retains the
 authored modifiers; core replay uses ordinary constraints and does not need rich
 provenance to interpret finality.
+
+## Explicit initializer clocks
+
+Select `behavioral-initializer-clocks/1` in the behavioral bounds document. This
+extends the [aggregate multiplicity profile](abstract-multiplicity.md). In a
+declaration header, the initializer follows the optional local multiplicity.
+
+```ebnf
+initializer = "=" expression | ":=" [ "each" | "together" ] expression ;
+```
+
+The clock keyword applies to the entire right-hand expression, including a
+union or conditional. The new profile reserves both words in identifier
+positions. All earlier profiles retain their identifier spellings. The quantifier
+`all` keeps its existing grammar. An explicit choice belongs to this initializer
+alone, including in a model with no other temporal syntax.
+
+| Form | Time and scope of the equation |
+| --- | --- |
+| `:= each e` | At every birth of a head, its single target equals the complete RHS evaluated in the original declaration context. |
+| `:= together e` | At each birth of the original enclosing parent, the target image of its entire declaration fiber equals the RHS. For a parentless abstract, compare the global image at time zero. |
+| `:= e` | Use the existing shorthand and static-first selection. A parentless abstract with an authored bound other than `0..*` requires an explicit clock. |
+| `= e` | Use the existing guarded every-live equation. |
+
+Both clocks admit finite and unbounded multiplicities. The abstract per-head
+form requires independent evidence of an at-most-one RHS. A concrete plural
+`:= each 1, 2` is admitted and rejects every active head, even on a constant
+trace. An empty view at a collection check, or the absence of a head birth,
+imposes no RHS definedness obligation. Refinements keep each inherited equation,
+its original clock, RHS frame and collection scope, alongside any own equation.
+
+For example, with `abstract Val -> integer 0..3 := together 1`, a globally empty
+initial collection passes and a later first head may have value `7`. Substituting
+`each` rejects that birth. The aggregate bound still applies in every state.
+
+The [upstream classification and lowering contract](https://github.com/kbak/clafer-semantics/blob/1749f3e62c22fc3903145897681d14c36169bdf5/docs/behavioral-initializers.md)
+supplies the independent meaning. The pinned Haskell rich/core grammar has an
+initializer operator and RHS, with no explicit selection. The compiler extends
+its existing token parser and native classifier and reuses its certified guarded
+formula expansion, rich re-elaboration and core decoder. Lean/Std provides the
+optional selection and finite case analysis. The extension adds no runtime
+dependency or license obligation.
+
+`classifies_production` relates successful classification to upstream
+`Structure.elaborate` with the same selection, origin and RHS. For a valid
+structural trace and a coherent inherited reference owner, `body_meaning`
+identifies the generated attachment with upstream `Meaning`. The target
+[expression preservation theorem](../ClaferCompiler/Correctness/Behavioral/Full/ExpressionsCorrectness.lean)
+covers this same formula, its guarded domain and both signs under successful
+range-checked lowering, model and lexical representation, and sufficient fuel.
+The [exact lasso cases](../tests/behavioral_initializer_cases.py) distinguish
+inactive, undefined and false observations. Inferring the clock of an inherited
+plural declaration from its bound admits a late birth that its authored
+per-instance equation rejects.

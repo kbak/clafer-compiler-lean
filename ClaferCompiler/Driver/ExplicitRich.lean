@@ -96,8 +96,8 @@ def clockName : Initializers.Clock → String
 -- [impl->req~compiler-rich-core-explicit~1]
 def encode (p : ParsedModel) (allocation : Nat) (legacy : Bool := false) : Except Diagnostic Json := do
   let e := p.elaborated
-  let profile := if e.declarations.resolved.aggregate then
-    IR.BehavioralStructural.aggregateProfile else IR.BehavioralStructural.richProfile
+  let profile := if e.declarations.profile == IR.BehavioralStructural.profile then
+    IR.BehavioralStructural.richProfile else e.declarations.profile
   let d := e.declarations
   let v := d.resolved.admitted
   let m := v.core.structural
@@ -117,10 +117,12 @@ def encode (p : ParsedModel) (allocation : Nat) (legacy : Bool := false) : Excep
       let target ← Values.target v value |>.mapError fun msg => Diagnostic.ofSource (Expressions.failure p.source rhs msg)
       let heads ← Values.heads target |>.mapError fun msg => Diagnostic.ofSource (Expressions.failure p.source rhs msg)
       let clock ← classifyInitializer d prop header op heads.2 |>.mapError Diagnostic.ofSource
-      return Json.mkObj [("kind", toJson "initializer"), ("operator", toJson op.text),
+      let annotation := header.clockAnnotation.toList.map fun a =>
+        ("clockAnnotation", Json.mkObj [("keyword", toJson a.choice.keyword), ("source", sourceSpanJson a.span)])
+      return Json.mkObj <| annotation ++ [("kind", toJson "initializer"), ("operator", toJson op.text),
         ("declaration", toJson (m.get prop.declaration).id), ("rhsOwner", toJson (m.get prop.owner).id),
         ("clock", toJson (clock.val.map clockName |>.getD "every-live")),
-        ("temporal", toJson p.source.temporal),
+        ("temporal", toJson (header.clockChoice.isSome || p.source.temporal)),
         ("rhs", ← expression p.source v prop.owner allocation allocation #v[] none rhs)]
   let enums ← p.source.elements.filterMap (fun elem => match elem with
     | .enumeration name literals _ => some (name, literals) | _ => none) |>.mapM fun (name, literals) => do
