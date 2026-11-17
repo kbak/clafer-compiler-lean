@@ -1686,3 +1686,29 @@ Covers:
 - `intent~compiler-foundation~1`
 
 Needs: impl, proof, utest
+
+
+## Aggregate abstract multiplicity
+
+`req~compiler-abstract-multiplicity~1`
+
+The explicitly selected `behavioral-abstract-multiplicity/1` extension enforces
+authored abstract bounds on the complete inherited head set: globally for a
+top-level abstract, per live declared-parent instance for a nested abstract, and
+at every state. Preserve authored omission and intervals independently of defaults
+and effective optimizer bounds. Lower both endpoints to ordinary core constraints
+that survive rich/core replay without authored metadata. Keep historical profiles
+and M1 normalization unchanged. Do not impose per-subtype interval refinement,
+naive local-bound sums or inferred search scopes. Retain bitwidth/range admission
+and the unsupported bounded parentless abstract `:=` clock boundary.
+
+Establish agreement with the accepted upstream predicates and compose full
+source/target preservation under explicit finite-observation and `Fits` premises.
+Qualify independent exact candidates, later-state and absent-parent boundaries,
+metadata-free replay and a dropped-aggregate mutation. The semantic, runtime and
+reuse boundaries are specified in [aggregate abstract multiplicity](abstract-multiplicity.md).
+
+Covers:
+- `intent~compiler-foundation~1`
+
+Needs: impl, proof, utest

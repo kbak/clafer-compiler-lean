@@ -51,6 +51,12 @@ and effective groups, is the upstream `Structural.Valid` predicate. This library
 does not replace it with a finite trace checker or an asserted validity premise
 hidden inside a target representation.
 
+The explicit [aggregate abstract multiplicity profile](abstract-multiplicity.md)
+retains authored bounds while moving abstract local obligations into common-core
+constraints. `BehavioralResolution.defaults` applies to historical profiles;
+`aggregate_bounds` proves the extension's effective normalization and preserved
+valid authored range. Concrete and group defaults remain unchanged.
+
 ## Source identity and defaults
 
 [`Frontend.BehavioralResolution.elaborate`](../ClaferCompiler/Frontend/BehavioralResolution.lean)

@@ -232,6 +232,7 @@ def Product.json (p : Product) : Json :=
         ("super", toJson (row.super.map fun i => (v.core.structural.get i).id)),
         ("abstract", toJson v.core.authoredAbstract[d]),
         ("localBounds", intervalJson row.localBounds), ("groupBounds", intervalJson row.groupBounds),
+        ("authoredBounds", (row.authored.bind (·.localBounds)).map intervalJson |>.getD Json.null),
         ("reference", Json.mkObj [("kind", toJson (match row.reference with
           | .basic => "basic" | .set _ => "set" | .bag _ => "bag")),
           ("target", toJson (row.reference.target.map fun i => (v.core.structural.get i).id))]),

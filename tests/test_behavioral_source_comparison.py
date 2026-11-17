@@ -16,6 +16,7 @@ import behavioral_source as bs
 from behavioral_source_cases import absence_cases, case, features, patterns
 from behavioral_initializer_cases import initializers
 from behavioral_past_cases import past_cases
+from behavioral_abstract_multiplicity_cases import aggregate_cases
 import behavioral_haskell as bh
 
 
@@ -41,6 +42,28 @@ class BehavioralSourceComparisonTests(unittest.TestCase):
         if not tools: raise AssertionError('CLAFER_ORACLE_TOOLS required')
         cls.runtime=bs.Runtime(tools,cls.output/'runtime')
         print(f'Full source evidence: {cls.output}',flush=True)
+
+    # [utest->req~compiler-abstract-multiplicity~1]
+    def test_aggregate_abstract_multiplicity(self):
+        def compare(row):
+            name, expected, candidate = row
+            # The eight-head emitted formula exceeds the default parser heap.
+            # Retain the larger heap in replay settings; scopes/deadline stay fixed.
+            return name, expected, self.runtime.compare(candidate, self.output / ('aggregate-' + name),
+                heap_mb=1536 if name == 'sibling-total-8' else 512)
+        with ThreadPoolExecutor(max_workers=self.workers) as pool:
+            results = list(pool.map(compare, aggregate_cases()))
+        for name, expected, result in results:
+            with self.subTest(name=name):
+                self.assertEqual(result, dict(status='complete', source=expected,
+                    target='sat' if expected == 'satisfied' else 'bounded_unsat', directions=[]))
+        bs.oracle.write(self.output / 'aggregate-results.json', results)
+        name, expected, candidate = next(row for row in aggregate_cases() if row[0] == 'sibling-total-8')
+        result = self.runtime.compare(candidate, self.output / 'aggregate-mutation', mutation='drop-core-constraints')
+        self.assertEqual(result['source'], 'violated')
+        self.assertEqual(result['directions'], ['target-only'])
+        replay = bs.replay(self.runtime, self.output / 'aggregate-mutation', self.output / 'aggregate-mutation-replay')
+        self.assertEqual(replay, result)
 
     # [utest->req~compiler-past-operators~1]
     def test_past_exact_source_and_target(self):

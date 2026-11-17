@@ -52,7 +52,8 @@ def structureJson (v : IR.BehavioralStructural.Validated k) : Json :=
     ("groups", toJson (v.core.groups.toList.map groupJson))]
 
 -- [impl->req~compiler-rich-core-explicit~1]
-def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.Warning := []) : Except Diagnostic Json := do
+def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.Warning := [])
+    (profile : String := IR.BehavioralStructural.richProfile) : Except Diagnostic Json := do
   let v := r.model.structural
   let pass := BehavioralSyntax.encode v.core.structural budget
   let property := fun (c : Constraint k) => do
@@ -62,7 +63,7 @@ def encode (r : Request k) (budget : Nat) (warnings : List Frontend.Behavioral.W
     | .check i => pure (Json.mkObj [("kind", toJson "check"), ("assertion", toJson i.val)])
     | .run cs => do pure (Json.mkObj [("kind", toJson "run"), ("scenario", toJson (← cs.mapM property))])
   return Json.mkObj [("version", toJson "clafer-explicit-core/1"),
-    ("profile", toJson IR.BehavioralStructural.richProfile),
+    ("profile", toJson profile),
     ("structure", structureJson v),
     ("modifiers", toJson (r.model.modifiers.toList.map fun ms => ms.map BehavioralSource.modifierName)),
     ("constraints", toJson (← r.model.constraints.mapM property)),
@@ -117,12 +118,15 @@ def warning (n : Node) : Except Diagnostic Frontend.Behavioral.Warning := do
 structure Input (k : Nat) where
   request : Request k
   warnings : List Frontend.Behavioral.Warning
+  profile : String := IR.BehavioralStructural.richProfile
 
 -- [impl->req~compiler-rich-core-explicit~1]
 def decode (file text : String) : Except Diagnostic (Σ k, Input k) := do
   let n ← parse file text true
   version n "version" "clafer-explicit-core/1" "explicit.version"
-  version n "profile" IR.BehavioralStructural.richProfile "behavioral.profile"
+  let profile ← string (← field n "profile")
+  unless IR.BehavioralStructural.explicitProfile profile do
+    throw { bad n "unsupported explicit profile" with code := "behavioral.profile", category := .unsupported }
   closed n ["version", "profile", "structure", "modifiers", "constraints", "assertions", "command", "warnings"]
   let ⟨k, v⟩ ← structureRead (← field n "structure")
   let ms ← array (fun n => (array modifier n).map Array.toList) (← field n "modifiers")
@@ -143,7 +147,7 @@ def decode (file text : String) : Except Diagnostic (Σ k, Input k) := do
         if h : i < model.assertions.length then pure (Properties.Command.check ⟨i, h⟩)
         else throw (bad cmd "assertion index is out of range")
       | _ => throw (bad cmd "unknown command")
-    return ⟨k, ⟨⟨model, command⟩, (← array warning (← field n "warnings")).toList⟩⟩
+    return ⟨k, ⟨⟨model, command⟩, (← array warning (← field n "warnings")).toList, profile⟩⟩
   else throw (bad n "each declaration requires one modifier list")
 
 structure Product (k : Nat) where
@@ -162,8 +166,8 @@ def compile (file text boundsFile boundsText : String) (objects bitwidth : Optio
   let ⟨k, input⟩ ← decode file text
   let r := input.request
   let selected ← BehavioralSource.selectedProfile boundsFile boundsText
-  if selected != IR.BehavioralStructural.richProfile then
-    throw { bad ⟨.null, boundsFile, "/profile"⟩ "explicit input requires behavioral-rich-core/1"
+  if selected != input.profile then
+    throw { bad ⟨.null, boundsFile, "/profile"⟩ "explicit input and bounds profiles must match"
       with code := "behavioral.profile", category := .unsupported }
   let b ← BehavioralSource.bounds boundsFile boundsText
   let b := { b with objects := objects.getD b.objects, bitwidth := bitwidth.getD b.bitwidth }
@@ -174,6 +178,6 @@ def compile (file text boundsFile boundsText : String) (objects bitwidth : Optio
     |>.mapError (BehavioralSource.encodingDiagnostic boundsFile)
   let rendered ← Backend.Alloy.Temporal.Text.render out.val.module (BehavioralSource.names r.model.structural)
     |>.mapError fun _ => { code := "compiler.render", phase := "serialization", category := .operational, message := "generated temporal text failed checked reconstruction" : Diagnostic }
-  return ⟨k, ⟨r, b, fuel, out.val, rendered.text, ← encode r (text.utf8ByteSize + 1) input.warnings, input.warnings, out.property⟩⟩
+  return ⟨k, ⟨r, b, fuel, out.val, rendered.text, ← encode r (text.utf8ByteSize + 1) input.warnings input.profile, input.warnings, out.property⟩⟩
 
 end ClaferCompiler.Driver.ExplicitCore

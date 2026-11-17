@@ -152,6 +152,7 @@ and semantic acceptance require explicit review; see the
 - [Behavioral source workflow](behavioral-source.md): native model/check/scenario commands, exact scalar observations and qualification boundaries.
 - [Behavioral source frontend](behavioral-frontend.md): authored grammar, source requests, checked elaboration and range obligations.
 - [Behavioral structural handoff](behavioral-structure.md): resolved admission, defaults, navigation, finite integers and downstream proof obligations.
+- [Aggregate abstract multiplicity](abstract-multiplicity.md): the explicit profile, global/per-parent counts, common-core lowering and assurance boundaries.
 - [Behavioral integration](behavioral.md): complete profile, trace assurance, task ownership and final integration gates.
 - [Sources](sources.md): immutable baselines, paper locators and upgrade policy.
 - [Native CLI](cli.md): source/IR commands, strict JSON, diagnostics and runtime boundary.

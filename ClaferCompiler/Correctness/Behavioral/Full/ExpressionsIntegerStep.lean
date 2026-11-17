@@ -91,17 +91,18 @@ theorem integerStep_of_fold (hm : ModelRows v b s τ σ labels)
         cases ha : next.collection c a with
         | error err => simp [lowerStep, bind, Except.bind, pure, Except.pure, hr, ha] at success
         | ok value =>
-          have eq : integerCardinality c.lexical.aliases estimate.budget value = result := by
+          have eq : integerCardinality (c.captureAliases estimate.values) estimate.budget value = result := by
             simpa [lowerStep, bind, Except.bind, pure, Except.pure, hr, ha] using success
           subst result
           have checked := collectionEstimate_certificate hr
           have same := Expression.Ranges.collection_unique body checked
           have fits : (IR.BehavioralArithmetic.countRange estimate.budget).fits b.width = true := same ▸ fits
           apply IntegerObservation.cardinality (ih.collection hc t a value _ checked ha)
-            (completionAtom labels).injective c.lexical.aliases estimate.budget
-            (fun entry he => (hc.aliases entry he).term) ?_ ?_ ?_
+            (completionAtom labels).injective (c.captureAliases estimate.values) estimate.budget
+            (fun entry he => (hc.aliases entry (List.mem_filter.mp he).1).term) ?_ ?_ ?_
           · intro S hs x hx
-            obtain ⟨entry, he, rows⟩ := hc.cover x (collection_inside hm hc checked hs hx)
+            obtain ⟨entry, he, rows⟩ := captureAliases_cover hc
+              (collection_inside hm hc checked hs) (Ranges.collection_bound hm.ranges hc.ranges checked hs) x hx
             exact ⟨entry, he, rows t⟩
           · intro S hs; exact (Ranges.collection_bound hm.ranges hc.ranges checked hs).card
           · intro S hs

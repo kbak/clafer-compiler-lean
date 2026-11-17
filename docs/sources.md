@@ -21,7 +21,7 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/3c63d760be99741617c6af539a9e304909d18b26) | `3c63d760be99741617c6af539a9e304909d18b26` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/6093ed5ac584ddc5d110c094e3da914897725d6b) | `6093ed5ac584ddc5d110c094e3da914897725d6b` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Structural and behavioral comparison/compiler/grammar baseline and release corpus; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/LICENSE). External validation only. |
 | Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lean-toolchain): `leanprover/lean4:v4.35.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/lakefile.toml): `56a005855ea17e0b0958f73ec801ae140b0a1679` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
@@ -1137,8 +1137,8 @@ changes. Those historical ledger entries are not the basis for current
 
 ## Rich/core and past candidate
 
-The installed semantics candidate is
-[14e8f24](https://github.com/kbak/clafer-semantics/commit/3c63d760be99741617c6af539a9e304909d18b26),
+The preceding rich/core semantics pin was
+[3c63d76](https://github.com/kbak/clafer-semantics/commit/3c63d760be99741617c6af539a9e304909d18b26),
 covering parent-lifetime past definitions, partial domains, history-aware finite
 checking and initializer core lowering. It preserves the behavioral paper §5,
 Definitions 3–5 and §6.1 attachment/binding rules and explicitly extends past
@@ -1154,3 +1154,32 @@ pins the source archive/tree, Stack/GHC, resolver and generated lock. Earlier
 0.5.8 and PR113 profiles remain unchanged. [Rich/core](rich-core.md) distinguishes
 Lean's resolved JSON interfaces from Haskell's explicit Clafer syntax, and
 [past](past.md) states the source/target and observer assumptions.
+
+
+## Aggregate abstract multiplicity
+
+The installed semantics revision is
+[6093ed5](https://github.com/kbak/clafer-semantics/commit/6093ed5ac584ddc5d110c094e3da914897725d6b),
+accepted for abstract multiplicity through
+[semantics #196](https://github.com/kbak/clafer-semantics/pull/196).
+`Clafer/Semantics/AbstractMultiplicity.lean` defines authored ranges, global heads,
+per-parent fibers and finite cardinality characterizations;
+`Clafer/Behavioral/AbstractMultiplicity.lean` defines source projection,
+every-state obligations and static snapshot/constant-trace agreement. The
+[upstream contract](https://github.com/kbak/clafer-semantics/blob/6093ed5ac584ddc5d110c094e3da914897725d6b/docs/abstract-multiplicity.md)
+distinguishes this extension from historical parentless-local vacuity.
+
+The pin delta also includes the additive finality core-lowering development from
+[semantics #192](https://github.com/kbak/clafer-semantics/pull/192); the compiler's
+existing finality lowering is unchanged. Toolchain and transitive dependency pins
+are unchanged. Fresh comparison receipts bind the installed semantics revision;
+older receipts retain their original identities.
+
+The inspected Haskell `Intermediate/ResolverInheritance.hs` `analyzeCard` at
+[186d8e0](https://github.com/gsdlab/clafer/blob/186d8e0a350e4c8895b1c489eb587fa3a1bc2b61/src/Language/Clafer/Intermediate/ResolverInheritance.hs)
+and its rich/core documentation preserve the authored/default distinction but
+are not adopted as the meaning of global aggregate bounds. The compiler selects
+that meaning only through `behavioral-abstract-multiplicity/1`. The
+[component contract](abstract-multiplicity.md) records the implementation reuse,
+proof hypotheses, tests and remaining bounded-initializer boundary. The historical
+M1 normalization contract remains unchanged.

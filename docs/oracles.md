@@ -10,7 +10,7 @@ native-generated Alloy. These executions supply testing evidence, not new theore
 
 The [machine-readable profile](../scripts/oracles/profile.json) and
 [source register](sources.md) pin Haskell `dbc06d37ef23eb9186d1016e3bf678858621e92d`,
-semantics `3c63d760be99741617c6af539a9e304909d18b26`, Lean 4.35.0 and Alloy 6.2.0
+semantics `6093ed5ac584ddc5d110c094e3da914897725d6b`, Lean 4.35.0 and Alloy 6.2.0
 distribution SHA-256 `6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d`.
 The Haskell library build uses Stack 3.11.1, GHC 9.12.4, `nightly-2026-11-11`, and the reviewed claferIG dependency.
 It reuses the accepted `Data.Map`/aeson exporter; `json-builder` and `StringMap`

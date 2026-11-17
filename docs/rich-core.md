@@ -11,7 +11,8 @@ their existing admission boundaries.
 ## Interfaces and lowering
 
 `compile-behavioral-source` accepts `--format rich`, `core`, `rich-json` and
-`core-json` when the bounds select `behavioral-rich-core/1`, alongside existing
+`core-json` when the bounds select `behavioral-rich-core/1` or the
+[aggregate abstract multiplicity extension](abstract-multiplicity.md), alongside existing
 Alloy/compilation JSON outputs. The first pair
 prints readable JSON; the second prints compact JSON of the same versioned
 schemas. These are Lean's resolved interchange formats, not Haskell's `.cfr`

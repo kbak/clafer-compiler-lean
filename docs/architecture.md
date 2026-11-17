@@ -56,6 +56,11 @@ fixtures, exact declaration names, source-matched evidence and unresolved limits
 New work follows the roadmap's dependencies and explicit manual selection. Shared
 IR/target changes require coordination and review of the affected contracts.
 
+The explicit [aggregate abstract multiplicity extension](abstract-multiplicity.md)
+adds authored global/per-parent bounds through the behavioral source pipeline and
+common core. Its profile and proof assumptions are separate from the M1/M2 matrix
+below; static `compile-source` retains that matrix.
+
 ## Feature matrix
 
 The matrix has three delivery columns. M2 includes M1. Every accepted row inherits

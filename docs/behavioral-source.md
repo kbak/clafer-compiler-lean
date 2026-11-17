@@ -9,6 +9,12 @@ in the
 [integration review](https://github.com/kbak/clafer-compiler-lean/issues/79);
 [main integration](qualification.md#main-integration) requalifies the final pin.
 
+The explicit extension `behavioral-abstract-multiplicity/1` uses these same
+commands and bounds schema. Its [aggregate contract](abstract-multiplicity.md)
+adds authored abstract counts and rich/core interchange, including models without
+temporal syntax. Compilation JSON retains `authoredBounds` separately from
+effective `localBounds`; omitted authored bounds are `null`.
+
 ## Reuse and boundaries
 
 `Frontend.Behavioral.parseAndElaborate`, `Elaborated.check` and `Elaborated.run`
