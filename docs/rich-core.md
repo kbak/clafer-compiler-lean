@@ -117,6 +117,8 @@ and warnings. Exact source/rich/core Alloy observations cover additions, losses,
 swaps, replacement, repeated bag targets, inherited owners, parent and head gaps,
 shallow finality and enum literals. Mutations remove reference/target stability or
 replace the attachment survival guard with root survival.
+Rich replay must emit the identical source target before sharing its exact-trace
+result; materialized core targets are solved independently.
 
 The representation reuses `Frontend.Behavioral.ParsedModel`, the resolved
 expression families, `BehavioralSyntax`, strict JSON parsing and the existing
