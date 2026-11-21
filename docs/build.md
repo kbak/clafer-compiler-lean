@@ -93,7 +93,7 @@ available to proofs. These equalities cover Lean-level results; they do not veri
 the code generator or C toolchain. Native regressions and the
 [measurement harness](qualification.md#measurements-and-replay) check that boundary.
 
-`scope.json` includes all source and review paths, with a 1200-second check deadline.
+`.intentbond/scope.json` includes all source and review paths, with a 1200-second check deadline.
 The reviewed deadline amendment changes no coverage policy, command or gate;
 the deadline is a failure ceiling, not a runtime target.
 Provision dependencies before checking. After the build, the axiom audit,

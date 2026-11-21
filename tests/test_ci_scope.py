@@ -19,7 +19,7 @@ def encode(policy):
 # [utest->req~intentbond-workflow~1]
 class ScopeSelectionTest(unittest.TestCase):
     def setUp(self):
-        self.approved = (ROOT / 'scope.json').read_bytes()
+        self.approved = (ROOT / '.intentbond/scope.json').read_bytes()
         policy = json.loads(self.approved)
         policy['tests']['timeout_seconds'] = 600
         self.migrated = encode(policy)

@@ -23,7 +23,7 @@ class CIProfileTests(unittest.TestCase):
         for path in ['scripts/oracles/temporal.py', 'scripts/ci_profile.py',
                      'tests/test_pr113_oracles.py', 'tests/test_temporal_oracles.py',
                      'tests/helpers.py', 'tests/fixtures/pr113/a.cfr', 'new-tool.py',
-                     'lake-manifest.json', 'lean-toolchain', 'scope.json',
+                     'lake-manifest.json', 'lean-toolchain', '.intentbond/scope.json',
                      '.github/workflows/ci.yml', 'requirements/intentbond.txt',
                      'docs/oracles.md', 'docs/sources.md', 'docs/spec.md']:
             self.assertFalse(compiler_only(path), path)
@@ -88,7 +88,7 @@ class CIProfileTests(unittest.TestCase):
                 self.assertTrue(result['reference'], 'Unknown inputs require both jobs')
 
     def test_profiles_preserve_policy_and_identify_their_actual_commands(self):
-        original = (ROOT/'scope.json').read_bytes()
+        original = (ROOT/'.intentbond/scope.json').read_bytes()
         self.assertEqual(profile_scope(original, 'full'), original)
         policy = json.loads(original)
         for name, command in [('compiler', ['bash', 'scripts/check.sh', '--compiler-ci']),

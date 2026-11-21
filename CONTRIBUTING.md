@@ -141,7 +141,7 @@ Activate this environment before checking so child Python regressions can import
 the same pinned IntentBond package.
 
 Before editing, capture `git rev-parse HEAD` as `BASE_COMMIT`. Read the
-[development skill at the pinned revision](https://github.com/kbak/intentbond/blob/f9b4f9e40722dc6a83067ac9e62480159322dd09/intentbond/skills/intentbond/SKILL.md)
+[development skill at the pinned revision](https://github.com/kbak/intentbond/blob/778c9c9c0acd78fb8c63a58c39c1a99992e4807c/intentbond/skills/intentbond/SKILL.md)
 and applicable references. Maintain intent, requirements, implementation and links
 together, then run:
 
