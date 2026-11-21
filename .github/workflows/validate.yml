@@ -39,7 +39,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements/intentbond.txt
       - if: inputs.profile != 'routine'
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: '17'
@@ -212,7 +212,7 @@ jobs:
           key: ${{ steps.exporter.outputs.cache-primary-key }}
       - name: Set up Choco Java runtime
         if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: '21'
@@ -229,7 +229,7 @@ jobs:
           echo "CLAFER_CHOCO_TOOLS=$RUNNER_TEMP/choco-tools/tools.json" >> "$GITHUB_ENV"
       - name: Restore Alloy Java runtime
         if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: '17'
