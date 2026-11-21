@@ -1594,7 +1594,7 @@ Covers:
 `impl~intentbond-workflow~1`
 
 [Contribution guidance](../CONTRIBUTING.md), [agent instructions](../AGENTS.md),
-[pin](../requirements/intentbond.txt), [scope](../scope.json),
+[pin](../requirements/intentbond.txt), [scope](../.intentbond/scope.json),
 [check entrypoint](../scripts/check.sh), and [CI](../.github/workflows/ci.yml)
 provide the validation workflow, including real Lean/kernel/native gates. These
 checks do not establish compiler correctness.

@@ -2,7 +2,7 @@
 
 Read [intent](docs/intent.md), [requirements](docs/spec.md),
 [architecture](docs/architecture.md), [sources](docs/sources.md),
-[contribution guidance](CONTRIBUTING.md), and [scope](scope.json).
+[contribution guidance](CONTRIBUTING.md), and [scope](.intentbond/scope.json).
 This is a structural Clafer-to-Alloy compiler with a selected
 [behavioral integration contract](docs/behavioral.md). Follow the adopted
 contract and manual intake gates. The [documentation map](docs/intent.md#documentation-map)
@@ -29,7 +29,7 @@ An independence requirement alone does not justify rebuilding library machinery.
 Use IntentBond for planning, implementation and review. Read the development skill
 and applicable references from the revision pinned in
 [requirements/intentbond.txt](requirements/intentbond.txt):
-[IntentBond skill](https://github.com/kbak/intentbond/blob/f9b4f9e40722dc6a83067ac9e62480159322dd09/intentbond/skills/intentbond/SKILL.md).
+[IntentBond skill](https://github.com/kbak/intentbond/blob/778c9c9c0acd78fb8c63a58c39c1a99992e4807c/intentbond/skills/intentbond/SKILL.md).
 Reuse matching installed tooling; follow `CONTRIBUTING.md` if missing.
 Capture the starting Git commit before editing. Maintain affected intent,
 requirements, source, tests and links together. Run `ib check` and retain external

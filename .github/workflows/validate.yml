@@ -313,13 +313,25 @@ jobs:
           if ! git cat-file -e "$baseline^{commit}" 2>/dev/null; then
             baseline=$candidate
           fi
-          if git cat-file -e "$baseline:scope.json" 2>/dev/null; then
-            git show "$baseline:scope.json" > "$RUNNER_TEMP/baseline-scope.json"
+          scope_path() {
+            python3 - "$1" <<'PYTHON'
+          import sys
+          from pathlib import Path
+          from intentbond.config import commit_scope_path
+
+          print(commit_scope_path(Path.cwd(), sys.argv[1]) or "")
+          PYTHON
+          }
+          baseline_scope=$(scope_path "$baseline")
+          candidate_scope=$(scope_path "$candidate")
+          git cat-file blob "$candidate:$candidate_scope" > "$RUNNER_TEMP/candidate-scope.json"
+          if [ -n "$baseline_scope" ]; then
+            git cat-file blob "$baseline:$baseline_scope" > "$RUNNER_TEMP/baseline-scope.json"
             python3 scripts/ci_scope.py --baseline "$RUNNER_TEMP/baseline-scope.json" \
-              --candidate scope.json --output "$RUNNER_TEMP/trusted-scope.json" \
+              --candidate "$RUNNER_TEMP/candidate-scope.json" --output "$RUNNER_TEMP/trusted-scope.json" \
               --record "$RUNNER_TEMP/scope-selection.json"
           else
-            git show "$candidate:scope.json" > "$RUNNER_TEMP/trusted-scope.json"
+            cp "$RUNNER_TEMP/candidate-scope.json" "$RUNNER_TEMP/trusted-scope.json"
             # The initial repository has no requirements to trace as a baseline.
             # Validate the new baseline, while PR review covers the original diff.
             baseline=$candidate
