@@ -49,10 +49,11 @@ jobs:
         with:
           path: ${{ runner.temp }}/oft
           key: oft-v1-${{ hashFiles('requirements/intentbond.txt') }}
-      - name: Install pinned IntentBond and verified OFT
+      - name: Install pinned IntentBond
+        run: python -m pip install -r requirements/intentbond.txt
+      - name: Install verified OFT
         if: inputs.profile != 'routine'
         run: |
-          python -m pip install -r requirements/intentbond.txt
           ib install-oft --destination "$RUNNER_TEMP/oft"
           echo "INTENTBOND_OFT_JAR=$RUNNER_TEMP/oft/openfasttrace-4.9.0.jar" >> "$GITHUB_ENV"
       - uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee # v1
