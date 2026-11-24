@@ -910,8 +910,11 @@ or count ranges before evaluating a candidate. Use conservative finite column
 budgets, including binary endpoint products and union inventories, independently
 of facts and successful satisfaction. Check every fact/command branch and binder
 body. Count distinct tuples, retain runtime representability checks and propagate
-undefined integer observations distinctly from false. Scope allocation numerals
+undefined integer observations distinctly from false. Direct scope allocation numerals
 and multiplicity predicates do not themselves introduce Alloy integer expressions.
+An upper scope may use a larger explicit allocation and a cardinality fact when
+every possible count fits the signed width. Reconstruct the requested bound and
+retain direct encoding when that premise fails.
 
 Preserve valid scopes excluding every model as unsatisfiable constraints; source
 compilation may express conflicting declaration multiplicity as a fact.

@@ -25,11 +25,12 @@ public final class ComparisonBridge {
             JsonObject bounds = r.getAsJsonObject("scope_bounds");
             JsonObject sigSpec = r.getAsJsonObject("signatures");
             AlloyBridge.require(c.scope.size() == bounds.size(), "complete scopes");
+            var limits = ScopeLimits.read(m, c);
             Set<String> scoped = new HashSet<>();
             for (CommandScope s : c.scope) {
                 String name = AlloyBridge.uid(s.sig.label);
                 AlloyBridge.require(bounds.has(name) && scoped.add(name) && !s.isExact &&
-                    s.startingScope == bounds.get(name).getAsInt() && s.endingScope == s.startingScope &&
+                    limits.getOrDefault(s.sig, s.startingScope) == bounds.get(name).getAsInt() && s.endingScope == s.startingScope &&
                     s.increment == 1, "scope mismatch");
             }
             Map<String,Sig> sigs = new TreeMap<>();

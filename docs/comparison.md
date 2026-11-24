@@ -73,7 +73,9 @@ Each supplied candidate is sent unchanged to the upstream verified checker and
 the Haskell comparison. The native backend compiles the same imported effective
 core and manual upper bounds, then the checked serializer emits its complete
 command. An added exact-candidate fact fixes every object, extent and relation.
-The source UID scopes and bitwidth agree across all three paths. Haskell's root
+The source UID scopes and bitwidth agree across all three paths. The native
+Analyzer audit reads each effective upper bound from its explicit allocation
+and any named cardinality fact, checking the fact's parsed operands. Haskell's root
 is virtual; the native target represents it explicitly. The native object budget
 is the sum of all supplied upper scopes including root; it does not sum actual
 inherited extents or impose extra constraints on a fitting candidate. Every native

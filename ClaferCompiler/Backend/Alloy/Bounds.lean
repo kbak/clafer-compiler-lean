@@ -23,6 +23,32 @@ theorem boundedInt_some_iff (width : Nat) (value : Int) :
     boundedInt width value = some value ↔ fitsInt width value = true := by
   simp [boundedInt]
 
+/-- A representable allocation and a signed cardinality fact impose the original
+upper scope on every possible extent. The allocation numeral itself need not
+be representable when a scope is emitted directly.
+[proof->req~compiler-bounds~1] -/
+theorem allocated_count_le_iff {width allocation limit count : Nat}
+    (safe : fitsInt width (.ofNat allocation) = true) (hle : limit ≤ allocation) :
+    (count ≤ allocation ∧
+      (do let n ← boundedInt width (.ofNat count)
+          let k ← boundedInt width (.ofNat limit)
+          pure (decide (n ≤ k))) = some true) ↔ count ≤ limit := by
+  have fits (n : Nat) (hn : n ≤ allocation) :
+      boundedInt width (.ofNat n) = some (.ofNat n) := by
+    apply (boundedInt_some_iff ..).2
+    simp only [fitsInt, Bool.and_eq_true, decide_eq_true_eq] at safe ⊢
+    have hmin : minInt width ≤ 0 := Int.neg_nonpos_of_nonneg (Int.natCast_nonneg _)
+    exact ⟨⟨⟨safe.1.1.1, safe.1.1.2⟩, Int.le_trans hmin (Int.natCast_nonneg _)⟩,
+      Int.le_trans (Int.ofNat_le.mpr hn) safe.2⟩
+  constructor
+  · rintro ⟨h, cmp⟩
+    rw [fits count h, fits limit hle] at cmp
+    simpa using cmp
+  · intro h
+    refine ⟨Nat.le_trans h hle, ?_⟩
+    rw [fits count (Nat.le_trans h hle), fits limit hle]
+    simpa using h
+
 /-- Column budgets bound the finite operand inventory, even for empty products.
 Union sums are conservative; intersection/difference cannot increase columns. -/
 def Rel.columns (scopes : List Scope) (schema : Schema) (env : List Nat) (rel : Rel) : List Nat :=

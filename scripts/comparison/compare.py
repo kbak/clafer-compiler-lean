@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import importlib
 import json
 import os
+import re
 from pathlib import Path
 import resource
 import shutil
@@ -73,9 +74,9 @@ class Runtime:
         self.classpath = os.pathsep.join(map(str, [self.directory, self.alloy['classes'], self.alloy['jar']]))
         bridge = ROOT / 'scripts/comparison/ComparisonBridge.java'
         run([self.alloy['java'].with_name('javac'), '--release', '17', '-cp', self.classpath,
-             '-d', self.directory, bridge], self.directory, 'javac', env=self.env)
+             '-d', self.directory, bridge, bridge.with_name('ScopeLimits.java')], self.directory, 'javac', env=self.env)
         self.identity = dict(native=oracle.digest(self.native), bridge=oracle.digest(self.directory / 'ComparisonBridge.class'),
-                             analyzer=self.alloy['identity'])
+                             scope_audit=oracle.digest(self.directory / 'ScopeLimits.class'), analyzer=self.alloy['identity'])
         oracle.write(self.directory / 'runtime.json', self.identity)
         self.snapshot = self.api['comparison'].source_snapshot()
 
@@ -265,9 +266,10 @@ def compare(runtime, bundle, candidate_bytes, output, *, bitwidth=8, overall=5, 
                 effective = effective.replace('abstract sig cc0', 'sig cc0')
                 # Alloy forbids command scopes on subset signatures. Keep the
                 # identical bounds as explicit predicates in this mutant.
+                effective = re.sub(r'^fact limit_cc[^\n]*\n', '', effective, flags=re.MULTILINE)
                 for uid, mapping in spec['maps'].items():
                     scope = metadata['bounds'][uid]
-                    effective = effective.replace(f" , {scope} {mapping['signature']}", '')
+                    effective = re.sub(rf" , [0-9]+ {mapping['signature']}\b", "", effective)
                     effective += f"\nfact {{ #{mapping['signature']} <= {scope} }}\n"
             if mutation == 'reject-all': effective += '\nfact { some none }\n'
             pinned = (importlib.import_module('mutations').inject('collapse_bag_heads', original, candidate, core, metadata)[1]

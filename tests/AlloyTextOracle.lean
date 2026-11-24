@@ -17,7 +17,8 @@ def run (args : List String) : IO Unit := do
   let [directory] := args | throw (IO.userError "expected output directory")
   let root := System.FilePath.mk directory
   IO.FS.createDirAll root
-  let allModules := modules ++ generated
+  if !roundTrips (scopeTree 2) then throw (IO.userError "narrow scope round trip")
+  let allModules := modules ++ generated ++ [scopeTree 5, scopeTree 5]
   for (m, i) in allModules.zipIdx do
     let .ok c := check m | throw (IO.userError s!"admission {i}")
     let names := hostileNames m

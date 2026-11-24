@@ -181,6 +181,7 @@ structure ParseState where
   signatures : List (Nat × Signature) := []
   fields : List (Nat × Field) := []
   facts : List Formula := []
+  limits : List (Nat × Nat) := []
   command : Option Command := none
 
 /-- One complete declaration, fact or final command occupies each emitted line. -/
@@ -189,6 +190,19 @@ def line (fuel : Nat) (st : ParseState) : Parser ParseState := do
   let _ ← many (pchar ' ')
   let next ← (do
     token "fact"
+    if let some label ← optional (attempt do
+        let name ← word
+        if !name.startsWith "limit_" then fail "expected scope fact"
+        pure name) then
+      token "{"
+      token "#"
+      let id ← signatureId
+      if label != "limit_" ++ (Symbol.signature id).name || st.limits.any (·.1 == id) then
+        fail "invalid scope fact identity"
+      token "<="
+      let size ← required (← word).toNat?
+      token "}"
+      return { st with limits := (id, size) :: st.limits }
     token "{"
     let p ← formula fuel
     token "}"
@@ -202,7 +216,7 @@ def line (fuel : Nat) (st : ParseState) : Parser ParseState := do
     token "Int"
     let scopes ← many (token "," *> scope)
     pure { st with command := some ⟨kind, p, ← required (table scopes.toList), width⟩ }) <|> (do
-    if !st.facts.isEmpty then fail "signatures must precede facts"
+    if !st.facts.isEmpty || !st.limits.isEmpty then fail "signatures must precede facts"
     let (id, sig, fields) ← signature
     pure { st with signatures := st.signatures ++ [(id, sig)], fields := st.fields ++ fields })
   eof
@@ -213,6 +227,15 @@ def parse (text : String) : Option Module := do
   let st ← lines.foldlM (fun st text =>
     match (line text.length st).run text with
     | .ok next => some next | .error _ => none) {}
-  return ⟨⟨← table st.signatures, ← table st.fields⟩, st.facts, ← st.command⟩
+  let command ← st.command
+  let mut logical := command.scopes.toArray
+  for (id, limit) in st.limits do
+    let allocation ← command.scopes[id]?
+    -- The allocation contains every candidate count. Both sides of the
+    -- emitted comparison must denote mathematical integers at this bitwidth.
+    guard (!allocation.exact && limit ≤ allocation.size && 1 ≤ command.bitwidth &&
+      command.bitwidth ≤ 16 && allocation.size < 2 ^ (command.bitwidth - 1))
+    logical := logical.set! id ⟨limit, false⟩
+  return ⟨⟨← table st.signatures, ← table st.fields⟩, st.facts, { command with scopes := logical.toList }⟩
 
 end ClaferCompiler.Backend.Alloy.Text
