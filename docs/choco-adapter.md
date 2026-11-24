@@ -14,10 +14,10 @@ Java 17 runtime. All paths below are external work directories chosen by the use
 ```sh
 choco_work=$(mktemp -d)
 git clone https://github.com/gsdlab/chocosolver.git "$choco_work/source"
-git -C "$choco_work/source" checkout --detach 253b1de60e4d87435874db81a5151dca53ee1871
+git -C "$choco_work/source" checkout --detach 15af19a3c7cc4893fd61539160ca0a25281066e8
 # Set JAVA21_HOME to the installed Java 21 JDK.
 # Set CLAFER_CAPTURE_BUILD_CACHE to the directory containing the static build.json.
-python3 scripts/comparison/choco_build.py --static-tools "$CLAFER_ORACLE_TOOLS" \
+python3 scripts/comparison/choco_build.py --rich-tools "$CLAFER_RICH_TOOLS" --static-tools "$CLAFER_ORACLE_TOOLS" \
   --capture-cache "$CLAFER_CAPTURE_BUILD_CACHE" --choco-source "$choco_work/source" \
   --java-home "$JAVA21_HOME" --maven-cache "$choco_work/maven" "$choco_work/tools"
 export CLAFER_CHOCO_TOOLS="$choco_work/tools/tools.json"
@@ -63,8 +63,8 @@ returned candidate has a completed agreeing exact comparison, including a
 possible `violates` verdict; the demonstration separately requires positive
 controls to satisfy. The decoder never discards rejected instances.
 
-Each case retains original input, accepted capture, same-generation explicit
-output and scope file, complete parsed declarations, raw `raw.xml`, source/tool
+Each case retains original input, the accepted 0.5.8 capture and scope file,
+the release compiler’s rich explicit output read by Choco, complete parsed declarations, raw `raw.xml`, source/tool
 identities and generated/decoded/checked counts. Each `instance-N/` contains the
 candidate, declaration/local-ID-to-object map, complete tables including empty
 ones, checker verdict and the existing `exact/` three-way comparison bundle.
@@ -96,6 +96,15 @@ format failures are `malformed`; failed tools are `error`; wall-clock expiry is
 inherited identities, reference cycles, malformed metadata/objects, a rejected
 returned instance, actual process failures and replay tampering.
 
+## Release corpus
+
+Run `choco.py corpus --tools "$CLAFER_CHOCO_TOOLS" --scope 4 OUTPUT` on a
+provisioned build. It checks admission for every positive model in the pinned
+source archive, then asks Choco for one instance per admitted model. The root
+scope is one. The report records checker verdicts, refusals of the bounds,
+incomplete exact comparisons and elapsed time excluding provisioning. A
+nonzero status calls for inspection of unexpected or inconclusive outcomes.
+
 ## How an instance reaches the checker
 
 The adapter keeps the original model alongside the explicit Choco input so the
@@ -105,7 +114,8 @@ checking, exact Alloy queries provide a further comparison on the same candidate
 ```mermaid
 flowchart TD
   source["Original source and bounds"] --> capture["Guarded Haskell capture"]
-  capture --> explicit["Matching explicit model and scope file"]
+  source --> explicit["0.6.0 rich explicit model"]
+  capture -->|Scope file| choco
   explicit --> choco["Choco generation"]
   choco --> metadata["Validate exported declaration metadata"]
   capture -.->|Admitted core and bounds| metadata
@@ -123,14 +133,14 @@ shared-target set candidate still reaches the checker and receives a violating v
 
 ## Adapter assessment
 
-The selected structural adapter reuses the accepted Haskell 0.5.7 capture,
-guarded candidate protocol, Lean checker and exact Alloy comparison. Choco's
-`ExplicitParser`, `ScopeFile`, `ClaferCompiler` and `InstanceModel` supply parsing,
+The selected structural adapter reuses the accepted Haskell 0.5.8 capture,
+guarded candidate protocol, Lean checker and exact Alloy comparison. Choco 0.6.0's
+`ToAst.parse`, `ScopeFile`, `ClaferCompiler` and `InstanceModel` supply parsing,
 scope application, solving and instance extraction. No new source parser, solver,
 semantic checker or graph-isomorphism implementation is needed.
 
 The saved fixture uses `Target` for `ECU` and `refs` for `server`.
-At Choco revision `253b1de60e4d87435874db81a5151dca53ee1871`, the API probe for
+In the original API probe at Choco revision `253b1de60e4d87435874db81a5151dca53ee1871`, the model with
 `Target` followed by `refs ->> Target 2..2` returned one instance. The mapping is:
 
 | Explanatory object name | Choco (declaration UID, local ID) | Checker object ID | Reference target |
@@ -180,8 +190,16 @@ declared experiment bounds. It reuses the existing source audit and effective
 options, and compares the IR, JSON and Alloy bytes with the accepted capture.
 Original source is admitted before printing; the generated `//# OPTIONS --explicit`
 directive belongs only to the Choco input. Existing source-directive rejection
-remains in force. Explicit bytes, scope sidecar and effective options are retained
-from that companion generation.
+remains in force. The companion supplies the scope file. Choco consumes the 0.6.0 rich explicit
+rendering of the original source. Parsed declarations must agree with the
+admitted model. For an unused abstract, compare its written multiplicity with
+the pre-optimization interval retained in the capture.
+
+A direct producer mode could replace the checker exporter if it emits the
+guarded profile, resolved declaration IDs, parent/super/reference identities,
+effective multiplicities and source admission evidence. Bounds must be supplied
+explicitly. Exact Alloy comparison also needs the matching Alloy generation and
+its names.
 
 The JDK XML writer and Python `xml.etree.ElementTree` provide the transport;
 Python's existing JSON, subprocess and hashing support provides receipts and

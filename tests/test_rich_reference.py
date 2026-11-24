@@ -26,6 +26,9 @@ class RichReferenceTests(unittest.TestCase):
             'P ?\nQ ?\nR ?\n[never some P between some Q and some R]\n',
             'P ?\nQ ?\n[some P --> some Q]\n',
             'P ?\n[initially F (previous (previous some P))]\n',
+            'P ?\n[some P]\nQ ?\n[no P || lone Q || one Q]\n',
+            'P ?\n  [X (X (initially (1 = 0)))]\n',
+            'abstract Tools 3..6\nabstract Bench\n  abstract Rack 0..1\n',
         ]
         for i, source in enumerate(models):
             with self.subTest(model=i):
@@ -34,14 +37,19 @@ class RichReferenceTests(unittest.TestCase):
                 self.assertEqual(rich.capture(self.binary, self.output/f'{i}-rich-again', rich_text), rich_text)
                 self.assertEqual(rich.capture(self.binary, self.output/f'{i}-core-again', core, core=True), core)
                 lowered = rich.capture(self.binary, self.output/f'{i}-lower-rich', rich_text, core=True)
-                if i == 2:
-                    # The candidate prints absence differently after rich replay:
-                    # counts are natural, so !(#x >= 1) and #x = 0 agree.
-                    self.assertNotEqual(lowered, core)
-                    normalized = lowered.replace('(!((#R) >= 1))', '((#R) = 0)').replace('(!((#P) >= 1))', '((#P) = 0)')
-                    self.assertEqual(normalized, core)
-                else:
-                    self.assertEqual(lowered, core)
+                self.assertEqual(lowered, core)
+                if i == 5:
+                    for text in (rich_text, core):
+                        for quantifier in ('some P', 'no P', 'lone Q', 'one Q'):
+                            self.assertIn(quantifier, text)
+                        self.assertLess(text.index('[some P]'), text.index('0..* Q'))
+                elif i == 6:
+                    # Candidate discrepancy with nested semantic birth, kbak/clafer-semantics#204.
+                    self.assertIn('[X (X ((!(previous (some this))) => (1 = 0)))]', core)
+                elif i == 7:
+                    self.assertLess(core.index('Tools 0..* {}'), core.index('[(('))
+                    self.assertIn('(#Tools) >= 3', core)
+                    self.assertIn('abstract 0..* Rack 0..1', core)
                 self.assertNotIn(':=', core)
                 self.assertNotIn('never ', core)
                 self.assertNotIn('-->', core)
@@ -53,12 +61,15 @@ class RichReferenceTests(unittest.TestCase):
                     # Haskell option directives. This fixture adapter recognizes
                     # only the exact explicit/trace flags used in this corpus.
                     header, body = text.split('\n', 1)
-                    self.assertIn(header, ('//# OPTIONS --explicit', '//# OPTIONS --explicit --tl=10'))
-                    rejected = compiler.call(text, [6,4,4,3,2][i])
+                    prefix = '//# OPTIONS --explicit' + (' --core' if selected == 'core' else '')
+                    self.assertIn(header, (prefix, prefix + ' --tl=10'))
+                    count = [6, 4, 4, 3, 2, 3, 2, 4][i]
+                    profile = 'behavioral-initializer-clocks/1'
+                    rejected = compiler.call(text, count)
                     self.assertEqual(rejected.returncode, 3)
                     self.assertEqual(json.loads(rejected.stderr)['code'], 'lexer.directive')
-                    imported = compiler.ok(body, [6,4,4,3,2][i], narrow=True)
-                    self.assertEqual(compiler.ok(imported.stdout.decode(), [6,4,4,3,2][i], explicit=True, narrow=True).stdout,
+                    imported = compiler.ok(body, count, profile=profile, narrow=True)
+                    self.assertEqual(compiler.ok(imported.stdout.decode(), count, explicit=True, profile=profile, narrow=True).stdout,
                                      imported.stdout)
                     encoded = rich.capture(self.binary, self.output/f'{i}-{selected}-json', text,
                                            core=(selected == 'core'), mode='json')

@@ -7,10 +7,10 @@
     "min_steps": 1,
     "overall": 1
   },
-  "compiler_archive_sha256": "b55f7599b00aec75952eed2dcde338f0108fc14472b62c7a568d77ce7c6c99b1",
+  "compiler_archive_sha256": "40034c1d7a339b013aa3c5860569853ecf57a242eb093a15931c67c8ea8d086e",
   "ghc": "9.12.4",
-  "haskell_commit": "186d8e0a350e4c8895b1c489eb587fa3a1bc2b61",
-  "haskell_version": "0.5.9",
+  "haskell_commit": "6f3911a9d823ecd647f14168436656c08a4f24d8",
+  "haskell_version": "0.6.0",
   "java_major": 17,
   "options": {
     "coreGranularity": 0,
@@ -35,7 +35,7 @@
   },
   "schema": "clafer-rich-core-reference/1",
   "solver": "sat4j",
-  "source_tree_sha256": "9f396f07af14c14b6e0c590093c5ec97aa79a695ccc8287f0efcb649a79be0ad",
+  "source_tree_sha256": "48f43c3c631d5f9d9ccf6fb639d742a2d031cf15b27a0a9057d44ec9a9bb1e19",
   "stack": "3.11.1",
   "stack_lock": {
     "bytes": 474,

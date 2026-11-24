@@ -52,6 +52,7 @@ fi
 lake env lean --version
 python3 scripts/project_modules.py --dependencies
 if $reference_ci; then
+  run_step 'Compiler for rich/core replay' lake build clafer-compiler
   run_step 'Reference corpora' python3 scripts/run_tests.py --reference-ci
   echo 'Reference qualification passed; compiler proof and runtime checks are separate.'
   exit 0

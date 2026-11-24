@@ -1116,7 +1116,8 @@ Check actual instances from the pinned Choco Java explicit frontend through the
 existing guarded structural candidate protocol and Lean checker. Admit the
 original source with the unchanged structural Haskell profile before explicit
 generation. Retain exact explicit bytes, scope sidecar, effective options and
-matching analyzed source from the same generation. Validate the complete parsed
+matching analyzed source from the same static generation. Feed the pinned release
+compiler’s rich explicit rendering of that original source to Choco. Validate the complete parsed
 declaration mapping, bounds and reference modes before decoding.
 
 Preserve declaration/local-ID pairs, the whole object carrier, a distinguished
