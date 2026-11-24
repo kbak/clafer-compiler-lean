@@ -8,6 +8,8 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
+from collections import Counter
 import xml.etree.ElementTree as ET
 
 import compare
@@ -46,6 +48,7 @@ class Runtime:
     def __init__(self, tools, directory):
         self.tools_path = oracle.external(tools)
         self.tools = choco_build.load(self.tools_path)
+        self.rich_binary = choco_build.rich.load_tools(self.tools['rich_tools'])
         self.directory = self.tools_path.parent
         self.comparison = compare.Runtime(self.tools['static_tools'], directory)
         self.api = self.comparison.api
@@ -64,7 +67,7 @@ def number(text, minimum=0):
 
 
 # [impl->req~compiler-choco-instances~1]
-def envelope(raw, core, bounds):
+def envelope(raw, core, bounds, source_cards=None):
     require(b'<!DOCTYPE' not in raw and b'<!ENTITY' not in raw, 'XML declarations forbidden')
     tree = ET.fromstring(raw)
     attrs = attributes(tree, 'choco-instances', 'schema')
@@ -86,6 +89,12 @@ def envelope(raw, core, bounds):
                    group=[number(a['groupLow']), number(a['groupHigh'], -1)],
                    mode=a['mode'], target=a['target'] or None, scope=number(a['scope']))
         wanted = {k: d[k] for k in ('parent', 'super', 'card', 'group', 'mode', 'target')}
+        # In the static admission profile an unused abstract has no concrete
+        # descendants. 0.5.8 may zero its optimized slot. Compare the release
+        # declaration to the independently captured pre-optimization interval.
+        if (d['abstract'] and d['unused'] and d['card'] == [0, 0] and source_cards
+                and source_cards.get(d['uid']) == [0, -1]):
+            wanted['card'] = [0, -1]
         wanted.update(abstract=str(d['abstract']).lower(), scope=bounds[d['uid']])
         require(row == wanted, 'Choco declaration differs from admitted core: '+a['uid'])
         observed[a['uid']] = row
@@ -168,9 +177,13 @@ def export(runtime, source, bounds, output):
     per_uid = [row for row in scopes if 'lpqName' in row]
     require(len(per_uid) == len(bounds)-1 and {row['lpqName']: row['scope'] for row in per_uid}
             == {u:n for u,n in bounds.items() if u != 'root'}, 'Explicit scope inventory differs')
-    (output/'explicit.cfr').write_text(g['explicit'])
+    # Scope and admission come from the qualified static capture. The Java frontend
+    # reads the release compiler's rich rendering of the very same input bytes.
+    text = choco_build.rich.capture(runtime.rich_binary, output/'rich', source.read_text())
+    (output/'explicit.cfr').write_text(text)
     (output/'explicit.cfr-scope').write_text(g['explicit_scopes'])
-    return core, metadata, bundle
+    source_cards = {uid: decl['_card'] for uid, decl in original['source_map']}
+    return core, source_cards, bundle
 
 
 def solve(runtime, output, timeout, limit):
@@ -184,12 +197,12 @@ def solve(runtime, output, timeout, limit):
 
 
 # [impl->req~compiler-choco-instances~1]
-def run_case(runtime, source, bounds, output, *, supplied=None, timeout=30, limit=10):
+def run_case(runtime, source, bounds, output, *, supplied=None, timeout=30, limit=10, bitwidth=8):
     output = oracle.external(output)
     output.mkdir(parents=True, exist_ok=False)
     (output/'input.cfr').write_bytes(Path(source).read_bytes())
     oracle.write(output/'bounds.json', bounds)
-    oracle.write(output/'settings.json', dict(timeout=timeout, limit=limit))
+    oracle.write(output/'settings.json', dict(timeout=timeout, limit=limit, bitwidth=bitwidth))
     oracle.write(output/'source.json', runtime.source)
     oracle.write(output/'tools.json', runtime.tools)
     oracle.write(output/'supplied.json', supplied or {})
@@ -198,9 +211,9 @@ def run_case(runtime, source, bounds, output, *, supplied=None, timeout=30, limi
     result = dict(schema='clafer-choco-check/1', status='error', generated=None, decoded=0, checked=0,
                   satisfies=0, violates=0, instances=[], supplied={}, termination=None)
     try:
-        core, metadata, bundle = export(runtime, output/'input.cfr', bounds, output)
+        core, source_cards, bundle = export(runtime, output/'input.cfr', bounds, output)
         solve(runtime, output, timeout, limit)
-        instances, search, declarations = envelope((output/'raw.xml').read_bytes(), core, bounds)
+        instances, search, declarations = envelope((output/'raw.xml').read_bytes(), core, bounds, source_cards)
         result.update(search)
         oracle.write(output/'declarations.json', declarations)
         for index, instance in enumerate(instances):
@@ -220,7 +233,7 @@ def run_case(runtime, source, bounds, output, *, supplied=None, timeout=30, limi
                 if verdict['status'] in ('satisfies', 'violates'):
                     result[verdict['status']] += 1
                     exact = compare.compare(runtime.comparison, bundle, runtime.api['protocol'].encoded(candidate),
-                                            directory/'exact')
+                                            directory/'exact', bitwidth=bitwidth)
                     observation['exact'] = exact['category']
                     observation['complete'] = exact['complete']
             except runtime.api['protocol'].Rejection as error:
@@ -232,7 +245,7 @@ def run_case(runtime, source, bounds, output, *, supplied=None, timeout=30, limi
         for label, candidate in (supplied or {}).items():
             require(label and Path(label).name == label and label not in ('.','..'), 'Invalid candidate label')
             exact = compare.compare(runtime.comparison, bundle, runtime.api['protocol'].encoded(candidate),
-                                    output/('supplied-'+label))
+                                    output/('supplied-'+label), bitwidth=bitwidth)
             result['supplied'][label] = dict(category=exact['category'], complete=exact['complete'])
         result['status'] = 'completed' if (
             all(o.get('complete') and o.get('exact') == 'agree_'+o['status'] for o in result['instances'])
@@ -298,17 +311,64 @@ def demonstration(runtime, output):
     return results
 
 
+def release_corpus(runtime, output, scope):
+    """Check one returned instance per admitted model at a uniform declared scope."""
+    require(scope >= 1, 'Corpus declaration scope must be positive')
+    output = oracle.external(output)
+    output.mkdir(parents=True, exist_ok=False)
+    work = runtime.rich_binary.parent
+    started = time.monotonic()
+    # Enumerate only sources verified against the immutable release archive.
+    models = sorted(Path(name) for name in choco_build.rich.sources(work)
+                    if Path(name).parent == Path('test/positive') and name.endswith('.cfr'))
+    require(models, 'Missing positive release corpus')
+    cases = {}
+    for path in models:
+        source = work/path
+        # Obtain the UID inventory for the scope sidecar. run_case independently
+        # repeats the guarded capture and validates all scopes and declarations.
+        raw = subprocess.run([runtime.comparison.exporter, source], capture_output=True,
+                             check=True, timeout=120)
+        receipt = runtime.api['protocol'].loads(raw.stdout)
+        bounds = {row['uid']: scope for row in receipt.get('observations', [])}
+        bounds['root'] = 1
+        # The exact Alloy oracle checks integer range for all binary tuples.
+        atoms = sum(size for uid, size in bounds.items() if uid != 'root')
+        width = max(8, (atoms * atoms).bit_length() + 1)
+        result = run_case(runtime, source, bounds, output/path.stem, limit=1, bitwidth=width)
+        cases[path.name] = {key: result[key] for key in
+                            ('status', 'generated', 'checked', 'satisfies', 'violates', 'termination')}
+        cases[path.name]['admission'] = json.loads(
+            (output/path.stem/'admission/result.json').read_text())['status']
+    summary = dict(profile=choco_build.rich.profile()['haskell_commit'], choco=choco_build.PIN,
+                   scope=scope, limit=1, models=len(cases),
+                   admitted=sum(c['admission'] == 'admitted' for c in cases.values()),
+                   statuses=dict(Counter(c['status'] for c in cases.values())),
+                   checked=sum(c['checked'] for c in cases.values()),
+                   satisfies=sum(c['satisfies'] for c in cases.values()),
+                   violates=sum(c['violates'] for c in cases.values()),
+                   seconds=time.monotonic()-started)
+    oracle.write(output/'corpus.json', dict(summary=summary, cases=cases))
+    return summary
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    for name in ('demo', 'check', 'replay'):
+    for name in ('demo', 'check', 'replay', 'corpus'):
         p = sub.add_parser(name)
         p.add_argument('--tools', required=True, type=Path)
-        if name != 'demo': p.add_argument('input', type=Path)
+        if name == 'corpus': p.add_argument('--scope', required=True, type=int)
+        if name in ('check', 'replay'): p.add_argument('input', type=Path)
         if name == 'check': p.add_argument('--bounds', required=True, type=Path)
         p.add_argument('output', type=Path)
     args = parser.parse_args()
     runtime = Runtime(args.tools, args.output.with_name(args.output.name+'-runtime'))
+    if args.command == 'corpus':
+        summary = release_corpus(runtime, args.output, args.scope)
+        print(json.dumps(summary, indent=2))
+        expected = {'completed', 'scope_rejected', 'unsupported', 'compiler_rejected'}
+        return 2 if summary['violates'] or set(summary['statuses']) - expected else 0
     if args.command == 'demo':
         result = demonstration(runtime, args.output)
     elif args.command == 'replay':

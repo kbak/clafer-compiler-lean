@@ -7,7 +7,6 @@ import javax.xml.stream.XMLStreamWriter;
 import org.clafer.ast.*;
 import org.clafer.ast.analysis.InsufficientScopeException;
 import org.clafer.compiler.*;
-import org.clafer.frontend.ExplicitParser;
 import org.clafer.instance.*;
 import org.clafer.scope.*;
 
@@ -75,7 +74,7 @@ public final class ChocoInstances {
         if (args.length != 4) throw new IllegalArgumentException("explicit.cfr scopes output.xml limit");
         int limit = Integer.parseInt(args[3]);
         if (limit < 1 || limit > 1000) throw new IllegalArgumentException("Instance limit 1..1000 required");
-        var parsed = ExplicitParser.parse(Files.readString(Path.of(args[0])));
+        var parsed = ToAst.parse(Files.readString(Path.of(args[0])));
         if (!parsed.diagnostics().isEmpty()) throw new IllegalArgumentException(parsed.diagnostics().toString());
         model = parsed.model();
         if (parsed.objectives().length != 0 || parsed.assertions().length != 0 || model.hasConstraints())

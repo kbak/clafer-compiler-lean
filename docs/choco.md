@@ -14,9 +14,10 @@ semantic checker, together with the resolved model it must satisfy:
 
 ```mermaid
 flowchart TD
-  source["Clafer source"] --> haskell["Haskell: resolve the model"]
-  haskell -->|Explicit model| choco["Java parser and Choco generator"]
-  haskell -->|Resolved model| checker["Lean semantic checker"]
+  source["Clafer source"] --> haskell["Haskell 0.6.0"]
+  source --> admission["Guarded Haskell 0.5.8 capture"]
+  haskell -->|Rich explicit model| choco["Java parser and Choco generator"]
+  admission -->|Resolved model| checker["Lean semantic checker"]
   choco -->|Returned instance, through the adapter| checker
   checker --> verdict["Satisfies or violates the model"]
 ```

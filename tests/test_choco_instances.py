@@ -45,11 +45,26 @@ class ChocoTests(unittest.TestCase):
         self.assertEqual(len({pair[0] for _,pair in candidate['references']}), 2)
         self.assertEqual(len({pair[1] for _,pair in candidate['references']}), 1)
         self.assertTrue((self.bag/'explicit.cfr').read_text().startswith('//# OPTIONS --explicit\n'))
+        self.assertEqual((self.bag/'explicit.cfr').read_bytes(), (self.bag/'rich/stdout').read_bytes())
+        self.assertEqual(json.loads((self.bag/'rich/request.json').read_text())['profile']['haskell_version'],
+                         '0.6.0')
         tables = json.loads((self.bag/'instance-0/tables.json').read_text())
         for table in tables.values(): self.assertEqual(set(table), {'root','Target','refs'})
         self.assertEqual(tables['references']['Target'], [])
         for label in ('collapsed','missing_reference'):
             self.assertEqual(bag['supplied'][label], dict(category='agree_violates',complete=True))
+
+    def test_unused_abstract_keeps_its_release_range(self):
+        source = self.output/'unused.cfr'
+        source.write_text('abstract A\naRef -> A\n')
+        case = self.output/'unused'
+        bounds = dict(root=1, A=2, aRef=2)
+        result = choco.run_case(self.runtime, source, bounds, case, limit=1)
+        self.assertEqual(result['status'], 'scope_rejected', result)
+        core = json.loads((case/'core.json').read_text())
+        raw = (case/'raw.xml').read_bytes()
+        with self.assertRaisesRegex(ValueError, 'declaration differs'):
+            choco.envelope(raw, core, bounds, {'A': [0, 0]})
 
     def test_inherited_nested_and_cyclic_identities(self):
         bounds = dict(root=1, Base=1, left=1, right=1, left__leaf=1, right__leaf=1, refs=2, a=1, b=1)

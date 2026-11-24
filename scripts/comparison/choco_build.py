@@ -11,9 +11,10 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'oracles'))
 import oracle
+import rich
 
 HERE = Path(__file__).resolve().parent
-PIN = '253b1de60e4d87435874db81a5151dca53ee1871'
+PIN = '15af19a3c7cc4893fd61539160ca0a25281066e8'
 
 
 def require(condition, message):
@@ -53,9 +54,11 @@ def run(command, output, name, **kwargs):
 
 
 # [impl->req~compiler-choco-instances~1]
-def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_cache, output):
+def prepare(static_tools, rich_tools, capture_cache, choco_source, java_home, maven, maven_cache, output):
     output = oracle.external(output)
     output.mkdir(parents=True, exist_ok=False)
+    rich_tools = oracle.external(rich_tools)
+    rich.load_tools(rich_tools)
     api = oracle.adapters()
     cache = oracle.external(capture_cache)
     source = oracle.external(choco_source)
@@ -110,7 +113,7 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
         output, 'choco-build', cwd=source, env=env)
     require(checked_source(source) == before, 'Choco sources changed during build')
     jar = output/'chocosolver.jar'
-    shutil.copyfile(source/'target/chocosolver-0.5.7-jar-with-dependencies.jar', jar)
+    shutil.copyfile(source/'solver/target/chocosolver-0.6.0-jar-with-dependencies.jar', jar)
     (output/'classes').mkdir()
     run([java_home/'bin/javac', '--release', '21', '-cp', jar, '-d', output/'classes',
          HERE/'ChocoInstances.java'], output, 'bridge-build')
@@ -141,7 +144,8 @@ def prepare(static_tools, capture_cache, choco_source, java_home, maven, maven_c
                     target.write_bytes(archive.read(name))
     artifacts = [jar, output/'explicit-export', output/'classes/ChocoInstances.class']
     tools = dict(schema='clafer-choco-tools/1', choco_commit=PIN,
-        choco_version='0.5.7', solver_version='6.0.2', java_home=str(java_home), java=identity,
+        rich_tools=str(rich_tools), rich_identity=oracle.digest(rich_tools),
+        choco_version='0.6.0', solver_version='6.0.2', java_home=str(java_home), java=identity,
         static_tools=str(oracle.external(static_tools)), static_identity=oracle.digest(static_tools),
         source=sources(), choco_sources=before,
         artifacts={str(p.relative_to(output)): oracle.digest(p) for p in artifacts},
@@ -158,6 +162,7 @@ def load(path):
     require(value['schema'] == 'clafer-choco-tools/1' and value['choco_commit'] == PIN
             and value['source'] == sources(), 'Changed Choco tools/profile; provision again')
     require(oracle.digest(value['static_tools']) == value['static_identity'], 'Changed static tools')
+    require(oracle.digest(value['rich_tools']) == value['rich_identity'], 'Changed rich compiler tools')
     require(java_identity(value['java_home']) == value['java'], 'Changed Choco JDK')
     for name, identity in value['artifacts'].items():
         require('..' not in Path(name).parts and not Path(name).is_absolute(), 'Invalid artifact path')
@@ -169,6 +174,7 @@ def load(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--rich-tools', required=True, type=Path)
     parser.add_argument('--static-tools', required=True, type=Path)
     parser.add_argument('--capture-cache', required=True, type=Path)
     parser.add_argument('--choco-source', required=True, type=Path)

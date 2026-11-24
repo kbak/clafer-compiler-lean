@@ -134,7 +134,7 @@ analogy of progressively lowered representations; this implementation uses the
 repository's existing typed IR and proofs rather than introducing MLIR itself.
 
 The [Haskell candidate profile](../scripts/oracles/rich-profile.json) pins
-`gsdlab/clafer@186d8e0a350e4c8895b1c489eb587fa3a1bc2b61`, its source archive,
+`gsdlab/clafer@6f3911a9d823ecd647f14168436656c08a4f24d8`, its source archive,
 resolver, lock, Stack/GHC and reference solver settings. `scripts/oracles/rich.py`
 builds and validates that candidate separately. Fresh reference tests exercise
 its rich/core `.cfr` fixed points, rich-to-core lowering and JSON generation.
@@ -142,14 +142,16 @@ These establish reference interface behavior, not wire-format compatibility with
 Lean JSON or proof of equivalent model meanings. Exact source/Alloy trace checks
 for [past operators](past.md) cover the latter boundary on distinguishing traces.
 
-The candidate's rich-to-core pattern replay prints `!(#x >= 1)` where direct
-core output prints `#x = 0`. The reference test retains that exact discrepancy
-and checks the narrow natural-cardinality rewrite; it does not claim byte equality
-for those two routes. Each printed rich/core form separately remains a fixed point.
-The shared admitted examples also exercise Haskell `.cfr` output through Lean's
-source frontend and subsequent independent Lean core replay.
+On the release fixtures, lowering the printed rich model gives the same core
+text as lowering the original source. Both printers retain written cardinality
+quantifiers and source order. Top-level abstract bounds lower to a counting
+constraint, while nested abstract bounds stay on their declaration. The
+release compiler currently prints `!(previous (some this))` as the birth guard
+under nested temporal operators. This fires on two consecutive absent states.
+Agreement with the lifetime semantics requires current presence as well.
+[Release lowering](https://github.com/gsdlab/clafer/blob/6f3911a9d823ecd647f14168436656c08a4f24d8/src/Language/Clafer/Intermediate/Core.hs#L202-L221).
 
-Haskell source option directives remain unsupported by Lean's source frontend.
-The reference corpus explicitly checks that rejection, then uses a fixture adapter
-that recognizes only its exact `--explicit`/`--tl=10` header and supplies independent
-Lean bounds. This is a documented corpus boundary, not a general Haskell importer.
+The shared examples also exercise Haskell output through Lean's source frontend
+and independent Lean core replay. The fixture adapter recognizes the generated
+`--explicit` header, `--core` on core output and optional `--tl=10`. It supplies
+Lean bounds separately. Authored source directives remain outside this profile.

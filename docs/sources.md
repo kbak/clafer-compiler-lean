@@ -156,12 +156,12 @@ not revived by this upgrade.
 
 ## Choco instance source
 
-The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/253b1de60e4d87435874db81a5151dca53ee1871)
-is pinned to `253b1de60e4d87435874db81a5151dca53ee1871` (Clafer backend `0.5.7`,
+The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/15af19a3c7cc4893fd61539160ca0a25281066e8)
+is pinned to `15af19a3c7cc4893fd61539160ca0a25281066e8` (Clafer backend `0.6.0`,
 Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco-adapter.md#adapter-assessment)
-records the reuse and representation boundary. `frontend/ExplicitParser.java`,
+records the reuse and representation boundary. `ast/ToAst.java`,
 `scope/ScopeFile.java`, `instance/InstanceClafer.java`, `instance/InstanceModel.java`
-and `compiler/ClaferSolutionMap.java`, under `src/main/java/org/clafer/`, provide
+and `compiler/ClaferSolutionMap.java`, under `solver/src/main/java/org/clafer/`, provide
 the parsed metadata and original declaration/local-ID object identity.
 
 The companion explicit exporter uses S5's unchanged structural capture options
@@ -1145,7 +1145,7 @@ Definitions 3–5 and §6.1 attachment/binding rules and explicitly extends past
 syntax. Independent acceptance is tracked in [semantics #189](https://github.com/kbak/clafer-semantics/pull/189).
 
 The supplementary Haskell candidate is
-[186d8e0](https://github.com/gsdlab/clafer/tree/186d8e0a350e4c8895b1c489eb587fa3a1bc2b61),
+[6f3911a](https://github.com/gsdlab/clafer/tree/6f3911a9d823ecd647f14168436656c08a4f24d8),
 particularly `doc/rich-and-core-explicit.md`, `Intermediate/Core.hs`,
 `Intermediate/Initializers.hs`, `Intermediate/InitializerChecks.hs`,
 `Generator/AlloyLtl.hs` and `Generator/Explicit.hs`. Its MIT notice was checked;
