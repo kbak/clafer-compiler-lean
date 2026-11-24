@@ -59,13 +59,13 @@ class AlloyTextTests(unittest.TestCase):
                              for m in native_modules], "-o", str(executable)], cwd=ROOT)
         run("lean", [str(executable), str(output)])
         self.assertEqual((output / "lean-stdout.log").read_text().strip(),
-                         "192 target modules; 4000 names; 20 parser mutations")
+                         "194 target modules; 4000 names; 23 parser mutations")
         references = json.loads(reference_file.read_text())
         # Independently pin the complete four-atom candidate from AlloyCore.
         # This is test-only syntax, outside the serializer's input language.
         pin = "fact { some disj x,y: cc0 | some disj u,v: cc4 | cc1 = x->u + x->v + y->u }\n"
         manifest = []
-        for i in range(192):
+        for i in range(194):
             name = f"case_{i}"
             path = output / (name + ".als")
             source = path.read_text()
@@ -90,9 +90,16 @@ class AlloyTextTests(unittest.TestCase):
                 # Insert the exact-candidate fact before the command.
                 self.assertEqual(source.count("run {"), 1)
                 (output / (name + "-pinned.als")).write_text(source.replace("run {", pin + "run {"))
+            if i in (192, 193):
+                # The grandchild has logical upper bound 2 in an allocation of 15.
+                count = 2 if i == 192 else 3
+                row["expected"] = count == 2
+                self.assertIn("fact limit_cc8 { # cc8 <= 2 }", source)
+                (output / (name + "-pinned.als")).write_text(
+                    source.replace("run {", f"fact {{ #cc8 = {count} }}\nrun {{"))
             manifest.append(row)
         self.assertEqual(len(references), 36)
-        self.assertEqual(sum("expected" in row for row in manifest), 26)
+        self.assertEqual(sum("expected" in row for row in manifest), 28)
         # Grouping and alias mutations are deliberately valid Alloy, so merely
         # parsing successfully cannot make these checks pass.
         (output / "case_24-mutated.als").write_text(references["case_24"].replace(
@@ -109,7 +116,7 @@ class AlloyTextTests(unittest.TestCase):
         self.assertEqual([row["id"] for row in results], [row["id"] for row in manifest])
         self.assertEqual(sum(row.get("referenceMatched", False) for row in results), 36)
         observations = [row["observation"] for row in results if "observation" in row]
-        self.assertEqual(len(observations), 26)
+        self.assertEqual(len(observations), 28)
         self.assertTrue(any(row["satisfiable"] for row in observations))
         self.assertTrue(any(not row["satisfiable"] for row in observations))
         for observation in observations:

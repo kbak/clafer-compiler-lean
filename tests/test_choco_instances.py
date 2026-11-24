@@ -54,6 +54,21 @@ class ChocoTests(unittest.TestCase):
         for label in ('collapsed','missing_reference'):
             self.assertEqual(bag['supplied'][label], dict(category='agree_violates',complete=True))
 
+    def test_scope_four_group_candidate(self):
+        source = self.runtime.rich_binary.parent / 'test/positive/group_cardinality_after_clafer.cfr'
+        bounds = {uid: 4 for uid in 'abcdefghijklmn'}
+        case = self.output / 'scope-four-groups'
+        result = choco.run_case(self.runtime, source, dict(bounds, root=1), case, limit=1, bitwidth=13)
+        self.assertEqual(result['instances'], [dict(status='satisfies', exact='agree_satisfies',
+                                                     complete=True)], result)
+        exact = case / 'instance-0/exact'
+        self.assertTrue(json.loads((exact/'result.json').read_text())['faithful'])
+        negative = json.loads((exact/'candidate.json').read_text())
+        negative['containment'] = [row for row in negative['containment'] if row[0] != 'a']
+        rejected = choco.compare.compare(self.runtime.comparison, case/'admission/capture',
+            self.runtime.api['protocol'].encoded(negative), case/'missing-parent', bitwidth=13)
+        self.assertEqual(rejected['category'], 'agree_violates', rejected)
+
     def test_unused_abstract_keeps_its_release_range(self):
         source = self.output/'unused.cfr'
         source.write_text('abstract A\naRef -> A\n')

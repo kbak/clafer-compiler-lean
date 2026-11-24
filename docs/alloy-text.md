@@ -57,6 +57,20 @@ equal bytes and maps; changing source labels alone leaves bytes unchanged.
 Covers:
 - `req~compiler-alloy-text~1`
 
+For a nested set signature with an upper bound greater than one, the static
+printer can allocate its parent's pool and emit the declaration bound as a named
+cardinality fact. This avoids Alloy's quantified encoding of a smaller scope
+over shared atoms. The printer uses this form only when the entire allocation
+fits the signed bitwidth and exceeds the requested upper bound. Exact scopes,
+zero and singleton bounds retain their direct encoding. Each child can reuse
+its parent's physical allocation across inheritance levels.
+
+The parser checks the fact's signature identity, uniqueness, numeral, command
+allocation and bitwidth before reconstructing the original scope.
+`allocated_count_le_iff` proves the finite upper-bound equivalence under the
+representability premise. Qualification checks the parsed Alloy fact and command
+together. Analyzer execution remains an external check.
+
 ## Complete emitted grammar and correspondence
 
 Every relation, integer and formula has explicit outer parentheses. Binary
@@ -89,6 +103,7 @@ levels, free variables, domain capture and additional commands.
 | Scalar value field | `ccN : one Int` in the auxiliary namespace |
 | Scalar extraction | Conditional singleton/domain check, then `sum` of the scalar field, else the admitted lower bound; see [scalar encoding](expression-encoding.md#source-constraint-translation) |
 | Fact | `fact { p }`, in original fact order |
+| Declaration upper bound | `fact limit_ccN { # ccN <= K }` combined with an explicit upper allocation for `ccN` in the command |
 | Command | `run/check { p } for B Int , [exactly] N ccM , ...` |
 
 `set` signature multiplicity emits no keyword. Empty field blocks and a module

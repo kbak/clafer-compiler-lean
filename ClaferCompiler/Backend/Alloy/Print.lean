@@ -84,10 +84,32 @@ def commandText (c : Command) : String :=
     " { " ++ formulaText c.body ++ " } for " ++ c.bitwidth.repr ++ " Int" ++
     (if scopes.isEmpty then "" else " , " ++ String.intercalate " , " scopes) ++ "\n"
 
+/-- Bounds on extensions share their parent's atom pool. For a representable
+pool, a cardinality fact avoids Alloy's quantified encoding of a smaller
+command scope. Exact, zero, singleton and intrinsically limited scopes stay direct. -/
+def allocationScopes (m : Module) : Array Scope := Id.run do
+  let mut allocations := #[]
+  for (sig, logical) in m.schema.signatures.zip m.command.scopes do
+    let parent := sig.parent.bind fun p => allocations[p]?
+    let physical := match parent with
+      | some pool =>
+        if !logical.exact && sig.multiplicity == .set && 1 < logical.size &&
+            logical.size < pool.size && fitsInt m.command.bitwidth (.ofNat pool.size)
+        then { logical with size := pool.size } else logical
+      | none => logical
+    allocations := allocations.push physical
+  return allocations
+
 def chunks (m : Module) : List Chunk :=
+  let allocations := allocationScopes m
+  let limits := m.command.scopes.zipIdx.filterMap fun (scope, i) =>
+    if (allocations[i]?).any (fun physical => physical.size != scope.size) then
+      let sig := (Symbol.signature i).name
+      some (⟨"fact limit_" ++ sig ++ " { # " ++ sig ++ " <= " ++ scope.size.repr ++ " }\n", none⟩ : Chunk)
+    else none
   (m.schema.signatures.zipIdx.flatMap fun (s, i) => signatureChunks m s i) ++
   (m.facts.map fun p => ⟨"fact { " ++ formulaText p ++ " }\n", none⟩) ++
-  [⟨commandText m.command, none⟩]
+  limits ++ [⟨commandText { m.command with scopes := allocations.toList }, none⟩]
 
 def serialize (m : Module) : String := String.join ((chunks m).map Chunk.text)
 

@@ -15,12 +15,13 @@ public final class BoundsAudit {
             throw new IllegalStateException("non-static run");
         if (command.bitwidth != expected.get("bitwidth").getAsInt())
             throw new IllegalStateException("bitwidth mismatch");
+        var limits = ScopeLimits.read(model, command);
         var actual = new JsonObject();
         for (var scope : command.scope) {
             if (scope.startingScope != scope.endingScope || scope.increment != 1)
                 throw new IllegalStateException("scope range");
             var row = new JsonObject();
-            row.addProperty("size", scope.startingScope);
+            row.addProperty("size", limits.getOrDefault(scope.sig, scope.startingScope));
             row.addProperty("exact", scope.isExact);
             actual.add(scope.sig.label.replaceFirst("^this/", ""), row);
         }

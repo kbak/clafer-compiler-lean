@@ -287,7 +287,7 @@ python3 scripts/qualification.py builds --candidate HEAD --out /tmp/qualificatio
 
 `runtime` also requires the provisioned `CLAFER_ORACLE_TOOLS` manifest (or `--tools`).
 After timing, the pinned Analyzer parses both common-domain outputs and checks
-every actual signature scope and the Int width against the original bounds and
+every effective signature scope (including parsed cardinality facts) and the Int width against the original bounds and
 declaration maps, without solving. Audit startup time is kept outside compiler
 samples. Tool/option identities and parsed command receipts are retained.
 

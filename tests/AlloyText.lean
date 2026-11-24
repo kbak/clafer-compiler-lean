@@ -63,6 +63,17 @@ def generated : List Module :=
     [model (.equal x x), model (.mult .set x),
      model (.all x (.exists_ (.var 0) (.equal (.var 0) (.var 1))))]
 
+/-- A grandchild uses the parent's allocated pool. Exact and singleton
+scopes keep their direct representation, as does an unrepresentable pool. -/
+def scopeTree (width : Nat) : Module :=
+  ⟨⟨[{}, { parent := some 0 }, { parent := some 1 }, { parent := some 0 },
+       { parent := some 0 }], []⟩, [],
+   ⟨.run, .truth, [⟨15, false⟩, ⟨4, false⟩, ⟨2, false⟩, ⟨3, true⟩, ⟨1, false⟩], width⟩⟩
+
+example : (allocationScopes (scopeTree 5)).toList =
+    [⟨15, false⟩, ⟨15, false⟩, ⟨15, false⟩, ⟨3, true⟩, ⟨1, false⟩] := by decide
+example : (allocationScopes (scopeTree 2)).toList = (scopeTree 2).command.scopes := by decide
+
 def labels : List String := ["same", "same", "sig", "always", "eventually", "var", "Int",
   "cc0", "cc1", "cc2", "Zażółć 🦉", "x\n} run {} //", "/* */", "", "a-b"]
 
@@ -71,6 +82,9 @@ def hostileNames (m : Module) : Names :=
    m.schema.fields.zipIdx.map (fun (_, i) => some ⟨labels[(i + 3) % labels.length]!, none, none, none⟩)⟩
 
 def negativeParses : List String := [
+  "sig cc0 { }\nfact limit_cc0 { # cc0 <= 2 }\nrun { ( no none ) } for 3 Int , 4 cc0\n",
+  "sig cc0 { }\nfact limit_cc0 { # cc0 <= 2 }\nrun { ( no none ) } for 5 Int , exactly 4 cc0\n",
+  "sig cc0 { }\nfact limit_cc4 { # cc0 <= 2 }\nrun { ( no none ) } for 5 Int , 4 cc0\n",
   "set sig cc0 { }\nrun { ( no none ) } for 4 Int , 1 cc0\n", -- illegal signature keyword
   "run { no none } for 4 Int\n", -- lost required grouping
   "sig cc0 { }\nsig cc0 { }\nrun { ( no none ) } for 4 Int , 1 cc0\n", -- alias

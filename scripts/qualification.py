@@ -213,7 +213,8 @@ def runtime(args):
     _, _, analyzer = oracle.load_tools(args.tools, api)
     write(output/'analyzer-identity.json', analyzer['identity'])
     measure([analyzer['java'].with_name('javac'), '--release', '17', '-cp', analyzer['jar'],
-        '-d', output, ROOT/'scripts/qualification/BoundsAudit.java'], output, 'bounds-audit-build')
+        '-d', output, ROOT/'scripts/qualification/BoundsAudit.java',
+        ROOT/'scripts/comparison/ScopeLimits.java'], output, 'bounds-audit-build')
     compiler = ROOT/'.lake/build/bin/clafer-compiler'
     write(output/'binaries.json', {'compiler': sha(compiler), 'probe': sha(probe), 'haskell': sha(haskell)})
     results = []
