@@ -174,7 +174,7 @@ def build_haskell(work, output):
     # Check the extracted library sources against the immutable archive, not just
     # the previously built exporter receipt.
     archive = work/'compiler.tar.gz'
-    if sha(archive)['sha256'] != api['protocol'].ARCHIVE:
+    if sha(archive)['sha256'] != api['runtime'].current.ARCHIVE:
         raise ValueError('Wrong Haskell source archive')
     with tarfile.open(archive) as packed:
         for item in packed.getmembers():

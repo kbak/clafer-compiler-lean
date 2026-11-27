@@ -76,9 +76,9 @@ def prepare(static_tools, rich_tools, capture_cache, choco_source, java_home, ma
             if (original/name).is_file(): shutil.copyfile(original/name, cache/name)
         if (original/'stack-root').is_dir():
             (cache/'stack-root').symlink_to(original/'stack-root', target_is_directory=True)
-        r, p = api['runtime'], api['protocol']
-        r.download(f'https://codeload.github.com/gsdlab/clafer/tar.gz/{p.PIN}',
-                   cache/'compiler.tar.gz', p.ARCHIVE)
+        r = api['runtime']
+        r.download(f'https://codeload.github.com/gsdlab/clafer/tar.gz/{r.current.PIN}',
+                   cache/'compiler.tar.gz', r.current.ARCHIVE)
         r.download('https://github.com/commercialhaskell/stack/releases/download/v3.11.1/'
                    'stack-3.11.1-linux-x86_64.tar.gz', cache/'stack.tar.gz', r.STACK_ARCHIVE)
         if not r.matches(cache/'stack', r.STACK_BINARY):
@@ -95,7 +95,7 @@ def prepare(static_tools, rich_tools, capture_cache, choco_source, java_home, ma
     require(oracle.digest(static['exporter']) == static['exporter_identity']
             and oracle.digest(static['build']) == static['build_identity'], 'Static tools changed during setup')
     require(api['runtime'].valid_runtime(cache/'clafer-capture', cache/'build.json'), 'Invalid capture cache')
-    require(oracle.digest(cache/'compiler.tar.gz')['sha256'] == api['protocol'].ARCHIVE,
+    require(oracle.digest(cache/'compiler.tar.gz')['sha256'] == api['runtime'].current.ARCHIVE,
             'Wrong Haskell archive')
     with tarfile.open(cache/'compiler.tar.gz') as packed:
         for member in packed.getmembers():

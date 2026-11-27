@@ -21,9 +21,9 @@ no Haskell code or fixtures are redistributed.
 
 | Source | Revision/profile | Role and license |
 | --- | --- | --- |
-| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/51bac9cf986951ff35d2aa5ebc60f5928acf900a) | `51bac9cf986951ff35d2aa5ebc60f5928acf900a` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
+| [Clafer Semantics](https://github.com/kbak/clafer-semantics/tree/2dc5998f43ce45ad32d77abed1acd7547e2dc0f5) | `2dc5998f43ce45ad32d77abed1acd7547e2dc0f5` | Installed Lake dependency; [MIT, Kacper Bak](https://github.com/kbak/clafer-semantics/blob/6d04d6c856a8b86fafa58ff8f9d8ddc898bbd0f4/LICENSE). The manifest retains this commit and its inherited dependencies. |
 | [Haskell Clafer release](https://github.com/gsdlab/clafer/tree/dbc06d37ef23eb9186d1016e3bf678858621e92d) | `dbc06d37ef23eb9186d1016e3bf678858621e92d` | Structural and behavioral comparison/compiler/grammar baseline and release corpus; [MIT, GSD Lab and ISD Lab](https://github.com/gsdlab/clafer/blob/dbc06d37ef23eb9186d1016e3bf678858621e92d/LICENSE). External validation only. |
-| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/51bac9cf986951ff35d2aa5ebc60f5928acf900a/lean-toolchain): `leanprover/lean4:v4.36.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/51bac9cf986951ff35d2aa5ebc60f5928acf900a/lakefile.toml): `fc4f59e577feb1a4956671bc04ac18aaaf8cd842` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
+| Lean and Mathlib | Upstream [toolchain](https://github.com/kbak/clafer-semantics/blob/2dc5998f43ce45ad32d77abed1acd7547e2dc0f5/lean-toolchain): `leanprover/lean4:v4.36.0`; [Mathlib revision](https://github.com/kbak/clafer-semantics/blob/2dc5998f43ce45ad32d77abed1acd7547e2dc0f5/lakefile.toml): `fc4f59e577feb1a4956671bc04ac18aaaf8cd842` | Selected toolchain and inherited Mathlib pin for the [build](build.md) |
 | Alloy | 6.2.0, source `794226dd07b536fe35c5ca44b529417183cd629b`, Java 17+, SAT4J | External validation profile; upstream [runtime/hash/options](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/alloy_runtime.py) and [bridge](https://github.com/kbak/clafer-semantics/blob/bbf81e44beca6eb6c4ff3f0e87516b15be59676e/scripts/verification/AlloyBridge.java) |
 | IntentBond | `778c9c9c0acd78fb8c63a58c39c1a99992e4807c` | [Requirements pin](../requirements/intentbond.txt), including native Lean comment annotations |
 
@@ -155,6 +155,12 @@ correctness remain separate evidence; the cancelled source-format project is
 not revived by this upgrade.
 
 ## Choco instance source
+
+The Lake dependency and the comparison tools use the same reviewed semantics
+revision. Its [default capture profile](https://github.com/kbak/clafer-semantics/blob/2dc5998f43ce45ad32d77abed1acd7547e2dc0f5/scripts/verification/compiler_profile.py)
+identifies the 0.5.8 structural Haskell producer. The [nested-abstract guard](https://github.com/kbak/clafer-semantics/pull/210)
+classifies the two out-of-fragment [release models](choco-adapter.md#release-corpus)
+before the solver runs. The upstream 0.6.0 capture profile is opt-in.
 
 The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/01078a7eb357deb7dcb7948d31fbf7e529f8d9b0)
 is pinned to `01078a7eb357deb7dcb7948d31fbf7e529f8d9b0` (Clafer backend `0.6.0`,

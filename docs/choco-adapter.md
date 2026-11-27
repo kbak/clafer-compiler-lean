@@ -105,6 +105,13 @@ scope is one. The report records checker verdicts, refusals of the bounds,
 incomplete exact comparisons and elapsed time excluding provisioning. A
 nonzero status calls for inspection of unexpected or inconclusive outcomes.
 
+For the release models [gi67](https://github.com/gsdlab/clafer/blob/a7c58d30a4c04c566e9a53b03d013cff19f192f0/test/positive/gi67-extending-nested-abstract.cfr)
+and [gi78](https://github.com/gsdlab/clafer/blob/a7c58d30a4c04c566e9a53b03d013cff19f192f0/test/positive/gi78-extending-nested-abstract.cfr),
+source admission reports `unsupported:abstract_fragment` before Choco or the
+instance checker runs. The guarded 0.5.8 producer records a shortened supertype
+annotation for a nested abstract declaration. The importer still rejects forged
+hierarchies within the supported fragment.
+
 ## How an instance reaches the checker
 
 The adapter keeps the original model alongside the explicit Choco input so the
