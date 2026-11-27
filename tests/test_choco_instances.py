@@ -69,6 +69,17 @@ class ChocoTests(unittest.TestCase):
                 for line in expected_lines:
                     self.assertIn(line, result.stdout)
 
+        model.write_text('//# OPTIONS --tl=3\nEntry *\n[always some Entry]\n')
+        for option, integer_range in [('--maxint=63', '-64..63'), ('--minint=-128', '-128..127')]:
+            with self.subTest(option=option):
+                result = subprocess.run([*command, '-jar', jar, '--file', model, '--repl',
+                                         '--diff', '--scope=3', option],
+                                        input='c\nq\n', cwd=work, capture_output=True,
+                                        text=True, timeout=30, check=True)
+                self.assertIn('--- State 0 ---\n+ Entry', result.stdout)
+                self.assertIn(f'Integer range = {integer_range} ', result.stdout)
+                self.assertIn('Global scope  = 3', result.stdout)
+
     def test_generated_controls_and_counts(self):
         bag, no_set, distinct = [self.results[n] for n in ('bag','set','set-distinct')]
         for value in (bag, distinct):
