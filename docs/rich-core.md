@@ -158,7 +158,7 @@ Lean bounds separately. Authored source directives remain outside this profile.
 
 ## Java toolchain compatibility
 
-The [Java 0.6.0 frontend](https://github.com/gsdlab/chocosolver/blob/591cbd5963fc7ee0cb4c514ee1f6273327898798/frontend/src/main/java/org/clafer/frontend/ClaferCommand.java)
+The [Java 0.6.0 frontend](https://github.com/gsdlab/chocosolver/blob/01078a7eb357deb7dcb7948d31fbf7e529f8d9b0/frontend/src/main/java/org/clafer/frontend/ClaferCommand.java)
 produces the same rich and core text as the pinned Haskell compiler on the
 [shared fixtures](../tests/test_rich_reference.py) when compiling original source.
 Lean accepts the bodies with the separately supplied bounds and can replay the
@@ -172,9 +172,11 @@ the direct core output. The same Java diagnostic applies to several other rich
 constructs, including enumerations and transitions. Use original source with
 Java or the pinned Haskell compiler for rich-to-core replay.
 
-The [solution generator](https://github.com/gsdlab/chocosolver/tree/591cbd5963fc7ee0cb4c514ee1f6273327898798)
+The [solution generator](https://github.com/gsdlab/chocosolver/tree/01078a7eb357deb7dcb7948d31fbf7e529f8d9b0)
 routes static models to Choco, including decimal objectives, and temporal models
-to Alloy. The [checked instance adapter](choco-adapter.md) compares the guarded
+to Alloy. On temporal inputs, `--scope` sets the initial global scope and
+`--minint` and `--maxint` select a sufficient signed Alloy bitwidth.
+The [checked instance adapter](choco-adapter.md) compares the guarded
 structural fragment. The [VS Code extension](https://github.com/gsdlab/clafer-vscode/blob/26045bf0870395d6f0b744966ee048169c6fd187/extension.js)
 uses the Java language server, runs Haskell `clafer` for compilation and exposes
 separate `claferIG` and `clafersg` generation commands.

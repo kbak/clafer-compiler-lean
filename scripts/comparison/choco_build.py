@@ -14,7 +14,7 @@ import oracle
 import rich
 
 HERE = Path(__file__).resolve().parent
-PIN = '591cbd5963fc7ee0cb4c514ee1f6273327898798'
+PIN = '01078a7eb357deb7dcb7948d31fbf7e529f8d9b0'
 
 
 def require(condition, message):
