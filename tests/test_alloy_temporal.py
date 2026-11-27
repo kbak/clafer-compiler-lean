@@ -102,12 +102,21 @@ class AlloyTemporalTests(unittest.TestCase):
                 (case_dir / 'model.als').write_bytes(raw)
                 cases.append((path, case_dir, request))
 
+        # Negative "lonce P between Q and R" and "lonce P after Q until R"
+        # duplicate nested until operands. Both fixed traces need extra time
+        # in Alloy's translation to SAT on hosted runners.
+        expanded_lonce = {f'full-pattern-2-{scope}-{good}-false'
+                          for scope in (3, 4) for good in ('true', 'false')}
+        self.assertTrue(expanded_lonce.issubset({path.stem for path in files}))
+        cases.sort(key=lambda case: case[0].stem not in expanded_lonce)
+
         def solve(case):
             path, case_dir, request = case
             scalar_fields = path.with_suffix('.integer-fields').read_text().splitlines()
             # Full-profile expression expansion needs room for Alloy's parsed
             # types as well as bounded solving; retain every original witness.
-            result = temporal.solve(runtime, api, case_dir, request, timeout=120,
+            deadline = 360 if path.stem in expanded_lonce else 120
+            result = temporal.solve(runtime, api, case_dir, request, timeout=deadline,
                                     heap_mb=1024, integer_fields=scalar_fields)
             oracle.write(case_dir / 'result.json', result)
             return result
