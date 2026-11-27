@@ -381,8 +381,8 @@ class OracleTests(unittest.TestCase):
         build = self.p.loads(self.build.read_bytes())
         self.assertEqual("clafer-oracle-profile/1", profile["schema"])
         self.assertEqual(oracle.SEMANTICS, profile["semantics_commit"])
-        self.assertEqual(self.p.PIN, profile["haskell_commit"])
-        self.assertEqual(self.p.VERSION, profile["haskell_version"])
+        self.assertEqual(self.api["runtime"].current.PIN, profile["haskell_commit"])
+        self.assertEqual(self.api["runtime"].current.VERSION, profile["haskell_version"])
         self.assertEqual(self.api["alloy_runtime"].JAR_SHA, profile["alloy_jar_sha256"])
         for field, key in (("stack", "stack_version"), ("ghc", "ghc_version"), ("resolver", "resolver")):
             self.assertEqual(profile[field], build[key])

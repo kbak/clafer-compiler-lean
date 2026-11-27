@@ -184,6 +184,27 @@ class ChocoTests(unittest.TestCase):
         self.assertEqual([result[k] for k in ('generated','decoded','checked','violates')], [1,1,1,1])
         self.assertEqual(result['instances'][0]['exact'], 'agree_violates')
 
+    def test_nested_abstract_release_models_stop_at_source_admission(self):
+        models = self.runtime.rich_binary.parent/'test/positive'
+        for issue, target in [(67, 'Hook'), (78, 'Hand')]:
+            with self.subTest(issue=issue):
+                source = models/f'gi{issue}-extending-nested-abstract.cfr'
+                output = self.output/source.stem
+                ids = ['Person', 'Hook', 'Hand', 'CptHookHand', 'CptHandHook',
+                       'CptHookHand__left', 'CptHookHand__right', 'CptHandHook__left', 'CptHandHook__right']
+                if issue == 78:
+                    ids.append('Object')
+                bounds = dict.fromkeys(ids, 4) | {'root': 1}
+                result = choco.run_case(self.runtime, source, bounds, output, limit=1)
+                self.assertEqual(result['status'], 'unsupported', result)
+                self.assertIsNone(result['generated'])
+                self.assertEqual(result['checked'], 0)
+                admission = json.loads((output/'admission/result.json').read_text())
+                self.assertEqual((admission['status'], admission['code'], admission['detail']),
+                                 ('unsupported', 'abstract_fragment', target))
+                self.assertIsNone(admission['solver'])
+                self.assertIsNone(admission['checker'])
+
     def test_admission_and_operational_failures(self):
         for index, source in enumerate(('A\n[A]\n', '//# OPTIONS --explicit\nA\n',
                                         'A -> integer\n', '[choco| ignored |]\nA\n')):

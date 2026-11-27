@@ -17,7 +17,7 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
-SEMANTICS = "51bac9cf986951ff35d2aa5ebc60f5928acf900a"
+SEMANTICS = "2dc5998f43ce45ad32d77abed1acd7547e2dc0f5"
 UPSTREAM = ROOT / ".lake/packages/clafer"
 PROFILE = ROOT / "scripts/oracles/profile.json"
 CORPUS = ROOT / "tests/fixtures/oracles/inventory.json"
@@ -101,7 +101,7 @@ def prepare(output):
     output.mkdir(parents=True, exist_ok=False)
     api = adapters()
     share_checker_dependencies()
-    runtime, p = api["runtime"], api["protocol"]
+    runtime = api["runtime"]
     for name in ("CLAFER_CAPTURE_CACHE", "CLAFER_ALLOY_CACHE", "CLAFER_CAPTURE",
                  "CLAFER_CAPTURE_BUILD", "CLAFER_ALLOY_JAR", "CLAFER_JAVA_HOME"):
         if name in os.environ:
@@ -111,13 +111,13 @@ def prepare(output):
     alloy = api["alloy_runtime"].prepare()
     external(alloy["jar"])
     archive = output / "compiler.tar.gz"
-    runtime.download(f"https://codeload.github.com/gsdlab/clafer/tar.gz/{p.PIN}", archive, p.ARCHIVE)
+    runtime.download(f"https://codeload.github.com/gsdlab/clafer/tar.gz/{runtime.current.PIN}", archive, runtime.current.ARCHIVE)
     # Retain source dependency declarations and notices without vendoring code.
     with tarfile.open(archive) as packed:
         for name in ("LICENSE", "stack.yaml", "clafer.cabal", "src/Language/Clafer.hs"):
             destination = output / "haskell" / name
             destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_bytes(packed.extractfile(f"clafer-{p.PIN}/{name}").read())
+            destination.write_bytes(packed.extractfile(f"clafer-{runtime.current.PIN}/{name}").read())
     notices = {}
     with zipfile.ZipFile(alloy["jar"]) as jar:
         for name in jar.namelist():
