@@ -186,8 +186,10 @@ jobs:
       - name: Prepare static comparison tools and runtime isolation
         if: inputs.profile != 'routine'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libgmp-dev bubblewrap apparmor
+          # These packages come from the Ubuntu 24.04 distribution repositories.
+          ubuntu_sources=(-o Dir::Etc::sourcelist=sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=-)
+          sudo apt-get "${ubuntu_sources[@]}" update
+          sudo apt-get "${ubuntu_sources[@]}" install -y --no-install-recommends libgmp-dev bubblewrap apparmor
           sudo install -Dm755 /usr/bin/bwrap /usr/local/lib/clafer-ci/bwrap
           sudo install -m644 .github/ci/bwrap.apparmor /etc/apparmor.d/clafer-ci-bwrap
           sudo apparmor_parser --replace /etc/apparmor.d/clafer-ci-bwrap
@@ -407,6 +409,17 @@ jobs:
         with:
           path: ${{ runner.temp }}/lean-cache
           key: ${{ steps.lean-artifacts.outputs.cache-primary-key }}
+      - name: Pack oracle evidence
+        if: always()
+        run: |
+          if [[ -d "$RUNNER_TEMP/oracle-evidence" ]]; then
+            # Preserve Clafer spellings such as := and 2..* inside the archive.
+            tar -C "$RUNNER_TEMP" --exclude='.*' --exclude='*.class' \
+              --exclude=api-tests --exclude=arithmetic-tests --exclude=alloy-text-tests \
+              --exclude=comparison-native --exclude=constraints --exclude=expression-tests \
+              --exclude=parser --exclude=resolve --exclude=stage-probe \
+              -czf "$RUNNER_TEMP/oracle-evidence.tar.gz" oracle-evidence
+          fi
       - name: Retain evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -449,16 +462,6 @@ jobs:
             ${{ runner.temp }}/clafer-temporal/build.json
             ${{ runner.temp }}/clafer-temporal/build.log
             ${{ runner.temp }}/clafer-temporal/source-files.json
-            ${{ runner.temp }}/oracle-evidence/
+            ${{ runner.temp }}/oracle-evidence.tar.gz
             !${{ runner.temp }}/oracle-tools/compiler.tar.gz
-            !${{ runner.temp }}/oracle-evidence/**/api-tests
-            !${{ runner.temp }}/oracle-evidence/**/arithmetic-tests
-            !${{ runner.temp }}/oracle-evidence/**/alloy-text-tests
-            !${{ runner.temp }}/oracle-evidence/**/comparison-native
-            !${{ runner.temp }}/oracle-evidence/**/constraints
-            !${{ runner.temp }}/oracle-evidence/**/expression-tests
-            !${{ runner.temp }}/oracle-evidence/**/parser
-            !${{ runner.temp }}/oracle-evidence/**/resolve
-            !${{ runner.temp }}/oracle-evidence/**/stage-probe
-            !${{ runner.temp }}/oracle-evidence/**/*.class
           retention-days: 30
