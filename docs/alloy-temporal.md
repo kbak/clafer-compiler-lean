@@ -232,9 +232,13 @@ The temporal oracle bridge applies the pinned Analyzer's different static/mutabl
 `one`/`lone` scope rules; replacement tests exercise both mutable multiplicities.
 Every generated module is parsed and solved by the actual pinned Alloy 6.2.0
 runtime with SAT4J and `noOverflow`. Python's standard `ThreadPoolExecutor`,
-already used by the PR113 corpus, runs at most two independent cases at once.
-Each case keeps its own fresh JVM and evidence directory, with a 120-second
-deadline, 1024 MiB heap and 3072 MiB address-space limit. The heap accommodates
+already used by the PR113 corpus, runs independent cases up to the configured
+worker and CPU limits. Each case has its own JVM and evidence directory, a
+1024 MiB heap and a 3072 MiB address-space limit. The query deadline is 120
+seconds. The four negated `lonce` witnesses for the `between` and `after until`
+scopes start first and have a 360-second deadline because their nested until
+expansions take longer to translate and solve. A timeout fails the check for
+every witness. The heap accommodates
 the parsed types of expanded full-profile expressions; the runtime receipt
 records these limits. Assertions run on the main test thread. This adds no dependency or
 solver protocol. Named semantic cases have independently chosen
