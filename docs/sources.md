@@ -156,8 +156,8 @@ not revived by this upgrade.
 
 ## Choco instance source
 
-The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/591cbd5963fc7ee0cb4c514ee1f6273327898798)
-is pinned to `591cbd5963fc7ee0cb4c514ee1f6273327898798` (Clafer backend `0.6.0`,
+The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/01078a7eb357deb7dcb7948d31fbf7e529f8d9b0)
+is pinned to `01078a7eb357deb7dcb7948d31fbf7e529f8d9b0` (Clafer backend `0.6.0`,
 Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco-adapter.md#adapter-assessment)
 records the reuse and representation boundary. `ast/ToAst.java`,
 `scope/ScopeFile.java`, `instance/InstanceClafer.java`, `instance/InstanceModel.java`

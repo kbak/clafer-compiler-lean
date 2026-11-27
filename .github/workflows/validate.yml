@@ -227,7 +227,7 @@ jobs:
         if: inputs.profile == 'compiler' || inputs.profile == 'full' || inputs.profile == 'source'
         run: |
           git clone https://github.com/gsdlab/chocosolver.git "$RUNNER_TEMP/choco-source"
-          git -C "$RUNNER_TEMP/choco-source" checkout --detach 591cbd5963fc7ee0cb4c514ee1f6273327898798
+          git -C "$RUNNER_TEMP/choco-source" checkout --detach 01078a7eb357deb7dcb7948d31fbf7e529f8d9b0
           pin=$(python3 -c 'import json; print(json.load(open("scripts/oracles/profile.json"))["haskell_commit"])')
           python3 scripts/comparison/choco_build.py --rich-tools "$CLAFER_RICH_TOOLS" --static-tools "$CLAFER_ORACLE_TOOLS" \
             --capture-cache "$CLAFER_CAPTURE_CACHE/$pin" --choco-source "$RUNNER_TEMP/choco-source" \
