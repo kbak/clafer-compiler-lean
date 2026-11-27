@@ -96,6 +96,9 @@ if all(present):
     # concurrent solver and Lean workloads. Its full suite remains mandatory.
     if not compiler_ci:
         results.append(timed('--behavioral-cli-worker', isolated, '--behavioral-cli-worker'))
+    # Temporal witnesses already occupy up to worker_count single-CPU JVMs.
+    # Give their per-query deadlines the same isolation as the reference corpus.
+    results.append(timed('--temporal-target-worker', isolated, '--temporal-target-worker'))
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         remaining = unittest.TestSuite(t for t in all_cases
                                        if t.__class__.__module__ not in ISOLATED_MODULES)
@@ -105,7 +108,8 @@ if all(present):
                                                        '--behavioral-source-worker')]
         futures.append(pool.submit(timed, 'remaining', run, remaining))
         futures.extend(pool.submit(timed, flag, isolated, flag) for flag in ISOLATED_GROUPS
-                       if flag not in {'--pr113-worker','--behavioral-cli-worker','--behavioral-source-worker'})
+                       if flag not in {'--pr113-worker', '--behavioral-cli-worker',
+                                       '--behavioral-source-worker', '--temporal-target-worker'})
         results.extend(future.result() for future in futures)
     raise SystemExit(0 if all(results) else 1)
 raise SystemExit(0 if run(unittest.TestSuite(all_cases)) else 1)
