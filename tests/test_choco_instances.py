@@ -2,6 +2,7 @@
 import copy
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -31,6 +32,42 @@ class ChocoTests(unittest.TestCase):
         cls.core = json.loads((cls.bag/'core.json').read_text())
         cls.bounds = dict(root=1, Target=1, refs=2)
         cls.raw = (cls.bag/'raw.xml').read_bytes()
+
+    def test_java_release_commands(self):
+        work = self.output/'java-commands'
+        work.mkdir()
+        java = Path(self.runtime.tools['java_home'])/'bin/java'
+        jar = self.runtime.directory/'chocosolver.jar'
+        # A delegation would fail, so successful output identifies the Java path.
+        command = [java, f'-Dclafer.executable={work}/no-haskell']
+        model = work/'model.cfr'
+        source = 'P ?\n  [X (X (initially (1 = 0)))]\n'
+        model.write_text(source)
+        for core in (False, True):
+            with self.subTest(core=core):
+                form = 'core' if core else 'rich'
+                expected = choco.choco_build.rich.capture(self.runtime.rich_binary,
+                    work/form, source, core=core)
+                args = ['--core'] if core else []
+                actual = subprocess.run([*command, '-cp', jar, 'org.clafer.frontend.ClaferCommand',
+                    '-m', 'clafer', '-o', '-s', '-k', *args, model],
+                    cwd=work, capture_output=True, text=True, timeout=30, check=True)
+                self.assertEqual(actual.stdout, expected)
+
+        cases = [
+            ('price -> decimal\n[price = 1.25 || price = 2.50]\nquality -> integer\n'
+             '[quality = 1 || quality = 2]\n<< minimize price >>\n<< maximize quality >>\n',
+             ['--moo'], ['price -> decimal = 1.25', 'quality -> int = 2', '1 optimal instance']),
+            ('//# OPTIONS --tl=3\nA ?\n[always some A]\n', [],
+             ['--- State 0 ---\nA', '--- Loop back to state 0 ---', '1 trace(s)']),
+        ]
+        for text, options, expected_lines in cases:
+            with self.subTest(expected=expected_lines):
+                model.write_text(text)
+                result = subprocess.run([*command, '-jar', jar, '--file', model, '-n', '1', *options],
+                    cwd=work, capture_output=True, text=True, timeout=30, check=True)
+                for line in expected_lines:
+                    self.assertIn(line, result.stdout)
 
     def test_generated_controls_and_counts(self):
         bag, no_set, distinct = [self.results[n] for n in ('bag','set','set-distinct')]

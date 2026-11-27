@@ -14,7 +14,7 @@ Java 17 runtime. All paths below are external work directories chosen by the use
 ```sh
 choco_work=$(mktemp -d)
 git clone https://github.com/gsdlab/chocosolver.git "$choco_work/source"
-git -C "$choco_work/source" checkout --detach 15af19a3c7cc4893fd61539160ca0a25281066e8
+git -C "$choco_work/source" checkout --detach 591cbd5963fc7ee0cb4c514ee1f6273327898798
 # Set JAVA21_HOME to the installed Java 21 JDK.
 # Set CLAFER_CAPTURE_BUILD_CACHE to the directory containing the static build.json.
 python3 scripts/comparison/choco_build.py --rich-tools "$CLAFER_RICH_TOOLS" --static-tools "$CLAFER_ORACLE_TOOLS" \

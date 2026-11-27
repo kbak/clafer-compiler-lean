@@ -44,8 +44,8 @@ class RichReferenceTests(unittest.TestCase):
                             self.assertIn(quantifier, text)
                         self.assertLess(text.index('[some P]'), text.index('0..* Q'))
                 elif i == 6:
-                    # Candidate discrepancy with nested semantic birth, kbak/clafer-semantics#204.
-                    self.assertIn('[X (X ((!(previous (some this))) => (1 = 0)))]', core)
+                    # Nested next can reach an absent context. Birth requires presence now.
+                    self.assertIn('[X (X (((some this) && (!(previous (some this)))) => (1 = 0)))]', core)
                 elif i == 7:
                     self.assertLess(core.index('Tools 0..* {}'), core.index('[(('))
                     self.assertIn('(#Tools) >= 3', core)

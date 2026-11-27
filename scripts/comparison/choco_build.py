@@ -14,7 +14,7 @@ import oracle
 import rich
 
 HERE = Path(__file__).resolve().parent
-PIN = '15af19a3c7cc4893fd61539160ca0a25281066e8'
+PIN = '591cbd5963fc7ee0cb4c514ee1f6273327898798'
 
 
 def require(condition, message):
@@ -113,7 +113,7 @@ def prepare(static_tools, rich_tools, capture_cache, choco_source, java_home, ma
         output, 'choco-build', cwd=source, env=env)
     require(checked_source(source) == before, 'Choco sources changed during build')
     jar = output/'chocosolver.jar'
-    shutil.copyfile(source/'solver/target/chocosolver-0.6.0-jar-with-dependencies.jar', jar)
+    shutil.copyfile(source/'solver/target/clafersg-0.6.0-jar-with-dependencies.jar', jar)
     (output/'classes').mkdir()
     run([java_home/'bin/javac', '--release', '21', '-cp', jar, '-d', output/'classes',
          HERE/'ChocoInstances.java'], output, 'bridge-build')
