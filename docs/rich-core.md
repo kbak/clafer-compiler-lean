@@ -134,7 +134,7 @@ analogy of progressively lowered representations; this implementation uses the
 repository's existing typed IR and proofs rather than introducing MLIR itself.
 
 The [Haskell candidate profile](../scripts/oracles/rich-profile.json) pins
-`gsdlab/clafer@6f3911a9d823ecd647f14168436656c08a4f24d8`, its source archive,
+`gsdlab/clafer@a7c58d30a4c04c566e9a53b03d013cff19f192f0`, its source archive,
 resolver, lock, Stack/GHC and reference solver settings. `scripts/oracles/rich.py`
 builds and validates that candidate separately. Fresh reference tests exercise
 its rich/core `.cfr` fixed points, rich-to-core lowering and JSON generation.
@@ -146,12 +146,35 @@ On the release fixtures, lowering the printed rich model gives the same core
 text as lowering the original source. Both printers retain written cardinality
 quantifiers and source order. Top-level abstract bounds lower to a counting
 constraint, while nested abstract bounds stay on their declaration. The
-release compiler currently prints `!(previous (some this))` as the birth guard
-under nested temporal operators. This fires on two consecutive absent states.
-Agreement with the lifetime semantics requires current presence as well.
-[Release lowering](https://github.com/gsdlab/clafer/blob/6f3911a9d823ecd647f14168436656c08a4f24d8/src/Language/Clafer/Intermediate/Core.hs#L202-L221).
+[0.6.0 birth guard](https://github.com/gsdlab/clafer/blob/a7c58d30a4c04c566e9a53b03d013cff19f192f0/src/Language/Clafer/Intermediate/Core.hs#L292-L308)
+requires current presence and absence in the previous state for a nested context.
+This excludes the second of two consecutive absent states under nested next
+operators. The root specialization assumes a live root.
 
 The shared examples also exercise Haskell output through Lean's source frontend
 and independent Lean core replay. The fixture adapter recognizes the generated
 `--explicit` header, `--core` on core output and optional `--tl=10`. It supplies
 Lean bounds separately. Authored source directives remain outside this profile.
+
+## Java toolchain compatibility
+
+The [Java 0.6.0 frontend](https://github.com/gsdlab/chocosolver/blob/591cbd5963fc7ee0cb4c514ee1f6273327898798/frontend/src/main/java/org/clafer/frontend/ClaferCommand.java)
+produces the same rich and core text as the pinned Haskell compiler on the
+[shared fixtures](../tests/test_rich_reference.py) when compiling original source.
+Lean accepts the bodies with the separately supplied bounds and can replay the
+resulting core JSON.
+
+A saved rich file has a distinct input path. For example, compile
+`P ?` with a nested constraint `[X (X (initially (1 = 0)))]` to rich text, then
+pass that file to `claferc -m clafer --core`. Java treats the input as already
+core and rejects the rich `initially` anchor. Haskell lowers the same file to
+the direct core output. The same Java diagnostic applies to several other rich
+constructs, including enumerations and transitions. Use original source with
+Java or the pinned Haskell compiler for rich-to-core replay.
+
+The [solution generator](https://github.com/gsdlab/chocosolver/tree/591cbd5963fc7ee0cb4c514ee1f6273327898798)
+routes static models to Choco, including decimal objectives, and temporal models
+to Alloy. The [checked instance adapter](choco-adapter.md) compares the guarded
+structural fragment. The [VS Code extension](https://github.com/gsdlab/clafer-vscode/blob/26045bf0870395d6f0b744966ee048169c6fd187/extension.js)
+uses the Java language server, runs Haskell `clafer` for compilation and exposes
+separate `claferIG` and `clafersg` generation commands.

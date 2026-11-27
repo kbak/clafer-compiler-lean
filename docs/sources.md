@@ -156,8 +156,8 @@ not revived by this upgrade.
 
 ## Choco instance source
 
-The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/15af19a3c7cc4893fd61539160ca0a25281066e8)
-is pinned to `15af19a3c7cc4893fd61539160ca0a25281066e8` (Clafer backend `0.6.0`,
+The external [Choco frontend](https://github.com/gsdlab/chocosolver/tree/591cbd5963fc7ee0cb4c514ee1f6273327898798)
+is pinned to `591cbd5963fc7ee0cb4c514ee1f6273327898798` (Clafer backend `0.6.0`,
 Choco solver `6.0.2`, Java `21`, MIT). The [adapter assessment](choco-adapter.md#adapter-assessment)
 records the reuse and representation boundary. `ast/ToAst.java`,
 `scope/ScopeFile.java`, `instance/InstanceClafer.java`, `instance/InstanceModel.java`
@@ -1144,8 +1144,8 @@ checking and initializer core lowering. It preserves the behavioral paper §5,
 Definitions 3–5 and §6.1 attachment/binding rules and explicitly extends past
 syntax. Independent acceptance is tracked in [semantics #189](https://github.com/kbak/clafer-semantics/pull/189).
 
-The supplementary Haskell candidate is
-[6f3911a](https://github.com/gsdlab/clafer/tree/6f3911a9d823ecd647f14168436656c08a4f24d8),
+The supplementary Haskell rich/core reference is
+[the 0.6.0 release-branch compiler](https://github.com/gsdlab/clafer/tree/a7c58d30a4c04c566e9a53b03d013cff19f192f0),
 particularly `doc/rich-and-core-explicit.md`, `Intermediate/Core.hs`,
 `Intermediate/Initializers.hs`, `Intermediate/InitializerChecks.hs`,
 `Generator/AlloyLtl.hs` and `Generator/Explicit.hs`. Its MIT notice was checked;
